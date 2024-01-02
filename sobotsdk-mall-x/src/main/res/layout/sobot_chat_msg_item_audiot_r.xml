@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_real_ll_content"
+    style="@style/sobot_msg_top_bottom_style"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 时间 -->
+    <TextView
+        android:id="@+id/sobot_reminde_time_Text"
+        style="@style/sobot_center_remind_time" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginRight="@dimen/sobot_msg_margin_edge"
+        android:orientation="horizontal"
+        android:layout_marginEnd="@dimen/sobot_msg_margin_edge">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:orientation="vertical">
+            <!-- 昵称 -->
+            <TextView
+                android:id="@+id/sobot_msg_nike_name_tv"
+                style="@style/sobot_chatting_right_nickname"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/ll_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:id="@+id/sobot_frame_layout"
+                    style="@style/sobot_msg_left_empty_bg_style">
+                    <!-- 消息已读未读 -->
+                    <TextView
+                        android:id="@+id/sobot_msg_read_status"
+                        style="@style/sobot_msg_read_status_style"
+                        />
+                    <!-- 消息的状态 -->
+                    <ImageView
+                        android:id="@+id/sobot_msgStatus"
+                        style="@style/sobot_msg_send_status_style"
+                        android:visibility="gone" />
+
+                    <!-- 消息的loading -->
+                    <ProgressBar
+                        android:id="@+id/sobot_msgProgressBar"
+                        style="@style/sobot_msg_send_loading_style"
+                        android:indeterminateDrawable="@drawable/sobot_progressbar_circle_loading"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/dd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/sobot_msg_content_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/sobot_msg_right_content_ll_bg_style"
+                        android:layout_gravity="end"
+                        android:gravity="center_vertical|end"
+                        android:orientation="horizontal">
+
+
+                        <TextView
+                            android:id="@+id/sobot_voiceTimeLong"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:textColor="@color/sobot_common_white"
+                            android:textSize="@dimen/sobot_listview_remind_text_size"
+                            android:visibility="visible" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"/>
+                        <ImageView
+                            android:id="@+id/sobot_iv_voice"
+                            android:layout_width="12dp"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/sobot_pop_voice_send_anime_3"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/sobot_ll_voice_text_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center_vertical"
+                        android:visibility="gone"
+                        android:background="@drawable/sobot_chat_msg_bg_left"
+                        android:paddingEnd="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingBottom="6dp"
+                        android:paddingTop="6dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/sobot_voice_change_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/sobot_common_gray1"
+                            android:textSize="@dimen/sobot_listview_remind_text_size"
+                            android:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/sobot_voice_change_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/sobot_btn_emoticon_view"
+                            android:layout_alignBottom="@+id/sobot_voice_change_text"
+                            android:drawablePadding="5dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_gravity="start"
+                            android:textColor="@color/sobot_common_gray2"
+                            android:textSize="@dimen/sobot_layout_lable_margin_right"
+                            android:visibility="visible" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--头像-->
+        <com.sobot.chat.widget.image.SobotRCImageView
+            android:id="@+id/sobot_msg_face_iv"
+            style="@style/sobot_chatting_right_face_style"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,531 @@
+package com.sobot.chat.viewHolder;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import androidx.annotation.IdRes;
+import androidx.core.content.ContextCompat;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RatingBar;
+import android.widget.TextView;
+
+import com.sobot.chat.R;
+import com.sobot.chat.api.ResultCallBack;
+import com.sobot.chat.api.ZhiChiApi;
+import com.sobot.chat.api.model.Information;
+import com.sobot.chat.api.model.SatisfactionSet;
+import com.sobot.chat.api.model.SatisfactionSetBase;
+import com.sobot.chat.api.model.SobotEvaluateModel;
+import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.notchlib.utils.ScreenUtil;
+import com.sobot.chat.utils.ChatUtils;
+import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.viewHolder.base.MsgHolderBase;
+import com.sobot.chat.widget.SobotAntoLineLayout;
+import com.sobot.chat.widget.SobotTenRatingLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 客服主动邀请客户评价
+ */
+public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGroup.OnCheckedChangeListener, RatingBar.OnRatingBarChangeListener, CompoundButton.OnCheckedChangeListener  {
+    TextView sobot_center_title;
+    RadioGroup sobot_readiogroup;
+    RadioButton sobot_btn_ok_robot;
+    RadioButton sobot_btn_no_robot;
+    TextView sobot_tv_star_title;
+    RatingBar sobot_ratingBar;
+    private LinearLayout sobot_ten_root_ll;//评价  十分全布局
+    private TextView sobot_ten_very_dissatisfied;//评价 非常不满意
+    private TextView sobot_ten_very_satisfaction;//评价  非常满意
+    private SobotTenRatingLayout sobot_ten_rating_ll;//评价  十分 父布局 动态添加10个textview
+    private int ratingType;//评价  类型   0 5星 ；1 十分 默认5星
+    TextView sobot_ratingBar_title;//星星对应描述
+    TextView sobot_submit;//提交
+    View sobot_ratingBar_split_view;//如果有已解决按钮和未解决按钮就显示，否则隐藏；
+    Information information;
+    private LinearLayout sobot_hide_layout;
+    private SobotAntoLineLayout sobot_evaluate_lable_autoline;//评价 标签 自动换行
+    private List<CheckBox> checkBoxList = new ArrayList<>();
+    SobotEvaluateModel sobotEvaluateModel;
+    public ZhiChiMessageBase message;
+
+    private SatisfactionSet mSatisfactionSet;//评价配置信息
+    private List<SatisfactionSetBase> satisFactionList;
+    private int deftaultScore = 0;
+    private int themeColor;
+    private boolean changeThemeColor;
+
+    public CusEvaluateMessageHolder(Context context, View convertView) {
+        super(context, convertView);
+        sobot_center_title = (TextView) convertView.findViewById(R.id.sobot_center_title);
+        sobot_readiogroup = (RadioGroup) convertView.findViewById(R.id.sobot_readiogroup);
+        sobot_btn_ok_robot = (RadioButton) convertView.findViewById(R.id.sobot_btn_ok_robot);
+        sobot_btn_ok_robot.setText(R.string.sobot_evaluate_yes);
+        sobot_btn_no_robot = (RadioButton) convertView.findViewById(R.id.sobot_btn_no_robot);
+        sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
+        sobot_tv_star_title = (TextView) convertView.findViewById(R.id.sobot_tv_star_title);
+        sobot_tv_star_title.setText(R.string.sobot_please_evaluate);
+        sobot_ratingBar = (RatingBar) convertView.findViewById(R.id.sobot_ratingBar);
+        sobot_ten_root_ll = convertView.findViewById(R.id.sobot_ten_root_ll);
+        sobot_ten_very_dissatisfied = convertView.findViewById(R.id.sobot_ten_very_dissatisfied);
+        sobot_ten_very_satisfaction = convertView.findViewById(R.id.sobot_ten_very_satisfaction);
+        sobot_ten_very_dissatisfied.setText(R.string.sobot_very_dissatisfied);
+        sobot_ten_very_satisfaction.setText(R.string.sobot_great_satisfaction);
+
+        sobot_ten_rating_ll = convertView.findViewById(R.id.sobot_ten_rating_ll);
+        sobot_submit = (TextView) convertView.findViewById(R.id.sobot_submit);
+        sobot_submit.setText(R.string.sobot_btn_submit_text);
+        sobot_ratingBar_split_view = convertView.findViewById(R.id.sobot_ratingBar_split_view);
+        sobot_ratingBar_title = (TextView) convertView.findViewById(R.id.sobot_ratingBar_title);
+        sobot_ratingBar_title.setText(R.string.sobot_great_satisfaction);
+        sobot_hide_layout = (LinearLayout) convertView.findViewById(R.id.sobot_hide_layout);
+        sobot_evaluate_lable_autoline = convertView.findViewById(R.id.sobot_evaluate_lable_autoline);
+        changeThemeColor = ThemeUtils.isChangedThemeColor(context);
+        if (changeThemeColor) {
+            themeColor = ThemeUtils.getThemeColor(context);
+            Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_evaluate_commit_selector);
+            drawable = ThemeUtils.applyColorToDrawable(drawable, themeColor);
+            sobot_submit.setBackground(drawable);
+        }
+        sobot_readiogroup.setOnCheckedChangeListener(this);
+        sobot_ratingBar.setOnRatingBarChangeListener(this);
+        sobot_submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ratingType == 0) {
+                    if (satisFactionList != null && satisFactionList.size() == 5
+                            && satisFactionList.get(4).getIsInputMust()) {
+                        //校验5星评价建议是否必填写，如果是，弹出评价pop再去提交
+                        doEvaluate(false, deftaultScore);
+                        return;
+                    }
+                    //校验评5星评价标签是否必选
+                    if (TextUtils.isEmpty(checkBoxIsChecked()) && satisFactionList != null && satisFactionList.size() == 5
+                            && satisFactionList.get(4).getIsTagMust()
+                            && !TextUtils.isEmpty(satisFactionList.get(4).getLabelName()) && !information.isHideManualEvaluationLabels()) {
+                        ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_the_label_is_required));//标签必选
+                        return;
+                    }
+                } else {
+                    if (deftaultScore>=0 && satisFactionList != null && satisFactionList.size() == 11 &&deftaultScore<satisFactionList.size()
+                            && satisFactionList.get(deftaultScore).getIsInputMust()) {
+                        //校验10分评价建议是否必填写，如果是，弹出评价pop再去提交
+                        doEvaluate(false, deftaultScore);
+                        return;
+                    }
+                    //校验评价标签是否必选
+                    if (TextUtils.isEmpty(checkBoxIsChecked()) && satisFactionList != null && satisFactionList.size() == 11 && deftaultScore>=0 && deftaultScore < satisFactionList.size()
+                            && satisFactionList.get(deftaultScore).getIsTagMust()
+                            && !TextUtils.isEmpty(satisFactionList.get(deftaultScore).getLabelName()) && !information.isHideManualEvaluationLabels()) {
+                        ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_the_label_is_required));//标签必选
+                        return;
+                    }
+
+                }
+                if (mSatisfactionSet != null && mSatisfactionSet.getIsQuestionFlag() == 1) {
+                    int tempResolved = -1;
+                    if (sobot_btn_ok_robot.isChecked()) {
+                        tempResolved = 1;
+                    } else if (sobot_btn_no_robot.isChecked()) {
+                        tempResolved = 0;
+                    }
+                    //“问题是否解决”是否为必填选项： 0-非必填 1-必填
+                    if (tempResolved == -1 && mSatisfactionSet.getIsQuestionMust() == 1) {
+                        ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_str_please_check_is_solve));//标签必选
+                        return;
+                    }
+                }
+                // true 直接提交  false 打开评价窗口 显示提交 肯定是5星
+                doEvaluate(true, deftaultScore);
+            }
+        });
+        sobot_ten_rating_ll.setOnClickItemListener(new SobotTenRatingLayout.OnClickItemListener() {
+            @Override
+            public void onClickItem(int selectIndex) {
+                if (sobotEvaluateModel != null && 0 == sobotEvaluateModel.getEvaluateStatus() && selectIndex >= 0) {
+                    //未评价时进行评价
+                    sobotEvaluateModel.setScore(selectIndex);
+                    doEvaluate(false, selectIndex);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void bindData(final Context context, final ZhiChiMessageBase message) {
+        information = (Information) SharedPreferencesUtil.getObject(context, "sobot_last_current_info");
+        if (!information.isHideManualEvaluationLabels()) {
+            sobot_ratingBar_title.setVisibility(View.VISIBLE);
+        } else {
+            sobot_ratingBar_title.setVisibility(View.GONE);
+        }
+        this.message = message;
+        boolean refrashSatisfactionConfig = SharedPreferencesUtil.getBooleanData(mContext,"refrashSatisfactionConfig",false);
+        this.sobotEvaluateModel = message.getSobotEvaluateModel();
+        if(refrashSatisfactionConfig){
+            SharedPreferencesUtil.saveBooleanData(mContext,"refrashSatisfactionConfig",false);
+            satisFactionList=null;
+        }
+        if (satisFactionList == null || satisFactionList.size() == 0) {
+            //2.8.5 获取人工满意度配置信息，默认几星和5星时展示对应标签
+            ZhiChiApi zhiChiApi = SobotMsgManager.getInstance(context).getZhiChiApi();
+            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                    ZhiChiConstant.sobot_last_current_initModel);
+            if (initMode != null ) {
+
+                zhiChiApi.satisfactionMessage(CusEvaluateMessageHolder.this, initMode.getPartnerid(), new ResultCallBack<SatisfactionSet>() {
+                    @Override
+                    public void onSuccess(SatisfactionSet satisfactionSet) {
+                        if (satisfactionSet != null) {
+                            mSatisfactionSet = satisfactionSet;
+                            satisFactionList = satisfactionSet.getList();
+                            sobotEvaluateModel.setIsResolved(satisfactionSet.getDefaultQuestionFlag());
+                            showData();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e, String des) {
+                        sobot_submit.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onLoading(long total, long current, boolean isUploading) {
+                    }
+                });
+            }
+        }else {
+            showData();
+        }
+        refreshReadStatus();
+    }
+    private void showData(){
+        int score = 0;
+        if (mSatisfactionSet.getScoreFlag() == 0) {
+            //defaultType 0-默认5星,1-默认0星
+            score = (mSatisfactionSet.getDefaultType() == 0) ? 5 : 0;
+            deftaultScore = score;
+            sobotEvaluateModel.setScore(deftaultScore);
+            sobot_ratingBar.setRating(deftaultScore);
+            sobot_ten_root_ll.setVisibility(View.GONE);
+            sobot_ratingBar.setVisibility(View.VISIBLE);
+            ratingType = 0;//5星
+            if(mSatisfactionSet.getDefaultType() == 0 && score>0) {
+                sobot_submit.setVisibility(View.VISIBLE);
+            }
+        } else {
+            sobot_ten_root_ll.setVisibility(View.VISIBLE);
+            sobot_ratingBar.setVisibility(View.GONE);
+            ratingType = 1;//十分
+            //0-10分，1-5分，2-0分，3-不选中
+            if (mSatisfactionSet.getDefaultType() == 2) {
+                score = 0;
+            } else if (mSatisfactionSet.getDefaultType() == 1) {
+                score = 5;
+            } else if (mSatisfactionSet.getDefaultType() == 3) {
+                score = -1;
+            } else {
+                score = 10;
+            }
+            if(mSatisfactionSet.getDefaultType() != 3) {
+                sobot_submit.setVisibility(View.VISIBLE);
+            }
+            deftaultScore = score;
+            sobotEvaluateModel.setScore(deftaultScore);
+            if(sobot_ten_rating_ll.isInit()) {
+                sobot_ten_rating_ll.init(score, false, 34);
+            }
+        }
+
+
+        if (ratingType == 0) {
+            if (0 == score) {
+                sobot_hide_layout.setVisibility(View.GONE);
+                sobot_ratingBar_title.setText(R.string.sobot_evaluate_zero_score_des);
+                sobot_ratingBar_title.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_common_gray3));
+            } else {
+                //根据infomation 配置是否隐藏人工评价标签
+                if (!information.isHideManualEvaluationLabels()) {
+                    sobot_hide_layout.setVisibility(View.VISIBLE);
+                } else {
+                    sobot_hide_layout.setVisibility(View.GONE);
+                }
+                sobot_ratingBar_title.setText(satisFactionList.get(4).getScoreExplain());
+                sobot_ratingBar_title.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_evaluate_ratingBar_des_tv));
+            }
+        } else {
+            //根据infomation 配置是否隐藏人工评价标签
+            if (!information.isHideManualEvaluationLabels()) {
+                sobot_hide_layout.setVisibility(View.VISIBLE);
+            } else {
+                sobot_hide_layout.setVisibility(View.GONE);
+            }
+            if (-1 == score) {
+                sobot_hide_layout.setVisibility(View.GONE);
+                sobot_ratingBar_title.setText(R.string.sobot_evaluate_zero_score_des);
+                sobot_ratingBar_title.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_common_gray3));
+            } else {
+                sobot_ratingBar_title.setText(satisFactionList.get(deftaultScore).getScoreExplain());
+                sobot_ratingBar_title.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_evaluate_ratingBar_des_tv));
+            }
+        }
+
+
+        SatisfactionSetBase satisfactionSetBase = getSatisFaction(score, satisFactionList);
+        if (satisfactionSetBase != null && !TextUtils.isEmpty(satisfactionSetBase.getLabelName())) {
+            String tmpData[] = convertStrToArray(satisfactionSetBase.getLabelName());
+            setLableViewVisible(tmpData);
+        } else {
+            setLableViewVisible(null);
+        }
+
+        sobot_center_title.setText(message.getSenderName() + " " + mContext.getResources().getString(R.string.sobot_question));
+        sobot_tv_star_title.setText(message.getSenderName() + " " + mContext.getResources().getString(R.string.sobot_please_evaluate));
+
+        checkQuestionFlag();
+        refreshItem();
+
+    }
+    /**
+     * 检查是否开启   是否已解决配置
+     */
+    private void checkQuestionFlag() {
+        if (sobotEvaluateModel == null) {
+            return;
+        }
+        if (ChatUtils.isQuestionFlag(sobotEvaluateModel)) {
+            //是否已解决开启
+            sobot_center_title.setVisibility(View.VISIBLE);
+            sobot_readiogroup.setVisibility(View.VISIBLE);
+            sobot_ratingBar_split_view.setVisibility(View.VISIBLE);
+
+        } else {
+            //是否已解决关闭
+            sobot_center_title.setVisibility(View.GONE);
+            sobot_readiogroup.setVisibility(View.GONE);
+            sobot_ratingBar_split_view.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
+     * 根据是否已经评价设置UI
+     */
+    public void refreshItem() {
+        if (sobotEvaluateModel == null) {
+            return;
+        }
+        if (0 == sobotEvaluateModel.getEvaluateStatus()) {
+            //未评价
+            setNotEvaluatedLayout();
+        } else if (1 == sobotEvaluateModel.getEvaluateStatus()) {
+            //已评价
+            setEvaluatedLayout();
+        }
+    }
+
+    private void setEvaluatedLayout() {
+        if (sobot_readiogroup.getVisibility() == View.VISIBLE) {
+            sobot_btn_ok_robot.setVisibility(View.VISIBLE);
+            sobot_btn_no_robot.setVisibility(View.VISIBLE);
+            if (sobotEvaluateModel.getIsResolved() == 0) {
+                sobot_btn_ok_robot.setChecked(false);
+                sobot_btn_no_robot.setChecked(true);
+            } else if(sobotEvaluateModel.getIsResolved() == 1){
+                sobot_btn_ok_robot.setChecked(true);
+                sobot_btn_no_robot.setChecked(false);
+            }
+        }
+//        sobot_ratingBar.setRating(sobotEvaluateModel.getScore());
+        sobot_ratingBar.setEnabled(false);
+    }
+
+    private void setNotEvaluatedLayout() {
+        if (sobotEvaluateModel == null) {
+            return;
+        }
+        if (sobot_readiogroup.getVisibility() == View.VISIBLE) {
+            sobot_btn_ok_robot.setVisibility(View.VISIBLE);
+            sobot_btn_no_robot.setVisibility(View.VISIBLE);
+            //是否解决问题 0:已解决，1：未解决，-1：都不选
+            if (sobotEvaluateModel.getIsResolved() == 0) {
+                sobot_btn_ok_robot.setChecked(true);
+                sobot_btn_no_robot.setChecked(false);
+            } else if (sobotEvaluateModel.getIsResolved() == 1) {
+                sobot_btn_ok_robot.setChecked(false);
+                sobot_btn_no_robot.setChecked(true);
+            } else if (sobotEvaluateModel.getIsResolved() == -1) {
+                sobot_btn_ok_robot.setChecked(false);
+                sobot_btn_no_robot.setChecked(false);
+            }
+        }
+        sobot_ratingBar.setEnabled(true);
+    }
+
+    /**
+     * 评价 操作
+     *
+     * @param evaluateFlag true 直接提交  false 打开评价窗口
+     */
+    private void doEvaluate(boolean evaluateFlag, int score) {
+        if (mContext != null && message != null && message.getSobotEvaluateModel() != null) {
+            message.getSobotEvaluateModel().setIsResolved(getResovled());
+            message.getSobotEvaluateModel().setScore(score);
+            message.getSobotEvaluateModel().setScoreFlag(ratingType);
+            message.getSobotEvaluateModel().setProblem(checkBoxIsChecked());
+            if (msgCallBack != null) {
+                msgCallBack.doEvaluate(evaluateFlag, message);
+            }
+        }
+    }
+    private int getResovled() {
+        if (mSatisfactionSet != null && mSatisfactionSet.getIsQuestionFlag() == 1) {
+            if (sobot_btn_ok_robot.isChecked()) {
+                return 0;
+            } else if (sobot_btn_no_robot.isChecked()) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+        if (sobotEvaluateModel == null) {
+            return;
+        }
+        if (checkedId == sobot_btn_ok_robot.getId()) {
+            sobotEvaluateModel.setIsResolved(0);
+            sobot_btn_ok_robot.setChecked(true);
+            sobot_btn_no_robot.setChecked(false);
+            sobot_btn_ok_robot.setSelected(true);
+            sobot_btn_no_robot.setSelected(false);
+        }
+        if (checkedId == sobot_btn_no_robot.getId()) {
+            sobotEvaluateModel.setIsResolved(1);
+            sobot_btn_ok_robot.setChecked(false);
+            sobot_btn_no_robot.setChecked(true);
+            sobot_btn_ok_robot.setSelected(false);
+            sobot_btn_no_robot.setSelected(true);
+        }
+    }
+
+    @Override
+    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+        LogUtils.i(sobotEvaluateModel.getScore() + "-----" + deftaultScore + "=====" + rating);
+        if (sobotEvaluateModel != null && 0 == sobotEvaluateModel.getEvaluateStatus() && rating > 0 ) {
+            //未评价时进行评价
+            int score = (int) Math.ceil(rating);
+            sobotEvaluateModel.setScore(score);
+            sobot_ratingBar.setOnRatingBarChangeListener(null);
+            sobot_ratingBar.setRating(deftaultScore);
+            sobot_ratingBar.setOnRatingBarChangeListener(this);
+            doEvaluate(false, score);
+        }
+    }
+
+
+    private SatisfactionSetBase getSatisFaction(int score, List<SatisfactionSetBase> satisFactionList) {
+        if (satisFactionList == null) {
+            return null;
+        }
+        for (int i = 0; i < satisFactionList.size(); i++) {
+            if (satisFactionList.get(i).getScore().equals(score + "")) {
+                return satisFactionList.get(i);
+            }
+        }
+        return null;
+    }
+
+    // 使用String的split 方法把字符串截取为字符串数组
+    private static String[] convertStrToArray(String str) {
+        String[] strArray = null;
+        if (!TextUtils.isEmpty(str)) {
+            strArray = str.split(","); // 拆分字符为"," ,然后把结果交给数组strArray
+        }
+        return strArray;
+    }
+
+    //设置评价标签的显示逻辑
+    private void setLableViewVisible(String tmpData[]) {
+        if (tmpData == null) {
+            sobot_hide_layout.setVisibility(View.GONE);
+            return;
+        } else {
+            //根据infomation 配置是否隐藏人工评价标签
+            if (!information.isHideManualEvaluationLabels()) {
+                sobot_hide_layout.setVisibility(View.VISIBLE);
+            } else {
+                sobot_hide_layout.setVisibility(View.GONE);
+            }
+        }
+
+        createChildLableView(sobot_evaluate_lable_autoline, tmpData);
+    }
+
+    //隐藏所有自动换行的标签
+    private void createChildLableView(SobotAntoLineLayout antoLineLayout, String tmpData[]) {
+        if (antoLineLayout != null) {
+            antoLineLayout.removeAllViews();
+            checkBoxList.clear();
+            for (int i = 0; i < tmpData.length; i++) {
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                View view = inflater.inflate(R.layout.sobot_layout_evaluate_item, null);
+                CheckBox checkBox = view.findViewById(R.id.sobot_evaluate_cb_lable);
+                //左侧（左间距18+内间距15+antoLineLayout 外间距20）* 2 +antoLineLayout 子控件行间距10
+                checkBox.setMinWidth((ScreenUtil.getScreenSize(mContext)[0] - ScreenUtils.dip2px(mContext, (18 + 15 + 20) * 2 + 10)) / 2);
+                checkBox.setText(tmpData[i]);
+                if (changeThemeColor) {
+                    checkBox.setTextColor(themeColor);
+                }
+                checkBox.setOnCheckedChangeListener(this);
+                antoLineLayout.addView(view);
+                checkBoxList.add(checkBox);
+            }
+        }
+    }
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        if (changeThemeColor) {
+            Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_dialog_button_selector);
+            if (b) {
+                compoundButton.setBackground(ThemeUtils.applyColorToDrawable(drawable, themeColor));
+                compoundButton.setTextColor(mContext.getResources().getColor(R.color.sobot_common_white));
+            } else {
+                compoundButton.setBackground(drawable);
+                compoundButton.setTextColor(themeColor);
+            }
+        }
+    }
+    //检测选中的标签
+    private String checkBoxIsChecked() {
+        String str = new String();
+        for (int i = 0; i < checkBoxList.size(); i++) {
+            if (checkBoxList.get(i).isChecked()) {
+                str = str + checkBoxList.get(i).getText() + ",";
+            }
+        }
+        if (str.length() > 0) {
+            str = str.substring(0, str.length() - 1);
+        }
+        return str + "";
+    }
+}

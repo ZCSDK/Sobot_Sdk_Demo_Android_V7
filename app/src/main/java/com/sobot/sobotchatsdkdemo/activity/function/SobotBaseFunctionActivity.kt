@@ -1,0 +1,136 @@
+package com.sobot.sobotchatsdkdemo.activity.function
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.os.Process
+import android.text.TextUtils
+import android.view.View
+import android.widget.EditText
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.sobot.chat.activity.WebViewActivity
+import com.sobot.chat.api.model.Information
+import com.sobot.chat.utils.SharedPreferencesUtil
+import com.sobot.chat.utils.ToastUtil
+import com.sobot.chat.utils.ZhiChiConstant
+import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
+import com.sobot.sobotchatsdkdemo.util.AndroidBug5497Workaround.Companion.assistActivity
+import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
+import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
+
+class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
+    private var sobot_tv_left: RelativeLayout? = null
+    private var tv_base_fun_3_1: TextView? = null
+    private var tv_base_fun_3_2: TextView? = null
+    private var sobot_tv_save: TextView? = null
+    private var sobot_et_yuming: EditText? = null
+    private var sobot_et_appkey: EditText? = null
+    private var sobot_et_pingtaibiaoshi: EditText? = null
+    private var sobot_et_pingtaimiyao: EditText? = null
+    private var sobot_et_partnerid: EditText? = null
+    private var information: Information? = null
+    private var otherModel: SobotDemoOtherModel? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (supportActionBar != null) {
+            supportActionBar!!.hide()
+        }
+        setContentView(R.layout.sobot_demo_base_func_activity)
+        assistActivity(this)
+        information = getObject(context, "sobot_demo_infomation") as Information?
+        otherModel = getObject(context, "sobot_demo_otherModel") as SobotDemoOtherModel?
+        findvViews()
+    }
+
+    private fun findvViews() {
+        sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
+        val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
+        sobot_text_title.text = "基础设置"
+        sobot_tv_left!!.setOnClickListener(this)
+        sobot_et_yuming = findViewById(R.id.sobot_et_yuming)
+        sobot_et_appkey = findViewById(R.id.sobot_et_appkey)
+        sobot_et_pingtaibiaoshi = findViewById(R.id.sobot_et_pingtaibiaoshi)
+        sobot_et_pingtaimiyao = findViewById(R.id.sobot_et_pingtaimiyao)
+        sobot_et_partnerid = findViewById(R.id.sobot_et_partnerid)
+        sobot_tv_save = findViewById(R.id.sobot_tv_save)
+        sobot_tv_save!!.setVisibility(View.VISIBLE)
+        sobot_tv_save!!.setOnClickListener(this)
+        if (information != null) {
+            sobot_et_appkey!!.setText(information!!.app_key)
+            sobot_et_partnerid!!.setText(information!!.partnerid)
+        }
+        if (otherModel != null) {
+            if (!TextUtils.isEmpty(otherModel!!.api_host)) {
+                sobot_et_yuming!!.setText(otherModel!!.api_host)
+            }
+            sobot_et_pingtaibiaoshi!!.setText(otherModel!!.platformUnionCode)
+            sobot_et_pingtaimiyao!!.setText(otherModel!!.platformSecretkey)
+        }
+        tv_base_fun_3_1 = findViewById(R.id.tv_base_fun_3_1)
+        tv_base_fun_3_1!!.setText("https://www.sobot.com/developerdocs/app_sdk/android.html#_3-1-域名设置")
+        tv_base_fun_3_1!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View) {
+                val intent = Intent(context, WebViewActivity::class.java)
+                intent.putExtra(
+                    "url",
+                    "https://www.sobot.com/developerdocs/app_sdk/android.html#_3-1-%E5%9F%9F%E5%90%8D%E8%AE%BE%E7%BD%AE"
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+        })
+        tv_base_fun_3_2 = findViewById(R.id.tv_base_fun_3_2)
+        tv_base_fun_3_2!!.setText("https://www.sobot.com/developerdocs/app_sdk/android.html#_3-2-获取appkey")
+        tv_base_fun_3_2!!.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View) {
+                val intent = Intent(context, WebViewActivity::class.java)
+                intent.putExtra(
+                    "url",
+                    "https://www.sobot.com/developerdocs/app_sdk/android.html#_3-2-%E8%8E%B7%E5%8F%96appkey"
+                )
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+        })
+    }
+
+    override fun onClick(v: View) {
+        if (v === sobot_tv_left) {
+            finish()
+        }
+        if (v === sobot_tv_save) {
+            val yuming = sobot_et_yuming!!.text.toString().trim { it <= ' ' }
+            if (information != null) {
+                information!!.app_key = sobot_et_appkey!!.text.toString().trim { it <= ' ' }
+                information!!.partnerid = sobot_et_partnerid!!.text.toString().trim { it <= ' ' }
+                saveObject(this, "sobot_demo_infomation", information!!)
+            }
+            if (otherModel != null) {
+                val oldYUming = otherModel!!.api_host
+                if (!TextUtils.isEmpty(yuming)) {
+                    if (yuming != oldYUming) {
+                        otherModel!!.api_host = yuming
+                        saveObject(this, "sobot_demo_otherModel", otherModel!!)
+                        Process.killProcess(Process.myPid())
+                    }
+                } else {
+                    otherModel!!.api_host = "https://api.sobot.com"
+                }
+                otherModel!!.platformSecretkey =
+                    sobot_et_pingtaimiyao!!.text.toString().trim { it <= ' ' }
+                otherModel!!.platformUnionCode =
+                    sobot_et_pingtaibiaoshi!!.text.toString().trim { it <= ' ' }
+                saveObject(this, "sobot_demo_otherModel", otherModel!!)
+            }
+            ToastUtil.showToast(context, "已保存")
+            SharedPreferencesUtil.saveBooleanData(this, ZhiChiConstant.SOBOT_CONFIG_INITSDK, false)
+            finish()
+        }
+    }
+
+    val context: Context
+        get() = this
+}

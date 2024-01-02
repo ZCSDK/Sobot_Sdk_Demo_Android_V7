@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:background="@drawable/sobot_chat_msg_bg_transparent"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="5dp"
+    android:paddingTop="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/sobot_right_msg_text_color"
+        android:textSize="@dimen/sobot_text_font_13" />
+
+    <TextView
+        android:id="@+id/tv_des"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <com.sobot.chat.widget.image.SobotRCImageView
+        android:id="@+id/image_link"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:background="@color/sobot_chat_appoint_zhanwei_bg"
+        android:scaleType="centerCrop"
+        app:sobot_round_corner_bottom_left="2dp"
+        app:sobot_round_corner_bottom_right="2dp"
+        app:sobot_round_corner_top_left="2dp"
+        app:sobot_round_corner_top_right="2dp" />
+
+</LinearLayout>

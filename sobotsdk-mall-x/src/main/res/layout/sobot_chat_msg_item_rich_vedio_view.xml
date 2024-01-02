@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/sobot_video_first_image"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sobot_rich_msg_video_height_dp"
+        android:background="@color/sobot_transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sobot_rich_item_vedoi_default" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/sobot_ic_play" />
+
+</RelativeLayout>

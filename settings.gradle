@@ -1,0 +1,19 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        jcenter()
+        google()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+    }
+}
+rootProject.name = "Sobot_Sdk_Demo_Android_v6_kt"
+include ':app'
+include ':sobotsdk-mall-x'
