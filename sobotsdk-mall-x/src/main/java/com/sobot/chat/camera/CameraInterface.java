@@ -512,6 +512,9 @@ public class CameraInterface implements Camera.PreviewCallback {
                 return;
             }
         }
+        if (firstFrame_data == null) {
+            return;
+        }
         mCamera.stopPreview();
         mCamera.setPreviewCallback(null);
         final int nowAngle = (angle + 90) % 360;

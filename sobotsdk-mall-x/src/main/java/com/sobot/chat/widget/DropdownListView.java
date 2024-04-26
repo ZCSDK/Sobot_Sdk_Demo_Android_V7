@@ -102,7 +102,6 @@ public class DropdownListView extends ListView implements AbsListView.OnScrollLi
 
     public void onScroll(AbsListView arg0, int firstVisiableItem, int arg2,
                          int arg3) {
-//        LogUtils.d("====firstVisiableItem=="+firstVisiableItem);
         firstItemIndex = firstVisiableItem;
         if(dropdownListScrollListener != null){
             dropdownListScrollListener.onScroll(arg0,firstVisiableItem,arg2,arg3);
@@ -125,7 +124,6 @@ public class DropdownListView extends ListView implements AbsListView.OnScrollLi
         if (isRefreshableHeader) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-//                    LogUtils.d("====ACTION_DOWN=="+firstItemIndex);
                     if (firstItemIndex == 0 && !isRecored) {
                         isRecored = true;
                         startY = (int) event.getY();
@@ -134,7 +132,6 @@ public class DropdownListView extends ListView implements AbsListView.OnScrollLi
                     break;
 
                 case MotionEvent.ACTION_UP:
-//                    LogUtils.d("====ACTION_UP=="+firstItemIndex);
                     if (state != REFRESHING && state != LOADING) {
                         if (state == DONE) {
                             // 什么都不做

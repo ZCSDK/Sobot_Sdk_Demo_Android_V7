@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,6 +21,8 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -39,7 +40,6 @@ import com.sobot.chat.api.model.ZhiChiUploadAppFileModelResult;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.HttpUtils;
-import com.sobot.chat.listener.PermissionListener;
 import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
@@ -83,8 +83,6 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements Adapt
      */
     protected SobotDeleteWorkOrderDialog seleteMenuWindow;
 
-    //权限回调
-    public PermissionListener permissionListener;
     protected File cameraFile;
     private String mUid = "";
     private String mCompanyId = "";

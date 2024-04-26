@@ -20,12 +20,12 @@
         android:layout_marginRight="@dimen/sobot_msg_margin_edge"
         android:background="@drawable/sobot_evaluate_def_bg"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/sobot_msg_left_right_padding_edge"
+        android:paddingLeft="@dimen/sobot_msg_margin_edge"
         android:paddingTop="@dimen/sobot_msg_top_bottom_padding_edge"
-        android:paddingRight="@dimen/sobot_msg_left_right_padding_edge"
+        android:paddingRight="@dimen/sobot_msg_margin_edge"
         android:paddingBottom="@dimen/sobot_msg_top_bottom_padding_edge"
-        android:paddingStart="@dimen/sobot_msg_left_right_padding_edge"
-        android:paddingEnd="@dimen/sobot_msg_left_right_padding_edge">
+        android:paddingStart="@dimen/sobot_msg_margin_edge"
+        android:paddingEnd="@dimen/sobot_msg_margin_edge">
 
         <TextView
             android:id="@+id/sobot_tv_star_title"

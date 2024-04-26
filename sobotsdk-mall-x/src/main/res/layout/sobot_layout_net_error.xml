@@ -53,5 +53,5 @@
         android:paddingRight="10dp"
         android:textAllCaps="false"
         android:textColor="@color/sobot_common_gray1"
-        android:textSize="@dimen/sobot_text_font_12" />
+        android:textSize="@dimen/sobot_text_font_14" />
 </RelativeLayout>

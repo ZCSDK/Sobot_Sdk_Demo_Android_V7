@@ -45,5 +45,15 @@
             app:av_textColorNormal="#8B98AD"
             app:av_textColorSelected="#0DAEAF" />
 
+        <com.lzy.widget.AlphaView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:av_tabText="自动化测试"
+            app:av_tabTextSize="14sp"
+            app:av_textColorNormal="#8B98AD"
+            app:av_textColorSelected="#0DAEAF" />
+
     </com.lzy.widget.AlphaIndicator>
 </LinearLayout>

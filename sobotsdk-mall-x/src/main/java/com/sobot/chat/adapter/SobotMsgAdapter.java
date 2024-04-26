@@ -15,6 +15,7 @@ import com.sobot.chat.api.apiUtils.GsonUtil;
 import com.sobot.chat.api.model.FaqDocRespVo;
 import com.sobot.chat.api.model.SobotEvaluateModel;
 import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
+import com.sobot.chat.api.model.SobotRealuateInfo;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.ZhiChiMessageMsgModel;
 import com.sobot.chat.api.model.ZhiChiReplyAnswer;
@@ -28,6 +29,7 @@ import com.sobot.chat.utils.VersionUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.AppointTextMessageHolder;
 import com.sobot.chat.viewHolder.ArticleMessageHolder;
+import com.sobot.chat.viewHolder.CaiMessageHolder;
 import com.sobot.chat.viewHolder.CardMessageHolder;
 import com.sobot.chat.viewHolder.ConsultMessageHolder;
 import com.sobot.chat.viewHolder.CusEvaluateMessageHolder;
@@ -105,7 +107,8 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
             "sobot_chat_msg_item_custom_card_l",//自定义卡片 左侧 系统或者客服发送的
             "sobot_chat_msg_item_custom_card_r",//自定义卡片 右侧 用户发送的
             "sobot_chat_msg_item_appoint_l",//引用消息 左侧
-            "sobot_chat_msg_item_appoint_r"//引用消息  右侧
+            "sobot_chat_msg_item_appoint_r",//引用消息  右侧
+            "sobot_chat_msg_item_cai"//点踩回答消息
     };
 
     /**
@@ -278,6 +281,10 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
      * 引用消息 右侧
      */
     public static final int MSG_TYPE_APPOINT_R = 38;
+    /**
+     * 点踩回答
+     */
+    public static final int MSG_TYPE_CAI = 39;
 
 
     private SobotMsgCallBack mMsgCallBack;
@@ -324,6 +331,9 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
             previousMsgSenderName = base.getSenderType();
         }
         list.addAll(0, msgLists);
+        if(mMsgCallBack!=null){
+            mMsgCallBack.checkUnReadMsg();
+        }
     }
 
     public void addData(ZhiChiMessageBase message) {
@@ -450,7 +460,7 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
                     //相邻两条消息是同一个人发的，并且时间相隔1分钟，不显示头像昵称
                     if (previousMsgTime != 0 &&
                             !TextUtils.isEmpty(message.getT())
-                            && ((Long.parseLong(message.getT()) - previousMsgTime) < (1000 * 60))
+                            && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60))
                             && !TextUtils.isEmpty(previousMsgSenderName)
                             && previousMsgSenderName.equals(message.getSenderName()) && previousMsgSenderType == message.getSenderType()) {
                         message.setShowFaceAndNickname(false);
@@ -462,6 +472,9 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
         } catch (Exception e) {
         }
         list.add(message);
+        if(mMsgCallBack!=null){
+            mMsgCallBack.checkUnReadMsg();
+        }
     }
 
     /**
@@ -579,6 +592,12 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
             info.setSendSuccessState(data.getSendSuccessState());
         }
     }
+    public void updateDataById(String id, SobotRealuateInfo data) {
+        ZhiChiMessageBase info = getMsgInfo(id);
+        if (info != null) {
+            info.setRealuateInfo(data);
+        }
+    }
     public void updateReadStatus(List<String> messageBases) {
         for (int i = 0; i < messageBases.size(); i++) {
             for (int j = 0; j < list.size(); j++) {
@@ -605,6 +624,23 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
         if (info != null) {
             list.remove(info);
         }
+    }
+    public void removeCaiNoSubmitMsg(){
+        int count = list.size() - 1;
+        for (int i = count; i >= 0; i--) {
+            if(i>list.size()-1){
+                i=list.size()-1;
+            }
+            ZhiChiMessageBase msgInfo = list.get(i);
+            if (msgInfo == null) {
+                continue;
+            }
+            //删除未提交的点踩
+            if((msgInfo.getRealuateInfo()!=null && msgInfo.getRealuateInfo().getSubmitStatus()==1) || msgInfo.getSubmitStatus()==1){
+                list.remove(i);
+            }
+        }
+        notifyDataSetChanged();
     }
 
     public void updatePicStatusById(String id, int sendStatus) {
@@ -831,6 +867,9 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
                     }
                     break;
                 }
+                case MSG_TYPE_CAI:
+                    holder = new CaiMessageHolder(context, convertView);
+                    break;
                 default: {
                     holder = new TextMessageHolder(context, convertView);
                     break;
@@ -1106,6 +1145,9 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
             } else if (ZhiChiConstant.action_card_mind_msg.equals(message.getAction())) {
                 //多轮收集节点提醒消息 不可以点击
                 return MSG_TYPE_TIP;
+            } else if (!TextUtils.isEmpty(message.getAction()) && message.getAction().equals("25")) {
+                //点踩问答
+                return MSG_TYPE_CAI;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1264,5 +1306,8 @@ public class SobotMsgAdapter extends SobotBaseAdapter<ZhiChiMessageBase> {
         void clickCardMenu(SobotChatCustomMenu menu);
 
         void sendCardMsg(SobotChatCustomMenu menu, SobotChatCustomCard card);
+
+        void checkUnReadMsg();
+        void submitCai(String msgId,SobotRealuateInfo realuateInfo);
     }
 }

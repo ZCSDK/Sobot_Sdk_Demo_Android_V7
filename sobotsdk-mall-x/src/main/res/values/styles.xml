@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="sobot_activity_def_theme"></style>
+    <style name="sobot_activity_def_theme" parent="Theme.AppCompat.Light.NoActionBar"></style>
 
     <style name="sobot_roomRatingBar" parent="@android:style/Widget.RatingBar">
         <item name="android:progressDrawable">@drawable/sobot_rating_yellow</item>
@@ -149,7 +149,7 @@
         <item name="android:windowIsFloating">true</item>
     </style>
 
-    <style name="sobot_AppThemeDialogIsTranslucent" parent="@android:style/Theme.Dialog">
+    <style name="sobot_AppThemeDialogIsTranslucent" parent="Theme.AppCompat.Dialog">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFrame">@null</item>
         <!--边框-->

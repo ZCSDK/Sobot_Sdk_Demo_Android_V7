@@ -243,6 +243,8 @@
 
     <!--文件进度条前景色-->
     <color name="sobot_sectorProgressView_fgColor">#4D000000</color>
+    <!--半透明-->
+    <color name="sobot_half_transparent">#73000000</color>
 
     <!--自动补全背景色-->
     <color name="sobot_auto_complete_press">#EFF3FA</color>
@@ -256,6 +258,8 @@
     <color name="sobot_card_mgs_bg1">#fffdff</color>
     <color name="sobot_card_mgs_bg2">#fbf8fb</color>
     <color name="sobot_card_mgs_bg3">#f4f1f5</color>
+    <!--    点踩问题按钮背景-->
+    <color name="sobot_cai_tag_bg">#DADADA</color>
 
 
 </resources>

@@ -171,7 +171,7 @@
        <string name="sobot_already_save_to_picture">Saved to system albums</string>
        <string name="sobot_after_consultation_to_evaluate_custome_service">Please use our service and then send feedback</string>
        <string name="sobot__is_null">Required</string>
-       <string name="sobot_reunicon">Tap to load again</string>
+       <string name="sobot_reunicon">Reload</string>
        <string name="sobot_pic_select_again">Please try again</string>
        <string name="sobot_only_can_write">Input only</string>
        <string name="sobot_loading">Loading</string>
@@ -255,4 +255,7 @@
        <string name="sobot_msg_read">read</string>
        <string name="sobot_msg_no_read">unread</string>
        <string name="sobot_str_link">Link</string>
+       <string name="sobot_str_select_pic_video">Select photos and videos</string>
+       <string name="sobot_str_goto_setting_info">Currently, only partial access to photos or videos is allowed</string>
+       <string name="sobot_str_goto_setting_allow">Allow all></string>
 </resources>

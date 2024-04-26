@@ -17,4 +17,7 @@ class SobotDemoOtherModel : Serializable {
 
     //是否使用订单卡片demo
     var isUserOrderCardContentModelDemo = false
+
+    // 功能json数据
+    var infoJson: String? = null
 }

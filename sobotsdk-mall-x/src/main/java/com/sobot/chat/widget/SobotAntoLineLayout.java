@@ -86,7 +86,7 @@ public class SobotAntoLineLayout extends ViewGroup {
             }
             int childHeight = childItem.getMeasuredHeight();
             int childWidth = childItem.getMeasuredWidth();
-            if (curLineWidth + childWidth <= totalWidth) {
+            if (curLineWidth + childWidth < totalWidth) {
                 curLineWidth += childWidth;
                 maxHeight = Math.max(childHeight, maxHeight);
                 curLineChildCount++;

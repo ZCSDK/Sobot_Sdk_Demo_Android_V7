@@ -200,13 +200,13 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_problem_description_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/sobot_tv_problem_description"
@@ -216,9 +216,11 @@
                         android:textSize="@dimen/sobot_text_font_14" />
 
                     <TextView
+                        android:id="@+id/tv_problem_description_required"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" *"
+                        android:visibility="gone"
                         android:textColor="#f9676f" />
                 </LinearLayout>
 
@@ -243,32 +245,25 @@
                     android:textColorHint="@color/sobot_common_gray3"
                     android:textSize="15sp" />
 
-                <LinearLayout
-                    android:id="@+id/sobot_enclosure_container"
+                <com.sobot.chat.widget.SobotGridView
+                    android:id="@+id/sobot_post_msg_pic"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:cacheColorHint="@android:color/transparent"
+                    android:fadingEdge="none"
+                    android:horizontalSpacing="6dp"
+                    android:listSelector="@android:color/transparent"
+                    android:numColumns="4"
+                    android:overScrollMode="never"
+                    android:verticalSpacing="2dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginRight="20dp"
                     android:layout_marginBottom="20dp"
                     android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <GridView
-                        android:id="@+id/sobot_post_msg_pic"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:cacheColorHint="@android:color/transparent"
-                        android:fadingEdge="none"
-                        android:horizontalSpacing="6dp"
-                        android:listSelector="@android:color/transparent"
-                        android:numColumns="4"
-                        android:overScrollMode="never"
-                        android:verticalSpacing="2dp" />
-
-                </LinearLayout>
+                    android:visibility="gone"/>
 
             </LinearLayout>
 

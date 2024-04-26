@@ -6,9 +6,11 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         childOfLine = new ArrayList<>();
         int childCount = getChildCount();
-        int totalHeight = 0;
+        int totalHeight = 0,tempTotalH=0;
         int totalWidth = MeasureSpec.getSize(widthMeasureSpec);
         int curLineChildCount = 0;
         int curLineWidth = 0;
@@ -95,33 +97,46 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
             int childHeight = childItem.getMeasuredHeight();
             int childWidth = childItem.getMeasuredWidth();
             if (curLineWidth + childWidth <= totalWidth) {
-//                curLineWidth += childWidth;
-//                maxHeight = Math.max(childHeight, maxHeight);
-//                curLineChildCount++;
+                curLineWidth += childWidth;
+                maxHeight = Math.max(childHeight, maxHeight);
+                curLineChildCount++;
             } else {
-                isChange = true;
+                childOfLine.add(curLineChildCount);
+                curLineWidth = childWidth;
+                curLineChildCount = 1;
+                totalHeight += maxHeight;
+                maxHeight = childHeight;
             }
-            childOfLine.add(curLineChildCount);
-            curLineWidth = childWidth;
-            curLineChildCount = 1;
-            totalHeight += maxHeight;
-            maxHeight = childHeight;
-
+            if(i>0)
+                tempTotalH += childHeight;
+            LogUtils.d(childHeight+"======tempTotalH=="+tempTotalH);
         }
         childOfLine.add(curLineChildCount);
-        if(!isChange){
-            childOfLine.clear();
-            childOfLine.add(getChildCount());
-            totalHeight =maxHeight;
-        }else {
+        for (int i = 0; i < childOfLine.size(); i++) {
+            if (childOfLine.get(i) == 0) {
+                childOfLine.remove(i);
+            }
+        }
+        List<Integer> childLines = new ArrayList<>();
+        if(childOfLine.size()>1) {
             for (int i = 0; i < childOfLine.size(); i++) {
-                if (childOfLine.get(i) == 0) {
-                    childOfLine.remove(i);
+                int tempCount = childOfLine.get(i);
+                if (tempCount > 1) {
+                    for (int j = 0; j < tempCount; j++) {
+                        childLines.add(1);
+                    }
+                } else {
+                    childLines.add(1);
                 }
             }
+        }
+        if(childLines.size()>childOfLine.size()) {
+            childOfLine.clear();
+            childOfLine.addAll(childLines);
+            totalHeight += (mVerticalGap * (childOfLine.size() - 1) + tempTotalH);
+        }else {
             totalHeight += (mVerticalGap * (childOfLine.size() - 1) + maxHeight);
         }
-
         setMeasuredDimension(totalWidth, totalHeight);
     }
 
@@ -131,65 +146,62 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
         int curHeight = 0;
         for (int i = 0; i < childOfLine.size(); i++) {
             int childCount = childOfLine.get(i);
-            if(childCount>0) {
-                int maxHeight = 0;
-                int lineWidth = 0;
-                for (int j = 0; j < childCount; j++) {
-                    lineWidth += getChildAt(j + index).getMeasuredWidth();
-                }
-                int padding = (width - lineWidth - mHorizontalGap * (childCount - 1)) / childCount / 2;
-                lineWidth = 0;
-                int target = index + childCount;
-                for (; index < target; index++) {
-                    View item = getChildAt(index);
-                    maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
-                    item.setPadding(padding, item.getPaddingTop(),
-                            padding, item.getPaddingBottom());
-                    item.measure(MeasureSpec.makeMeasureSpec(item.getMeasuredWidth() + padding * 2, MeasureSpec.EXACTLY),
-                            MeasureSpec.makeMeasureSpec(item.getMeasuredHeight(), MeasureSpec.EXACTLY));
-                    item.layout(lineWidth, curHeight, lineWidth + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
-                    lineWidth += item.getMeasuredWidth() + mHorizontalGap;
-                }
+            int maxHeight = 0;
+            int lineWidth = 0;
+            for (int j = 0; j < childCount; j++) {
+                lineWidth += getChildAt(j + index).getMeasuredWidth();
             }
-//            curHeight += maxHeight + mVerticalGap;
+            int padding = (width - lineWidth - mHorizontalGap * (childCount - 1)) / childCount / 2;
+            lineWidth = 0;
+            int target = index + childCount;
+            for (; index < target; index++) {
+                View item = getChildAt(index);
+                maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
+                item.setPadding(padding, item.getPaddingTop(),
+                        padding, item.getPaddingBottom());
+                item.measure(MeasureSpec.makeMeasureSpec(item.getMeasuredWidth() + padding * 2, MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(item.getMeasuredHeight(), MeasureSpec.EXACTLY));
+                item.layout(lineWidth, curHeight, lineWidth + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
+                lineWidth += item.getMeasuredWidth() + mHorizontalGap;
+            }
+            curHeight += maxHeight + mVerticalGap;
         }
     }
 
     private void layoutWrapContent() {
         int index = 0;
         int curHeight = 0;
-        int curWidth = 0;
+        int wight = getWidth();
+        if(childOfLine.size() == 1){
+            //如果一行超过1个，宽度平分
+            int childCount = childOfLine.get(0);
+            int maxHeight = 0;
+            int lineWidth = 0;
+            int curWidth = (maxWight - (mHorizontalGap * (childCount - 1))) / childCount;
+            int target = index + childCount;
+            for (; index < target; index++) {
+                View item = getChildAt(index);
+                maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
+                item.layout(lineWidth, curHeight, lineWidth + curWidth, curHeight + item.getMeasuredHeight());
+                lineWidth += curWidth + mHorizontalGap;
+            }
+            curHeight += maxHeight + mVerticalGap;
 
-        for (int i = 0; i < childOfLine.size(); i++) {
-            int childCount = childOfLine.get(i);
-            if(childCount>0) {
-                if (childOfLine.size() > 1) {
-                    curWidth = maxWight;
-                    int maxHeight = 0;
-                    int lineWidth = 0;
-
-                    int target = index + childCount;
-                    for (; index < target; index++) {
-                        View item = getChildAt(index);
-                        maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
-                        item.layout(lineWidth, curHeight, lineWidth + curWidth, curHeight + item.getMeasuredHeight());
-                        lineWidth += curWidth + mHorizontalGap;
-                    }
-                    curHeight += maxHeight + mVerticalGap;
-                } else {
-                    curWidth = (maxWight - (mHorizontalGap * (childCount - 1))) / childCount;
-                    int maxHeight = 0;
-                    int lineWidth = 0;
-
-                    int target = index + childCount;
-                    for (int temi = childCount - 1; temi >= 0; temi--) {
-                        View item = getChildAt(temi);
-                        maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
-                        item.layout(lineWidth, curHeight, lineWidth + curWidth, curHeight + item.getMeasuredHeight());
-                        lineWidth += curWidth + mHorizontalGap;
-                    }
-                    curHeight += maxHeight + mVerticalGap;
+        }else {
+            //如果多行，每行显示一个，宽度是最大宽度
+            for (int i = 0; i < childOfLine.size(); i++) {
+                int childCount = childOfLine.get(i);
+                int maxHeight = 0;
+                int lineWidth = 0;
+                int target = index + childCount;
+                for (; index < target; index++) {
+                    View item = getChildAt(index);
+                    maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
+                    item.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    item.layout(lineWidth, curHeight, maxWight, curHeight + item.getMeasuredHeight());
+                    lineWidth += item.getMeasuredWidth() + mHorizontalGap;
                 }
+                curHeight += maxHeight + mVerticalGap;
             }
         }
     }

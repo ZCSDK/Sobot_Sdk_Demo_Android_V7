@@ -297,10 +297,11 @@ public class TextMessageHolder extends MsgHolderBase {
                     e.printStackTrace();
                 }
             }
-
         } else {
             // msg.setText(CommonUtils.getResString(context, "sobot_data_wrong_hint"));
-            msg.setText("");
+            msg.setVisibility(View.GONE);
+            LinearLayout.LayoutParams lp= (LinearLayout.LayoutParams) stripe.getLayoutParams();
+            lp.topMargin=0;
         }
         if (sobot_msg_content_ll != null) {
             setCopyAndAppointView(context, msg);

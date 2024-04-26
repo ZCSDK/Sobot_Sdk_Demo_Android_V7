@@ -70,7 +70,6 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     int total =faqDocRespVoList.size();
                     int maxNum = (total % PAGE_NUM == 0) ? (total / PAGE_NUM) : (total / PAGE_NUM + 1);
                     curPageNum = (curPageNum >= maxNum) ? 0 : curPageNum;
-//                    LogUtils.d("=====sobot_tv_switch=onClick==showList====");
                     showList();
                 }
             }
@@ -344,10 +343,10 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     setList(faqDocRespVoList);
 
                 }else if(businessLineRespVoList.get(blockIndex).getHasGroup() == 2){
-                    //打开网页
-                    Intent intent = new Intent(mContext, WebViewActivity.class);
-                    intent.putExtra("url", businessLineRespVoList.get(blockIndex).getBusinessLineUrl());
-                    mContext.startActivity(intent);
+                    //网页的不直接打开，点击时才显示
+//                    Intent intent = new Intent(mContext, WebViewActivity.class);
+//                    intent.putExtra("url", businessLineRespVoList.get(blockIndex).getBusinessLineUrl());
+//                    mContext.startActivity(intent);
                 }
             }
     }

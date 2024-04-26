@@ -151,7 +151,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
                 mImageView.setZoomEnabled(true);
                 mImageView.setQuickScaleEnabled(true);
 
-                mImageView.setOnClickListener(new OnClickListener() {
+                mImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mImageView.playSoundEffect(SoundEffectConstants.CLICK);

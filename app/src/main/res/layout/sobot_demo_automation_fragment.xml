@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sobot_DIMEN_108PX"
+        android:background="#ffffff">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="自动化测试"
+            android:textColor="@color/sobot_color"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/sobot_tv_save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:gravity="center"
+            android:text="保存"
+            android:textColor="#0DAEAF"
+            android:textSize="14sp" />
+
+    </RelativeLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sobot_demo_titlebar"
+        android:background="#ffffff"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置域名"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="[说明:不设置默认为https://api.sobot.com,腾讯云为https://www.soboten.com,其它根据自己服务配置域名]"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/sobot_et_yuming"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/sobot_editview_stocke_bg"
+                android:enabled="true"
+                android:inputType="textMultiLine"
+                android:padding="6dp"
+                android:scrollbars="none"
+                android:text="https://www.soboten.com"
+                android:textColor="@color/sobot_common_gray1"
+                android:textColorHint="@color/sobot_common_gray3"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/sobot_common_gray1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="功能参数说明-json_data"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="[说明:请使用json格式填写想设置的属性]"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/et_sobot_json"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/sobot_editview_stocke_bg"
+                android:enabled="true"
+                android:inputType="textMultiLine"
+                android:lines="20"
+                android:padding="6dp"
+                android:scrollbars="none"
+                android:textColor="@color/sobot_common_gray1"
+                android:textColorHint="@color/sobot_common_gray3"
+                android:textSize="14sp" />
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="40dp" />
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

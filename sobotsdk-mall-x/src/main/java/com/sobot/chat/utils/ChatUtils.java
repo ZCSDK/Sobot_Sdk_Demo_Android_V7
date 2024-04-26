@@ -12,8 +12,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.View;
@@ -21,6 +19,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
@@ -33,6 +34,7 @@ import com.sobot.chat.api.enumtype.SobotChatCompanyDisplayMode;
 import com.sobot.chat.api.enumtype.SobotChatTitleDisplayMode;
 import com.sobot.chat.api.model.CommonModel;
 import com.sobot.chat.api.model.Information;
+import com.sobot.chat.api.model.SatisfactionSet;
 import com.sobot.chat.api.model.SobotCacheFile;
 import com.sobot.chat.api.model.SobotEvaluateModel;
 import com.sobot.chat.api.model.SobotLocationModel;
@@ -74,24 +76,6 @@ import java.util.Map;
 
 public class ChatUtils {
 
-    public static void showThankDialog(final Activity act, Handler handler, final boolean isFinish) {
-
-//        ToastUtil.showToast(act.getApplicationContext(), act.getResources().getString(
-//                ResourceUtils.getIdByName(act, "string", "sobot_thank_dialog_hint")));
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!act.isFinishing()) {
-                    CustomToast.makeText(act.getApplicationContext(),
-                            ResourceUtils.getResString(act, "sobot_thank_dialog_hint"), 1000,
-                            ResourceUtils.getDrawableId(act.getApplicationContext(), "sobot_iv_login_right")).show();
-                    if (isFinish) {
-                        act.finish();
-                    }
-                }
-            }
-        }, 500);
-    }
 
     /**
      * activity打开选择图片界面
@@ -117,7 +101,7 @@ public class ChatUtils {
             intent.setType("image/*");
         } else {
             intent = new Intent(Intent.ACTION_PICK,
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
         try {
             if (childFragment != null) {
@@ -327,7 +311,7 @@ public class ChatUtils {
         handler.sendMessage(message);
     }
 
-    public static void sendPicture(final Context context,int readFlag, String cid, String uid,
+    public static void sendPicture(final Context context, final int readFlag, String cid, String uid,
                                    final String filePath, final Handler handler, final String msgId,
                                    final ListView lv_message, final SobotMsgAdapter messageAdapter, int currentModel, final ZhiChiInitModeBase initModel) {
         SobotMsgManager.getInstance(context).getZhiChiApi().sendFile(readFlag, msgId, cid, uid, filePath, "", currentModel, new ResultCallBack<ZhiChiMessage>() {
@@ -345,6 +329,8 @@ public class ChatUtils {
                                 messageMsgModel.setContent(zhiChiMessage.getData().getUrl());
                                 zhiChiMessage.getData().setMessage(SobotGsonUtil.beanToJson(messageMsgModel));
                             }
+                            //设置已读未读状态
+                            zhiChiMessage.getData().setReadStatus(readFlag);
                             Message message = handler.obtainMessage();
                             message.what = ZhiChiConstant.hander_sendPicStatus_success;
                             zhiChiMessage.getData().setMsgId(msgId);
@@ -463,13 +449,14 @@ public class ChatUtils {
      * @param pushMessage 推送的信息
      * @return
      */
-    public static ZhiChiMessageBase getCustomEvaluateMode(Context context, ZhiChiPushMessage pushMessage) {
+    public static ZhiChiMessageBase getCustomEvaluateMode(Context context, ZhiChiPushMessage pushMessage, SatisfactionSet satisfactionSet) {
         ZhiChiMessageBase base = new ZhiChiMessageBase();
         base.setT(Calendar.getInstance().getTime().getTime() + "");
         base.setSenderName(TextUtils.isEmpty(pushMessage.getAname()) ? ResourceUtils.getResString(context, "sobot_cus_service") : pushMessage.getAname());
         SobotEvaluateModel sobotEvaluateModel = new SobotEvaluateModel();
         sobotEvaluateModel.setIsQuestionFlag(pushMessage.getIsQuestionFlag());
         base.setSobotEvaluateModel(sobotEvaluateModel);
+        base.setSatisfactionSet(satisfactionSet);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
         base.setSenderType(ZhiChiConstant.message_sender_type_custom_evaluate );
         base.setAction(ZhiChiConstant.action_custom_evaluate);
@@ -614,14 +601,14 @@ public class ChatUtils {
 
 
     /**
-     * 机器人 重复问答 情绪负向转人工提示语
+     * 机器人自动转人工提示语
      *
      * @return
      */
-    public static ZhiChiMessageBase getRobotTransferTip(Context context, ZhiChiInitModeBase initModel) {
+    public static ZhiChiMessageBase getRobotTransferTip(ZhiChiInitModeBase initModel) {
         ZhiChiMessageBase robot = new ZhiChiMessageBase();
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
-        reply.setMsg(ResourceUtils.getResString(context, "sobot_robot_auto_transfer_tip"));
+        reply.setMsg(initModel.getTransferManualPromptWord());
         reply.setMsgType(ZhiChiConstant.message_type_text );
         robot.setT(Calendar.getInstance().getTime().getTime() + "");
         robot.setAnswer(reply);
@@ -697,6 +684,8 @@ public class ChatUtils {
                 context, appkey + "_" + ZhiChiConstant.sobot_last_current_service_mode, -1);
         String last_current_customer_fields = SharedPreferencesUtil.getStringData(
                 context, appkey + "_" + ZhiChiConstant.sobot_last_current_customer_fields, "");
+        String last_current_params = SharedPreferencesUtil.getStringData(
+                context, appkey + "_" + ZhiChiConstant.sobot_last_current_params, "");
         String sobot_last_current_isvip = SharedPreferencesUtil.getStringData(
                 context, appkey + "_" + ZhiChiConstant.sobot_last_current_isvip, "");
         String sobot_last_current_vip_level = SharedPreferencesUtil.getStringData(
@@ -708,7 +697,7 @@ public class ChatUtils {
         // appkey，技能组、用户id，客服id，对接机器人编号、接入模式，自定义字段，自定义固定KEY字段 ，userRemark,isvip,vip级别，用户标签，机器人别名,商户id
         //判断上次uid是否跟此次传入的一样
         if (!last_current_partnerId.equals(info.getPartnerid() == null ? "" : info.getPartnerid())) {
-            LogUtils.i("uid发生了变化，重新初始化..............");
+            LogUtils.i("partnerid发生了变化，重新初始化..............");
             return true;
         } else if (!last_current_dreceptionistId.equals(info.getChoose_adminid() == null ? "" : info.getChoose_adminid())) {
             LogUtils.i("转入的指定客服发生了变化，重新初始化..............");
@@ -730,6 +719,9 @@ public class ChatUtils {
             return true;
         } else if (!last_current_customer_fields.equals(info.getCustomer_fields() == null ? "" : info.getCustomer_fields())) {
             LogUtils.i("自定义字段发生变化，重新初始化..............");
+            return true;
+        }else if (!last_current_params.equals(info.getParams() == null ? "" : info.getParams())) {
+            LogUtils.i("自定义资料发生变化，重新初始化..............");
             return true;
         } else if (!sobot_last_current_isvip.equals(info.getIsVip() == null ? "" : info.getIsVip())) {
             LogUtils.i("是否vip发生变化，重新初始化..............");
@@ -867,7 +859,7 @@ public class ChatUtils {
      * @param aname
      * @return
      */
-    public static ZhiChiMessageBase getServiceAcceptTip(Context context, String aname, String face) {
+    public static ZhiChiMessageBase getServiceAcceptTip(Context context,String tips, String aname, String face) {
         ZhiChiMessageBase base = new ZhiChiMessageBase();
         base.setSenderType(ZhiChiConstant.message_sender_type_remide_info );
         base.setAction(ZhiChiConstant.action_remind_connt_success);
@@ -875,7 +867,7 @@ public class ChatUtils {
         base.setSenderName(TextUtils.isEmpty(aname) ? "" : aname);
         base.setSenderFace(TextUtils.isEmpty(face) ? "" : face);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
-        reply.setMsg(ResourceUtils.getResString(context, "sobot_service_accept_start") + " " + aname + " " + ResourceUtils.getResString(context, "sobot_service_accept_end"));
+        reply.setMsg(tips.replace("#客服昵称#",aname).replace("#Customer nickname#",aname) );
         reply.setRemindType(ZhiChiConstant.sobot_remind_type_accept_request);
         base.setAnswer(reply);
         return base;
@@ -1309,6 +1301,8 @@ public class ChatUtils {
                             answer.setTextColor(colorId);
                         }
                     }
+                }else {
+                    answer.setTextColor(context.getResources().getColor(R.color.sobot_color_link));
                 }
             } catch (Exception e) {
                 answer.setTextColor(context.getResources().getColor(R.color.sobot_color_suggestion_history));

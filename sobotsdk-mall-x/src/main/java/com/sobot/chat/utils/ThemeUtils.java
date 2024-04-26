@@ -58,6 +58,14 @@ public class ThemeUtils {
         return context.getResources().getColor(R.color.sobot_color);
     }
     /**
+     * 返回半透明
+     *@param alpha 128半透明 1-255之间
+     * @return 返回的是color int 值
+     */
+    public static int modifyAlpha(int color, int alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+    /**
      * 修改图片颜色
      *@param drawable 图片
      *@param colorName 颜色值 例如：#909090

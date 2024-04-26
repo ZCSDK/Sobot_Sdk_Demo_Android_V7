@@ -63,6 +63,11 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
         answersList = (LinearLayout) convertView
                 .findViewById(R.id.sobot_answersList);
         sobot_ll_switch.setOnClickListener(this);
+
+//        sobot_ll_bottom_likeBtn = convertView.findViewById(R.id.sobot_ll_bottom_likeBtn);
+//        sobot_ll_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_ll_bottom_dislikeBtn);
+//        sobot_tv_bottom_likeBtn = convertView.findViewById(R.id.sobot_tv_bottom_likeBtn);
+//        sobot_tv_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_tv_bottom_dislikeBtn);
     }
 
     @Override
@@ -102,7 +107,6 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
         setLongClickListener(sobot_msg_content_ll);
         refreshReadStatus();
     }
-
     //顶踩 显示 点击 逻辑
     public void refreshItem() {
         if (message == null) {
@@ -132,44 +136,86 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                 break;
         }
     }
+    /**
+     * 隐藏 顶踩 按钮
+     */
+    public void hideRevaluateBtn() {
+        hideContainer();
+        sobot_likeBtn_tv.setVisibility(View.GONE);
+        sobot_dislikeBtn_tv.setVisibility(View.GONE);
+        rightEmptyRL.setVisibility(View.GONE);
+        if (sobot_ll_bottom_likeBtn != null) {
+            sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+        }
+    }
 
     /**
      * 显示 顶踩 按钮
      */
     public void showRevaluateBtn() {
-        sobot_likeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
-        sobot_likeBtn_tv.setEnabled(true);
-        sobot_dislikeBtn_tv.setEnabled(true);
-        sobot_likeBtn_tv.setSelected(false);
-        sobot_dislikeBtn_tv.setSelected(false);
-        sobot_likeBtn_tv.setOnClickListener(new NoDoubleClickListener() {
-            @Override
-            public void onNoDoubleClick(View v) {
-                doRevaluate(true);
-            }
-        });
-        sobot_dislikeBtn_tv.setOnClickListener(new NoDoubleClickListener() {
-            @Override
-            public void onNoDoubleClick(View v) {
-                doRevaluate(false);
-            }
-        });
-        //有顶和踩时显示信息显示两行 68-12-12=44 总高度减去上下内间距
-        msg.setMinHeight(ScreenUtils.dip2px(mContext, 44));
-        //有顶和踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 68-12-12=44 总高度减去上下内间距
-        if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
-            for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
-                View view = sobot_rich_ll.getChildAt(i);
-                if (view instanceof TextView) {
-                    TextView tv = (TextView) view;
-                    tv.setMinHeight(ScreenUtils.dip2px(mContext, 44));
+        if(dingcaiIsShowRight()) {
+            sobot_likeBtn_tv.setVisibility(View.VISIBLE);
+            sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+            sobot_likeBtn_tv.setEnabled(true);
+            sobot_dislikeBtn_tv.setEnabled(true);
+            sobot_likeBtn_tv.setSelected(false);
+            sobot_dislikeBtn_tv.setSelected(false);
+            sobot_likeBtn_tv.setOnClickListener(new NoDoubleClickListener() {
+                @Override
+                public void onNoDoubleClick(View v) {
+                    doRevaluate(true);
                 }
+            });
+            sobot_dislikeBtn_tv.setOnClickListener(new NoDoubleClickListener() {
+                @Override
+                public void onNoDoubleClick(View v) {
+                    doRevaluate(false);
+                }
+            });
+            //有顶和踩时显示信息显示两行 68-12-12=44 总高度减去上下内间距
+            msg.setMinHeight(ScreenUtils.dip2px(mContext, 44));
+            //有顶和踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 68-12-12=44 总高度减去上下内间距
+            if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
+                for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
+                    View view = sobot_rich_ll.getChildAt(i);
+                    if (view instanceof TextView) {
+                        TextView tv = (TextView) view;
+                        tv.setMinHeight(ScreenUtils.dip2px(mContext, 44));
+                    }
+                }
+            }
+        }else{
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+            if(sobot_tv_bottom_likeBtn!=null) {
+                sobot_tv_bottom_likeBtn.setVisibility(View.VISIBLE);
+                sobot_tv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+                sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
+                sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+                sobot_tv_bottom_likeBtn.setEnabled(true);
+                sobot_tv_bottom_dislikeBtn.setEnabled(true);
+                sobot_tv_bottom_likeBtn.setSelected(false);
+                sobot_tv_bottom_dislikeBtn.setSelected(false);
+                sobot_tv_bottom_likeBtn.setOnClickListener(new NoDoubleClickListener() {
+                    @Override
+                    public void onNoDoubleClick(View v) {
+                        doRevaluate(true);
+                    }
+                });
+                sobot_tv_bottom_dislikeBtn.setOnClickListener(new NoDoubleClickListener() {
+                    @Override
+                    public void onNoDoubleClick(View v) {
+                        doRevaluate(false);
+                    }
+                });
             }
         }
     }
-
     /**
      * 顶踩 操作
      *
@@ -180,41 +226,42 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
             msgCallBack.doRevaluate(revaluateFlag, message);
         }
     }
-
-    /**
-     * 隐藏 顶踩 按钮
-     */
-    public void hideRevaluateBtn() {
-        hideContainer();
-        sobot_likeBtn_tv.setVisibility(View.GONE);
-        sobot_dislikeBtn_tv.setVisibility(View.GONE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.GONE);
-        //没有顶和踩时显示信息显示一行 46-12-12=22 总高度减去上下内间距
-        msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
-    }
-
     /**
      * 显示顶之后的view
      */
     public void showLikeWordView() {
-        sobot_likeBtn_tv.setSelected(true);
-        sobot_likeBtn_tv.setEnabled(false);
-        sobot_dislikeBtn_tv.setEnabled(false);
-        sobot_dislikeBtn_tv.setSelected(false);
-        sobot_likeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_dislikeBtn_tv.setVisibility(View.GONE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
-        //有顶或者踩时显示信息显示一行 22
-        msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
-        //有顶或者踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 22
-        if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
-            for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
-                View view = sobot_rich_ll.getChildAt(i);
-                if (view instanceof TextView) {
-                    TextView tv = (TextView) view;
-                    tv.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+        if(dingcaiIsShowRight()) {
+            sobot_likeBtn_tv.setSelected(true);
+            sobot_likeBtn_tv.setEnabled(false);
+            sobot_dislikeBtn_tv.setEnabled(false);
+            sobot_dislikeBtn_tv.setSelected(false);
+            sobot_likeBtn_tv.setVisibility(View.VISIBLE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+            //有顶或者踩时显示信息显示一行 22
+            msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+            //有顶或者踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 22
+            if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
+                for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
+                    View view = sobot_rich_ll.getChildAt(i);
+                    if (view instanceof TextView) {
+                        TextView tv = (TextView) view;
+                        tv.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+                    }
                 }
             }
+        }else{
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_tv_bottom_likeBtn.setSelected(true);
+            sobot_tv_bottom_likeBtn.setEnabled(false);
+            sobot_tv_bottom_dislikeBtn.setEnabled(false);
+            sobot_tv_bottom_dislikeBtn.setSelected(false);
+            sobot_tv_bottom_likeBtn.setVisibility(View.VISIBLE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
         }
     }
 
@@ -222,24 +269,38 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
      * 显示踩之后的view
      */
     public void showDislikeWordView() {
-        sobot_dislikeBtn_tv.setSelected(true);
-        sobot_dislikeBtn_tv.setEnabled(false);
-        sobot_likeBtn_tv.setEnabled(false);
-        sobot_likeBtn_tv.setSelected(false);
-        sobot_likeBtn_tv.setVisibility(View.GONE);
-        sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
-        //有顶或者踩时显示信息显示一行 22
-        msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
-        //有顶或者踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 22
-        if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
-            for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
-                View view = sobot_rich_ll.getChildAt(i);
-                if (view instanceof TextView) {
-                    TextView tv = (TextView) view;
-                    tv.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+        if(dingcaiIsShowRight()) {
+            sobot_dislikeBtn_tv.setSelected(true);
+            sobot_dislikeBtn_tv.setEnabled(false);
+            sobot_likeBtn_tv.setEnabled(false);
+            sobot_likeBtn_tv.setSelected(false);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+            //有顶或者踩时显示信息显示一行 22
+            msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+            //有顶或者踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 22
+            if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
+                for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
+                    View view = sobot_rich_ll.getChildAt(i);
+                    if (view instanceof TextView) {
+                        TextView tv = (TextView) view;
+                        tv.setMinHeight(ScreenUtils.dip2px(mContext, 22));
+                    }
                 }
             }
+        } else {
+            sobot_tv_bottom_dislikeBtn.setSelected(true);
+            sobot_tv_bottom_dislikeBtn.setEnabled(false);
+            sobot_tv_bottom_likeBtn.setEnabled(false);
+            sobot_tv_bottom_likeBtn.setSelected(false);
+            sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
         }
     }
 
@@ -356,6 +417,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                     // 0：文本，1：图片，2：音频，3：视频，4：文件
                     if (richListModel.getType() == 0) {
                         TextView textView = new TextView(mContext);
+                        textView.setIncludeFontPadding(false);
                         textView.setTextSize(14);
                         textView.setLayoutParams(wlayoutParams);
                         textView.setMaxWidth(msgMaxWidth);
@@ -534,7 +596,9 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         sobot_file_size.setText(TextUtils.isEmpty(richListModel.getFileSize()) ? "" : richListModel.getFileSize());
                         SobotBitmapUtil.display(mContext, ChatUtils.getFileIcon(mContext, FileTypeConfig.getFileType(FileUtil.checkFileEndWith(richListModel.getMsg()))), sobot_progress);
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, msgCardWidth), ViewGroup.LayoutParams.WRAP_CONTENT);
-                        layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 6), 0);
+                        if (i != 0) {
+                             layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 6), 0);
+                        }
                         view.setLayoutParams(layoutParams);
                         sobot_rich_ll.addView(view);
                         setLongClickListener(view);
@@ -550,6 +614,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                     Intent intent = new Intent(mContext, SobotFileDetailActivity.class);
                                     SobotCacheFile cacheFile = new SobotCacheFile();
                                     cacheFile.setFileName(richListModel.getName());
+                                    cacheFile.setFileSize(TextUtils.isEmpty(richListModel.getFileSize()) ? "" : richListModel.getFileSize());
                                     cacheFile.setUrl(richListModel.getMsg());
                                     cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(richListModel.getMsg())));
                                     cacheFile.setMsgId(message.getMsgId() + richListModel.getMsg());

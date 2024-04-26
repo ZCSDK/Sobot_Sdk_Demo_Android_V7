@@ -71,7 +71,7 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.sobot_chat_msg_item_template3_item_l, parent, false);
-                return new Template3ViewHolder(view, parent.getContext());
+                return new RobotTemplateMessageHolder3.Template3ViewHolder(view, parent.getContext());
             }
 
             @Override
@@ -80,24 +80,24 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
                 Map<String, String> interfaceRet = (Map<String, String>) adapter.getData().get(position);
 
                 if (!TextUtils.isEmpty(interfaceRet.get("thumbnail"))) {
-                    ((Template3ViewHolder) holder).sobotThumbnail.setVisibility(View.VISIBLE);
-                    ((Template3ViewHolder) holder).sobotSummary.setMaxLines(2);
-                    ((Template3ViewHolder) holder).sobotSummary.setEllipsize(TextUtils.TruncateAt.END);
-                    SobotBitmapUtil.display(mContext, interfaceRet.get("thumbnail"), ((Template3ViewHolder) holder).sobotThumbnail, R.drawable.sobot_bg_default_pic_img, R.drawable.sobot_bg_default_pic_img);
+                    ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotThumbnail.setVisibility(View.VISIBLE);
+                    ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotSummary.setMaxLines(2);
+                    ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotSummary.setEllipsize(TextUtils.TruncateAt.END);
+                    SobotBitmapUtil.display(mContext, interfaceRet.get("thumbnail"), ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotThumbnail, R.drawable.sobot_bg_default_pic_img, R.drawable.sobot_bg_default_pic_img);
                 } else {
-                    ((Template3ViewHolder) holder).sobotThumbnail.setVisibility(View.GONE);
+                    ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotThumbnail.setVisibility(View.GONE);
                 }
 
-                ((Template3ViewHolder) holder).sobotTitle.setText(interfaceRet.get("title"));
-                ((Template3ViewHolder) holder).sobotSummary.setText(interfaceRet.get("summary"));
-                ((Template3ViewHolder) holder).sobotLable.setText(interfaceRet.get("label"));
-                ((Template3ViewHolder) holder).sobotOtherLable.setText(interfaceRet.get("tag"));
+                ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotTitle.setText(interfaceRet.get("title"));
+                ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotSummary.setText(interfaceRet.get("summary"));
+                ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotLable.setText(interfaceRet.get("label"));
+                ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotOtherLable.setText(interfaceRet.get("tag"));
 
 
 //                if (!TextUtils.isEmpty(interfaceRet.get("label"))) {
 //                    ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotLable.setVisibility(View.VISIBLE);
 //                } else {
-                ((Template3ViewHolder) holder).sobotLable.setVisibility(View.GONE);
+                ((RobotTemplateMessageHolder3.Template3ViewHolder) holder).sobotLable.setVisibility(View.GONE);
 //                }
 
             }

@@ -243,12 +243,18 @@
     <!--文件进度条背景色-->
     <color name="sobot_sectorProgressView_fgColor">#4D000000</color>
 
+    <!--半透明-->
+    <color name="sobot_half_transparent">#73000000</color>
+
+
     <!--自动补全 背景色-->
     <color name="sobot_auto_complete_press">@color/sobot_common_gray8</color>
     <color name="sobot_auto_complete">@color/sobot_common_gray6</color>
-<!--自定义卡片边框-->
+    <!--自定义卡片边框-->
     <color name="sobot_card_mgs_bg">@color/sobot_white</color>
     <color name="sobot_card_mgs_bg1">@color/sobot_common_gray1</color>
     <color name="sobot_card_mgs_bg2">@color/sobot_common_gray2</color>
     <color name="sobot_card_mgs_bg3">@color/sobot_common_gray3</color>
+    <!--    点踩问题按钮背景-->
+    <color name="sobot_cai_tag_bg">@color/sobot_common_gray3</color>
 </resources>

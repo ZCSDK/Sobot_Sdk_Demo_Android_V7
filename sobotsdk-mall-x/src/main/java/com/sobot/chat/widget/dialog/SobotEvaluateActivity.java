@@ -23,7 +23,9 @@ import android.widget.RadioGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.api.ResultCallBack;
 import com.sobot.chat.api.ZhiChiApi;
@@ -419,11 +421,13 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
         sobot_evaluate_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(ZhiChiConstants.sobot_close_now);
-                LogUtils.i("isBackShowEvaluate:  " + isBackShowEvaluate + "--------canBackWithNotEvaluation:   " + canBackWithNotEvaluation);
-                intent.putExtra("isBackShowEvaluate", isBackShowEvaluate);
-                CommonUtils.sendLocalBroadcast(SobotEvaluateActivity.this, intent);
+                if(isExitSession) {
+                    Intent intent = new Intent();
+                    intent.setAction(ZhiChiConstants.sobot_close_now);
+                    LogUtils.i("isBackShowEvaluate:  " + isBackShowEvaluate + "--------canBackWithNotEvaluation:   " + canBackWithNotEvaluation);
+                    intent.putExtra("isBackShowEvaluate", isBackShowEvaluate);
+                    CommonUtils.sendLocalBroadcast(SobotEvaluateActivity.this, intent);
+                }
                 finish();
             }
         });
@@ -536,7 +540,12 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
                 View view = inflater.inflate(R.layout.sobot_layout_evaluate_item, null);
                 CheckBox checkBox = view.findViewById(R.id.sobot_evaluate_cb_lable);
                 //50 =antoLineLayout 左间距20+右间距20 +antoLineLayout 子控件行间距10
-                checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 50)) / 2);
+                if(ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)){
+                    //横屏
+                    checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 100)) / 2);
+                }else {
+                    checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 50)) / 2);
+                }
                 checkBox.setText(tmpData[i]);
                 if (changeThemeColor) {
                     checkBox.setTextColor(themeColor);

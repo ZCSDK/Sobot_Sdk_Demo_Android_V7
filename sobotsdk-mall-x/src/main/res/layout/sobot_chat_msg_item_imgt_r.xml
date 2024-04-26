@@ -118,8 +118,6 @@
                                 android:id="@+id/sobot_answersList"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginBottom="10dp"
                                 android:layout_below="@+id/sobot_iv_picture"
                                 android:orientation="vertical"
                                 android:visibility="gone" />

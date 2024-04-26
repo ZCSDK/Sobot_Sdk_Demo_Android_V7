@@ -171,7 +171,7 @@
     <string name="sobot_already_save_to_picture">已保存到系统相册</string>
     <string name="sobot_after_consultation_to_evaluate_custome_service">咨询后才能评价服务质量</string>
     <string name="sobot__is_null">不能为空</string>
-    <string name="sobot_reunicon">点击重新连接</string>
+    <string name="sobot_reunicon">重新加载</string>
     <string name="sobot_pic_select_again">请重新选择或拍摄</string>
     <string name="sobot_only_can_write">只能输入</string>
     <string name="sobot_loading">请稍候</string>
@@ -258,4 +258,8 @@
     <string name="sobot_msg_no_read">未读</string>
     <string name="sobot_msg_read">已读</string>
     <string name="sobot_str_link">链接</string>
+    <!--   4.1.4   -->
+    <string name="sobot_str_select_pic_video">选择照片和视频</string>
+    <string name="sobot_str_goto_setting_info">当前仅允许访问部分照片或视频</string>
+    <string name="sobot_str_goto_setting_allow">允许全部 ></string>
 </resources>

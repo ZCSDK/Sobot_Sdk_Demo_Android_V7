@@ -44,8 +44,7 @@
                     <!-- 消息已读未读 -->
                     <TextView
                         android:id="@+id/sobot_msg_read_status"
-                        style="@style/sobot_msg_read_status_style"
-                        />
+                        style="@style/sobot_msg_read_status_style" />
                     <!-- 消息的状态 -->
                     <ImageView
                         android:id="@+id/sobot_msgStatus"
@@ -80,6 +79,7 @@
                         android:id="@+id/sobot_msg"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:textColor="@color/sobot_right_msg_text_color"
                         android:textSize="@dimen/sobot_msg_text_size" />
 

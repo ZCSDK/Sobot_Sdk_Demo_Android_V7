@@ -49,13 +49,6 @@ public class App extends Application {
         if (information == null) {
             SobotSPUtil.INSTANCE.saveObject(this, "sobot_demo_infomation", new Information());
         }
-        if (information != null) {
-            if (TextUtils.isEmpty(information.getApp_key())) {
-                ToastUtil.showCustomToast(this, "appkey不能为空,请前往基础设置中设置");
-                return;
-            }
-            ZCSobotApi.initSobotSDK(this, information.getApp_key(), information.getPartnerid());
-        }
 
         //是否在申请权限前弹出权限用途提示框,默认不弹
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.SHOW_PERMISSION_TIPS_POP, SobotSPUtil.INSTANCE.getBooleanData(this, "show_permission_tips_pop", false));

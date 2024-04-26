@@ -202,6 +202,7 @@ public class SobotSessionServer extends Service {
                     base.setMessage(pushMessage.getMessage());
                     base.setSenderType(ZhiChiConstant.message_sender_type_service );
                     base.setAnswer(pushMessage.getAnswer());
+                    base.setReadStatus(pushMessage.getReadStatus());
                     // 更新界面的操作
                     //添加“以下为未读消息”
                     if (config.isShowUnreadUi) {
@@ -331,7 +332,7 @@ public class SobotSessionServer extends Service {
             if (config.getInitModel() != null) {
                 if (config.isAboveZero && !config.isComment && config.customerState == CustomerState.Online) {
                     // 满足评价条件，并且之前没有评价过的话 才能 弹评价框
-                    ZhiChiMessageBase customEvaluateMode = ChatUtils.getCustomEvaluateMode(SobotSessionServer.this, pushMessage);
+                    ZhiChiMessageBase customEvaluateMode = ChatUtils.getCustomEvaluateMode(SobotSessionServer.this, pushMessage,config.mSatisfactionSet);
                     config.addMessage(customEvaluateMode);
                     if (isNeedShowMessage(pushMessage.getAppId())) {
                         showNotification(getResources().getString(R.string.sobot_cus_service) + " " + pushMessage.getAname() + " " + getResources().getString(R.string.sobot_please_evaluate), pushMessage, false);
@@ -433,7 +434,9 @@ public class SobotSessionServer extends Service {
         config.queueNum = 0;
         config.currentUserName = TextUtils.isEmpty(name) ? "" : name;
         //显示被xx客服接入
-        config.addMessage(ChatUtils.getServiceAcceptTip(SobotSessionServer.this, name, face));
+        if(initModel.getServicePromptFlag()==1) {
+            config.addMessage(ChatUtils.getServiceAcceptTip(SobotSessionServer.this, initModel.getServicePromptWord(),name, face));
+        }
         if (isNeedShowMessage(pushMessage.getAppId())) {
             showNotification(getResources().getString(R.string.sobot_receive_new_message), pushMessage, false);
         }

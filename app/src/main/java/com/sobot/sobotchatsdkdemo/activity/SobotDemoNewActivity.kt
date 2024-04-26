@@ -1,6 +1,8 @@
 package com.sobot.sobotchatsdkdemo.activity
 
+import android.content.Context
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -39,6 +41,7 @@ class SobotDemoNewActivity : AppCompatActivity() {
         init {
             fragments.add(SobotDemoWelcomeFragment())
             fragments.add(SobotDemoNewSettingFragment())
+            fragments.add(SobotAutomationFragment())
         }
 
         override fun getItem(position: Int): Fragment {
@@ -56,7 +59,11 @@ class SobotDemoNewActivity : AppCompatActivity() {
             unReadMsgReceiver = SobotUnReadMsgReceiver()
         }
         filter.addAction(ZhiChiConstant.sobot_unreadCountBrocast)
-        registerReceiver(unReadMsgReceiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            registerReceiver(unReadMsgReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        }else{
+            registerReceiver(unReadMsgReceiver, filter)
+        }
     }
 
     override fun onDestroy() {

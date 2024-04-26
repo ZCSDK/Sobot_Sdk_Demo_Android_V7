@@ -94,25 +94,36 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
         st_seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                LogUtils.d("====progress====" + progress);
-                if (mMediaPlayer !=null  && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mMediaPlayer.seekTo(progress, MediaPlayer.SEEK_CLOSEST);
-                }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                if (mMediaPlayer != null) {
-//                    mMediaPlayer.pause();
-                    onPause();
+                if (isPlaying() && mMediaPlayer.isPlaying()) {
+                    seekBar.setTag(mMediaPlayer.isPlaying());
+                    mMediaPlayer.pause();
+                    playPauseDrawable.setPlay(false);
+                } else {
+                    seekBar.setTag(false);
                 }
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (mMediaPlayer != null) {
-                    playPauseDrawable.setPause(true);
+                if ((boolean) seekBar.getTag()) {
+                    playPauseDrawable.setPlay(true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        mMediaPlayer.seekTo(seekBar.getProgress(), MediaPlayer.SEEK_CLOSEST);
+                    } else {
+                        mMediaPlayer.seekTo(seekBar.getProgress());
+                    }
                     startVideo();
+                    if (!isPlaying()) {
+                        playPauseDrawable.setPlay(true);
+                    } else {
+                        playPauseDrawable.setPause(true);
+                    }
+                } else {
+                    mMediaPlayer.seekTo(seekBar.getProgress());
                 }
             }
         });
@@ -164,13 +175,11 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
     }
 
     private void updateVideoViewSize(float videoWidth, float videoHeight) {
-        if (videoWidth > videoHeight) {
-            LayoutParams videoViewParam;
-            int height = (int) ((videoHeight / videoWidth) * getWidth());
-            videoViewParam = new LayoutParams(LayoutParams.MATCH_PARENT, height);
-            videoViewParam.gravity = Gravity.CENTER;
-            mVideoView.setLayoutParams(videoViewParam);
-        }
+        LayoutParams videoViewParam;
+        int height = (int) ((videoHeight / videoWidth) * getWidth());
+        videoViewParam = new LayoutParams(LayoutParams.MATCH_PARENT, height);
+        videoViewParam.gravity = Gravity.CENTER;
+        mVideoView.setLayoutParams(videoViewParam);
     }
 
     @Override
@@ -286,6 +295,8 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    updateVideoViewSize(mp.getVideoWidth(), mp
+                            .getVideoHeight());
                     startVideo();
                 }
             });

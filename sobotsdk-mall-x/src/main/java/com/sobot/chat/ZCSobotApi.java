@@ -7,7 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -39,6 +42,7 @@ import com.sobot.chat.listener.HyperlinkListener;
 import com.sobot.chat.listener.NewHyperlinkListener;
 import com.sobot.chat.listener.SobotChatStatusListener;
 import com.sobot.chat.listener.SobotFunctionClickListener;
+import com.sobot.chat.listener.SobotHelpPageOpenChatListener;
 import com.sobot.chat.listener.SobotImagePreviewListener;
 import com.sobot.chat.listener.SobotLeaveMsgListener;
 import com.sobot.chat.listener.SobotMiniProgramClickListener;
@@ -97,9 +101,11 @@ public class ZCSobotApi {
             SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_CONFIG_APPKEY, appkey);
             SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_SAVE_HOST_AFTER_INITSDK, SobotBaseUrl.getApi_Host());
             //清空sdk 语言设置
-            SharedPreferencesUtil.removeKey(context,ZhiChiConstant.SOBOT_LANGUAGE);
+            SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_LANGUAGE);
             SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
             SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
+            //清除夜间模式设置
+            SharedPreferencesUtil.removeKey(context, ZCSobotConstant.LOCAL_NIGHT_MODE);
             if (!CommonUtils.inMainProcess(context.getApplicationContext())) {
                 return;
             }
@@ -113,6 +119,7 @@ public class ZCSobotApi {
         } catch (Exception e) {
         }
     }
+
     /**
      * 清理SharedPreferences 里边的缓存信息
      * SharedPreferences的有关配置都需要在初始化之后配置
@@ -466,6 +473,7 @@ public class ZCSobotApi {
      * @param noReadLeaveReplyListener 留言未读回复列表回调，返回List<SobotLeaveReplyModel>
      */
     private static long requestReplyMsgTime = 0;
+
     public static void getLastLeaveReplyMessage(final Context context, String partnerId, final SobotNoReadLeaveReplyListener noReadLeaveReplyListener) {
         if (context == null) {
             LogUtils.e("getLastLeaveReplyMessage context 为空");
@@ -475,7 +483,7 @@ public class ZCSobotApi {
             LogUtils.e("getLastLeaveReplyMessage partnerId 不能为空");
             return;
         }
-        if(System.currentTimeMillis()-requestReplyMsgTime<=60*1000){
+        if (System.currentTimeMillis() - requestReplyMsgTime <= 60 * 1000) {
             return;
         }
         requestReplyMsgTime = System.currentTimeMillis();
@@ -830,6 +838,15 @@ public class ZCSobotApi {
      */
     public static void setFunctionClickListener(SobotFunctionClickListener functionClickListener) {
         SobotOption.functionClickListener = functionClickListener;
+    }
+
+    /**
+     * 帮助中心 在线客服的点击事件, 根据返回结果判断是否拦截 如果返回true,拦截;false 不拦截
+     *
+     * @param openChatListener
+     */
+    public static void setHelpPageOpenChatListener(SobotHelpPageOpenChatListener openChatListener) {
+        SobotOption.openChatListener = openChatListener;
     }
 
     /**
@@ -1312,7 +1329,7 @@ public class ZCSobotApi {
             return;
         }
         //清空sdk 语言设置
-        SharedPreferencesUtil.removeKey(context,ZhiChiConstant.SOBOT_LANGUAGE);
+        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_LANGUAGE);
         SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
         SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
         if (TextUtils.isEmpty(language)) {
@@ -1367,6 +1384,36 @@ public class ZCSobotApi {
             return information;
         }
         return null;
+    }
+
+    /**
+     * 设置界面白天、夜间模式或者跟随系统，默认跟随系统
+     * sdk 初始化后设置，因为每次初始化后会还原
+     *
+     * @param context
+     * @param mode    AppCompatDelegate.MODE_NIGHT_NO:白天模式
+     *                AppCompatDelegate.MODE_NIGHT_YES:夜间模式
+     *                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:跟随系统
+     *                AppCompatDelegate.MODE_NIGHT_AUTO:根据当前时间在day/night主题间切换
+     */
+    public static void setLocalNightMode(Context context, int mode) {
+        if (context != null) {
+            //AppCompatDelegate.MODE_NIGHT_NO:白天模式
+            //AppCompatDelegate.MODE_NIGHT_YES:夜间模式
+            //AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:跟随系统
+            //AppCompatDelegate.MODE_NIGHT_AUTO:根据当前时间在day/night主题间切换
+            int appCompatDelegate;
+            if (mode == 1) {
+                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_NO;
+            } else if (mode == 2) {
+                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_YES;
+            } else if (mode == 0) {
+                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_AUTO;
+            } else {
+                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+            }
+            SharedPreferencesUtil.saveIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, appCompatDelegate);
+        }
     }
 
 }

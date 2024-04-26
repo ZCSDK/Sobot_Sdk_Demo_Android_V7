@@ -80,12 +80,12 @@ public class SobotTenRatingLayout extends LinearLayout {
             TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
             textView.setText(i + "");
             if (i != 5) {
-                lp = new LayoutParams(ScreenUtils.dip2px(getContext(), width),
-                        LayoutParams.MATCH_PARENT);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), width),
+                        LinearLayout.LayoutParams.MATCH_PARENT);
                 lp.rightMargin = ScreenUtils.dip2px(getContext(), 10f);
             } else {
-                lp = new LayoutParams(ScreenUtils.dip2px(getContext(), width),
-                        LayoutParams.MATCH_PARENT);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), width),
+                        LinearLayout.LayoutParams.MATCH_PARENT);
                 lp.rightMargin = 0;
             }
             textView.setLayoutParams(lp);
@@ -115,12 +115,12 @@ public class SobotTenRatingLayout extends LinearLayout {
             TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
             textView.setText(i + "");
             if (i != 10) {
-                lp = new LayoutParams(ScreenUtils.dip2px(getContext(), width),
-                        LayoutParams.MATCH_PARENT);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), width),
+                        LinearLayout.LayoutParams.MATCH_PARENT);
                 lp.rightMargin = ScreenUtils.dip2px(getContext(), 10f);
             } else {
-                lp = new LayoutParams(ScreenUtils.dip2px(getContext(), width),
-                        LayoutParams.MATCH_PARENT);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), width),
+                        LinearLayout.LayoutParams.MATCH_PARENT);
                 lp.rightMargin = 0;
             }
             textView.setLayoutParams(lp);

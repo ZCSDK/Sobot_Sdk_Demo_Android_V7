@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Default implementation of {@link ImageRegionDecoder}
+ * Default implementation of {@link com.sobot.chat.widget.subscaleview.decoder.ImageRegionDecoder}
  * using Android's {@link BitmapRegionDecoder}, based on the Skia library. This
  * works well in most circumstances and has reasonable performance due to the cached decoder instance,
  * however it has some problems with grayscale, indexed and CMYK images.

@@ -31,7 +31,6 @@
             android:paddingLeft="20dp"
             android:paddingTop="16dp"
             android:paddingRight="20dp"
-            android:text="我的服务评价"
             android:textColor="@color/sobot_common_gray1"
             android:textSize="@dimen/sobot_text_font_14"
             android:textStyle="bold"

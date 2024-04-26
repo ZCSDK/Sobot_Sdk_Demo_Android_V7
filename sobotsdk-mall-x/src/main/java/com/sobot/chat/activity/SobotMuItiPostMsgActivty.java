@@ -85,11 +85,11 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     private LinearLayout sobot_btn_cancle;
     private TextView sobot_tv_title;
     private EditText sobot_post_email, sobot_et_content, sobot_post_phone, sobot_post_title;
-    private TextView sobot_tv_post_msg, sobot_post_email_lable, sobot_post_phone_lable, sobot_post_lable, sobot_post_title_lable, sobot_post_question_type, sobot_post_question_lable, sobot_tv_problem_description;
+    private TextView sobot_tv_post_msg, sobot_post_email_lable, sobot_post_phone_lable, sobot_post_lable, sobot_post_title_lable, sobot_post_question_type, sobot_post_question_lable, sobot_tv_problem_description, tv_problem_description_required;
     private View sobot_frist_line, sobot_post_title_line, sobot_post_question_line, sobot_post_customer_line, sobot_post_title_sec_line, sobot_post_question_sec_line, sobot_post_customer_sec_line, sobot_phone_line;
     private Button sobot_btn_submit;
     private GridView sobot_post_msg_pic;
-    private LinearLayout sobot_enclosure_container, sobot_post_customer_field, sobot_post_question_ll, sobot_ll_content_img;
+    private LinearLayout sobot_enclosure_container, sobot_post_customer_field, sobot_post_question_ll, sobot_ll_content_img, ll_problem_description_title;
     private RelativeLayout sobot_post_email_rl, sobot_post_phone_rl, sobot_post_title_rl;
     private TextView title_hint_input_lable, email_hint_input_label, phone_hint_input_label;
     private ArrayList<ZhiChiUploadAppFileModelResult> pic_list = new ArrayList<>();
@@ -245,8 +245,25 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         sobot_post_title_rl = (RelativeLayout) findViewById(R.id.sobot_post_title_rl);
         sobot_post_question_ll = (LinearLayout) findViewById(R.id.sobot_post_question_ll);
         sobot_post_question_ll.setOnClickListener(this);
-        sobot_tv_problem_description = (TextView) findViewById(R.id.sobot_tv_problem_description);
+        ll_problem_description_title = findViewById(R.id.ll_problem_description_title);
+        sobot_tv_problem_description = findViewById(R.id.sobot_tv_problem_description);
+        tv_problem_description_required = findViewById(R.id.tv_problem_description_required);
         sobot_tv_problem_description.setText(R.string.sobot_problem_description);
+        if (mConfig.isTicketContentShowFlag()) {
+            //问题描述是否显示
+            ll_problem_description_title.setVisibility(View.VISIBLE);
+            sobot_et_content.setVisibility(View.VISIBLE);
+            //问题描述是否必填
+            if (mConfig.isTicketContentFillFlag()) {
+                tv_problem_description_required.setVisibility(View.VISIBLE);
+
+            } else {
+                tv_problem_description_required.setVisibility(View.GONE);
+            }
+        } else {
+            ll_problem_description_title.setVisibility(View.GONE);
+            sobot_et_content.setVisibility(View.GONE);
+        }
         sobot_btn_submit = (Button) findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
@@ -394,7 +411,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             sobot_enclosure_container.setVisibility(View.GONE);
         }
 
-        if (mConfig.isTicketTypeFlag() && mConfig.getType()!=null && mConfig.getType().size()>0) {
+        if (mConfig.isTicketTypeFlag() && mConfig.getType() != null && mConfig.getType().size() > 0) {
             sobot_post_question_ll.setVisibility(View.VISIBLE);
             sobot_post_question_line.setVisibility(View.VISIBLE);
             sobot_post_question_sec_line.setVisibility(View.VISIBLE);
@@ -493,12 +510,13 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 }
             }
         }
-
-        if (TextUtils.isEmpty(sobot_et_content.getText().toString().trim())) {
-            showHint(getResources().getString(R.string.sobot_problem_description) + "  " + getResources().getString(R.string.sobot__is_null));
-            return;
+        if (mConfig.isTicketContentShowFlag() && mConfig.isTicketContentFillFlag()) {
+            //问题描述 显示 必填才校验
+            if (TextUtils.isEmpty(sobot_et_content.getText().toString().trim())) {
+                showHint(getResources().getString(R.string.sobot_problem_description) + "  " + getResources().getString(R.string.sobot__is_null));
+                return;
+            }
         }
-
         if (mConfig.isEnclosureShowFlag() && mConfig.isEnclosureFlag()) {
             if (TextUtils.isEmpty(getFileStr())) {
                 showHint(getResources().getString(R.string.sobot_please_load));
@@ -620,7 +638,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             tempMap.put(sobot_post_title_lable.getText().toString().replace(" *", ""), StringUtils.isEmpty(title) ? " - -" : title);
         }
 
-        if (mConfig.isTicketTypeFlag()&& mConfig.getType()!=null && mConfig.getType().size()>0) {
+        if (mConfig.isTicketTypeFlag() && mConfig.getType() != null && mConfig.getType().size() > 0) {
             tempMap.put(sobot_post_question_lable.getText().toString().replace(" *", ""), StringUtils.isEmpty(sobot_post_question_type.getText().toString()) ? " - -" : sobot_post_question_type.getText().toString());
         }
         if (mFields != null && mFields.size() > 0) {
@@ -629,7 +647,9 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 tempMap.putAll(map);
             }
         }
-        tempMap.put(getResources().getString(R.string.sobot_problem_description), StringUtils.isEmpty(sobot_et_content.getText().toString()) ? " - -" : sobot_et_content.getText().toString());
+        if (mConfig.isTicketContentShowFlag()) {
+            tempMap.put(getResources().getString(R.string.sobot_problem_description), StringUtils.isEmpty(sobot_et_content.getText().toString()) ? " - -" : sobot_et_content.getText().toString());
+        }
         if (mConfig.isEnclosureShowFlag()) {
             tempMap.put(getResources().getString(R.string.sobot_enclosure_string), StringUtils.isEmpty(getFileNameStr()) ? " - -" : getFileNameStr());
         }
@@ -810,8 +830,6 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
     //对msg过滤
     private void msgFilter() {
-
-
         if (information != null && information.getLeaveMsgTemplateContent() != null) {
             sobot_et_content.setHint(Html.fromHtml(information.getLeaveMsgTemplateContent().replace("<p>", "").replace("</p>", "").replace("\n", "<br/>")));
         } else {

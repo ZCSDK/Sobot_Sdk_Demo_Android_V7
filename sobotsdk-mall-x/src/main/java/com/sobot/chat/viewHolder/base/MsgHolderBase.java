@@ -37,7 +37,6 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
@@ -78,7 +77,12 @@ public abstract class MsgHolderBase {
     public TextView sobot_tv_transferBtn;//机器人转人工按钮
     public ImageView sobot_likeBtn_tv;//机器人评价 顶 的按钮
     public ImageView sobot_dislikeBtn_tv;//机器人评价 踩 的按钮
-    public RelativeLayout sobot_left_msg_right_empty_rl;//左侧消息右边的空白区域
+    public RelativeLayout rightEmptyRL;//左侧消息右边的空白区域
+    //底部顶踩显示
+    protected LinearLayout sobot_ll_bottom_likeBtn;
+    protected LinearLayout sobot_ll_bottom_dislikeBtn;
+    protected TextView sobot_tv_bottom_likeBtn;//气泡下边 机器人评价 顶 的按钮
+    protected TextView sobot_tv_bottom_dislikeBtn;//气泡下边 机器人评价 踩 的按钮
     public TextView stripe;//关联问题提示语
     public LinearLayout answersList;//关联问题
 
@@ -129,9 +133,15 @@ public abstract class MsgHolderBase {
         if (!isRight() && sobot_tv_transferBtn != null) {
             sobot_tv_transferBtn.setText(R.string.sobot_transfer_to_customer_service);
         }
-        sobot_left_msg_right_empty_rl = (RelativeLayout) convertView.findViewById(R.id.sobot_left_msg_right_empty_rl);
+        rightEmptyRL = (RelativeLayout) convertView.findViewById(R.id.sobot_left_msg_right_empty_rl);
         sobot_likeBtn_tv = convertView.findViewById(R.id.sobot_likeBtn_tv);
         sobot_dislikeBtn_tv = convertView.findViewById(R.id.sobot_dislikeBtn_tv);
+
+        sobot_ll_bottom_likeBtn = convertView.findViewById(R.id.sobot_ll_bottom_likeBtn);
+        sobot_ll_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_ll_bottom_dislikeBtn);
+        sobot_tv_bottom_likeBtn = convertView.findViewById(R.id.sobot_tv_bottom_likeBtn);
+        sobot_tv_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_tv_bottom_dislikeBtn);
+
         stripe = convertView
                 .findViewById(R.id.sobot_stripe);
         answersList = (LinearLayout) convertView
@@ -225,7 +235,6 @@ public abstract class MsgHolderBase {
     public void refreshReadStatus() {
         if (message != null && message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS && message.getReadStatus() > 0) {
             if (msgReadStatus != null) {
-
                 msgReadStatus.setVisibility(View.VISIBLE);
 //            0-未标记，1-未读，2-已读
                 if (message.getReadStatus() == 1) {
@@ -318,21 +327,34 @@ public abstract class MsgHolderBase {
                 }
             } else {
                 if (message != null && name != null) {
-                    if (!TextUtils.isEmpty(message.getSenderName())) {
+                    if (StringUtils.isNoEmpty(message.getSenderName())) {
                         name.setText(message.getSenderName());
                     }
+                    //后端返回的昵称需要显示
                     if (isShowNickName) {
                         name.setVisibility(View.VISIBLE);
+                    } else {
+                        name.setVisibility(View.GONE);
                     }
+                    //相邻两条消息同一个人，1分钟内不显示
                     if (!message.isShowFaceAndNickname()) {
                         name.setVisibility(View.GONE);
                     }
                 }
                 if (message != null && imgHead != null) {
-                    if (message.isShowFaceAndNickname()) {
+                    if (StringUtils.isNoEmpty(message.getSenderFace())) {
                         SobotBitmapUtil.display(mContext, CommonUtils.encode(message.getSenderFace()),
                                 imgHead, R.drawable.sobot_def_admin, R.drawable.sobot_def_admin);
+                    }
+                    //后端返回的头像需要显示
+                    if (isShowFace) {
+                        imgHead.setVisibility(View.VISIBLE);
                     } else {
+                        imgHead.setVisibility(View.GONE);
+                    }
+                    //相邻两条消息同一个人，1分钟内不显示
+                    if (!message.isShowFaceAndNickname()) {
+                        //占位
                         SobotBitmapUtil.display(mContext, "",
                                 imgHead);
                     }
@@ -544,9 +566,9 @@ public abstract class MsgHolderBase {
 
     public void hideContainer() {
         if (!message.isShowTransferBtn()) {
-            sobot_chat_more_action.setVisibility(View.GONE);
+            sobot_ll_transferBtn.setVisibility(View.GONE);
         } else {
-            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_ll_transferBtn.setVisibility(View.VISIBLE);
         }
     }
 
@@ -617,9 +639,28 @@ public abstract class MsgHolderBase {
      * 显示 顶踩 按钮
      */
     public void showRevaluateBtn() {
-        sobot_likeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
+        if (dingcaiIsShowRight()) {
+            sobot_likeBtn_tv.setVisibility(View.VISIBLE);
+            sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+            if (sobot_tv_bottom_likeBtn != null) {
+                sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
+                sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
+                sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
+                sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+            }
+        } else {
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            if (sobot_tv_bottom_likeBtn != null) {
+                sobot_tv_bottom_likeBtn.setVisibility(View.VISIBLE);
+                sobot_tv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+                sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
+                sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+            }
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+        }
+
         sobot_likeBtn_tv.setEnabled(true);
         sobot_dislikeBtn_tv.setEnabled(true);
         sobot_likeBtn_tv.setSelected(false);
@@ -636,6 +677,24 @@ public abstract class MsgHolderBase {
                 doRevaluate(false);
             }
         });
+        if (sobot_tv_bottom_likeBtn != null) {
+            sobot_tv_bottom_likeBtn.setEnabled(true);
+            sobot_tv_bottom_dislikeBtn.setEnabled(true);
+            sobot_tv_bottom_likeBtn.setSelected(false);
+            sobot_tv_bottom_dislikeBtn.setSelected(false);
+            sobot_tv_bottom_likeBtn.setOnClickListener(new NoDoubleClickListener() {
+                @Override
+                public void onNoDoubleClick(View v) {
+                    doRevaluate(true);
+                }
+            });
+            sobot_tv_bottom_dislikeBtn.setOnClickListener(new NoDoubleClickListener() {
+                @Override
+                public void onNoDoubleClick(View v) {
+                    doRevaluate(false);
+                }
+            });
+        }
     }
 
     /**
@@ -656,33 +715,67 @@ public abstract class MsgHolderBase {
         hideContainer();
         sobot_likeBtn_tv.setVisibility(View.GONE);
         sobot_dislikeBtn_tv.setVisibility(View.GONE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.GONE);
+        rightEmptyRL.setVisibility(View.GONE);
+        if (sobot_ll_bottom_likeBtn != null) {
+            sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+        }
     }
 
     /**
      * 显示顶之后的view
      */
     public void showLikeWordView() {
-        sobot_likeBtn_tv.setSelected(true);
-        sobot_likeBtn_tv.setEnabled(false);
-        sobot_dislikeBtn_tv.setEnabled(false);
-        sobot_dislikeBtn_tv.setSelected(false);
-        sobot_likeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_dislikeBtn_tv.setVisibility(View.GONE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
+        if (dingcaiIsShowRight()) {
+            sobot_likeBtn_tv.setSelected(true);
+            sobot_likeBtn_tv.setEnabled(false);
+            sobot_dislikeBtn_tv.setEnabled(false);
+            sobot_dislikeBtn_tv.setSelected(false);
+            sobot_likeBtn_tv.setVisibility(View.VISIBLE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+        } else {
+            sobot_tv_bottom_likeBtn.setSelected(true);
+            sobot_tv_bottom_likeBtn.setEnabled(false);
+            sobot_tv_bottom_dislikeBtn.setEnabled(false);
+            sobot_tv_bottom_dislikeBtn.setSelected(false);
+            sobot_tv_bottom_likeBtn.setVisibility(View.VISIBLE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+        }
     }
 
     /**
      * 显示踩之后的view
      */
     public void showDislikeWordView() {
-        sobot_dislikeBtn_tv.setSelected(true);
-        sobot_dislikeBtn_tv.setEnabled(false);
-        sobot_likeBtn_tv.setEnabled(false);
-        sobot_likeBtn_tv.setSelected(false);
-        sobot_likeBtn_tv.setVisibility(View.GONE);
-        sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
-        sobot_left_msg_right_empty_rl.setVisibility(View.VISIBLE);
+        if (dingcaiIsShowRight()) {
+            sobot_dislikeBtn_tv.setSelected(true);
+            sobot_dislikeBtn_tv.setEnabled(false);
+            sobot_likeBtn_tv.setEnabled(false);
+            sobot_likeBtn_tv.setSelected(false);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.VISIBLE);
+            rightEmptyRL.setVisibility(View.VISIBLE);
+        } else {
+            sobot_tv_bottom_dislikeBtn.setSelected(true);
+            sobot_tv_bottom_dislikeBtn.setEnabled(false);
+            sobot_tv_bottom_likeBtn.setEnabled(false);
+            sobot_tv_bottom_likeBtn.setSelected(false);
+            sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_tv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
+            sobot_chat_more_action.setVisibility(View.VISIBLE);
+            sobot_likeBtn_tv.setVisibility(View.GONE);
+            sobot_dislikeBtn_tv.setVisibility(View.GONE);
+        }
     }
 
     //隐藏关联问题布局
@@ -1065,4 +1158,11 @@ public abstract class MsgHolderBase {
         }
     }
 
+    //顶踩是否显示在气泡右侧，默认是的
+    public boolean dingcaiIsShowRight() {
+        if (initMode != null && initMode.getRealuateStyle() == 1) {
+            return false;
+        }
+        return true;
+    }
 }

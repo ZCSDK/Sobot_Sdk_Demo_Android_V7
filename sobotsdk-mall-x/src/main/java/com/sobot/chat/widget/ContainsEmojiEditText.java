@@ -154,9 +154,7 @@ public class ContainsEmojiEditText extends EditText implements View.OnFocusChang
     private class MyWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
            // LogUtils.e( "beforeTextChanged: "+s.toString());
-            if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-                doAfterTextChanged(s.toString());
-            }
+            doAfterTextChanged(s.toString());
         }
 
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -352,6 +350,8 @@ public class ContainsEmojiEditText extends EditText implements View.OnFocusChang
         if (!mIsAutoComplete) {
             HttpUtils.getInstance().cancelTag(SOBOT_AUTO_COMPLETE_REQUEST_CANCEL_TAG);
             dismissPop();
+        }else{
+            initEditText();
         }
     }
 

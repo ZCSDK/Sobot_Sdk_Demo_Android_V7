@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sobot.chat.MarkConfig
 import com.sobot.chat.SobotUIConfig
 import com.sobot.chat.ZCSobotApi
+import com.sobot.chat.ZCSobotConstant
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.enumtype.SobotChatAvatarDisplayMode
 import com.sobot.chat.api.enumtype.SobotChatTitleDisplayMode
@@ -23,6 +24,7 @@ import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getBooleanData
+import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getIntData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getStringData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveBooleanData
@@ -32,6 +34,7 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
     private var sobot_et_custom_title: EditText? = null
     private var sobot_et_custom_avatar: EditText? = null
     private var sobot_et_custom_right_button_call: EditText? = null
+    private var sobot_et_local_model: EditText? = null
     private var sobot_tv_left: RelativeLayout? = null
     private var sobot_rl_4_6_2: RelativeLayout? = null
     private var sobot_rl_4_6_2_2: RelativeLayout? = null
@@ -104,6 +107,7 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
         sobot_et_custom_title = findViewById(R.id.sobot_et_custom_title)
         sobot_et_custom_avatar = findViewById(R.id.sobot_et_custom_avatar)
         sobot_et_custom_right_button_call = findViewById(R.id.sobot_et_custom_right_button_call)
+        sobot_et_local_model = findViewById(R.id.sobot_et_local_model)
         val title = SharedPreferencesUtil.getStringData(
             context, ZhiChiConstant.SOBOT_CHAT_TITLE_DISPLAY_CONTENT,
             ""
@@ -119,6 +123,12 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
             "sobot_et_custom_right_button_call",
             sobot_et_custom_avatar!!.getText().toString().trim { it <= ' ' })
         sobot_et_custom_right_button_call!!.setText(callNum)
+        val localModel = SharedPreferencesUtil.getIntData(
+            context,
+            ZCSobotConstant.LOCAL_NIGHT_MODE,
+            -1
+        )
+        sobot_et_local_model!!.setText(localModel.toString())
         status462 = SharedPreferencesUtil.getBooleanData(
             context,
             ZhiChiConstant.SOBOT_CHAT_TITLE_IS_SHOW,
@@ -223,6 +233,13 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
                         context,
                         "sobot_et_custom_right_button_call",
                         sobot_et_custom_right_button_call!!.text.toString().trim { it <= ' ' })
+                    (sobot_et_local_model!!.text.toString().trim { it <= ' ' }).toIntOrNull()?.let {
+                        SharedPreferencesUtil.saveIntData(
+                            context,
+                            ZCSobotConstant.LOCAL_NIGHT_MODE,
+                            it
+                        )
+                    }
                     //设置 toolbar右边第一个按钮是否显示（更多）
                     SobotUIConfig.sobot_title_right_menu1_display = status4611
                     //设置 toolbar右边第二个按钮是否显示（评价）
@@ -232,34 +249,48 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
                     // toolbar右边第三个按钮电话对应的电话号
                     SobotUIConfig.sobot_title_right_menu3_call_num =
                         sobot_et_custom_right_button_call!!.text.toString().trim { it <= ' ' }
+                    (sobot_et_local_model!!.text.toString().trim { it <= ' ' }).toIntOrNull()?.let {
+                        ZCSobotApi.setLocalNightMode(
+                            this,
+                            it
+                        )
+                    }
+
                 }
                 ToastUtil.showToast(context, "已保存")
                 finish()
             }
+
             R.id.sobot_rl_4_6_2 -> {
                 status462 = !status462
                 setImageShowStatus(status462, sobotImage462)
             }
+
             R.id.sobot_rl_4_6_2_2 -> {
                 status4622 = !status4622
                 setImageShowStatus(status4622, sobotImage4622)
             }
+
             R.id.sobot_rl_4_6_3 -> {
                 status463 = !status463
                 setImageShowStatus(status463, sobotImage463)
             }
+
             R.id.sobot_rl_4_6_4 -> {
                 status464 = !status464
                 setImageShowStatus(status464, sobotImage464)
             }
+
             R.id.sobot_rl_4_6_1_1 -> {
                 status4611 = !status4611
                 setImageShowStatus(status4611, sobotImage4611)
             }
+
             R.id.sobot_rl_4_6_1_2 -> {
                 status4612 = !status4612
                 setImageShowStatus(status4612, sobotImage4612)
             }
+
             R.id.sobot_rl_4_6_1_3 -> {
                 status4613 = !status4613
                 setImageShowStatus(status4613, sobotImage4613)

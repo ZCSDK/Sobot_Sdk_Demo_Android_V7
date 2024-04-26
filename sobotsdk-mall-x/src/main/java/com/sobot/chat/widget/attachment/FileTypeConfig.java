@@ -45,6 +45,7 @@ public class FileTypeConfig {
             case "txt":
                 return MSGTYPE_FILE_TXT;
             case "jpg":
+            case "jpeg":
             case "png":
             case "gif":
                 return MSGTYPE_FILE_PIC;
