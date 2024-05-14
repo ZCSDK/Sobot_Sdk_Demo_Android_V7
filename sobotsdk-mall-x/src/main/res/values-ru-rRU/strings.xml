@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Выберите фото и видео</string>
        <string name="sobot_str_goto_setting_info">В настоящее время разрешен доступ только к некоторым фотографиям или видео</string>
        <string name="sobot_str_goto_setting_allow">Разрешить все ></string>
+       <string name="sobot_str_selected">Выбранные</string>
+       <string name="sobot_str_region_search">Поиск </string>
+       <string name="sobot_region_level1"> Поиск по всей провинции </string>
+       <string name="sobot_region_level2"> Поиск по всему городу </string>
+       <string name="sobot_region_level3"> Поиск всех округов (районов) </string>
+       <string name="sobot_region_level4"> Поиск всех улиц.</string>
+       <string name="sobot_search_no_date">Без результатов</string>
 </resources>

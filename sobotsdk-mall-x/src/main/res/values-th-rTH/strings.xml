@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">เลือกรูปภาพและวิดีโอ</string>
        <string name="sobot_str_goto_setting_info">ขณะนี้อนุญาตให้เข้าถึงภาพถ่ายหรือวิดีโอบางส่วนเท่านั้น</string>
        <string name="sobot_str_goto_setting_allow">อนุญาตทั้งหมด ></string>
+       <string name="sobot_str_selected">เลือก</string>
+       <string name="sobot_str_region_search">ค้นหา</string>
+       <string name="sobot_region_level1">ค้นหาทุกจังหวัด</string>
+       <string name="sobot_region_level2">ค้นหาเมืองทั้งหมด</string>
+       <string name="sobot_region_level3">ค้นหาจังหวัดทั้งหมด (เขต)</string>
+       <string name="sobot_region_level4">ค้นหาถนนทั้งหมด</string>
+       <string name="sobot_search_no_date">ไม่มีผลลัพธ์</string>
 </resources>

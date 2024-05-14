@@ -3,12 +3,13 @@ package com.sobot.chat.activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotBaseActivity;
@@ -19,6 +20,8 @@ import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.api.model.SobotProvinInfo;
 import com.sobot.chat.api.model.SobotQueryFormModel;
+import com.sobot.chat.application.MyApplication;
+import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.listener.ISobotCusField;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.utils.CustomToast;
@@ -83,9 +86,9 @@ public class SobotQueryFromActivity extends SobotBaseActivity implements ISobotC
         sobot_btn_submit = (Button) findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_queryfrom_submit_text);
         sobot_btn_submit.setOnClickListener(this);
-        if(ThemeUtils.isChangedThemeColor(this)){
+        if (ThemeUtils.isChangedThemeColor(this)) {
             Drawable d = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
-            sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d,ThemeUtils.getThemeColor(this)));
+            sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
         }
         sobot_container = (LinearLayout) findViewById(R.id.sobot_container);
         sobot_tv_doc = (TextView) findViewById(R.id.sobot_tv_doc);
@@ -243,6 +246,18 @@ public class SobotQueryFromActivity extends SobotBaseActivity implements ISobotC
                     }
                 });
                 break;
+            case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE:
+                final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
+                if (cusFieldConfig != null) {
+                    Intent intent = new Intent(SobotQueryFromActivity.this, SobotPostRegionActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("selectedIds", cusFieldConfig.getValue());
+                    bundle.putString("selectedText", cusFieldConfig.getShowName());
+                    bundle.putSerializable("cusFieldConfig", cusFieldConfig);
+                    intent.putExtra("bundle", bundle);
+                    startActivityForResult(intent, cusFieldConfig.getFieldType());
+                }
+                break;
             default:
                 break;
         }
@@ -250,6 +265,8 @@ public class SobotQueryFromActivity extends SobotBaseActivity implements ISobotC
 
     @Override
     protected void onDestroy() {
+        HttpUtils.getInstance().cancelTag(this);
+        MyApplication.getInstance().deleteActivity(this);
         SobotDialogUtils.stopProgressDialog(SobotQueryFromActivity.this);
         super.onDestroy();
     }

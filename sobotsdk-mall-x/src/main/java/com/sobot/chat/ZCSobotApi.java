@@ -35,6 +35,7 @@ import com.sobot.chat.api.model.SobotLocationModel;
 import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.api.model.SobotTransferOperatorParam;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.conversation.SobotChatActivity;
 import com.sobot.chat.core.channel.Const;
 import com.sobot.chat.core.channel.SobotMsgManager;
@@ -1416,4 +1417,19 @@ public class ZCSobotApi {
         }
     }
 
+    /**
+     * 发送自定义卡片
+     * @param context
+     * @param custiomCard
+     */
+    public static void sendCustomCard(Context context, SobotChatCustomCard custiomCard){
+        if (context == null || custiomCard == null) {
+            return;
+        }
+        Intent intent = new Intent();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
+        intent.setAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_CUSTOM_CARD);
+        intent.putExtra(ZhiChiConstant.SOBOT_SEND_DATA, custiomCard);
+        localBroadcastManager.sendBroadcast(intent);
+    }
 }

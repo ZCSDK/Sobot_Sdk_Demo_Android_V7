@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Fotoğrafları ve videoları seçin</string>
        <string name="sobot_str_goto_setting_info">Şu anda fotoğraflara ya da videolara sadece parçacık erişim izin verildi.</string>
        <string name="sobot_str_goto_setting_allow">Bütün izin verin></string>
+       <string name="sobot_str_selected">Seçili</string>
+       <string name="sobot_str_region_search">arama</string>
+       <string name="sobot_region_level1">Bütün eyaletleri arayın</string>
+       <string name="sobot_region_level2">Bütün şehirleri arayın</string>
+       <string name="sobot_region_level3">Bütün eyaletleri araştır (bölgeler)</string>
+       <string name="sobot_region_level4">Bütün sokakları arayın</string>
+       <string name="sobot_search_no_date">Sonuç yok</string>
 </resources>

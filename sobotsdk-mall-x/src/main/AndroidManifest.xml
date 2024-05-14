@@ -60,6 +60,11 @@
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".activity.SobotPostRegionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent"
+            />
+        <activity
             android:name=".activity.SobotMuItiPostMsgActivty"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />

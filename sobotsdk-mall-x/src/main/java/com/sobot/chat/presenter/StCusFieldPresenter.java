@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
@@ -20,6 +18,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -73,7 +74,11 @@ public class StCusFieldPresenter {
                         && !StringUtils.isEmpty(cusFieldConfig.getValue())) {
                     model.put("id", field.get(i).getCusFieldConfig().getFieldId());
                     model.put("value", field.get(i).getCusFieldConfig().getValue());
-                    model.put("text", field.get(i).getCusFieldConfig().getShowName());
+                    if(cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE){
+                        model.put("text", field.get(i).getCusFieldConfig().getText());
+                    }else {
+                        model.put("text", field.get(i).getCusFieldConfig().getShowName());
+                    }
                     listModel.add(model);
                 }
             }
@@ -657,6 +662,25 @@ public class StCusFieldPresenter {
                             fieldName.setText(Html.fromHtml(cusFieldConfig.getFieldName() + "<font color='#f9676f'>&nbsp;*</font>"));
                         } else {
                             fieldName.setText(cusFieldConfig.getFieldName());
+                        }
+                    } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE == cusFieldConfig.getFieldType()) {
+                        //地区级联
+                        ll_more_text_layout.setVisibility(View.GONE);
+                        textClick.setVisibility(View.VISIBLE);
+                        ll_text_layout.setVisibility(View.VISIBLE);
+                        fieldImg.setVisibility(View.VISIBLE);
+                        singleContent.setVisibility(View.GONE);
+                        fieldValue.setVisibility(View.GONE);
+                        numberContent.setVisibility(View.GONE);
+                        fieldName.setText(cusFieldConfig.getFieldName());
+                        textClick.setHint(cusFieldConfig.getFieldRemark());
+                        if (1 == cusFieldConfig.getFillFlag()) {
+                            fieldName.setText(Html.fromHtml(cusFieldConfig.getFieldName() + "<font color=red>" + " *" + "</font>"));
+                        }
+                        //赋值
+                        if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
+                            textClick.setText(cusFieldConfig.getText());
+                            textClick.setTag(cusFieldConfig.getValue());
                         }
                     }
 

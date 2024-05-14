@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Elegir fotos y videos</string>
        <string name="sobot_str_goto_setting_info">Actualmente solo se permite el acceso a algunas fotos o videos</string>
        <string name="sobot_str_goto_setting_allow">Permitir todo</string>
+       <string name="sobot_str_selected">Seleccionado</string>
+       <string name="sobot_str_region_search">Buscar</string>
+       <string name="sobot_region_level1">Buscar todas las provincias</string>
+       <string name="sobot_region_level2">Buscar todas las ciudades</string>
+       <string name="sobot_region_level3">Buscar todos los condados (distritos)</string>
+       <string name="sobot_region_level4">Buscar todas las calles</string>
+       <string name="sobot_search_no_date">Sin resultados</string>
 </resources>

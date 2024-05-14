@@ -8,8 +8,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,6 +21,9 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -43,7 +44,9 @@ import com.sobot.chat.api.model.SobotLeaveMsgParamModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.api.model.ZhiChiUploadAppFileModelResult;
+import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.util.FileUtil;
+import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.listener.ISobotCusField;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.presenter.StPostMsgPresenter;
@@ -725,6 +728,8 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
     @Override
     public void onDestroy() {
+        HttpUtils.getInstance().cancelTag(getContext());
+        MyApplication.getInstance().deleteActivity(this);
         SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
         super.onDestroy();
     }
@@ -1099,6 +1104,19 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     intent.putExtra("bundle", bundle);
                     startActivityForResult(intent, ZhiChiConstant.work_order_list_display_type_category);
                 }
+                break;
+            case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE:
+                final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
+                if (cusFieldConfig != null) {
+                    Intent intent = new Intent(SobotMuItiPostMsgActivty.this, SobotPostRegionActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("selectedIds", cusFieldConfig.getValue());
+                    bundle.putString("selectedText", cusFieldConfig.getShowName());
+                    bundle.putSerializable("cusFieldConfig", cusFieldConfig);
+                    intent.putExtra("bundle", bundle);
+                    startActivityForResult(intent, cusFieldConfig.getFieldType());
+                }
+                break;
             default:
                 break;
         }

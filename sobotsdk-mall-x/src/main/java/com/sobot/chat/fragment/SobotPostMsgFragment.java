@@ -7,8 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,12 +19,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.sobot.chat.R;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotPhotoActivity;
 import com.sobot.chat.activity.SobotPostCascadeActivity;
 import com.sobot.chat.activity.SobotPostCategoryActivity;
 import com.sobot.chat.activity.SobotPostMsgActivity;
+import com.sobot.chat.activity.SobotPostRegionActivity;
 import com.sobot.chat.activity.SobotVideoActivity;
 import com.sobot.chat.adapter.SobotPicListAdapter;
 import com.sobot.chat.api.ResultCallBack;
@@ -42,6 +44,7 @@ import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.api.model.ZhiChiUploadAppFileModelResult;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.util.FileUtil;
+import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.listener.ISobotCusField;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.presenter.StPostMsgPresenter;
@@ -673,7 +676,13 @@ public class SobotPostMsgFragment extends SobotBaseFragment implements View.OnCl
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
+        HttpUtils.getInstance().cancelTag(getContext());
         SobotDialogUtils.stopProgressDialog(getSobotActivity());
         super.onDestroy();
     }
@@ -1030,6 +1039,18 @@ public class SobotPostMsgFragment extends SobotBaseFragment implements View.OnCl
                     bundle.putSerializable("fieldId", cusField.getCusFieldConfig().getFieldId());
                     intent.putExtra("bundle", bundle);
                     startActivityForResult(intent, ZhiChiConstant.work_order_list_display_type_category);
+                }
+                break;
+            case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE:
+                final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
+                if(cusFieldConfig!=null) {
+                    Intent intent = new Intent(getSobotActivity(), SobotPostRegionActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("selectedIds", cusFieldConfig.getValue());
+                    bundle.putString("selectedText", cusFieldConfig.getShowName());
+                    bundle.putSerializable("cusFieldConfig", cusFieldConfig);
+                    intent.putExtra("bundle", bundle);
+                    startActivityForResult(intent, cusFieldConfig.getFieldType());
                 }
                 break;
             default:

@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">L\'accès à certaines photos ou vidéos n\'est actuellement autorisé que</string>
        <string name="sobot_str_goto_setting_info">Choisissez des photos et des vidéos</string>
        <string name="sobot_str_goto_setting_allow">Autoriser tout ></string>
+       <string name="sobot_str_selected">Sélectionné</string>
+       <string name="sobot_str_region_search">Rechercher</string>
+       <string name="sobot_region_level1">Rechercher dans toutes les provinces</string>
+       <string name="sobot_region_level2">Rechercher dans toutes les villes</string>
+       <string name="sobot_region_level3">Rechercher dans tous les comtés (districts)</string>
+       <string name="sobot_region_level4">Rechercher toutes les rues</string>
+       <string name="sobot_search_no_date">Aucun résultat</string>
 </resources>

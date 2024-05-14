@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Foto\'s en video\'s selecteren</string>
        <string name="sobot_str_goto_setting_info">Momenteel is alleen gedeeltelijke toegang tot foto\'s of video\'s toegestaan</string>
        <string name="sobot_str_goto_setting_allow">Alles toestaan></string>
+       <string name="sobot_str_selected">Geselecteerd</string>
+       <string name="sobot_str_region_search">zoeken</string>
+       <string name="sobot_region_level1">Doorzoek alle provincies</string>
+       <string name="sobot_region_level2">Zoek alle steden</string>
+       <string name="sobot_region_level3">Doorzoek alle districten (districten)</string>
+       <string name="sobot_region_level4">Doorzoek alle straten</string>
+       <string name="sobot_search_no_date">Geen resultaat</string>
 </resources>

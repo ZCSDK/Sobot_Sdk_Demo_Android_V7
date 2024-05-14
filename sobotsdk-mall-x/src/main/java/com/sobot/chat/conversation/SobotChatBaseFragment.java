@@ -1740,7 +1740,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             zhiChiApi.checkCardSendRepeat(getSobotActivity(), initModel.getCid(), cardContent.getCardId(), new StringResultCallBack() {
                 @Override
                 public void onSuccess(Object o) {
-                    createCustomCardContent(handler);
+                    createCustomCardContent(handler,info.getCustomCard());
                 }
 
                 @Override
@@ -1752,8 +1752,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
 
     //创建客户自定商品、订单卡片
     //4.0.5
-    public void createCustomCardContent(final Handler handler) {
-        final SobotChatCustomCard cardContent = info.getCustomCard();
+    public void createCustomCardContent(final Handler handler, final SobotChatCustomCard cardContent) {
         //如果配置了商品卡片
         if (cardContent != null) {
             //以什么消息发送

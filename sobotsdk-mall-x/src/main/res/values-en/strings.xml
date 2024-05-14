@@ -86,7 +86,7 @@
        <string name="sobot_not_find_pic">Picture not found</string>
        <string name="sobot_no_read">Below are new messages</string>
        <string name="sobot_no_content">No relevant content</string>
-       <string name="sobot_no_access">Service unavailable</string>
+       <string name="sobot_no_access">No Agents Currently Online</string>
        <string name="sobot_new_ticket_info_update">To update</string>
        <string name="sobot_new_ticket_info">Message status updated</string>
        <string name="sobot_new_msg">New Messages</string>
@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Select photos and videos</string>
        <string name="sobot_str_goto_setting_info">Currently, only partial access to photos or videos is allowed</string>
        <string name="sobot_str_goto_setting_allow">Allow all></string>
+       <string name="sobot_str_selected">Selected</string>
+       <string name="sobot_str_region_search">search</string>
+       <string name="sobot_region_level1">Search all provinces</string>
+       <string name="sobot_region_level2">Search all cities</string>
+       <string name="sobot_region_level3">Search all counties (districts)</string>
+       <string name="sobot_region_level4">Search all streets</string>
+       <string name="sobot_search_no_date">No result</string>
 </resources>

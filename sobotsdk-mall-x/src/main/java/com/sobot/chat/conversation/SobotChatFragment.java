@@ -62,6 +62,7 @@ import com.sobot.chat.activity.SobotSkillGroupActivity;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.ResultCallBack;
+import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.apiUtils.GsonUtil;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.apiUtils.SobotVerControl;
@@ -1243,6 +1244,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         localFilter.addAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_OBJECT);
         localFilter.addAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_CARD);
         localFilter.addAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_ORDER_CARD);
+        localFilter.addAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_CUSTOM_CARD);
         localFilter.addAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_TRASNFER_TO_OPERATOR);
         localFilter.addAction(ZhiChiConstants.chat_remind_post_msg);
         localFilter.addAction(ZhiChiConstants.sobot_click_cancle);
@@ -3592,16 +3594,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     intent.putExtra("isResolved", message.getSobotEvaluateModel().getIsResolved());
                     CommonUtils.sendLocalBroadcast(mAppContext, intent);
                 }
-
                 @Override
                 public void onFailure(Exception e, String des) {
-
                 }
             });
         } else {
             submitEvaluation(false, sobotEvaluateModel.getScore(), sobotEvaluateModel.getIsResolved(), sobotEvaluateModel.getProblem());
         }
-
     }
 
     /**
@@ -3887,7 +3886,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
                 btn_model_voice.setVisibility(View.GONE);
                 //是否开启点踩问答
-                if(initModel.getRealuateInfoFlag()==1){
+                if (initModel.getRealuateInfoFlag() == 1) {
                     LogUtils.d("==========");
                     //过滤未提交的点踩问答
                     messageAdapter.removeCaiNoSubmitMsg();
@@ -4050,7 +4049,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     protected void onCloseMenuClick() {
         hidePanelAndKeyboard(mPanelLayout);
         if (isActive()) {
-            if (info.isShowCloseSatisfaction() || (info.getIsSetCloseShowSatisfaction() == 0 && initModel != null && initModel.getCommentFlag() == 1)) {
+            if (info.isShowCloseSatisfaction() || (initModel != null && initModel.getCommentFlag() == 1)) {
                 if (isAboveZero && !isComment) {
                     // 退出时 之前没有评价过的话 才能 弹评价框
                     Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true, initModel,
@@ -4075,7 +4074,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     protected void onLeftBackColseClick() {
         hidePanelAndKeyboard(mPanelLayout);
         if (isActive()) {
-            if (info.isShowSatisfaction() || (info.getIsSetShowSatisfaction() == 0 && initModel != null && initModel.getCommentFlag() == 1)) {
+            if (info.isShowSatisfaction() || (initModel != null && initModel.getCommentFlag() == 1)) {
                 if (isAboveZero && !isComment) {
                     // 退出时 之前没有评价过的话 才能 弹评价框
                     Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true, initModel,
@@ -5234,6 +5233,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 } else if (ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_ORDER_CARD.equals(intent.getAction())) {
                     OrderCardContentModel orderCardContent = (OrderCardContentModel) intent.getSerializableExtra(ZhiChiConstant.SOBOT_SEND_DATA);
                     sendOrderCardMsg(orderCardContent);
+                } else if (ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_CUSTOM_CARD.equals(intent.getAction())) {
+                    SobotChatCustomCard customCard = (SobotChatCustomCard) intent.getSerializableExtra(ZhiChiConstant.SOBOT_SEND_DATA);
+                    createCustomCardContent(handler, customCard);
                 }
 
                 if (ZhiChiConstants.chat_remind_post_msg.equals(intent.getAction())) {
@@ -6314,7 +6316,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 hidePanelAndKeyboard(mPanelLayout);
                 return;
             } else {
-                if (info.isShowSatisfaction() || (info.getIsSetShowSatisfaction() == 0 && initModel != null && initModel.getCommentFlag() == 1)) {
+                if (info.isShowSatisfaction()) {
                     if (isAboveZero && !isComment) {
                         // 退出时 之前没有评价过的话 才能 弹评价框
                         Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, false, initModel,
@@ -6559,7 +6561,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             }
         } else if (itemModel.getMenuType() == 3) {
             //结束会话
-            onLeftBackColseClick();
+            onCloseMenuClick();
         } else if (itemModel.getMenuType() == 4) {
             //满意度评价
             btnSatisfaction();
@@ -6919,11 +6921,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         //调用发送
         if (current_client_model == ZhiChiConstant.client_model_customService) {
             //发送给人工
-            String msgId = getMsgId()+ "";
+            String msgId = getMsgId() + "";
             ZhiChiMessageBase messageBase = ChatUtils.getCustomerCard(initModel.getReadFlag(), msgId, card, info, initModel);
             if (messageBase != null) {
                 sendNewMsgToHandler(messageBase, handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
-                sendMsgToCustomService(handler, SobotGsonUtil.beanToJson(card), "28",msgId, messageBase);
+                sendMsgToCustomService(handler, SobotGsonUtil.beanToJson(card), "28", msgId, messageBase);
             }
         } else {
             zhiChiApi.insertClickCardToSessionRecord(getSobotActivity(), initModel.getCid(), initModel.getPartnerid(), menu, new StringResultCallBack() {

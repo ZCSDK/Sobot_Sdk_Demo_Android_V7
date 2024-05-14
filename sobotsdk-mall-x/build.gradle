@@ -24,4 +24,5 @@ dependencies {
     api 'com.sobot.library:picture_x:1.2.0'
     api 'com.sobot.library:net:1.2.3'
     api 'com.sobot.library:gson:1.1.1'
+    api 'com.sobot.library:widget_x:1.2.3'
 }

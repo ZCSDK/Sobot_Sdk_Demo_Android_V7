@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Pilih foto dan video</string>
        <string name="sobot_str_goto_setting_info">Saat ini, hanya akses parsial ke foto atau video dibenarkan</string>
        <string name="sobot_str_goto_setting_allow">Izinkan semua></string>
+       <string name="sobot_str_selected">Dipilih</string>
+       <string name="sobot_str_region_search">Cari</string>
+       <string name="sobot_region_level1">Cari semua provinsi</string>
+       <string name="sobot_region_level2">Cari semua kota</string>
+       <string name="sobot_region_level3">Cari semua daerah (distrik)</string>
+       <string name="sobot_region_level4">Cari semua jalan</string>
+       <string name="sobot_search_no_date">Tidak ada hasil</string>
 </resources>

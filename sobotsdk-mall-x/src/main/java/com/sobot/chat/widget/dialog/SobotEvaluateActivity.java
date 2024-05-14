@@ -723,7 +723,6 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
 
     //提交评价调用接口
     private void comment() {
-        ZhiChiApi zhiChiApi = SobotMsgManager.getInstance(this).getZhiChiApi();
         final SobotCommentParam commentParam = getCommentParam();
         zhiChiApi.comment(CANCEL_TAG, initModel.getCid(), initModel.getPartnerid(), commentParam,
                 new StringResultCallBack<CommonModel>() {
@@ -752,6 +751,20 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
                         } catch (Exception e) {
 //                            e.printStackTrace();
                         }
+                        //评论成功 发送广播
+                        Intent intent = new Intent();
+                        intent.setAction(ZhiChiConstants.dcrc_comment_state);
+                        intent.putExtra("commentState", true);
+                        intent.putExtra("isFinish", isFinish);
+                        intent.putExtra("isExitSession", isExitSession);
+                        intent.putExtra("commentType", commentType);
+                        if (!TextUtils.isEmpty(commentParam.getScore())) {
+                            intent.putExtra("score", Integer.parseInt(commentParam.getScore()));
+                        }
+                        intent.putExtra("isResolved", commentParam.getIsresolve());
+
+                        CommonUtils.sendLocalBroadcast(SobotEvaluateActivity.this, intent);
+                        finish();
                     }
                 });
     }

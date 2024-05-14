@@ -262,4 +262,12 @@
     <string name="sobot_str_select_pic_video">选择照片和视频</string>
     <string name="sobot_str_goto_setting_info">当前仅允许访问部分照片或视频</string>
     <string name="sobot_str_goto_setting_allow">允许全部 ></string>
+    <!--    4.1.5 -->
+    <string name="sobot_str_selected">已选</string>
+    <string name="sobot_str_region_search">搜索</string>
+    <string name="sobot_region_level1">搜索全部省</string>
+    <string name="sobot_region_level2">搜索全部市</string>
+    <string name="sobot_region_level3">搜索全部县（区）</string>
+    <string name="sobot_region_level4">搜索全部街道</string>
+    <string name="sobot_search_no_date">无结果</string>
 </resources>

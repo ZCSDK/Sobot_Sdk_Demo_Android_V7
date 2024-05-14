@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Chọn ảnh và video</string>
        <string name="sobot_str_goto_setting_info">Hiện tại chỉ cho phép truy cập vào một số ảnh hoặc video</string>
        <string name="sobot_str_goto_setting_allow">Cho phép tất cả></string>
+       <string name="sobot_str_selected">Đã chọn</string>
+       <string name="sobot_str_region_search">Tìm kiếm</string>
+       <string name="sobot_region_level1">Tìm tất cả Province</string>
+       <string name="sobot_region_level2">Tìm tất cả thành phố</string>
+       <string name="sobot_region_level3">Tìm kiếm tất cả các quận (quận)</string>
+       <string name="sobot_region_level4">Tìm tất cả đường phố</string>
+       <string name="sobot_search_no_date">Không có kết quả</string>
 </resources>

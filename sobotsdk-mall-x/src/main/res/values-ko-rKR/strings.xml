@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">사진 및 비디오 선택</string>
        <string name="sobot_str_goto_setting_info">현재 일부 사진 또는 비디오에만 액세스 가능</string>
        <string name="sobot_str_goto_setting_allow">모두 허용 ></string>
+       <string name="sobot_str_selected">선택</string>
+       <string name="sobot_str_region_search">검색</string>
+       <string name="sobot_region_level1">모든 성 검색</string>
+       <string name="sobot_region_level2">시 전체 검색</string>
+       <string name="sobot_region_level3">모든 카운티 (구) 검색</string>
+       <string name="sobot_region_level4">모든 거리 검색</string>
+       <string name="sobot_search_no_date">결과 없음</string>
 </resources>

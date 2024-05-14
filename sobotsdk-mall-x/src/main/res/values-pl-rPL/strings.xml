@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">Wybierz zdjęcia i filmy</string>
        <string name="sobot_str_goto_setting_info">Obecnie dozwolony jest tylko częściowy dostęp do zdjęć lub filmów wideo</string>
        <string name="sobot_str_goto_setting_allow">Pozwól na wszystkie></string>
+       <string name="sobot_str_selected">Wybrane</string>
+       <string name="sobot_str_region_search">wyszukiwanie</string>
+       <string name="sobot_region_level1">Przeszukaj wszystkie prowincje</string>
+       <string name="sobot_region_level2">Przeszukaj wszystkie miasta</string>
+       <string name="sobot_region_level3">Przeszukaj wszystkie powiaty (okręgi)</string>
+       <string name="sobot_region_level4">Przeszukaj wszystkie ulice</string>
+       <string name="sobot_search_no_date">Brak wyniku</string>
 </resources>

@@ -136,7 +136,7 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
         try {
             Intent intent = getIntent();
             mCacheFile = (SobotCacheFile) intent.getSerializableExtra(EXTRA_VIDEO_FILE_DATA);
-            if (mCacheFile == null || TextUtils.isEmpty(mCacheFile.getMsgId())) {
+            if (mCacheFile == null || TextUtils.isEmpty(mCacheFile.getUrl())) {
                 return;
             }
 
@@ -157,7 +157,7 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
      */
     private void restoreTask() {
         //更新数据
-        SobotProgress progress = SobotDownloadManager.getInstance().get(mCacheFile.getMsgId());
+        SobotProgress progress = SobotDownloadManager.getInstance().get(mCacheFile.getUrl());
         if (progress != null) {
             if (progress.status != SobotProgress.FINISH) {
                 downloadFile(progress);
@@ -180,7 +180,7 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
                 mTask.remove(true);
             }
         }
-        mTask = HttpBaseUtils.getInstance().addDownloadFileTask(mCacheFile.getMsgId(), mCacheFile.getUrl(), mCacheFile.getFileName(), null,null);
+        mTask = HttpBaseUtils.getInstance().addDownloadFileTask(mCacheFile.getUrl(), mCacheFile.getUrl(), mCacheFile.getFileName(), null,null);
         if (mTask != null) {
             mTask.register(mDownloadListener).start();
         }

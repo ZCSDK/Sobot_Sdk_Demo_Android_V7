@@ -258,4 +258,11 @@
     <string name="sobot_str_select_pic_video">اختيار الصور والفيديو</string>
     <string name="sobot_str_goto_setting_info">حاليا فقط بعض الصور أو الفيديو مسموح الوصول إليها</string>
     <string name="sobot_str_goto_setting_allow">السماح للجميع</string>
+    <string name="sobot_str_selected">تم اختيار</string>
+    <string name="sobot_str_region_search">بحث .  </string>
+    <string name="sobot_region_level1"> البحث عن جميع المحافظات  </string>
+    <string name="sobot_region_level2"> البحث في جميع أنحاء المدينة  </string>
+    <string name="sobot_region_level3"> البحث عن جميع المقاطعات ( المناطق )  </string>
+    <string name="sobot_region_level4"> البحث عن جميع الشوارع</string>
+    <string name="sobot_search_no_date">لا نتائج</string>
 </resources>

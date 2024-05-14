@@ -258,4 +258,11 @@
        <string name="sobot_str_select_pic_video">写真とビデオを選択</string>
        <string name="sobot_str_goto_setting_info">現在は一部の写真またはビデオへのアクセスのみが許可されています</string>
        <string name="sobot_str_goto_setting_allow">すべて許可></string>
+       <string name="sobot_str_selected">選択済み</string>
+       <string name="sobot_str_region_search">検索けんさく</string>
+       <string name="sobot_region_level1">すべての省を検索</string>
+       <string name="sobot_region_level2">すべての市を検索</string>
+       <string name="sobot_region_level3">全県を検索</string>
+       <string name="sobot_region_level4">すべてのストリートを検索</string>
+       <string name="sobot_search_no_date">結果なし</string>
 </resources>
