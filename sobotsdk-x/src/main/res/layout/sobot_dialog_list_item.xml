@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_ll_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/sobot_bg_dialog_list"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp"
+    android:visibility="visible">
+
+    <TextView
+        android:id="@+id/sobot_tv_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/sobot_color_text_first"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textSize="@dimen/sobot_text_font_14" />
+    <TextView
+        android:id="@+id/sobot_tv_content_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:visibility="gone"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/sobot_color_text_third"
+        android:textSize="@dimen/sobot_text_font_12" />
+</LinearLayout>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/pop_layout"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/sobot_doalig_bg_style"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_16"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_tip_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingStart="24dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="24dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/sobot_line_height_dp"
+            android:background="@color/sobot_color_line_divider"
+            android:layout_marginTop="24dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_btn_h"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/sobot_btn_cancle_h"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="center"
+                android:paddingTop="20dp"
+                android:paddingBottom="16dp"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_color_dialog_btn_content_color"
+                android:textSize="@dimen/sobot_text_font_16" />
+
+            <View
+                android:layout_width="@dimen/sobot_line_height_dp"
+                android:layout_height="match_parent"
+                android:background="@color/sobot_color_line_divider" />
+
+            <Button
+                android:id="@+id/sobot_btn_ok_h"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="center"
+                android:paddingTop="20dp"
+                android:paddingBottom="16dp"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_color_dialog_btn_content_color"
+                android:textSize="@dimen/sobot_text_font_16" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_btn_v"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/sobot_btn_cancle_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="center"
+                android:padding="20dp"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_color_dialog_btn_content_color"
+                android:textSize="@dimen/sobot_text_font_16" />
+
+            <View
+                android:id="@+id/view_line"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/sobot_line_height_dp"
+                android:background="@color/sobot_color_line_divider" />
+
+            <Button
+                android:id="@+id/sobot_btn_ok_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="center"
+                android:padding="20dp"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_color_dialog_btn_content_color"
+                android:textSize="@dimen/sobot_text_font_16" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

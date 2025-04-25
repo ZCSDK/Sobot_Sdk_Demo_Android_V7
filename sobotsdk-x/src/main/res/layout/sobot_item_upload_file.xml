@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_layout_attachment_frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/sobot_bg_gray_4dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginTop="4dp"
+    android:orientation="horizontal">
+
+    <com.sobot.chat.widget.image.SobotProgressImageView
+        android:id="@+id/sobot_file_thumbnail"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:image_width="40dp"
+        app:image_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_gravity="center_vertical"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sobot_file_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="middle"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/sobot_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="17dp"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:visibility="gone"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/sobot_file_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
+        android:layout_gravity="top"
+        android:paddingBottom="10dp"
+        android:src="@drawable/sobot_delete_file"
+        android:visibility="gone" />
+
+
+</LinearLayout>

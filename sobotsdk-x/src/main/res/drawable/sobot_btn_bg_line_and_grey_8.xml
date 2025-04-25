@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape>
+            <solid android:color="@color/sobot_color_bg_second" />
+
+            <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_color_line_divider" />
+
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+
+</selector>
