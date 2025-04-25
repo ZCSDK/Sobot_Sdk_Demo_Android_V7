@@ -61,7 +61,7 @@ class SobotEndSobotFunctionActivity : AppCompatActivity(), View.OnClickListener 
         }
         if (v === sobot_tv_end) {
             if (information != null) {
-                ZCSobotApi.outCurrentUserZCLibInfo(context)
+                ZCSobotApi.outCurrentUserZCLibInfo(context,"")
                 ToastUtil.showToast(context, "已结束会话")
                 finish()
             }

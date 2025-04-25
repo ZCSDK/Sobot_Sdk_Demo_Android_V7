@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/sobot_msg_top_bottom_style"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:ignore="MissingDefaultResource">
+
+    <!-- 中间时间提醒 -->
+    <TextView
+        android:id="@+id/sobot_reminde_time_Text"
+        style="@style/sobot_center_remind_time" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
+
+        <!--头像-->
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_msg_face_iv"
+            style="@style/sobot_chatting_left_face_style"
+            android:visibility="gone" />
+
+        <!-- 昵称 -->
+        <TextView
+            android:id="@+id/sobot_msg_nike_name_tv"
+            style="@style/sobot_chatting_nickname"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:visibility="gone" />
+
+
+        <LinearLayout
+            android:id="@+id/sobot_msg_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sobot_msg_nike_name_tv"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:orientation="horizontal">
+
+            <!--消息内容 -->
+            <com.sobot.chat.widget.SobotMaxSizeLinearLayout
+                android:id="@+id/sobot_msg_content_ll"
+                style="@style/sobot_msg_file_left_content_ll_bg_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
+                android:orientation="horizontal">
+
+
+                    <com.sobot.chat.widget.image.SobotProgressImageView
+                        android:id="@+id/sobot_goods_pic"
+                        app:sobot_round_corner="4dp"
+                        android:layout_width="76dp"
+                        android:layout_height="76dp"
+                        app:image_width="76dp"
+                        app:image_height="76dp"
+                        android:layout_marginEnd="10dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/sobot_icon_consulting_default_pic"
+                        android:visibility="visible" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/sobot_goods_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/sobot_goods_title_text_color"
+                        android:textSize="@dimen/sobot_text_font_14"  />
+                    <TextView
+                        android:id="@+id/sobot_goods_des"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/sobot_card_goods_desc"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textSize="@dimen/sobot_text_font_12" />
+
+                    <TextView
+                        android:id="@+id/sobot_goods_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/sobot_goods_price_text_color"
+                        android:textSize="@dimen/sobot_text_font_14"  />
+                </LinearLayout>
+            </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/sobot_msg_top_bottom_style"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:ignore="MissingDefaultResource">
+
+    <!-- 中间时间提醒 -->
+    <TextView
+        android:id="@+id/sobot_reminde_time_Text"
+        style="@style/sobot_center_remind_time" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
+
+        <!--头像-->
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_msg_face_iv"
+            style="@style/sobot_chatting_left_face_style"
+            android:visibility="gone" />
+
+        <!-- 昵称 -->
+        <TextView
+            android:id="@+id/sobot_msg_nike_name_tv"
+            style="@style/sobot_chatting_nickname"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:visibility="gone" />
+
+
+        <LinearLayout
+            android:id="@+id/sobot_msg_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sobot_msg_nike_name_tv"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:orientation="horizontal">
+
+            <!--消息内容 -->
+            <com.sobot.chat.widget.SobotMaxSizeLinearLayout
+                android:id="@+id/sobot_msg_content_ll"
+                style="@style/sobot_msg_file_left_content_ll_bg_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:id="@+id/sobot_goods_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+
+                        <com.sobot.chat.widget.image.SobotProgressImageView
+                            android:id="@+id/sobot_goods_pic"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            app:image_width="52dp"
+                            app:image_height="52dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/sobot_icon_consulting_default_pic"
+                            android:visibility="visible"
+                            app:sobot_round_corner="4dp" />
+
+                        <TextView
+                            android:id="@+id/sobot_goods_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignTop="@id/sobot_goods_pic"
+                            android:layout_toEndOf="@id/sobot_goods_pic"
+                            android:ellipsize="end"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:maxLines="1"
+                            android:textColor="@color/sobot_order_label_text_color"
+                            android:textSize="@dimen/sobot_text_font_14" />
+
+
+                        <TextView
+                            android:id="@+id/sobot_goods_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
+                            android:gravity="bottom"
+                            android:layout_weight="1"
+                            android:layout_toEndOf="@id/sobot_goods_pic"
+                            android:layout_alignBottom="@id/sobot_goods_pic"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:textColor="@color/sobot_order_des_text_color"
+                            android:textSize="@dimen/sobot_text_font_12" />
+
+                    </RelativeLayout>
+
+                    <View
+                        android:id="@+id/sobot_goods_order_split"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/sobot_line_height_dp"
+                        android:layout_below="@id/sobot_goods_rl"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@color/sobot_color_line_divider" />
+
+                    <LinearLayout
+                        android:id="@+id/sobot_goods_order_status_ll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/sobot_goods_order_split"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:text="@string/sobot_order_status_lable"
+                            android:textColor="@color/sobot_order_label_text_color"
+                            android:textSize="@dimen/sobot_text_font_12" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:text="："
+                            android:textColor="@color/sobot_order_label_text_color"
+                            android:textSize="@dimen/sobot_text_font_12" />
+
+                        <TextView
+                            android:id="@+id/sobot_order_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:textColor="@color/sobot_order_status_text_color"
+                            android:textSize="@dimen/sobot_text_font_12"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/sobot_order_number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/sobot_goods_order_status_ll"
+                        android:layout_marginTop="2dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textSize="@dimen/sobot_text_font_12" />
+
+                    <TextView
+                        android:id="@+id/sobot_order_createtime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/sobot_order_number"
+                        android:layout_marginTop="2dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textSize="@dimen/sobot_text_font_12" />
+
+                    <LinearLayout
+                        android:id="@+id/sobot_order_ll_extent_fields"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/sobot_order_createtime"
+                        android:layout_marginTop="2dp"
+                        android:orientation="vertical"
+                        android:visibility="gone" />
+
+                    <View
+                        android:id="@+id/sobot_see_all_split"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/sobot_line_height_dp"
+                        android:layout_below="@id/sobot_order_ll_extent_fields"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@color/sobot_color_line_divider" />
+
+                    <TextView
+                        android:id="@+id/sobot_order_see_all"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/sobot_see_all_split"
+                        android:gravity="center"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:text="@string/sobot_see_detail"
+                        android:textColor="@color/sobot_color"
+                        android:textSize="@dimen/sobot_text_font_12" />
+
+                </RelativeLayout>
+            </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

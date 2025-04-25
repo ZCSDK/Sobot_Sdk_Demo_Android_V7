@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sobot_white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/sobot_layout_titlebar"
+        layout="@layout/sobot_layout_common_titlebar"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_header_toolbar_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/sobot_pst_back_iv"
+            android:layout_width="40dp"
+            android:layout_height="44dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/sobot_icon_titlebar_back" />
+
+        <com.sobot.chat.widget.PagerSlidingTab
+            android:id="@+id/sobot_pst_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minHeight="44dp"
+            app:curTabTextColor="@color/sobot_postMsg_nav_sel_tx_color"
+            app:indicatorColor="@color/sobot_postMsg_nav_indicator_color"
+            app:tabTextColor="@color/sobot_postMsg_nav_tx_color" />
+
+    </LinearLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/sobot_viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="visible" />
+
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_completed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/sobot_white"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/sobot_iv_leaveMsg_create_success"
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="140dp"
+                    android:background="@drawable/sobot_icon_completed" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success_des"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_completed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/sobot_normal_btn_bg"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/sobot_color_white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_ticket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:textColor="@color/sobot_color"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</LinearLayout>

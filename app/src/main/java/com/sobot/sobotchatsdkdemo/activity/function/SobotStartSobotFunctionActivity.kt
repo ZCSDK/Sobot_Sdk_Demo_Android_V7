@@ -11,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
+import com.sobot.chat.utils.MD5Util
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getStringData
+import com.sobot.utils.SobotStringUtils
 
 class SobotStartSobotFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
@@ -70,6 +72,9 @@ class SobotStartSobotFunctionActivity : AppCompatActivity(), View.OnClickListene
                         sobot_custom_language_value,
                         true
                     )
+                }
+                if(SobotStringUtils.isNoEmpty(information!!.sign)){
+                    information!!.sign = MD5Util.encode(information!!.app_key + information!!.partnerid + information!!.sign + System.currentTimeMillis())
                 }
                 ZCSobotApi.openZCChat(context, information)
             }

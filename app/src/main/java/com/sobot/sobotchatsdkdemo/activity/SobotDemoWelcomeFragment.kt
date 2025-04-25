@@ -88,12 +88,19 @@ class SobotDemoWelcomeFragment : Fragment(), View.OnClickListener {
                     }
                     val sobot_custom_language_value =
                         getStringData(activity!!, "custom_language_value", "")
-                    if (!TextUtils.isEmpty(sobot_custom_language_value)) {
-                        ZCSobotApi.setInternationalLanguage(
-                            activity,
-                            sobot_custom_language_value,
-                            true )
-                    }
+//                    if (!TextUtils.isEmpty(sobot_custom_language_value)) {
+//                        ZCSobotApi.setInternationalLanguage(
+//                            activity,
+//                            sobot_custom_language_value,
+//                            true )
+//                    }
+                    information.isHideManualEvaluationLabels = true
+                    information.isHideMenuSatisfaction = true
+                    information.isShowLeftBackPop = true
+                    information.isShowSatisfaction = true
+                    information.isCanBackWithNotEvaluation = true
+                    information.isShowCloseBtn = true
+                    information.isShowCloseSatisfaction = true
                     ZCSobotApi.openZCChat(context, information)
                 }
             }

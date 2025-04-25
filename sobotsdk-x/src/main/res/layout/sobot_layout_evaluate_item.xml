@@ -1,0 +1,15 @@
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_evaluate_cb_lable"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/sobot_dialog_button_selector"
+    android:button="@null"
+    android:gravity="center"
+    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+    android:paddingStart="16dp"
+    android:paddingTop="7dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="7dp"
+    android:textColor="@drawable/sobot_btn_tag_text_color_selector"
+    android:textSize="@dimen/sobot_text_font_14" />
+<!--android:background="@drawable/sobot_bg_cai_reason_lable_checkbox_bg"-->

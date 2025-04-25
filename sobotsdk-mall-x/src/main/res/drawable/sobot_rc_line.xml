@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" >
-    <stroke android:color="@color/sobot_line_1dp" android:width="1dp"/>
-    <size android:height="2dp"/>
-</shape>

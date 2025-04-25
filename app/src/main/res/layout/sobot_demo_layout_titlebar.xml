@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_demo_rl_toolbar"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/sobot_DIMEN_108PX"
+    android:layout_height="@dimen/sobot_header_titlebar_hight"
     android:background="#ffffff">
 
     <RelativeLayout
@@ -49,6 +50,6 @@
         android:layout_width="match_parent"
         android:layout_height="0.4dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/sobot_common_gray" />
+        android:background="@color/sobot_common_gray1" />
 
 </RelativeLayout>

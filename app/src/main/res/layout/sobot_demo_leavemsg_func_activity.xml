@@ -135,7 +135,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:background="@color/sobot_common_gray"
+                android:background="@color/sobot_common_gray1"
                 android:gravity="center"
                 android:padding="8dp"
                 android:text="点击跳转到指定留言模版id的留言界面；如果不指定模版id,跳转到默认留言界面"

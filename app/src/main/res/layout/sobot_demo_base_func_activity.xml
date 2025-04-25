@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -92,7 +93,39 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_common_gray1" />
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3.3 设置密钥"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="[说明:安全校验]"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="14sp" />
+            <EditText
+                android:id="@+id/sobot_et_sign"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/sobot_editview_stocke_bg"
+                android:enabled="true"
+                android:inputType="textMultiLine"
+                android:padding="6dp"
+                android:scrollbars="none"
+                android:textColor="@color/sobot_common_gray1"
+                android:textColorHint="@color/sobot_common_gray3"
+                android:textSize="14sp" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/sobot_common_gray1" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -185,6 +218,64 @@
 
             <EditText
                 android:id="@+id/sobot_et_pingtaimiyao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/sobot_editview_stocke_bg"
+                android:enabled="true"
+                android:inputType="textMultiLine"
+                android:padding="6dp"
+                android:scrollbars="none"
+                android:textColor="@color/sobot_common_gray1"
+                android:textColorHint="@color/sobot_common_gray3"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/sobot_common_gray1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3.6设置客户时区"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="16sp" />
+
+
+            <EditText
+                android:id="@+id/sobot_et_shiqu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/sobot_editview_stocke_bg"
+                android:enabled="true"
+                android:inputType="textMultiLine"
+                android:padding="6dp"
+                android:scrollbars="none"
+                android:textColor="@color/sobot_common_gray1"
+                android:textColorHint="@color/sobot_common_gray3"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/sobot_common_gray1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3.7 设置客户国家"
+                android:textColor="@color/sobot_common_gray1"
+                android:textSize="16sp" />
+
+
+            <EditText
+                android:id="@+id/sobot_et_country"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

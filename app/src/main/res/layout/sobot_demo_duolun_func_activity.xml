@@ -70,7 +70,7 @@
                 android:padding="10dp"
                 android:gravity="center"
                 android:text="多轮会话"
-                android:textColor="@color/sobot_common_white"
+                android:textColor="@color/sobot_demo_white"
                 android:textSize="14sp" />
         </LinearLayout>
 

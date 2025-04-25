@@ -159,7 +159,7 @@ class SobotOtherFunctionActivity : AppCompatActivity(), View.OnClickListener {
                 //是否在申请权限前弹出权限用途提示框,默认不弹
                 ZCSobotApi.setSwitchMarkStatus(MarkConfig.SHOW_PERMISSION_TIPS_POP, status479)
                 saveBooleanData(this, "show_permission_tips_pop", status479)
-                ZCSobotApi.outCurrentUserZCLibInfo(context)
+                ZCSobotApi.outCurrentUserZCLibInfo(context,"")
                 finish()
             }
             R.id.sobot_rl_4_7_6_1 -> {

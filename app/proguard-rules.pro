@@ -205,14 +205,6 @@
 -dontwarn javax.annotation.**
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
-#easyrecyclerview
--keep class com.jude.easyrecyclerview.** { *;}
--dontwarn com.jude.easyrecyclerview.**
-
--keepclassmembers enum *{
-      publicstatic**[] values();
-      publicstatic** valueOf(java.lang.String);
-}
 ## ----------------------------------
 ##      Glide相关
 ## ----------------------------------

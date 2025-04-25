@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/sobot_DIMEN_108PX"
+        android:layout_height="@dimen/sobot_header_titlebar_hight"
         android:background="#ffffff">
 
         <ImageView

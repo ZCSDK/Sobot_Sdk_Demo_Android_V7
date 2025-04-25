@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--圆形-->
+    <attr name="sobot_round_as_circle" format="boolean" />
+    <!--全部圆角半径-->
+    <attr name="sobot_round_corner" format="integer|dimension" />
+    <!--针对各个角的半径-->
+    <attr name="sobot_round_corner_top_left" format="integer|dimension" />
+    <attr name="sobot_round_corner_top_right" format="integer|dimension" />
+    <attr name="sobot_round_corner_bottom_left" format="integer|dimension" />
+    <attr name="sobot_round_corner_bottom_right" format="integer|dimension" />
+
+    <!--描边颜色／半径-->
+    <attr name="sobot_stroke_color" format="color|reference" />
+    <attr name="sobot_stroke_width" format="integer|dimension" />
+
+    <!-- 是否剪裁 RCLayout 的背景 -->
+    <attr name="sobot_clip_background" format="boolean" />
+
+    <!--真正用于解析的属性-->
+    <declare-styleable name="SobotRCAttrs">
+        <attr name="sobot_round_as_circle" />
+        <attr name="sobot_round_corner" />
+        <attr name="sobot_round_corner_top_left" />
+        <attr name="sobot_round_corner_top_right" />
+        <attr name="sobot_round_corner_bottom_left" />
+        <attr name="sobot_round_corner_bottom_right" />
+        <attr name="sobot_stroke_color" />
+        <attr name="sobot_stroke_width" />
+        <attr name="sobot_clip_background" />
+    </declare-styleable>
+
+    <!--假体：用于提示-->
+    <declare-styleable name="sobot_RCRelativeLayout">
+        <attr name="sobot_round_as_circle" />
+        <attr name="sobot_round_corner" />
+        <attr name="sobot_round_corner_top_left" />
+        <attr name="sobot_round_corner_top_right" />
+        <attr name="sobot_round_corner_bottom_left" />
+        <attr name="sobot_round_corner_bottom_right" />
+        <attr name="sobot_stroke_color" />
+        <attr name="sobot_stroke_width" />
+        <attr name="sobot_clip_background" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_RCImageView">
+        <attr name="sobot_round_as_circle" />
+        <attr name="sobot_round_corner" />
+        <attr name="sobot_round_corner_top_left" />
+        <attr name="sobot_round_corner_top_right" />
+        <attr name="sobot_round_corner_bottom_left" />
+        <attr name="sobot_round_corner_bottom_right" />
+        <attr name="sobot_stroke_color" />
+        <attr name="sobot_stroke_width" />
+        <attr name="sobot_clip_background" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_MHLinearLayout">
+        <attr name="sobot_mhv_HeightRatio" format="float" />
+        <attr name="sobot_mhv_HeightDimen" format="dimension" />
+        <attr name="sobot_mhH_HeightRatio" format="float" />
+        <attr name="sobot_mhH_HeightDimen" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_ExpandableTextView">
+        <attr name="sobot_maxCollapsedLines" format="integer" />
+        <attr name="sobot_ExpandStrResId" format="reference" />
+        <attr name="sobot_CollapseStrResId" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_GifView2">
+        <attr name="sobot_gif" format="reference" />
+        <attr name="sobot_paused" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_autoWrapLineLayout">
+        <attr name="sobot_verticalGap" format="dimension" />
+        <attr name="sobot_horizontalGap" format="dimension" />
+        <attr name="sobot_fillMode" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="sobot_SubsamplingScaleImageView">
+        <attr name="sobot_src" format="reference"/>
+        <attr name="sobot_assetName" format="string"/>
+        <attr name="sobot_panEnabled" format="boolean"/>
+        <attr name="sobot_zoomEnabled" format="boolean"/>
+        <attr name="sobot_quickScaleEnabled" format="boolean"/>
+        <attr name="sobot_tileBackgroundColor" format="color"/>
+    </declare-styleable>
+
+    <!--KPSwitchPanelLayout -->
+    <declare-styleable name="SobotKPSwitchPanelLayout">
+        <attr name="sobot_ignore_recommend_height" format="boolean" />
+    </declare-styleable>
+
+    <!--控件最大宽高-->
+    <declare-styleable name="sobot_maxsize_layout">
+        <attr name="sobot_max_width" format="dimension" />
+        <attr name="sobot_max_height" format="dimension" />
+    </declare-styleable>
+
+    <!--拖拽吸附控件-->
+    <declare-styleable name="sobot_attach_layout">
+        <attr name="customIsAttach" format="boolean" />
+        <attr name="customIsDrag" format="boolean" />
+    </declare-styleable>
+    <!--带有加载进度条的图片控件-->
+    <declare-styleable name="sobot_progress_imageview">
+        <attr name="image_max_width" format="dimension" />
+        <attr name="image_max_height" format="dimension" />
+        <attr name="image_min_width" format="dimension" />
+        <attr name="image_min_height" format="dimension" />
+        <!--图片宽-->
+        <attr name="image_width" format="dimension" />
+        <!--图片高-->
+        <attr name="image_height" format="dimension" />
+        <!--控件变化时 是否带有系统动画效果-->
+        <attr name="image_layout_change_animate" format="boolean" />
+        <!--预加载时是否显示加载控件-->
+        <attr name="image_is_show_progressbar" format="boolean" />
+        <!--预加载时背景色-->
+        <attr name="image_bg" format="color" />
+    </declare-styleable>
+</resources>

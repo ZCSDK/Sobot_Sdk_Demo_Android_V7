@@ -10,6 +10,9 @@ import android.widget.EditText
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
 import com.sobot.chat.utils.SharedPreferencesUtil
@@ -23,14 +26,18 @@ import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
 class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
+    private var rl_root: RelativeLayout? = null
     private var tv_base_fun_3_1: TextView? = null
     private var tv_base_fun_3_2: TextView? = null
     private var sobot_tv_save: TextView? = null
     private var sobot_et_yuming: EditText? = null
     private var sobot_et_appkey: EditText? = null
+    private var sobot_et_sign: EditText? = null
     private var sobot_et_pingtaibiaoshi: EditText? = null
     private var sobot_et_pingtaimiyao: EditText? = null
     private var sobot_et_partnerid: EditText? = null
+    private var sobot_et_country: EditText? = null
+    private var sobot_et_shiqu: EditText? = null
     private var information: Information? = null
     private var otherModel: SobotDemoOtherModel? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,19 +55,39 @@ class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private fun findvViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
+        rl_root = findViewById<View>(R.id.rl_root) as RelativeLayout?
         sobot_text_title.text = "基础设置"
+        rl_root?.let {
+            ViewCompat.setOnApplyWindowInsetsListener(it) { view, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                view.updatePadding(
+                    left = systemBars.left,
+                    right = systemBars.right,
+                    top = systemBars.top,
+                    bottom = systemBars.bottom
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+
         sobot_tv_left!!.setOnClickListener(this)
         sobot_et_yuming = findViewById(R.id.sobot_et_yuming)
+        sobot_et_sign = findViewById(R.id.sobot_et_sign)
         sobot_et_appkey = findViewById(R.id.sobot_et_appkey)
         sobot_et_pingtaibiaoshi = findViewById(R.id.sobot_et_pingtaibiaoshi)
         sobot_et_pingtaimiyao = findViewById(R.id.sobot_et_pingtaimiyao)
         sobot_et_partnerid = findViewById(R.id.sobot_et_partnerid)
+        sobot_et_shiqu = findViewById(R.id.sobot_et_shiqu)
+        sobot_et_country = findViewById(R.id.sobot_et_country)
         sobot_tv_save = findViewById(R.id.sobot_tv_save)
         sobot_tv_save!!.setVisibility(View.VISIBLE)
         sobot_tv_save!!.setOnClickListener(this)
         if (information != null) {
             sobot_et_appkey!!.setText(information!!.app_key)
+            sobot_et_sign !!.setText(information!!.sign)
             sobot_et_partnerid!!.setText(information!!.partnerid)
+            sobot_et_shiqu!!.setText(information!!.timezoneId)
+            sobot_et_country!!.setText(information!!.countryName)
         }
         if (otherModel != null) {
             if (!TextUtils.isEmpty(otherModel!!.api_host)) {
@@ -106,6 +133,9 @@ class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
             if (information != null) {
                 information!!.app_key = sobot_et_appkey!!.text.toString().trim { it <= ' ' }
                 information!!.partnerid = sobot_et_partnerid!!.text.toString().trim { it <= ' ' }
+                information!!.countryName = sobot_et_country!!.text.toString().trim { it <= ' ' }
+                information!!.timezoneId = sobot_et_shiqu!!.text.toString().trim { it <= ' ' }
+                information!!.sign =sobot_et_sign!!.text.toString().trim { it <= ' ' }
                 saveObject(this, "sobot_demo_infomation", information!!)
             }
             if (otherModel != null) {

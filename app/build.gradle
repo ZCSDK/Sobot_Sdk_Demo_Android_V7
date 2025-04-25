@@ -11,8 +11,8 @@ android {
         applicationId "com.sobot.sobotchatsdkdemo"
         minSdk 24
         targetSdk 34
-        versionCode 415
-        versionName "4.1.5"
+        versionCode 424
+        versionName "4.2.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,10 +33,10 @@ android {
     buildFeatures {
         viewBinding true
     }
+    buildToolsVersion '35.0.0'
 }
-
 dependencies {
-
+    implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'])
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
@@ -46,22 +46,18 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-
+    implementation project(':sobotsdk-x')
     // 电商版 AndroidX：
-//    implementation  'com.sobot.chat:sobotsdk-mall-x:3.2.0.2'
-    implementation project(':sobotsdk-mall-x')
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+//    implementation  'com.sobot.chat:sobotsdk-mall-x:4.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     //目前支持常见的3种图片加载库，必须在下面的图片加载库中选择一个添加依赖
     //implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     //implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    //在使用4.9.0（包含4.9.0）以上版本的glide时，需额外添加依赖，之前的版本不需要
-    implementation 'com.sobot.chat:sobotsupport-glidev4:2.3'
 
 //    implementation 'com.sobot.chat:sobotsdk_yth:4.0.4'
 
 
     implementation 'com.alibaba:fastjson:1.2.73'
-    implementation 'com.lzy.widget:view-core:0.2.3'
 }

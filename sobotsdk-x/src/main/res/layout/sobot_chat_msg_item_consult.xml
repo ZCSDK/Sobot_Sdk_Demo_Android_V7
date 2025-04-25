@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/sobot_msg_top_bottom_style"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/sobot_reminde_time_Text"
+        style="@style/sobot_center_remind_time" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/sobot_consult_bg_normal"
+        android:padding="18dp">
+
+        <RelativeLayout
+            android:id="@+id/sobot_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/sobot_color_msg_bg_white"
+            android:padding="@dimen/sobot_msg_frame_msgtype_spacing">
+
+            <TextView
+                android:id="@+id/sobot_goods_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxLines="2"
+                android:textColor="@color/sobot_goods_title_text_color"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+
+            <com.sobot.chat.widget.image.SobotProgressImageView
+                android:id="@+id/sobot_goods_pic"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:image_width="60dp"
+                app:image_height="60dp"
+                android:layout_below="@id/sobot_goods_title"
+                android:layout_marginTop="@dimen/sobot_msg_frame_msgtype_spacing"
+                android:layout_marginEnd="@dimen/sobot_msg_frame_msgtype_spacing"
+                android:src="@drawable/sobot_icon_consulting_default_pic"
+                android:visibility="visible"
+                app:sobot_round_corner="4dp" />
+
+
+            <TextView
+                android:id="@+id/sobot_goods_des"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sobot_goods_title"
+                android:layout_alignTop="@id/sobot_goods_pic"
+                android:layout_toEndOf="@id/sobot_goods_pic"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxLines="1"
+                android:textColor="@color/sobot_goods_des_text_color"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+            <TextView
+                android:id="@+id/sobot_goods_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sobot_goods_des"
+                android:layout_marginTop="16dp"
+                android:layout_toEndOf="@id/sobot_goods_pic"
+                android:lineSpacingExtra="@dimen/sobot_msg_frame_msgtype_spacing"
+                android:textColor="@color/sobot_color"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="14dp">
+
+                <Button
+                    android:id="@+id/sobot_goods_sendBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:background="@drawable/sobot_evaluate_commit_selector"
+                    android:paddingStart="15dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="1dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/sobot_color_white"
+                    android:textSize="@dimen/sobot_text_font_14" />
+            </RelativeLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

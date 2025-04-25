@@ -23,7 +23,6 @@ import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StMapOpenHelper;
 import com.sobot.chat.utils.ToastUtil;
-import com.sobot.chat.widget.kpswitch.view.ChattingPanelUploadView;
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel;
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil;
 
@@ -48,6 +47,13 @@ public class App extends Application {
         Information information = (Information) SobotSPUtil.INSTANCE.getObject(this, "sobot_demo_infomation");
         if (information == null) {
             SobotSPUtil.INSTANCE.saveObject(this, "sobot_demo_infomation", new Information());
+        }
+        if (information != null) {
+            if (TextUtils.isEmpty(information.getApp_key())) {
+                ToastUtil.showCustomToast(this, "appkey不能为空,请前往基础设置中设置");
+                return;
+            }
+            ZCSobotApi.initSobotSDK(this, information.getApp_key(), information.getPartnerid());
         }
 
         //是否在申请权限前弹出权限用途提示框,默认不弹
@@ -95,16 +101,9 @@ public class App extends Application {
             }
         });
         final String ACTION_LOCATION = "sobot_action_location";
-        //位置
-        final ChattingPanelUploadView.SobotPlusEntity locationEntity = new ChattingPanelUploadView.SobotPlusEntity(ResourceUtils.getDrawableId(getApplicationContext(), "sobot_location_btn_selector"), "位置", ACTION_LOCATION);
-        List<ChattingPanelUploadView.SobotPlusEntity> tmpList = new ArrayList<>();
-        tmpList.add(locationEntity);
 
         //发送订单卡片
         final String ACTION_SEND_ORDERCARD = "sobot_action_send_ordercard";
-        ChattingPanelUploadView.SobotPlusEntity ordercardEntity = new ChattingPanelUploadView.SobotPlusEntity(ResourceUtils.getDrawableId(getApplicationContext(), "sobot_ordercard_btn_selector"), "订单", ACTION_SEND_ORDERCARD);
-        tmpList.add(ordercardEntity);
-        SobotUIConfig.pulsMenu.operatorMenus = tmpList;
 
         SobotUIConfig.pulsMenu.sSobotPlusMenuListener = new SobotPlusMenuListener() {
             @Override

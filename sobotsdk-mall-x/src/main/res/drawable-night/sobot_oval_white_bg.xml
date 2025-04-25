@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><!--多轮会话 标签 背景样式-->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/sobot_common_gray8" />
-    <corners android:radius="4dp" />
-</shape>
-
