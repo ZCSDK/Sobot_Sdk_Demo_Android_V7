@@ -17,13 +17,14 @@ import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
-class SobotLeaveMsgFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotLeaveMsgFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_et_leaveCusFieldMap: EditText? = null
     private var sobot_et_leaveMsgGroupId: EditText? = null
     private var sobot_et_leaveTemplateId: EditText? = null
@@ -41,18 +42,17 @@ class SobotLeaveMsgFunctionActivity : AppCompatActivity(), View.OnClickListener 
     private var sobot_start_leavemsg_tv: TextView? = null
     private var information: Information? = null
     private var otherModel: SobotDemoOtherModel? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_leavemsg_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_leavemsg_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
         otherModel = getObject(context, "sobot_demo_otherModel") as SobotDemoOtherModel?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         sobot_tv_left!!.setOnClickListener { finish() }
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView

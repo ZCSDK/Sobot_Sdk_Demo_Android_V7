@@ -15,9 +15,10 @@ import com.sobot.chat.core.channel.Const
 import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 
-class SobotMessageFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotMessageFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var sobot_rl_4_5_2: RelativeLayout? = null
     private var sobot_rl_4_5: RelativeLayout? = null
@@ -30,17 +31,16 @@ class SobotMessageFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private var tv_message_fun_4_5_6: TextView? = null
     private var sobot_tv_save: TextView? = null
     private var information: Information? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_message_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_message_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         sobot_tv_left!!.setOnClickListener { finish() }
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView

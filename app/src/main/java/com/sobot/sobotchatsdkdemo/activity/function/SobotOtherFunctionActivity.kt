@@ -18,6 +18,7 @@ import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.AndroidBug5497Workaround.Companion.assistActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
@@ -26,7 +27,7 @@ import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveStringData
 
-class SobotOtherFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var sobot_rl_4_7_6_1: RelativeLayout? = null
     private var sobot_rl_4_7_6_2: RelativeLayout? = null
@@ -46,17 +47,16 @@ class SobotOtherFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private var sobot_et_langue: EditText? = null
     private var sobot_et_server_langue: EditText? = null
     private var information: Information? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_other_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_other_func_activity
+
+    override fun initView() {
         assistActivity(this)
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         information = getObject(context, "sobot_demo_infomation") as Information?
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         sobot_tv_left!!.setOnClickListener { finish() }

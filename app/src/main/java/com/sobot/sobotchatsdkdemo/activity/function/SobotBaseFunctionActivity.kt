@@ -19,14 +19,15 @@ import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
+import com.sobot.sobotchatsdkdemo.activity.SplashActivity
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
 import com.sobot.sobotchatsdkdemo.util.AndroidBug5497Workaround.Companion.assistActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
-class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotBaseFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
-    private var rl_root: RelativeLayout? = null
     private var tv_base_fun_3_1: TextView? = null
     private var tv_base_fun_3_2: TextView? = null
     private var sobot_tv_save: TextView? = null
@@ -40,35 +41,22 @@ class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
     private var sobot_et_shiqu: EditText? = null
     private var information: Information? = null
     private var otherModel: SobotDemoOtherModel? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_base_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_base_func_activity
+
+
+    override fun initView() {
         assistActivity(this)
         information = getObject(context, "sobot_demo_infomation") as Information?
         otherModel = getObject(context, "sobot_demo_otherModel") as SobotDemoOtherModel?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
-        rl_root = findViewById<View>(R.id.rl_root) as RelativeLayout?
         sobot_text_title.text = "基础设置"
-        rl_root?.let {
-            ViewCompat.setOnApplyWindowInsetsListener(it) { view, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.updatePadding(
-                    left = systemBars.left,
-                    right = systemBars.right,
-                    top = systemBars.top,
-                    bottom = systemBars.bottom
-                )
-                WindowInsetsCompat.CONSUMED
-            }
-        }
 
         sobot_tv_left!!.setOnClickListener(this)
         sobot_et_yuming = findViewById(R.id.sobot_et_yuming)
@@ -144,7 +132,11 @@ class SobotBaseFunctionActivity : AppCompatActivity(), View.OnClickListener {
                     if (yuming != oldYUming) {
                         otherModel!!.api_host = yuming
                         saveObject(this, "sobot_demo_otherModel", otherModel!!)
-                        Process.killProcess(Process.myPid())
+                        val intent = Intent(this, SplashActivity::class.java) // 替换为你的欢迎页 Activity
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        startActivity(intent)
+                        Process.killProcess(Process.myPid()) // 强制结束当前进程（可选）
+
                     }
                 } else {
                     otherModel!!.api_host = "https://api.sobot.com"

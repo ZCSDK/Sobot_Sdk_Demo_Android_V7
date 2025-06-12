@@ -21,6 +21,7 @@ import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
@@ -28,7 +29,7 @@ import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getStringData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveBooleanData
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveStringData
 
-class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListener {
+class SobotCustomUiFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_et_custom_title: EditText? = null
     private var sobot_et_custom_avatar: EditText? = null
     private var sobot_et_custom_right_button_call: EditText? = null
@@ -61,18 +62,17 @@ class SobotCustomUiFunctionActivity() : AppCompatActivity(), View.OnClickListene
     private var sobot_tv_save: TextView? = null
     private var information: Information? = null
     private var otherModel: SobotDemoOtherModel? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_customui_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_customui_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
         otherModel = getObject(context, "sobot_demo_otherModel") as SobotDemoOtherModel?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         sobot_tv_left!!.setOnClickListener(View.OnClickListener { finish() })
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView

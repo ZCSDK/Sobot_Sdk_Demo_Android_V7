@@ -15,10 +15,11 @@ import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
-class SobotSatisfactionFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotSatisfactionFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var sobot_rl_4_4_2_1: RelativeLayout? = null
     private var sobot_rl_4_4_2_2: RelativeLayout? = null
@@ -44,17 +45,16 @@ class SobotSatisfactionFunctionActivity : AppCompatActivity(), View.OnClickListe
     private var tv_satisfaction_fun_4_4_5: TextView? = null
     private var sobot_tv_save: TextView? = null
     private var information: Information? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_satisfaction_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_satisfaction_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         sobot_tv_left!!.setOnClickListener { finish() }
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
@@ -153,26 +153,32 @@ class SobotSatisfactionFunctionActivity : AppCompatActivity(), View.OnClickListe
                 ToastUtil.showToast(context, "已保存")
                 finish()
             }
+
             R.id.sobot_rl_4_4_2_1 -> {
                 status4421 = !status4421
                 setImageShowStatus(status4421, sobotImage4421)
             }
+
             R.id.sobot_rl_4_4_2_2 -> {
                 status4422 = !status4422
                 setImageShowStatus(status4422, sobotImage4422)
             }
+
             R.id.sobot_rl_4_4_3_1 -> {
                 status4431 = !status4431
                 setImageShowStatus(status4431, sobotImage4431)
             }
+
             R.id.sobot_rl_4_4_3_2 -> {
                 status4432 = !status4432
                 setImageShowStatus(status4432, sobotImage4432)
             }
+
             R.id.sobot_rl_4_4_4 -> {
                 status444 = !status444
                 setImageShowStatus(status444, sobotImage444)
             }
+
             R.id.sobot_rl_4_4_5 -> {
                 status445 = !status445
                 setImageShowStatus(status445, sobotImage445)

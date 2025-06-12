@@ -10,24 +10,24 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 
-class SobotInfomationFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotInfomationFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var tv_info_fun_5: TextView? = null
     private var sobot_tv_save: TextView? = null
     private var information: Information? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_infomation_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_infomation_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
-        findvViews()
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
         sobot_text_title.text = "Information类说明"
@@ -47,7 +47,7 @@ class SobotInfomationFunctionActivity : AppCompatActivity(), View.OnClickListene
             }
         })
         sobot_tv_save = findViewById(R.id.sobot_tv_save)
-        sobot_tv_save!!.setVisibility(View.GONE)
+        sobot_tv_save!!.setVisibility(View.INVISIBLE)
     }
 
     override fun onClick(v: View) {

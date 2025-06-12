@@ -14,11 +14,11 @@
         android:testOnly="false"
         android:theme="@style/Theme.SobotChatSDKDemo"
         tools:targetApi="31">
-        <activity android:name=".activity.SobotDemoNewActivity" />
-        <activity android:name=".activity.product.SobotDemoRobotActivity" />
-        <activity android:name=".activity.product.SobotDemoCustomActivity" />
-        <activity android:name=".activity.product.SobotDemoCloudCallActivity" />
-        <activity android:name=".activity.product.SobotDemoWorkOrderActivity" />
+        <activity android:name=".activity.SobotDemoNewActivity" android:theme="@style/actity_theme" />
+        <activity android:name=".activity.product.SobotDemoRobotActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.product.SobotDemoCustomActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.product.SobotDemoCloudCallActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.product.SobotDemoWorkOrderActivity" android:theme="@style/actity_theme"/>
 
         <!-- 获取未读消息的广播接收者  推荐动态注册，安卓8.0以后不支持静态注册 -->
         <!--
@@ -39,26 +39,26 @@
         -->
 
 
-        <activity android:name=".activity.function.SobotBaseFunctionActivity" />
-        <activity android:name=".activity.function.SobotStartSobotFunctionActivity" />
-        <activity android:name=".activity.function.SobotStartHelpCenterFunctionActivity" />
-        <activity android:name=".activity.function.SobotReobotFunctionActivity" />
-        <activity android:name=".activity.function.SobotSatisfactionFunctionActivity" />
-        <activity android:name=".activity.function.SobotManualFunctionActivity" />
-        <activity android:name=".activity.function.SobotLeaveMsgFunctionActivity" />
-        <activity android:name=".activity.function.SobotMessageFunctionActivity" />
-        <activity android:name=".activity.function.SobotOtherFunctionActivity" />
-        <activity android:name=".activity.function.SobotEndSobotFunctionActivity" />
-        <activity android:name=".activity.function.SobotInitPlatformSobotFunctionActivity" />
-        <activity android:name=".activity.function.SobotInitSobotFunctionActivity" />
-        <activity android:name=".activity.function.SobotCustomUiFunctionActivity" />
-        <activity android:name=".activity.function.SobotInfomationFunctionActivity" />
-        <activity android:name=".activity.function.SobotDuolunActivity" />
+        <activity android:name=".activity.function.SobotBaseFunctionActivity" android:theme="@style/actity_theme" />
+        <activity android:name=".activity.function.SobotStartSobotFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotStartHelpCenterFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotReobotFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotSatisfactionFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotManualFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotLeaveMsgFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotMessageFunctionActivity" android:theme="@style/actity_theme" />
+        <activity android:name=".activity.function.SobotOtherFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotEndSobotFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotInitPlatformSobotFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotInitSobotFunctionActivity" android:theme="@style/actity_theme"  />
+        <activity android:name=".activity.function.SobotCustomUiFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotInfomationFunctionActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotDuolunActivity" android:theme="@style/actity_theme"/>
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.SobotChatSDKDemo.NoActionBar">
+            android:theme="@style/actity_theme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

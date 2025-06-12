@@ -19,7 +19,6 @@ import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.listener.SobotMapCardListener;
 import com.sobot.chat.listener.SobotMiniProgramClickListener;
 import com.sobot.chat.listener.SobotPlusMenuListener;
-import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StMapOpenHelper;
 import com.sobot.chat.utils.ToastUtil;

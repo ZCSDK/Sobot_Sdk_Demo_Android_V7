@@ -46,6 +46,7 @@ class SobotDemoNewActivity : AppCompatActivity() {
         }
         val bottomNavigationView =
             findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setSelectedItemId(R.id.navigation_jieshao);
         bottomNavigationView.setOnItemSelectedListener { item ->
             var selectedFragment: Fragment? = null
             when (item.itemId) {

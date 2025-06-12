@@ -12,10 +12,11 @@ import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
-class SobotStartHelpCenterFunctionActivity : AppCompatActivity(), View.OnClickListener {
+class SobotStartHelpCenterFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var tv_start_fun_3_5: TextView? = null
     private var sobot_tv_save: TextView? = null
@@ -23,12 +24,11 @@ class SobotStartHelpCenterFunctionActivity : AppCompatActivity(), View.OnClickLi
     private var sobot_et_phone_title: EditText? = null
     private var sobot_et_phone: EditText? = null
     private var information: Information? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_starthelpcenter_func_activity)
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_starthelpcenter_func_activity
+
+    override fun initView() {
         information = getObject(context, "sobot_demo_infomation") as Information?
         findViews()
     }
@@ -56,7 +56,7 @@ class SobotStartHelpCenterFunctionActivity : AppCompatActivity(), View.OnClickLi
         })
         sobot_tv_save = findViewById(R.id.sobot_tv_save)
         sobot_tv_save!!.setOnClickListener(this)
-        sobot_tv_save!!.setVisibility(View.GONE)
+        sobot_tv_save!!.setVisibility(View.INVISIBLE)
         sobot_tv_start = findViewById(R.id.sobot_tv_start)
         sobot_tv_start!!.setOnClickListener(this)
         if (information != null) {

@@ -11,10 +11,10 @@ import androidx.fragment.app.Fragment
 import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.api.apiUtils.SobotBaseUrl
 import com.sobot.chat.api.model.Information
+import com.sobot.chat.gson.SobotGsonUtil
 import com.sobot.chat.utils.SharedPreferencesUtil
 import com.sobot.chat.utils.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
-import com.sobot.gson.SobotGsonUtil
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil

@@ -9,22 +9,22 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.api.model.Information
 import com.sobot.sobotchatsdkdemo.R
+import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getStringData
 
-class SobotDemoWorkOrderActivity : AppCompatActivity(), View.OnClickListener {
+class SobotDemoWorkOrderActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
     private var sobot_demo_bottom_layout: RelativeLayout? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (supportActionBar != null) {
-            supportActionBar!!.hide()
-        }
-        setContentView(R.layout.sobot_demo_work_order_activity)
-        findvViews()
+
+    override val contentViewResId: Int
+        get() = R.layout.sobot_demo_work_order_activity
+
+    override fun initView() {
+        findViews()
     }
 
-    private fun findvViews() {
+    private fun findViews() {
         sobot_tv_left = findViewById<View>(R.id.sobot_demo_tv_left) as RelativeLayout
         val sobot_text_title = findViewById<View>(R.id.sobot_demo_tv_title) as TextView
         sobot_text_title.text = "工单系统"
