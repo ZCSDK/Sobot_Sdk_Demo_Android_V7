@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sobot_color_common_bg"
+    android:background="@color/sobot_color_bg_first"
     android:orientation="vertical">
 
     <include layout="@layout/sobot_layout_common_titlebar" />
@@ -42,6 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@color/sobot_color_bg_second"
         android:cacheColorHint="@android:color/transparent"
         android:fadingEdge="none"
         android:horizontalSpacing="8dp"

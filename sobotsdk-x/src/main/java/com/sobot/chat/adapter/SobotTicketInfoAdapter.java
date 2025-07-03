@@ -63,7 +63,14 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         TicketInfoViewHolder vh = (TicketInfoViewHolder) viewHolder;
         final SobotUserTicketInfo data = list.get(i);
-        vh.tv_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(data.getContent().replaceAll("<img.*?/>", "")));
+        if (data != null && !TextUtils.isEmpty(data.getContent())) {
+            String tempStr = data.getContent().replaceAll("<br/>", "").replace("<p></p>", "")
+                    .replaceAll("<p>", "").replaceAll("</p>", "").replaceAll("\n", "");
+            if(tempStr.contains("<img")) {
+                tempStr = tempStr.replaceAll("<img[^>]*>", " [" + activity.getResources().getString(R.string.sobot_upload) + "] ");
+            }
+            vh.tv_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(tempStr));
+        }
         SobotTicketStatus status = getStatus(data.getTicketStatus());
         if (status != null) {
             vh.tv_ticket_status.setText(status.getCustomerStatusName());

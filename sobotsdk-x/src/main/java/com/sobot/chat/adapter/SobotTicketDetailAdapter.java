@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -50,7 +49,6 @@ import com.sobot.chat.widget.SobotFiveStarsSmallLayout;
 import com.sobot.chat.widget.StExpandableTextView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,7 +59,7 @@ import java.util.List;
 public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
     private Activity mActivity;
-    private ArrayList<SobotTicketStatus> statusList;
+    private List<SobotTicketStatus> statusList;
     private List<Object> list;
 
     //详情头
@@ -132,7 +130,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         this.list = list;
     }
 
-    public void setStatusList(ArrayList<SobotTicketStatus> statusList) {
+    public void setStatusList(List<SobotTicketStatus> statusList) {
         this.statusList = statusList;
     }
 
@@ -446,7 +444,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         private LinearLayout sobot_ll_container;
         private LinearLayout sobot_tv_content_ll;
         private View sobot_top_line_view;
-//        private LinearLayout sobot_ll_root;
+        //        private LinearLayout sobot_ll_root;
         private RecyclerView recyclerView;
 
         DetailViewHolder(View view) {

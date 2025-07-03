@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.utils.HtmlTools;
-import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 
@@ -147,10 +147,6 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
             }
 
 
-            if (otherViewHeight == 0 && mOtherView != null) {
-                otherViewHeight = mOtherView.getMeasuredHeight();
-            }
-
             animation = new ExpandCollapseAnimation(this, getHeight(), getHeight() + otherViewHeight +
                     mTextHeightWithMaxLines - contentText.getHeight() );
         }
@@ -235,7 +231,11 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
 
         // Re-measure with new setup
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
+        int curOtherH = mOtherView.getMeasuredHeight();
+            if (otherViewHeight<curOtherH) {
+                LogUtils.d("==========curOtherH: " + curOtherH+"======otherViewHeight: " +otherViewHeight);
+                otherViewHeight = curOtherH;
+            }
         if (mCollapsed) {
             // Gets the margin between the TextView's bottom and the ViewGroup's bottom
             contentText.post(new Runnable() {
@@ -246,6 +246,7 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
             });
             // Saves the collapsed height of this ViewGroup
             mCollapsedHeight = getMeasuredHeight();
+            LogUtils.d("=========mCollapsedHeight: "+mCollapsedHeight);
         }
     }
 
@@ -315,17 +316,6 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
 
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.sobot_ExpandableTextView);
         mMaxCollapsedLines = typedArray.getInt(R.styleable.sobot_ExpandableTextView_sobot_maxCollapsedLines, MAX_COLLAPSED_LINES);
-//        mAnimationDuration = typedArray.getInt(R.styleable.ExpandableTextView_animDuration, DEFAULT_ANIM_DURATION);
-//        mAnimAlphaStart = typedArray.getFloat(R.styleable.ExpandableTextView_animAlphaStart, DEFAULT_ANIM_ALPHA_START);
-//        mExpandDrawable = typedArray.getDrawable(R.styleable.ExpandableTextView_expandDrawable);
-//        mCollapseDrawable = typedArray.getDrawable(R.styleable.ExpandableTextView_collapseDrawable);
-
-//        if (mExpandDrawable == null) {
-//            mExpandDrawable = getDrawable(getContext(), R.drawable.ic_expand_more_black_12dp);
-//        }
-//        if (mCollapseDrawable == null) {
-//            mCollapseDrawable = getDrawable(getContext(), R.drawable.ic_expand_less_black_12dp);
-//        }
 
         typedArray.recycle();
 
@@ -341,10 +331,8 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
 
     private void findViews() {
         contentText = (TextView) findViewById(R.id.expandable_text);
-//        mTv.setOnClickListener(this);
         mButton = (ViewGroup) findViewById(R.id.expand_collapse);
         expand_text_btn = findViewById(R.id.expand_text_btn);
-//        mButton.setImageDrawable(mCollapsed ? mExpandDrawable : mCollapseDrawable);
         mOtherView = (ViewGroup) findViewById(R.id.expand_other_groupView);
         setupExpandCollapse();
         mButton.setOnClickListener(this);
@@ -433,7 +421,6 @@ public class StExpandableTextView extends LinearLayout implements View.OnClickLi
     }
 
     private void setupExpandCollapse() {
-//        setText(mTv.getText().toString());
         if (mOtherView != null) {
             mOtherView.setVisibility(mCollapsed ? GONE : VISIBLE);
             if (otherViewHeight > 0) {

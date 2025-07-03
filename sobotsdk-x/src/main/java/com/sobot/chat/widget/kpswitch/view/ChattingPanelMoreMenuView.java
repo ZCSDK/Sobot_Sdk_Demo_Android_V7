@@ -22,7 +22,6 @@ import com.sobot.chat.widget.kpswitch.widget.data.PlusPageEntity;
 import com.sobot.chat.widget.kpswitch.widget.data.PlusPageSetEntity;
 import com.sobot.chat.widget.kpswitch.widget.interfaces.PageViewInstantiateListener;
 import com.sobot.chat.widget.kpswitch.widget.interfaces.PlusDisplayListener;
-import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,24 +107,36 @@ public class ChattingPanelMoreMenuView extends BaseChattingPanelView implements 
                     //1.留言 2 服务评价 3文件 4表情  5截图  6自定义跳转链接 7 图片 8 视频 9 拍摄
                     if (extModel.getExtModelType() == 7) {
                         picEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_PIC, i);
-                        robotList.add(picEntity);
+                        if (!information.isHideMenuPicture()) {
+                            robotList.add(picEntity);
+                        }
                     } else if (extModel.getExtModelType() == 8) {
                         videoEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_VIDEO, i);
-                        robotList.add(videoEntity);
+                        if (!information.isHideMenuVedio()) {
+                            robotList.add(videoEntity);
+                        }
                     } else if (extModel.getExtModelType() == 9) {
                         cameraEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_CAMERA, i);
-                        robotList.add(cameraEntity);
+                        if (!information.isHideMenuCamera()) {
+                            robotList.add(cameraEntity);
+                        }
                     } else if (extModel.getExtModelType() == 3) {
                         fileEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_CHOOSE_FILE, i);
-                        robotList.add(fileEntity);
+                        if (!information.isHideMenuFile()) {
+                            robotList.add(fileEntity);
+                        }
                     } else if (extModel.getExtModelType() == 1) {
                         leavemsgEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_LEAVEMSG, i);
-                        robotList.add(leavemsgEntity);
+                        if (leaveMsg == ZhiChiConstant.sobot_msg_flag_open && !information.isHideMenuLeave()) {
+                            robotList.add(leavemsgEntity);
+                        }
                     } else if (extModel.getExtModelType() == 2) {
                         satisfactionEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_SATISFACTION, i);
-                        robotList.add(satisfactionEntity);
-                    }else{
-                        SobotPlusEntity webEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_OPEN_WEB, i,extModel.getExtModelLink());
+                        if (!information.isHideMenuSatisfaction()) {
+                            robotList.add(satisfactionEntity);
+                        }
+                    } else {
+                        SobotPlusEntity webEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_OPEN_WEB, i, extModel.getExtModelLink());
                         robotList.add(webEntity);
                     }
                 }
@@ -136,62 +147,41 @@ public class ChattingPanelMoreMenuView extends BaseChattingPanelView implements 
                     //1.留言 2 服务评价 3文件 4表情  5截图  6自定义跳转链接 7 图片 8 视频 9 拍摄
                     if (extModel.getExtModelType() == 7) {
                         picEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_PIC, i);
-                        operatorList.add(picEntity);
+                        if (!information.isHideMenuPicture()) {
+                            operatorList.add(picEntity);
+                        }
                     } else if (extModel.getExtModelType() == 8) {
                         videoEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_VIDEO, i);
-                        operatorList.add(videoEntity);
+                        if (!information.isHideMenuVedio()) {
+                            operatorList.add(videoEntity);
+                        }
                     } else if (extModel.getExtModelType() == 9) {
                         cameraEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_CAMERA, i);
-                        operatorList.add(cameraEntity);
+                        if (!information.isHideMenuCamera()) {
+                            operatorList.add(cameraEntity);
+                        }
                     } else if (extModel.getExtModelType() == 3) {
                         fileEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_CHOOSE_FILE, i);
-                        operatorList.add(fileEntity);
+                        if (!information.isHideMenuFile()) {
+                            operatorList.add(fileEntity);
+                        }
                     } else if (extModel.getExtModelType() == 1) {
                         leavemsgEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_LEAVEMSG, i);
-                        operatorList.add(leavemsgEntity);
+                        if (leaveMsg == ZhiChiConstant.sobot_msg_flag_open && !information.isHideMenuLeave() && !information.isHideMenuManualLeave() && !msgToTicket) {
+                            operatorList.add(leavemsgEntity);
+                        }
                     } else if (extModel.getExtModelType() == 2) {
                         satisfactionEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_SATISFACTION, i);
-                        operatorList.add(satisfactionEntity);
-                    }else{
-                        SobotPlusEntity webEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_OPEN_WEB, i,extModel.getExtModelLink());
+                        if (!information.isHideMenuSatisfaction()) {
+                            operatorList.add(satisfactionEntity);
+                        }
+                    } else {
+                        SobotPlusEntity webEntity = new SobotPlusEntity(extModel.getExtModelPhoto(), extModel.getExtModelName(), ACTION_OPEN_WEB, i, extModel.getExtModelLink());
                         operatorList.add(webEntity);
                     }
                 }
             }
 
-            //相册
-            if (information.isHideMenuPicture()) {
-                robotList.remove(picEntity);
-                operatorList.remove(picEntity);
-            }
-            //视频
-            if (information.isHideMenuVedio()) {
-                robotList.remove(videoEntity);
-                operatorList.remove(videoEntity);
-            }
-            //拍照
-            if (information.isHideMenuCamera()) {
-                robotList.remove(cameraEntity);
-                operatorList.remove(cameraEntity);
-            }
-            //文件
-            if (information.isHideMenuFile()) {
-                robotList.remove(fileEntity);
-                operatorList.remove(fileEntity);
-            }
-            //留言
-            if (information.isHideMenuLeave()) {
-                robotList.remove(leavemsgEntity);
-                operatorList.remove(leavemsgEntity);
-            }
-            if (information.isHideMenuManualLeave()) {
-                operatorList.remove(leavemsgEntity);
-            }
-            //评价
-            if (information.isHideMenuSatisfaction()) {
-                robotList.remove(satisfactionEntity);
-                operatorList.remove(satisfactionEntity);
-            }
             //排序
             if (robotList != null) {
                 Collections.sort(robotList, new Comparator<SobotPlusEntity>() {
@@ -250,7 +240,8 @@ public class ChattingPanelMoreMenuView extends BaseChattingPanelView implements 
             this.action = action;
             this.index = index;
         }
-        public SobotPlusEntity(String iconUrl, String name, String action, int index,String link) {
+
+        public SobotPlusEntity(String iconUrl, String name, String action, int index, String link) {
             this.iconUrl = iconUrl;
             this.name = name;
             this.action = action;
@@ -388,6 +379,7 @@ public class ChattingPanelMoreMenuView extends BaseChattingPanelView implements 
         void startToPostMsgActivty(boolean flag);
 
         void chooseFile();
+
         void openWeb(String url);
     }
 
@@ -437,9 +429,9 @@ public class ChattingPanelMoreMenuView extends BaseChattingPanelView implements 
             }
             setAdapter(tmpList);
             if (countListener != null) {
-                if(tmpClientMode==ZhiChiConstant.client_model_customService){
+                if (tmpClientMode == ZhiChiConstant.client_model_customService) {
                     countListener.setOperatorCount(tmpList);
-                }else{
+                } else {
                     countListener.setRobotOperatorCount(tmpList);
                 }
             }

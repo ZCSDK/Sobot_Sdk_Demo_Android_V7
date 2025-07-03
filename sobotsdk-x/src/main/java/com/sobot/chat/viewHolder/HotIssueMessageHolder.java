@@ -122,8 +122,10 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             } else {
                 sobot_hot_pic.setVisibility(View.GONE);
             }
-            //显示分组和列表
-            showTab(groupRespVoList);
+            //显示分组和列表,防止滑动后，永远显示第一个
+            if(groupIndex==0) {
+                showTab(groupRespVoList);
+            }
         } else if (bean.getShowType() == 3) {
             PAGE_NUM = 5;
             //显示豆腐块、分组、列表
@@ -316,6 +318,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
                         tab_hot_title.setVisibility(View.VISIBLE);
                         v_tab_hot_title_split.setVisibility(View.VISIBLE);
+                        groupIndex = 0;
                         curPageNum = 0;
                         showTab(businessLineRespVoList.get(blockIndex).getGroupRespVos());
                     } else if (businessLineRespVoList.get(blockIndex).getHasGroup() == 1) {
@@ -354,7 +357,9 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 }
             }
             if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
-                showTab(businessLineRespVoList.get(blockIndex).getGroupRespVos());
+                if(groupIndex==0) {
+                    showTab(businessLineRespVoList.get(blockIndex).getGroupRespVos());
+                }
             } else if (businessLineRespVoList.get(blockIndex).getHasGroup() == 1) {
                 if (tab_hot_title.getVisibility() == View.VISIBLE) {
                     tab_hot_title.setVisibility(View.GONE);

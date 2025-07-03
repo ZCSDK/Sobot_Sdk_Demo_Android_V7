@@ -37,7 +37,8 @@ public class NoticeMessageHolder extends MsgHolderBase {
     @Override
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsg())) {
-            HtmlTools.getInstance(mContext).setRichText(expandable_text, message.getAnswer().getMsg(), getLinkTextColor());
+            String noticeMsg = message.getAnswer().getMsg().trim();
+            HtmlTools.getInstance(mContext).setRichText(expandable_text, noticeMsg, getLinkTextColor());
             try {
                 expandable_text.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -49,7 +50,12 @@ public class NoticeMessageHolder extends MsgHolderBase {
                             if (expandable_text.getLineCount() > 4) {
                                 ll_expand_btn.setVisibility(View.VISIBLE);
                                 int lineEndIndex = expandable_text.getLayout().getLineEnd(3);
-                                String text = message.getAnswer().getMsg().subSequence(0, lineEndIndex - 3) + "…";
+                                String text = "";
+                                if ((lineEndIndex - 3) > 0 && (lineEndIndex - 3) <= noticeMsg.length()) {
+                                    text = noticeMsg.subSequence(0, lineEndIndex - 3) + "…";
+                                } else {
+                                    text = noticeMsg;
+                                }
                                 HtmlTools.getInstance(mContext).setRichText(expandable_text, text, getLinkTextColor());
 //                                setTextColorGradient(expandable_text, R.color.sobot_color_text_first, R.color.sobot_announcement_bgcolor);
                                 message.setNoticeExceedStatus(1);
@@ -60,7 +66,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                         }
                     }
                 });
-                showNoticeExceed();
+                showNoticeExceed(noticeMsg);
                 ll_expand_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -69,7 +75,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                         } else if (message.getNoticeExceedStatus() == 1) {
                             message.setNoticeExceedStatus(2);
                         }
-                        showNoticeExceed();
+                        showNoticeExceed(noticeMsg);
                     }
                 });
             } catch (Exception e) {
@@ -79,7 +85,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
         refreshReadStatus();
     }
 
-    void showNoticeExceed() {
+    void showNoticeExceed(String noticeMsg) {
         try {
             if (message.getNoticeExceedStatus() == 1) {
                 HtmlTools.getInstance(mContext).setRichText(expandable_text, message.getNoticeNoExceedContent(), getLinkTextColor());
@@ -105,7 +111,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                     img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
                     expand_text_btn.setCompoundDrawables(null, null, img, null);
                 }
-                HtmlTools.getInstance(mContext).setRichText(expandable_text, message.getAnswer().getMsg(), getLinkTextColor());
+                HtmlTools.getInstance(mContext).setRichText(expandable_text, noticeMsg, getLinkTextColor());
                 expandable_text.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {

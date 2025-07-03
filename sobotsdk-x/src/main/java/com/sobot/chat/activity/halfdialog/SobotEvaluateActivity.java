@@ -514,11 +514,12 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
         sobot_evaluate_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isExitSession) {
+                //邀评的暂不评价，只返回，不发广播，其他暂不评价逻辑不动 /*commentType 评价类型 主动评价1 邀请评价0*/
+                if (isFinish || isExitSession) {
                     Intent intent = new Intent();
                     intent.setAction(ZhiChiConstants.sobot_close_now);
-                    LogUtils.i("isBackShowEvaluate:  " + isBackShowEvaluate + "--------canBackWithNotEvaluation:   " + canBackWithNotEvaluation);
-                    intent.putExtra("isBackShowEvaluate", isBackShowEvaluate);
+                    LogUtils.i("isExitSession:  " + isExitSession + "--------isFinish:   " + isFinish);
+                    intent.putExtra("isExitSession", isExitSession);
                     CommonUtils.sendLocalBroadcast(SobotEvaluateActivity.this, intent);
                 }
                 finish();
@@ -766,7 +767,7 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
         param.setIsresolve(getResovled());
         param.setCommentType(commentType);
         if (current_model == ZhiChiConstant.client_model_robot) {
-            param.setRobotFlag(initModel.getRobotid()+"");
+            param.setRobotFlag(initModel.getRobotid() + "");
         } else {
             param.setScore(score + "");
         }
@@ -908,7 +909,7 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Co
 
     //检查标签是否选中（根据主动邀评传过来的选中标签判断）
     private void checkLable(String tmpData[]) {
-        if (tmpData != null && tmpData.length > 0 && !TextUtils.isEmpty(evaluateChecklables) && sobot_evaluate_lable_autoline != null) {
+        if (tmpData != null && tmpData.length > 0 && evaluateChecklables != null && !TextUtils.isEmpty(evaluateChecklables) && sobot_evaluate_lable_autoline != null) {
             for (int i = 0; i < tmpData.length; i++) {
                 CheckBox checkBox = (CheckBox) sobot_evaluate_lable_autoline.getChildAt(i);
                 if (checkBox != null) {

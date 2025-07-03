@@ -2,6 +2,7 @@ package com.sobot.chat.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -238,4 +239,21 @@ public class ScreenUtils {
         }
         return (activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) == WindowManager.LayoutParams.FLAG_FULLSCREEN;
     }
+
+    /**
+     * 虚拟导航栏高度
+     * @param context
+     * @return
+     */
+    public static int getNavigationBarHeight(Context context) {
+        Resources resources = context.getResources();
+        int resourceId = resources.getIdentifier( "navigation_bar_height_landscape", "dimen", "android");
+        if (resourceId > 0) {
+            int hight = resources.getDimensionPixelSize(resourceId);
+            LogUtils.d("=========="+hight);
+            return hight;
+        }
+        return 0;
+    }
+
 }

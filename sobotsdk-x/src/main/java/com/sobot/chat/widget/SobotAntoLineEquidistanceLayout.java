@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
-import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;

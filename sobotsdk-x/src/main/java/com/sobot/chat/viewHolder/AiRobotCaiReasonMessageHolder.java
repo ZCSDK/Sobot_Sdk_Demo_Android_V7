@@ -21,7 +21,6 @@ import com.sobot.chat.api.model.SobotAiRobotRealuateConfigInfo;
 import com.sobot.chat.api.model.SobotAiRobotRealuateInfo;
 import com.sobot.chat.api.model.SobotAiRobotRealuateTag;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
-import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotAntoLineLayout;

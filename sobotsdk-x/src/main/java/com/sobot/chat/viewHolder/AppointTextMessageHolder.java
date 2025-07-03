@@ -51,8 +51,8 @@ import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.image.SobotRCImageView;
-import com.sobot.gson.SobotGsonUtil;
-import com.sobot.gson.reflect.TypeToken;
+import com.sobot.chat.gson.SobotGsonUtil;
+import com.sobot.chat.gson.reflect.TypeToken;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
 

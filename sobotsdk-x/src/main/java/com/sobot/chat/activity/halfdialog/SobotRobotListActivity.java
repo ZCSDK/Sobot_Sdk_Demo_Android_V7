@@ -58,12 +58,14 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
         mListAdapter = new SobotRobotListAdapter(getContext(), sobotRobotList, new SobotRobotListAdapter.RobotItemOnClick() {
             @Override
             public void onItemClick(SobotRobot item) {
-                if ( item.getRobotFlag() != mRobotFlag) {
+                if (item.getRobotFlag() != mRobotFlag) {
                     //选择留言模版成功 发送广播
                     Intent intent = new Intent();
                     intent.putExtra("sobotRobot", item);
                     CommonUtils.sendLocalBroadcast(getContext(), intent);
                     setResult(ZCSobotConstant.EXTRA_SWITCH_ROBOT_REQUEST_CODE, intent);
+                    finish();
+                }else {
                     finish();
                 }
             }
@@ -75,7 +77,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
     @Override
     protected void initData() {
         mUid = getIntent().getStringExtra("uid");
-        mRobotFlag = getIntent().getIntExtra("robotFlag",-1);
+        mRobotFlag = getIntent().getIntExtra("robotFlag", -1);
         ZhiChiApi zhiChiApi = SobotMsgManager.getInstance(getContext()).getZhiChiApi();
         ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(getContext(),
                 ZhiChiConstant.sobot_last_current_initModel);
@@ -86,7 +88,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
                 @Override
                 public void onSuccess(List<SobotRobot> sobotRobots) {
                     for (SobotRobot bean : sobotRobots) {
-                        if (bean.getRobotFlag()==mRobotFlag) {
+                        if (bean.getRobotFlag() == mRobotFlag) {
                             bean.setSelected(true);
                             break;
                         }
@@ -107,7 +109,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
                 @Override
                 public void onSuccess(List<SobotRobot> sobotRobots) {
                     for (SobotRobot bean : sobotRobots) {
-                        if (bean.getRobotFlag()==mRobotFlag) {
+                        if (bean.getRobotFlag() == mRobotFlag) {
                             bean.setSelected(true);
                             break;
                         }

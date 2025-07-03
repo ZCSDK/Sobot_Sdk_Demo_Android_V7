@@ -24,7 +24,7 @@ import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotSectorProgressView;
-import com.sobot.gson.SobotGsonUtil;
+import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.network.http.model.SobotProgress;
 import com.sobot.network.http.upload.SobotUpload;
 import com.sobot.network.http.upload.SobotUploadListener;

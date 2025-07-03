@@ -159,8 +159,9 @@
                                 android:id="@+id/sobot_order_good_count"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:maxLines="1"
+                                android:layout_marginTop="3dp"
+                                android:gravity="bottom"
+                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                                 android:textColor="@color/sobot_card_goods_desc"
                                 android:textSize="@dimen/sobot_text_font_12" />
                         </LinearLayout>
@@ -268,7 +269,7 @@
 
                 <com.sobot.chat.widget.image.SobotRCImageView
                     android:id="@+id/sobot_order_good_pic_h"
-                    android:layout_width="300dp"
+                    android:layout_width="match_parent"
                     android:layout_height="188dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/sobot_icon_consulting_default_pic"

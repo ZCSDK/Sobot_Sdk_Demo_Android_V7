@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -12,7 +11,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -20,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -193,7 +190,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
 
                 ll_order_param.setVisibility(View.GONE);
                 // 0, "订单卡片",1, "商品卡片"
-                if (customCard.getCardType() == 0 || isRight() || (customCard.getCardType() == 1 && customCard.getCustomCards().size() == 1)) {
+                if (customCard.getCardType() == 0 || isRight() || (customCard.getCardType() == 1 && customCard.getCustomCards() != null && customCard.getCustomCards().size() == 1)) {
                     //单个的卡片不使用recycleView，用item的view
                     goods_list.setVisibility(View.GONE);
                     ll_order_good_info.setVisibility(View.GONE);
@@ -378,21 +375,19 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 sobot_msg_content_ll.setVisibility(View.VISIBLE);
                 ll_order_good_info_h.setVisibility(View.GONE);
                 if (goods_list_h != null) {
-
                     sobot_v_h.setVisibility(View.GONE);
                     goods_list_h.setVisibility(View.GONE);
                 }
                 //是否只有一个商品,只有商品用，订单样式不用, // 0, cardType"订单卡片",1, "商品卡片"
 
                 boolean isTop = true;
-                if (null != customCard.getCustomCards() && customCard.getCustomCards().size() == 1 && customCard.getCardType() == 1) {
+                if (null != customCard.getCustomCards() && customCard.getCustomCards().size() == 1 ) {
                     isOnlyOne = true;
                 }
                 //标题
                 if (!TextUtils.isEmpty(CommonUtils.encode(customCard.getCardGuide()))) {
                     mTitle.setText(customCard.getCardGuide());
                     mTitle.setVisibility(View.VISIBLE);
-                    isOnlyOne = false;
                     isTop = false;
                 } else {
                     mTitle.setVisibility(View.GONE);
@@ -401,7 +396,6 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 if (!TextUtils.isEmpty(CommonUtils.encode(customCard.getCardDesc()))) {
                     mDesc.setText(customCard.getCardDesc());
                     mDesc.setVisibility(View.VISIBLE);
-                    isOnlyOne = false;
                     isTop = false;
                 } else {
                     mDesc.setVisibility(View.GONE);
@@ -476,7 +470,6 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 }
                 // 0, "订单卡片",1, "商品卡片"
                 if (customCard.getCardType() == 0) {
-                    isOnlyOne = false;
                     ll_order_good_info.setVisibility(View.VISIBLE);
                     ll_order_good_info_h.setVisibility(View.GONE);
                     goods_list.setVisibility(View.GONE);
@@ -521,12 +514,15 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
 //                        sobot_order_good_pic.setOnClickListener(new MsgHolderBase.ImageClickLisenter(context, goods.getCustomCardThumbnail(), isRight));
                         sobot_order_good_title.setText(goods.getCustomCardName());
                         sobot_order_good_des.setText(goods.getCustomCardDesc());
-                        String s = "";
+                        StringBuilder s = new StringBuilder();
                         if (!TextUtils.isEmpty(goods.getCustomCardCount())) {
-                            s = context.getResources().getString(R.string.sobot_card_order_num) + goods.getCustomCardCount() + context.getResources().getString(R.string.sobot_how_goods);
+                            s.append( context.getResources().getString(R.string.sobot_card_order_num) + goods.getCustomCardCount() + context.getResources().getString(R.string.sobot_how_goods));
+                        }
+                        if(s.length()>0){
+                            s.append("\n");
                         }
                         if (!TextUtils.isEmpty(goods.getCustomCardAmount())) {
-                            s += "\n" + context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount());
+                            s.append (context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount()));
                         }
                         if (!TextUtils.isEmpty(s)) {
                             sobot_order_good_count.setVisibility(View.VISIBLE);
@@ -658,6 +654,9 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 }
             } else {
                 resetMaxWidth();
+                if(ll_order_good_info.getVisibility()==View.VISIBLE){
+                    ll_order_good_info.getLayoutParams().width= msgCardWidth;
+                }
             }
 
         }

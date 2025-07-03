@@ -13,7 +13,6 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.ArticleModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.HtmlTools;
-import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;

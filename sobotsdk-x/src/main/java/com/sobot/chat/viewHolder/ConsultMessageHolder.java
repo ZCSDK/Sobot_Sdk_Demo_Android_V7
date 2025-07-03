@@ -24,15 +24,14 @@ import com.sobot.chat.widget.image.SobotProgressImageView;
 public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickListener {
     private TextView tv_title;//   商品标题页title    商品描述  商品图片   发送按钮  商品标签
     private SobotProgressImageView iv_pic;
-    private Button btn_sendBtn;
+    private TextView btn_sendBtn;
     private View sobot_container;
     private TextView tv_lable;
     private TextView tv_des;
     private ZhiChiMessageBase mData;
-
     public ConsultMessageHolder(Context context, View convertView) {
         super(context, convertView);
-        btn_sendBtn = (Button) convertView.findViewById(R.id.sobot_goods_sendBtn);
+        btn_sendBtn = convertView.findViewById(R.id.sobot_goods_sendBtn);
         if (CommonUtils.checkSDKIsZh(mContext)) {
             btn_sendBtn.setText(R.string.sobot_send_cus_service);
         } else {
@@ -56,8 +55,6 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
         String describe = message.getReceiverFace();
         if (!TextUtils.isEmpty(picurl)) {
             iv_pic.setVisibility(View.VISIBLE);
-            tv_des.setMaxLines(1);
-            tv_des.setEllipsize(TextUtils.TruncateAt.END);
             iv_pic.setImageUrl(CommonUtils.encode(picurl));
         } else {
             iv_pic.setVisibility(View.GONE);
@@ -75,11 +72,6 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
             } else {
                 tv_lable.setVisibility(View.GONE);
             }
-        }
-        tv_lable.setTextColor(ThemeUtils.getThemeColor(mContext));
-        Drawable bg = btn_sendBtn.getBackground();
-        if (bg != null) {
-            btn_sendBtn.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(mContext)));
         }
         btn_sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override

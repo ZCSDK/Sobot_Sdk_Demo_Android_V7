@@ -29,6 +29,7 @@ import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.SobotUserTicketEvaluate;
 import com.sobot.chat.api.model.SobotUserTicketInfo;
 import com.sobot.chat.api.model.StUserDealTicketInfo;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
@@ -45,7 +46,6 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     public static final String INTENT_KEY_UID = "intent_key_uid";
     public static final String INTENT_KEY_COMPANYID = "intent_key_companyid";
     public static final String INTENT_KEY_TICKET_INFO = "intent_key_ticket_info";
-    public static final String INTENT_KEY_TICKET_STATUS = "intent_key_ticket_status";
     private static final int REQUEST_REPLY_CODE = 0x1001;
 
     private String mUid = "";
@@ -67,20 +67,19 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     //进入回复界面弹窗界面 把 上次回复的临时内容传过去
     private String replyTempContent;
     private ArrayList<SobotFileModel> picTempList = new ArrayList<>();
-    private ArrayList<SobotTicketStatus> statusList;
+    private List<SobotTicketStatus> statusList;
 
     /**
      * @param context 应用程序上下文
      * @return
      */
-    public static Intent newIntent(Context context, String companyId, String uid, SobotUserTicketInfo ticketInfo, ArrayList<SobotTicketStatus> statusList) {
+    public static Intent newIntent(Context context, String companyId, String uid, SobotUserTicketInfo ticketInfo) {
         Intent intent = new Intent(context, SobotTicketDetailActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Bundle bundle = new Bundle();
         bundle.putString(INTENT_KEY_UID, uid);
         bundle.putString(INTENT_KEY_COMPANYID, companyId);
         bundle.putSerializable(INTENT_KEY_TICKET_INFO, ticketInfo);
-        bundle.putSerializable(INTENT_KEY_TICKET_STATUS, statusList);
         intent.putExtras(bundle);
         return intent;
     }
@@ -95,7 +94,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
             mUid = getIntent().getStringExtra(INTENT_KEY_UID);
             mCompanyId = getIntent().getStringExtra(INTENT_KEY_COMPANYID);
             mTicketInfo = (SobotUserTicketInfo) getIntent().getSerializableExtra(INTENT_KEY_TICKET_INFO);
-            statusList = (ArrayList<SobotTicketStatus>) getIntent().getSerializableExtra(INTENT_KEY_TICKET_STATUS);
+            statusList = ChatUtils.getStatusList();
             if (mTicketInfo != null) {
                 infoFlag = mTicketInfo.getFlag();//保留原始状态
             }
@@ -162,13 +161,14 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
         if (mTicketInfo == null) {
             return;
         }
-        if (statusList == null) {
+        if (statusList == null||statusList.size()==0) {
             String companyId = SharedPreferencesUtil.getStringData(this,
                     ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
             String languageCode = SharedPreferencesUtil.getStringData(this, ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
             zhiChiApi.getTicketStatus(this, companyId, languageCode, new StringResultCallBack<List<SobotTicketStatus>>() {
                 @Override
                 public void onSuccess(List<SobotTicketStatus> sobotTicketStatuses) {
+                    ChatUtils.setStatusList(sobotTicketStatuses);
                     if(statusList == null){
                         statusList=new ArrayList<>();
                     }else{
@@ -205,6 +205,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                     mTicketInfo.setTime(datas.getTime());
                     mTicketInfo.setTimeStr(datas.getTimeStr());
                     mTicketInfo.setTicketStatus(datas.getTicketStatus());
+                    mTicketInfo.setFileList(datas.getTicketFileList());
                     mList.add(mTicketInfo);
                     if (datas.getReplyList() != null && datas.getReplyList().size() > 0) {
                         mList.addAll(datas.getReplyList());

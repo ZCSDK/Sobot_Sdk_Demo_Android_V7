@@ -2,7 +2,6 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        jcenter()
         google()
     }
 }
@@ -10,8 +9,8 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         google()
-        jcenter()
     }
 }
 rootProject.name = "Sobot_Sdk_Demo_Android_v6_kt"

@@ -17,7 +17,7 @@ import com.sobot.chat.api.model.ZhiChiMessageMsgModel;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
-import com.sobot.gson.SobotGsonUtil;
+import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.network.http.model.SobotProgress;
 import com.sobot.network.http.upload.SobotUpload;
 import com.sobot.network.http.upload.SobotUploadListener;
@@ -249,6 +249,7 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
                     messageMsgModel.setMsgType(3);
                     SobotCacheFile cacheFile = message.getAnswer().getCacheFile();
                     cacheFile.setUrl(progress.url);
+                    cacheFile.setSnapshot(progress.snapshot);
                     messageMsgModel.setContent(cacheFile);
                     message.setMessage(SobotGsonUtil.beanToJson(messageMsgModel));
                 }

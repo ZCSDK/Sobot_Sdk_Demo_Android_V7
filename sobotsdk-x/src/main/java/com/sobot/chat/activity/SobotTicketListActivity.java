@@ -2,13 +2,13 @@ package com.sobot.chat.activity;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentTransaction;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotChatBaseActivity;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
+import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.fragment.SobotTicketInfoFragment;
 import com.sobot.chat.listener.SobotFunctionType;
@@ -18,6 +18,9 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
+import com.sobot.network.http.callback.StringResultCallBack;
+
+import java.util.List;
 
 /**
  * 留言列表
@@ -54,7 +57,21 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     @Override
     protected void initView() {
         setTitle(R.string.sobot_message_record);
+        if (ChatUtils.getStatusList() == null || ChatUtils.getStatusList().size() == 0) {
+            String companyId = SharedPreferencesUtil.getStringData(this,
+                    ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
+            String languageCode = SharedPreferencesUtil.getStringData(this, ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
+            zhiChiApi.getTicketStatus(this, companyId, languageCode, new StringResultCallBack<List<SobotTicketStatus>>() {
+                @Override
+                public void onSuccess(List<SobotTicketStatus> sobotTicketStatuses) {
+                    ChatUtils.setStatusList(sobotTicketStatuses);
+                }
 
+                @Override
+                public void onFailure(Exception e, String s) {
+                }
+            });
+        }
     }
 
     @Override

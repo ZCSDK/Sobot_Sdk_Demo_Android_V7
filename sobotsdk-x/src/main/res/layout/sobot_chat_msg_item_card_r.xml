@@ -13,7 +13,7 @@
         style="@style/sobot_center_remind_time" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
@@ -33,7 +33,7 @@
 
             <LinearLayout
                 android:id="@+id/ll_status"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
@@ -108,7 +108,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                            android:textColor="@color/sobot_goods_price_text_color"
+                            android:textColor="@color/sobot_card_goods_price"
                             android:textSize="@dimen/sobot_text_font_14" />
                     </LinearLayout>
                 </com.sobot.chat.widget.SobotMaxSizeLinearLayout>

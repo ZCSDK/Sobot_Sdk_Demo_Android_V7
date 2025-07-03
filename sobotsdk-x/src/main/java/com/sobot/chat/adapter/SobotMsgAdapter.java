@@ -83,53 +83,53 @@ import java.util.ListIterator;
 public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     private static final int[] layoutRes = {
-            R.layout.sobot_chat_msg_item_txt_l,//文本消息左边的布局文件
-            R.layout.sobot_chat_msg_item_txt_r,//文本消息右边的布局文件
-            R.layout.sobot_chat_msg_item_tip,//消息提醒的布局文件
-            R.layout.sobot_chat_msg_item_rich,//富文本消息布局文件
-            R.layout.sobot_chat_msg_item_imgt_l,//图片消息左边的布局文件
-            R.layout.sobot_chat_msg_item_imgt_r,//图片消息右边的布局文件
-            R.layout.sobot_chat_msg_item_audiot_r,//语音消息右边的布局文件
-            R.layout.sobot_chat_msg_item_consult,//商品咨询内容的布局文件
-            R.layout.sobot_chat_msg_item_evaluate,//客服邀请评价的布局文件
-            R.layout.sobot_chat_msg_item_template1_l,//机器人  多轮会话模板 1
-            R.layout.sobot_chat_msg_item_template2_l,//机器人  多轮会话模板 2
-            R.layout.sobot_chat_msg_item_template3_l,//机器人  多轮会话模板 3
-            R.layout.sobot_chat_msg_item_sdk_history_r,//SDK  历史记录中多轮会话使用的布局
-            R.layout.sobot_chat_msg_item_template4_l,//机器人  多轮会话模板 4
-            R.layout.sobot_chat_msg_item_template5_l,//机器人  多轮会话模板 5
-            R.layout.sobot_chat_msg_item_question_recommend,//热点问题列表
-            R.layout.sobot_chat_msg_item_retracted_msg,//消息撤回
-            R.layout.sobot_chat_msg_item_robot_answer_items_l,//多轮会话模板 1511类型  显示的view
-            R.layout.sobot_chat_msg_item_robot_keyword_items_l,//机器人关键字转人工 布局
-            R.layout.sobot_chat_msg_item_file_l,//文件消息左边的布局文件
-            R.layout.sobot_chat_msg_item_file_r,//文件消息右边的布局文件
-            R.layout.sobot_chat_msg_item_video_r,//视频消息右边的布局文件
-            R.layout.sobot_chat_msg_item_location_r,//位置信息的布局文件
-            R.layout.sobot_chat_msg_item_notice,//通告消息的布局文件
-            R.layout.sobot_chat_msg_item_card_r,//商品卡片右侧信息的布局文件
-            R.layout.sobot_chat_msg_item_order_card_r,//订单卡片右侧消息
-            R.layout.sobot_chat_msg_item_order_card_l,//订单卡片左侧消息
-            R.layout.sobot_chat_msg_item_card_l,//商品卡片左侧信息的布局文件
-            R.layout.sobot_chat_msg_item_template6_l,//机器人  多轮会话模板 6
-            R.layout.sobot_chat_msg_item_system_tip,//防诈骗系统消息的布局文件
-            R.layout.sobot_chat_msg_item_video_l,//小视频左边的布局文件
-            R.layout.sobot_chat_msg_item_muiti_leave_msg,//工单节点留言的布局文件
-            R.layout.sobot_chat_msg_item_mini_program_card_l,//小程序卡片
-            R.layout.sobot_chat_msg_item_hot_issue,//多业务热门问题
-            R.layout.sobot_chat_msg_item_article_card_l,//文章卡片
-            R.layout.sobot_chat_msg_item_custom_card_l,//自定义卡片 左侧 系统或者客服发送的
-            R.layout.sobot_chat_msg_item_custom_card_r,//自定义卡片 右侧 用户发送的
-            R.layout.sobot_chat_msg_item_appoint_l,//引用消息 左侧
-            R.layout.sobot_chat_msg_item_appoint_r,//引用消息  右侧
-            R.layout.sobot_chat_msg_item_cai_reason_card,//点踩回答消息
-            R.layout.sobot_chat_msg_item_robot_keyword_items_l,//机器人语义关键字转人工 布局
-            R.layout.sobot_chat_msg_item_change_languae,//切换语言消息 布局
-            R.layout.sobot_chat_msg_item_sensitive_authorize,//敏感词授权卡片 布局
-            R.layout.sobot_chat_msg_item_ai_card_l,//大模型卡片
-            R.layout.sobot_chat_msg_item_ai_card_r,//大模型卡片
-            R.layout.sobot_chat_msg_item_aiagent_button_type,//大模型机器人 按钮消息
-            R.layout.sobot_chat_msg_item_cai_reason_card//大模型机器人 点踩 原因卡片
+            R.layout.sobot_chat_msg_item_txt_l,//0文本消息左边的布局文件
+            R.layout.sobot_chat_msg_item_txt_r,//1文本消息右边的布局文件
+            R.layout.sobot_chat_msg_item_tip,//2消息提醒的布局文件
+            R.layout.sobot_chat_msg_item_rich,//3富文本消息布局文件
+            R.layout.sobot_chat_msg_item_imgt_l,//4图片消息左边的布局文件
+            R.layout.sobot_chat_msg_item_imgt_r,//5图片消息右边的布局文件
+            R.layout.sobot_chat_msg_item_audiot_r,//6语音消息右边的布局文件
+            R.layout.sobot_chat_msg_item_consult,//7商品咨询内容的布局文件
+            R.layout.sobot_chat_msg_item_evaluate,//8客服邀请评价的布局文件
+            R.layout.sobot_chat_msg_item_template1_l,//9机器人  多轮会话模板 1
+            R.layout.sobot_chat_msg_item_template2_l,//10机器人  多轮会话模板 2
+            R.layout.sobot_chat_msg_item_template3_l,//11机器人  多轮会话模板 3
+            R.layout.sobot_chat_msg_item_sdk_history_r,//12 SDK  历史记录中多轮会话使用的布局
+            R.layout.sobot_chat_msg_item_template4_l,//13机器人  多轮会话模板 4
+            R.layout.sobot_chat_msg_item_template5_l,//14机器人  多轮会话模板 5
+            R.layout.sobot_chat_msg_item_question_recommend,//15热点问题列表
+            R.layout.sobot_chat_msg_item_retracted_msg,//16消息撤回
+            R.layout.sobot_chat_msg_item_robot_answer_items_l,//17多轮会话模板 1511类型  显示的view
+            R.layout.sobot_chat_msg_item_robot_keyword_items_l,//18机器人关键字转人工 布局
+            R.layout.sobot_chat_msg_item_file_l,//19文件消息左边的布局文件
+            R.layout.sobot_chat_msg_item_file_r,//20文件消息右边的布局文件
+            R.layout.sobot_chat_msg_item_video_r,//21视频消息右边的布局文件
+            R.layout.sobot_chat_msg_item_location_r,//22位置信息的布局文件
+            R.layout.sobot_chat_msg_item_notice,//23通告消息的布局文件
+            R.layout.sobot_chat_msg_item_card_r,//24商品卡片右侧信息的布局文件
+            R.layout.sobot_chat_msg_item_order_card_r,//25订单卡片右侧消息
+            R.layout.sobot_chat_msg_item_order_card_l,//26订单卡片左侧消息
+            R.layout.sobot_chat_msg_item_card_l,//27商品卡片左侧信息的布局文件
+            R.layout.sobot_chat_msg_item_template6_l,//28机器人  多轮会话模板 6
+            R.layout.sobot_chat_msg_item_system_tip,//29防诈骗系统消息的布局文件
+            R.layout.sobot_chat_msg_item_video_l,//30小视频左边的布局文件
+            R.layout.sobot_chat_msg_item_muiti_leave_msg,//31工单节点留言的布局文件
+            R.layout.sobot_chat_msg_item_mini_program_card_l,//32小程序卡片
+            R.layout.sobot_chat_msg_item_hot_issue,//33多业务热门问题
+            R.layout.sobot_chat_msg_item_article_card_l,//34文章卡片
+            R.layout.sobot_chat_msg_item_custom_card_l,//35自定义卡片 左侧 系统或者客服发送的
+            R.layout.sobot_chat_msg_item_custom_card_r,//36自定义卡片 右侧 用户发送的
+            R.layout.sobot_chat_msg_item_appoint_l,//37引用消息 左侧
+            R.layout.sobot_chat_msg_item_appoint_r,//38引用消息  右侧
+            R.layout.sobot_chat_msg_item_cai_reason_card,//39点踩回答消息
+            R.layout.sobot_chat_msg_item_robot_keyword_items_l,//40机器人语义关键字转人工 布局
+            R.layout.sobot_chat_msg_item_change_languae,//41切换语言消息 布局
+            R.layout.sobot_chat_msg_item_sensitive_authorize,//42敏感词授权卡片 布局
+            R.layout.sobot_chat_msg_item_ai_card_l,//43大模型卡片
+            R.layout.sobot_chat_msg_item_ai_card_r,//44大模型卡片
+            R.layout.sobot_chat_msg_item_aiagent_button_type,//45大模型机器人 按钮消息
+            R.layout.sobot_chat_msg_item_cai_reason_card//46大模型机器人 点踩 原因卡片
     };
 
     /**
@@ -675,13 +675,13 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 unReadIndex = i;
             }
             if (SobotStringUtils.isNoEmpty(base.getServant()) && "aiagent".equals(base.getServant())
-                    && base.getAnswer() != null && base.getAnswer().getMsgType() == ZhiChiConstant.message_type_text) {
+                    && base.getAnswer() != null && base.getAnswer().getMsgType() == ZhiChiConstant.message_type_text && base.getSenderType()==ZhiChiConstant.message_sender_type_robot) {
                 //如果是aiagent 答案
                 doMarkDownData(base.getAnswer().getMsg(), base.getAnswer());
             }
         }
         list.addAll(0, msgLists);
-        notifyItemRangeChanged(list.size() - msgLists.size(), msgLists.size());
+        notifyDataSetChanged();
         if (mMsgCallBack != null) {
             mMsgCallBack.checkUnReadMsg();
             mMsgCallBack.unReadMsgIndex(unReadIndex);
@@ -825,7 +825,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         } catch (Exception e) {
         }
         list.add(message);
-        notifyItemInserted(list.size() - 1);
+        notifyDataSetChanged();
+//        notifyItemInserted(list.size() - 1);
         if (mMsgCallBack != null) {
             mMsgCallBack.checkUnReadMsg();
         }

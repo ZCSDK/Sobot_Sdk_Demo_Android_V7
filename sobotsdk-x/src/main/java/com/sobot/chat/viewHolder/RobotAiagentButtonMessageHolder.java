@@ -17,7 +17,6 @@ import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.RobotAiAgentButtonViewPager;
-import com.sobot.chat.widget.horizontalgridpage.PageBuilder;
 import com.sobot.chat.widget.lablesview.SobotLablesViewModel;
 
 import java.util.ArrayList;

@@ -19,6 +19,7 @@ import com.sobot.chat.adapter.SobotTicketInfoAdapter;
 import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.SobotUserTicketInfo;
 import com.sobot.chat.presenter.StPostMsgPresenter;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -45,7 +46,7 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
     private String mCompanyId = "";
 
     private List<SobotUserTicketInfo> mList = new ArrayList<>();
-    private ArrayList<SobotTicketStatus> statusList;
+    private List<SobotTicketStatus> statusList;
 
     public static SobotTicketInfoFragment newInstance(Bundle data) {
         Bundle arguments = new Bundle();
@@ -58,7 +59,6 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        statusList = new ArrayList<>();
         if (getArguments() != null) {
             Bundle bundle = getArguments().getBundle(ZhiChiConstant.SOBOT_BUNDLE_INFORMATION);
             if (bundle != null) {
@@ -67,6 +67,7 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
                 mCompanyId = bundle.getString(StPostMsgPresenter.INTENT_KEY_COMPANYID);
             }
         }
+        statusList = ChatUtils.getStatusList();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,14 +85,14 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
 
     protected void initView(View rootView) {
         recyclerView = rootView.findViewById(R.id.sobot_listview);
-        mEmptyView =  rootView.findViewById(R.id.sobot_empty);
+        mEmptyView = rootView.findViewById(R.id.sobot_empty);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         recyclerView.setLayoutManager(layoutManager);
         mAdapter = new SobotTicketInfoAdapter(getActivity(), mList, new SobotTicketInfoAdapter.SobotItemListener() {
             @Override
             public void onItemClick(SobotUserTicketInfo model) {
-                Intent intent = SobotTicketDetailActivity.newIntent(getContext(), mCompanyId, mUid, model,statusList);
+                Intent intent = SobotTicketDetailActivity.newIntent(getContext(), mCompanyId, mUid, model);
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -105,28 +106,38 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
         if (!isAdded() || TextUtils.isEmpty(mCompanyId) || TextUtils.isEmpty(mUid)) {
             return;
         }
-        String companyId = SharedPreferencesUtil.getStringData(getContext(),
-                ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
-        String languageCode = SharedPreferencesUtil.getStringData(getContext(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
-        zhiChiApi.getTicketStatus(getContext(), companyId, languageCode, new StringResultCallBack<List<SobotTicketStatus>>() {
-            @Override
-            public void onSuccess(List<SobotTicketStatus> sobotTicketStatuses) {
-                statusList.addAll(sobotTicketStatuses);
-                if(mAdapter!=null){
-                    mAdapter.setStatusList(statusList);
+        if (statusList == null || statusList.size() == 0) {
+            String companyId = SharedPreferencesUtil.getStringData(getContext(),
+                    ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
+            String languageCode = SharedPreferencesUtil.getStringData(getContext(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
+            zhiChiApi.getTicketStatus(getContext(), companyId, languageCode, new StringResultCallBack<List<SobotTicketStatus>>() {
+                @Override
+                public void onSuccess(List<SobotTicketStatus> sobotTicketStatuses) {
+                    ChatUtils.setStatusList(sobotTicketStatuses);
+                    if(statusList == null){
+                        statusList=new ArrayList<>();
+                    }else{
+                        statusList.clear();
+                    }
+                    statusList.addAll(sobotTicketStatuses);
+                    if (mAdapter != null) {
+                        mAdapter.setStatusList(statusList);
+                    }
+                    requestDate();
                 }
-                requestDate();
-            }
 
-            @Override
-            public void onFailure(Exception e, String s) {
-                requestDate();
-            }
-        });
-
+                @Override
+                public void onFailure(Exception e, String s) {
+                    requestDate();
+                }
+            });
+        } else {
+            requestDate();
+        }
 
     }
-    private void requestDate(){
+
+    private void requestDate() {
         zhiChiApi.getUserTicketInfoList(SobotTicketInfoFragment.this, mUid, mCompanyId, mCustomerId, new StringResultCallBack<List<SobotUserTicketInfo>>() {
 
             @SuppressLint("NotifyDataSetChanged")
@@ -137,9 +148,7 @@ public class SobotTicketInfoFragment extends SobotChatBaseFragment {
                     mEmptyView.setVisibility(View.GONE);
                     mList.clear();
                     mList.addAll(datas);
-                    if(statusList!=null && statusList.size()>0){
-                        mAdapter.setStatusList(statusList);
-                    }
+                    mAdapter.setStatusList(ChatUtils.getStatusList());
                     mAdapter.notifyDataSetChanged();
                 } else {
                     mEmptyView.setVisibility(View.VISIBLE);

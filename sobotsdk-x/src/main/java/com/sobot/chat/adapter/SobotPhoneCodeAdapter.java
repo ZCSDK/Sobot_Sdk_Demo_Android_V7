@@ -1,7 +1,6 @@
 package com.sobot.chat.adapter;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;

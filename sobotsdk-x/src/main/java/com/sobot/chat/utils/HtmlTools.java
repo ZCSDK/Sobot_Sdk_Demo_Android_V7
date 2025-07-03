@@ -217,6 +217,9 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
+        if (content.contains("&nbsp;")) {
+            content = content.replaceAll("&nbsp;", " ");
+        }
         if (content.contains("<p>")) {
             content = content.replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
         }

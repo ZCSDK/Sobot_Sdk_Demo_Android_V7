@@ -113,9 +113,13 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
                 if ((boolean) seekBar.getTag()) {
                     playPauseDrawable.setPlay(true);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        mMediaPlayer.seekTo(seekBar.getProgress(), MediaPlayer.SEEK_CLOSEST);
+                        if (mMediaPlayer != null) {
+                            mMediaPlayer.seekTo(seekBar.getProgress(), MediaPlayer.SEEK_CLOSEST);
+                        }
                     } else {
-                        mMediaPlayer.seekTo(seekBar.getProgress());
+                        if (mMediaPlayer != null) {
+                            mMediaPlayer.seekTo(seekBar.getProgress());
+                        }
                     }
                     startVideo();
                     if (!isPlaying()) {
@@ -124,7 +128,9 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
                         playPauseDrawable.setPause(true);
                     }
                 } else {
-                    mMediaPlayer.seekTo(seekBar.getProgress());
+                    if (mMediaPlayer != null) {
+                        mMediaPlayer.seekTo(seekBar.getProgress());
+                    }
                 }
             }
         });

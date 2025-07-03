@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -283,62 +281,6 @@ public class SobotPostMsgActivity extends SobotChatBaseActivity implements View.
                 mTvCompleted.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseActivity())));
             }
             mIvLeaveMsgCreateSuccessDes.setImageDrawable(ThemeUtils.applyColorToDrawable(getResources().getDrawable(R.drawable.sobot_icon_completed), color));
-        }
-    }
-
-    /**
-     * 设置控件渐变色 根据导航栏来变色
-     *
-     * @param view
-     */
-    public void setGradientView(View view) {
-        try {
-            if (view == null) {
-                return;
-            }
-            ZhiChiInitModeBase initModel = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(getSobotBaseActivity(),
-                    ZhiChiConstant.sobot_last_current_initModel);
-            if (initModel != null && initModel.getVisitorScheme() != null) {
-                //服务端返回的导航条背景颜色
-                if (!TextUtils.isEmpty(initModel.getVisitorScheme().getTopBarColor())) {
-                    String topBarColor[] = initModel.getVisitorScheme().getTopBarColor().split(",");
-                    if (topBarColor.length > 1) {
-                        if (getResources().getColor(R.color.sobot_gradient_start) != Color.parseColor(topBarColor[0]) || getResources().getColor(R.color.sobot_gradient_end) != Color.parseColor(topBarColor[1])) {
-                            int[] colors = new int[topBarColor.length];
-                            for (int i = 0; i < topBarColor.length; i++) {
-                                colors[i] = Color.parseColor(topBarColor[i]);
-                            }
-                            GradientDrawable gradientDrawable = new GradientDrawable();
-                            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                            gradientDrawable.setColors(colors); //添加颜色组
-                            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-                            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-                            view.setBackground(gradientDrawable);
-                        } else {
-                            setGradientViewBg(view);
-                        }
-                    }
-                }
-            } else {
-                setGradientViewBg(view);
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    /**
-     * 设置默认导航栏渐变色
-     */
-    private void setGradientViewBg(View view) {
-        try {
-            int[] colors = new int[]{getResources().getColor(R.color.sobot_color_title_bar_left_bg), getResources().getColor(R.color.sobot_color_title_bar_bg)};
-            GradientDrawable gradientDrawable = new GradientDrawable();
-            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-            gradientDrawable.setColors(colors); //添加颜色组
-            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-            view.setBackground(gradientDrawable);
-        } catch (Exception e) {
         }
     }
 }

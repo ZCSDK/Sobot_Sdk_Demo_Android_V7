@@ -636,6 +636,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
                 message.getSobotEvaluateModel().setScoreExplainLan(satisfactionSetBase.getScoreExplainLan());
                 message.getSobotEvaluateModel().setScoreExplain(satisfactionSetBase.getScoreExplain());
                 message.getSobotEvaluateModel().setTagsJson(getCheckedLable(score));
+                message.getSobotEvaluateModel().setProblem(checkBoxIsChecked());
             }
             if (msgCallBack != null) {
                 msgCallBack.doEvaluate(evaluateFlag, message);

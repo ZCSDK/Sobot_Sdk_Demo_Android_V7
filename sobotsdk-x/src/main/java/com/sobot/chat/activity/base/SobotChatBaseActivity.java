@@ -47,6 +47,7 @@ import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotSelectPicAndVideoActivity;
 import com.sobot.chat.api.ZhiChiApi;
+import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.application.MyApplication;
@@ -58,12 +59,12 @@ import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.statusbar.StatusBarUtil;
-import com.sobot.utils.SobotLogUtils;
 import com.sobot.utils.SobotSharedPreferencesUtil;
 
 import java.io.File;
@@ -117,28 +118,30 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         if (!host.equals(SobotBaseUrl.getApi_Host())) {
             SobotBaseUrl.setApi_Host(host);
         }
-        if (StatusBarUtil.SOBOT_STATUS_HIGHT == 0) {
-            try {
-                View decorView = getWindow().getDecorView();
-                if (decorView != null) {
-                    ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
-                        @Override
-                        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                            int statusBarHeight = insets.getSystemWindowInsetTop();
-                            SobotLogUtils.d("状态栏高度: " + statusBarHeight);
-                            StatusBarUtil.SOBOT_STATUS_HIGHT = statusBarHeight;
-                            SobotSharedPreferencesUtil.getInstance(getSobotBaseActivity()).put("SobotStatusBarHeight", statusBarHeight);
-                            setUpToolBar();
-                            return insets;
-                        }
-                    });
-                } else {
+
+        try {
+            View decorView = getWindow().getDecorView();
+            ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+                    int bottomInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+                    View rootView = findViewById(R.id.view_root);
+                    int targetSdkVersion = CommonUtils.getTargetSdkVersion(getSobotBaseActivity());
+                    if (rootView != null && Build.VERSION.SDK_INT >= 35 && targetSdkVersion >= 35) {
+                        //android 15 api 35 全屏沉侵式 底部避让
+                        rootView.setPadding(0, 0, 0, bottomInset);
+                    }
+                    LogUtils.d("状态栏高度: " + statusBarHeight);
+                    StatusBarUtil.SOBOT_STATUS_HIGHT = statusBarHeight;
+                    if (SobotApp.getApplicationContext() != null) {
+                        SobotSharedPreferencesUtil.getInstance(SobotApp.getApplicationContext()).put("SobotStatusBarHeight", statusBarHeight);
+                    }
                     setUpToolBar();
+                    return insets;
                 }
-            } catch (Exception e) {
-                setUpToolBar();
-            }
-        } else {
+            });
+        } catch (Exception e) {
             setUpToolBar();
         }
         zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();

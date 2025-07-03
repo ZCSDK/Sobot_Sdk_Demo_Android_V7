@@ -2,10 +2,12 @@ package com.sobot.chat.activity.halfdialog;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -26,6 +28,7 @@ import com.sobot.chat.api.model.SobotQueryFormModel;
 import com.sobot.chat.api.model.SobotTransferOperatorParam;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
@@ -56,6 +59,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     private String cid,uid,schemeId;//
     private SobotConnCusParam param;//用于返回后转人工
     private SobotTransferOperatorParam tparam;//用于返回后转人工
+    private boolean isInit;//是否是进入会话的询前表单
 
     @Override
     public void onClick(View v) {
@@ -74,6 +78,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         cid = getIntent().getStringExtra("cid");
         uid = getIntent().getStringExtra("uid");
         schemeId = getIntent().getStringExtra("schemeId");
+        isInit = getIntent().getBooleanExtra("isInit",false);
 
         if (formInfoModel != null) {
             allData = new ArrayList<>();
@@ -122,6 +127,19 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!isInit){
+            //进入会话时
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (event.getY() <= 0) {
+                    finish();
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_form_info;
     }
@@ -152,6 +170,14 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     }
                 }
             });
+        }
+        //根据主题色更改背景色
+        if (btnSubmit !=null && ThemeUtils.isChangedThemeColor(this)) {
+            int themeColor = ThemeUtils.getThemeColor(this);
+            Drawable bg = btnSubmit.getBackground();
+            if (bg != null) {
+                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+            }
         }
     }
 
@@ -428,6 +454,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             @Override
             public void onSuccess(FormInfoModel formInfoModel) {
                 Intent intent = new Intent();
+                intent.putExtra("isInit", isInit);
                 intent.putExtra("param", param);
                 intent.putExtra("tparam", tparam);
                 setResult(ZhiChiConstant.REQUEST_COCE_TO_FORMINFO,intent);

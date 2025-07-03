@@ -38,7 +38,6 @@ import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotAntoLineLayout;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
 
 import org.json.JSONArray;
 

@@ -16,7 +16,6 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.image.SobotProgressImageView;
-import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.ArrayList;
 

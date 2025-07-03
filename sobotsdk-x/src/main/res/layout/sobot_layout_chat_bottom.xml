@@ -111,6 +111,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
+            android:minHeight="40dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <!-- 自定义的editText -->
@@ -121,10 +123,8 @@
                 android:layout_gravity="center_vertical"
                 android:background="@null"
                 android:imeOptions="actionDone"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:maxHeight="160dp"
                 android:maxLength="1000"
-                android:paddingBottom="12dp"
                 android:scrollbars="vertical"
                 android:textColor="@color/sobot_color_bottom_msg_input_color"
                 android:textColorHint="@color/sobot_color_text_second"

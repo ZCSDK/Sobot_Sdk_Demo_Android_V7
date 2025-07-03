@@ -11,8 +11,8 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotOption;
-import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
@@ -52,16 +52,20 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
             }
             if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsTitle())) {
                 mTitle.setText(message.getConsultingContent().getSobotGoodsTitle());
+            }else{
+                mTitle.setText("");
             }
             if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsLable())) {
                 mLabel.setText(message.getConsultingContent().getSobotGoodsLable());
+            }else{
+                mLabel.setText("");
             }
             if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsDescribe())) {
                 mDes.setText(message.getConsultingContent().getSobotGoodsDescribe());
+            }else{
+                mDes.setText("");
             }
-            mLabel.setTextColor(ThemeUtils.getThemeColor(mContext));
             if (isRight) {
-                sobot_msg_content_ll.getLayoutParams().width = msgCardWidth;
                 try {
                     msgStatus.setClickable(true);
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态

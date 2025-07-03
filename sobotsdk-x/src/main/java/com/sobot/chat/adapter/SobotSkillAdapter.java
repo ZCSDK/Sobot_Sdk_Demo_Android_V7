@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,7 +16,6 @@ import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.horizontalgridpage.SobotRecyclerCallBack;
 import com.sobot.chat.widget.image.SobotProgressImageView;
-import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.List;
 

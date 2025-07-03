@@ -217,22 +217,20 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             if (!TextUtils.isEmpty(configModel.getTopBarColor())) {
                 String topBarColor[] = configModel.getTopBarColor().split(",");
                 if (topBarColor.length > 1) {
-                    if (getResources().getColor(R.color.sobot_gradient_start) != Color.parseColor(topBarColor[0]) || getResources().getColor(R.color.sobot_gradient_end) != Color.parseColor(topBarColor[1])) {
-                        int[] colors = new int[topBarColor.length];
-                        for (int i = 0; i < topBarColor.length; i++) {
-                            colors[i] = Color.parseColor(topBarColor[i]);
-                        }
-                        GradientDrawable gradientDrawable = new GradientDrawable();
-                        gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                        gradientDrawable.setColors(colors); //添加颜色组
-                        gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-                        gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-                        getToolBar().setBackground(gradientDrawable);
-                        GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-                        } else {
-                            StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
-                        }
+                    int[] colors = new int[topBarColor.length];
+                    for (int i = 0; i < topBarColor.length; i++) {
+                        colors[i] = Color.parseColor(topBarColor[i]);
+                    }
+                    GradientDrawable gradientDrawable = new GradientDrawable();
+                    gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                    gradientDrawable.setColors(colors); //添加颜色组
+                    gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
+                    gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
+                    getToolBar().setBackground(gradientDrawable);
+                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+                    if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+                    } else {
+                        StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
                     }
                 }
             }
