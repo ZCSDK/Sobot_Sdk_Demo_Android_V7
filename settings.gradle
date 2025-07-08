@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Sobot_Sdk_Demo_Android_v6_kt"
 include ':app'
-include ':sobotsdk-x'
+include ':sobotsdk-mall-x'

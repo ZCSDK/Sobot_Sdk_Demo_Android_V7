@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@null"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/sobot_toast_lineralayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/sobot_round_angle_toast"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="9dp">
+
+        <TextView
+            android:id="@+id/sobot_tv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:maxWidth="223dp"
+            android:minWidth="88dp"
+            android:gravity="center"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="@dimen/sobot_text_font_14" />
+    </LinearLayout>
+
+</LinearLayout>

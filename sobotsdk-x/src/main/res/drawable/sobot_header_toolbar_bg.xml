@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--4.0.0 新增的渐变背景样式-->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <gradient
-        android:endColor="@color/sobot_color_title_bar_bg"
-        android:startColor="@color/sobot_color_title_bar_left_bg" />
-</shape>
