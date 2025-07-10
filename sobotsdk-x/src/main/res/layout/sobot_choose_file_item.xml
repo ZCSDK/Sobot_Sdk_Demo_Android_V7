@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:background="@color/sobot_color_bg_first"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/sobot_tv_radioBtn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/sobot_radio_btn_selector" />
+
+        <TextView
+            android:id="@+id/sobot_tv_icon"
+            style="?android:attr/textViewStyle"
+            android:layout_width="32dp"
+            android:layout_height="34dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_toEndOf="@+id/sobot_tv_radioBtn"
+            android:background="@drawable/sobot_icon_file" />
+
+        <TextView
+            android:id="@+id/sobot_tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_toEndOf="@+id/sobot_tv_icon"
+            android:background="@null"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <TextView
+            android:id="@+id/sobot_tv_descripe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sobot_tv_name"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="20dp"
+            android:layout_toEndOf="@+id/sobot_tv_icon"
+            android:background="@null"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/sobot_color_text_second"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/sobot_white">
+
+        <View
+            android:id="@+id/work_order_category_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/sobot_line_height_dp"
+            android:layout_marginStart="92dp"
+            android:background="@color/sobot_color_line_divider" />
+    </LinearLayout>
+
+
+</LinearLayout>

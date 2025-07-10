@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--阴影  圆角 4-->
+    <!--最底下的一层-->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00EBEBEB" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="0.5dp"
+        android:left="0.5dp"
+        android:right="0.5dp"
+        android:top="0.5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#0AEBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#0FEBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="1.5dp"
+        android:left="1.5dp"
+        android:right="1.5dp"
+        android:top="1.5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#17EBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#21EBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="2.5dp"
+        android:left="2.5dp"
+        android:right="2.5dp"
+        android:top="2.5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#29EBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#30EBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="3.5dp"
+        android:left="3.5dp"
+        android:right="3.5dp"
+        android:top="3.5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#36EBEBEB" />
+            <corners
+                android:radius="4dp" />
+        </shape>
+    </item>
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="4dp"
+        android:left="4dp"
+        android:right="4dp"
+        android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sobot_color_bg_four" />
+            <corners
+                android:radius="4dp"/>
+        </shape>
+    </item>
+</layer-list>

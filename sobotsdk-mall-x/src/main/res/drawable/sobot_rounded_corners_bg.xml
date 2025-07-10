@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--圆角背景样式-->
-    <solid android:color="@color/sobot_color_bg_first" />
-    <corners android:radius="4dp" />
-</shape>

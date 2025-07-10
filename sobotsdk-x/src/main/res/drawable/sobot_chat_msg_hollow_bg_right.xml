@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--聊天界面右侧消息气泡 空心边框 背景样式-->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <stroke
+        android:width="@dimen/sobot_right_msg_line_width"
+        android:color="@color/sobot_color_line_divider" />
+
+    <corners android:radius="@dimen/sobot_msg_corner_radius" />
+</shape>

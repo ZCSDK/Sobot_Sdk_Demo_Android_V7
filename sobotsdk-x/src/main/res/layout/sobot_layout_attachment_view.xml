@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_layout_attachment_frame"
+    android:layout_width="match_parent"
+    android:layout_height="85dp">
+
+    <com.sobot.chat.widget.image.SobotRCRelativeLayout
+        android:id="@+id/sobot_attachment_root_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/sobot_color_bg_second"
+        android:visibility="visible"
+        app:sobot_clip_background="true"
+        app:sobot_round_corner="4dp">
+
+
+        <TextView
+            android:id="@+id/sobot_file_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="7dp"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:lines="2"
+            android:textColor="@color/sobot_color_text_gray"
+            android:textSize="@dimen/sobot_text_font_12" />
+
+        <ImageView
+            android:id="@+id/sobot_file_type_icon"
+            android:layout_width="17dp"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/sobot_icon_file_rar" />
+
+        <TextView
+            android:id="@+id/sobot_file_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/sobot_file_type_icon"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="17dp"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_12" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/sobot_file_download"
+            android:layout_alignBottom="@id/sobot_file_download"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/sobot_icon_right_normal" />
+
+
+    </com.sobot.chat.widget.image.SobotRCRelativeLayout>
+
+    <com.sobot.chat.widget.image.SobotRCImageView
+        android:id="@+id/sobot_file_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/sobot_bg_default_pic_img"
+        android:visibility="gone"
+        app:sobot_round_corner="4dp" />
+
+
+</FrameLayout>

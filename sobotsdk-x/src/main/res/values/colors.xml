@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--通用 颜色-->
+    <color name="sobot_white">#FFFFFF</color>
+    <!--主题色-->
+    <color name="sobot_common_green">#0DAEAF</color>
+    <!--主题色 10%透明度-->
+    <color name="sobot_common_green_transparency_10">#1A0DAEAF</color>
+    <!--导航栏\右侧消息气泡 渐变色 左侧开始-->
+    <color name="sobot_gradient_start">#4ADABE</color>
+    <!--导航栏\右侧消息气泡 渐变色 右侧结束-->
+    <color name="sobot_gradient_end">#0DAEAF</color>
+    <!--链接色 富文本、多轮消息体模板的“查看详情”-->
+    <color name="sobot_common_blue">#0767FF</color>
+    <!--警告色-->
+    <color name="sobot_common_red">#F5222D</color>
+    <!--链接色 右边气泡中-->
+    <color name="sobot_common_yellow">#FFEEAA</color>
+    <!--褐色-->
+    <color name="sobot_common_hese">#E67F17</color>
+    <!--左侧气泡背景色-->
+    <color name="sobot_common_gray4">#F5F5F5</color>
+
+    <!--  换一换  -->
+    <color name="sobot_common_gray9">#A3A5A8</color>
+    <!-- 自定义卡片背景   -->
+    <color name="sobot_common_gray10">#FAFAFA</color>
+
+
+    <!--文字颜色 白色变灰色-->
+    <color name="sobot_color_wenzi_white_to_gray">#FFFFFF</color>
+    <!--文字颜色 灰色变白色-->
+    <color name="sobot_color_wenzi_white">@color/sobot_color_text_first</color>
+    <!--文字颜色 绿色变灰色-->
+    <color name="sobot_color_wenzi_green">@color/sobot_color</color>
+    <!--文字颜色 绿色变白色-->
+    <color name="sobot_color_wenzi_green_white">@color/sobot_color</color>
+    <!--颜色 黄色变透明-->
+    <color name="sobot_color_wenzi_yellow_transparent">#F8C46E</color>
+    <!--颜色 透明变灰色-->
+    <color name="sobot_color_wenzi_transparent_gray">#00000000</color>
+    <!--文字颜色 黑色变白色-->
+    <color name="sobot_color_wenzi_black">#000000</color>
+    <!--普通和暗示模式下 都是白色-->
+    <color name="sobot_color_white">#FFFFFF</color>
+    <!--留言状态 按钮 浅灰色变深灰色-->
+    <color name="sobot_color_post_msg_gray">#DDE4ED</color>
+    <!-- 气泡中其他内容的底色 浅灰色变深灰色-->
+    <color name="sobot_color_msg_bg_gray">#F5F5F5</color>
+    <!-- 气泡中其他内容的底色 白色变浅灰色-->
+    <color name="sobot_color_msg_bg_white">#FFFFFF</color>
+    <!-- 深灰色变浅灰色-->
+    <color name="sobot_color_text_gray">#ACB5C4</color>
+
+    <!--透明-->
+    <color name="sobot_color_transparent">#00000000</color>
+    <!--状态栏半透明-->
+    <color name="sobot_color_half_transparent">#80161616</color>
+
+    <!-- 主题色 默认绿色 -->
+    <color name="sobot_color">@color/sobot_common_green</color>
+    <color name="sobot_color_transparency_10">@color/sobot_common_green_transparency_10</color>
+
+    <!--文字颜色 主要文本色 大部分界面里的黑色文字-->
+    <color name="sobot_color_text_first">#161616</color>
+    <!--文字颜色 次要文本色-->
+    <color name="sobot_color_text_second">#777474</color>
+    <!--文字颜色 占位文本色-->
+    <color name="sobot_color_text_third">#A3A5A8</color>
+    <!--通用 背景颜色-->
+    <color name="sobot_color_common_bg">#F5F5F5</color>
+    <!--背景色 一级-->
+    <color name="sobot_color_bg_first">#FFFFFF</color>
+    <!--背景色 二级 占次级黑背景（弹窗底色，聊天底部操作栏，cell-->
+    <color name="sobot_color_bg_second">#F5F5F5</color>
+    <!--背景色 三级 气泡中套其他内容的底色（多轮会话，商品-->
+    <color name="sobot_color_bg_third">#FFFFFF</color>
+    <!--背景色 聊天页面 底部 快捷菜单 输入框区域 扩展菜单-->
+    <color name="sobot_color_bg_four">#FFFFFF</color>
+    <!--线条 按钮边框颜色-->
+    <color name="sobot_color_line_button_frame">#D9D9D9</color>
+    <!--线条 分割线颜色-->
+    <color name="sobot_color_line_divider">#EBEBEB</color>
+    <!--线条 分割线颜色2-->
+    <color name="sobot_color_line_divider_2">#F5F5F5</color>
+    <!-- 头部开始 -->
+
+    <!-- 头部导航栏和状态栏默认背景渐变色 左边 开始 -->
+    <color name="sobot_color_title_bar_left_bg">@color/sobot_color_bg_first</color>
+    <!-- 头部导航栏和状态栏默认背景渐变色 右边 结束 -->
+    <color name="sobot_color_title_bar_bg">@color/sobot_color_bg_first</color>
+    <!-- 头部昵称颜色 -->
+    <color name="sobot_color_title_bar_nike_name">@color/sobot_white</color>
+    <!-- 头部公司名称颜色 -->
+    <color name="sobot_color_title_bar_company_name">@color/sobot_white</color>
+    <!-- 头部两侧菜单字体颜色 -->
+    <color name="sobot_color_title_bar_menu_text">@color/sobot_white</color>
+
+    <!-- 顶部无网文案 背景颜色-->
+    <color name="sobot_no_net_bgcolor">#FFF1F0</color>
+
+    <!-- 通告布局背景颜色-->
+    <color name="sobot_announcement_bgcolor">#FFFBE6</color>
+    <!-- 通告标题字体颜色-->
+    <color name="sobot_announcement_title_color">#161616</color>
+    <!-- 通告卡片 横线颜色-->
+    <color name="sobot_announcement_line_color">#1AFA8314</color>
+    <!-- 非置顶通告中超链接 文字颜色-->
+    <color name="sobot_announcement_link_color">@color/sobot_common_blue</color>
+
+    <!-- 中间 聊天列表 -->
+    <!-- 聊天背景 -->
+    <color name="sobot_color_chat_bg">@color/sobot_color_bg_first</color>
+    <!--文本消息气泡 左侧  黑色字 -->
+    <color name="sobot_left_msg_text_color">@color/sobot_color_text_first</color>
+    <!--文本消息气泡 左侧  浅灰色字 用于描述等文案 -->
+    <color name="sobot_left_msg_text_color_des">@color/sobot_color_text_third</color>
+    <!--文本消息气泡 右侧 白色字 -->
+    <color name="sobot_right_msg_text_color">@color/sobot_white</color>
+    <!-- 超链接颜色 左边 -->
+    <color name="sobot_color_link">@color/sobot_common_blue</color>
+    <!-- 超链接颜色 右边 -->
+    <color name="sobot_color_rlink">@color/sobot_common_blue</color>
+    <!-- 聊天界面提醒的字体颜色-->
+    <color name="sobot_color_remind_text">@color/sobot_color_text_third</color>
+    <!-- 消息提醒中的超链接颜色 -->
+    <color name="sobot_color_link_remind">@color/sobot_color</color>
+    <!-- 文件消息气泡颜色 -->
+    <color name="sobot_chat_file_bgColor">@color/sobot_color</color>
+    <!-- 消息气泡左侧背景默认颜色 -->
+    <color name="sobot_chat_left_bgColor">@color/sobot_color_bg_second</color>
+    <!-- 消息气泡右侧背景默认颜色 渐变色 左边 开始 -->
+    <color name="sobot_chat_right_bgColor_start">@color/sobot_gradient_start</color>
+    <!-- 消息气泡右侧背景默认颜色 渐变色 右边 结束-->
+    <color name="sobot_chat_right_bgColor_end">@color/sobot_gradient_end</color>
+    <!-- 左侧消息气泡昵称颜色 -->
+    <color name="sobot_chat_left_nikename_color">@color/sobot_color_text_third</color>
+    <!-- 右侧消息气泡昵称颜色 -->
+    <color name="sobot_chat_right_nikename_color">@color/sobot_color_text_third</color>
+    <!--引用消息-->
+    <!--文本消息气泡 左侧 引用 类型 颜色  黑色字 -->
+    <color name="sobot_left_appoint_msg_type_color">@color/sobot_color_text_second</color>
+    <!--文本消息气泡 左侧 引用 内容 颜色  黑色字 -->
+    <color name="sobot_left_appoint_msg_text_color">@color/sobot_color_text_third</color>
+    <!--文本消息气泡 左侧 引用 卡片里边 颜色  黑色字 -->
+    <color name="sobot_left_appoint_msg_card_text_color">@color/sobot_color_text_first</color>
+    <!--文本消息气泡 右侧  引用 类型 颜色 白色字 -->
+    <color name="sobot_right_appoint_msg_type_color">#E6FFFFFF</color>
+    <!--文本消息气泡 右侧  引用 内容 颜色 白色字 -->
+    <color name="sobot_right_appoint_msg_text_color">#D9FFFFFF</color>
+    <!-- 消息气泡右侧 线条颜色-->
+    <color name="sobot_chat_right_line">#99FFFFFF</color>
+    <!--消息气泡右侧 线条颜色-->
+    <color name="sobot_chat_left_line">#CCCCCC</color>
+    <!--右侧 引用消息 引用部分背景色-->
+    <color name="sobot_chat_appoint_right_transparent_bg">#24FFFFFF</color>
+    <!--左侧 引用消息 引用部分背景色-->
+    <color name="sobot_chat_appoint_left_transparent_bg">#FFFFFF</color>
+    <!--引用消息 小方块 占位背景色-->
+    <color name="sobot_chat_appoint_zhanwei_bg">#CDD9EA</color>
+    <!--带有预加载效果图片控件背景色-->
+    <color name="sobot_color_progress_image_bg">#EBEBEB</color>
+
+    <!-- 底部 -->
+    <!--按住录音时 动画面板 背景色 渐变色 -->
+    <color name="sobot_color_chat_bottom_record_sound_bg_start">#00FFFFFF</color>
+    <color name="sobot_color_chat_bottom_record_sound_bg_end">#FFFFFF</color>
+    <!--背景色 聊天页面 底部 快捷菜单 输入框区域 扩展菜单 -->
+    <color name="sobot_color_chat_bottom_bg">@color/sobot_color_bg_four</color>
+    <!--自定义标签边框颜色-->
+    <color name="sobot_lable_stroke_color">@color/sobot_color_line_divider</color>
+    <!--自定义标签默认填充颜色-->
+    <color name="sobot_lable_nomal_bg_color">@color/sobot_color_chat_bottom_bg</color>
+    <!--自定义标签字体颜色-->
+    <color name="sobot_lable_text_color">@color/sobot_color_text_first</color>
+
+    <!-- 消息输入框 文字 颜色 -->
+    <color name="sobot_color_bottom_msg_input_color">@color/sobot_color_text_first</color>
+
+    <!-- 点击加号后 面板背景 -->
+    <color name="sobot_color_bottom_bg">@color/sobot_white</color>
+    <!-- 点击加号后 面板背景 按钮字体颜色 -->
+    <color name="sobot_color_bottom_btn_wz_color">@color/sobot_color_text_first</color>
+
+    <!-- 提示弹窗界面 按钮文字颜色 -->
+    <color name="sobot_color_dialog_btn_content_color">@color/sobot_common_blue</color>
+
+    <!-- 留言相关 -->
+    <!--留言 导航栏切换 文字下边 横线 颜色  -->
+    <color name="sobot_postMsg_nav_indicator_color">@color/sobot_white</color>
+    <!--留言 导航栏切换 选中 字体 颜色  -->
+    <color name="sobot_postMsg_nav_sel_tx_color">@color/sobot_white</color>
+    <!--留言 导航栏切换  未选中字体 颜色  -->
+    <color name="sobot_postMsg_nav_tx_color">@color/sobot_white</color>
+    <!--留言引导语 超链接颜色  -->
+    <color name="sobot_postMsg_url_color">@color/sobot_common_blue</color>
+    <!--留言 上传图片 弹窗 选项背景色  -->
+    <color name="sobot_color_setting_item_pressed">@color/sobot_color_white</color>
+
+
+    <!-- 聊天界面按钮的背景颜色 -->
+    <color name="sobot_btn_bg">@color/sobot_color</color>
+    <color name="sobot_btn_bg_pressed">@color/sobot_color</color>
+    <color name="sobot_btn_bg_disable">#EFF3FA</color>
+    <color name="sobot_text_btn_color">#ffffff</color>
+    <color name="sobot_text_btn_color_pressed">#80ffffff</color>
+
+
+    <!-- 删除历史记录的字体颜色 -->
+    <color name="sobot_text_delete_hismsg_color">@color/sobot_common_red</color>
+    <!-- toast 背景颜色 -->
+    <color name="sobot_color_toast_bg">#BF000000</color>
+
+
+    <!--商品信息title颜色-->
+    <color name="sobot_goods_title_text_color">@color/sobot_color_text_first</color>
+    <!--商品信息描述颜色-->
+    <color name="sobot_goods_des_text_color">@color/sobot_color_text_second</color>
+    <!--商品价格颜色-->
+    <color name="sobot_goods_price_text_color">@color/sobot_color</color>
+
+    <!--订单卡片 文字通用颜色-->
+    <color name="sobot_order_label_text_color">@color/sobot_color_text_first</color>
+    <!--订单卡片 订单状态颜色-->
+    <color name="sobot_order_status_text_color">#E67F17</color>
+    <!--订单卡片 商品描述颜色-->
+    <color name="sobot_order_des_text_color">@color/sobot_color_text_third</color>
+
+    <!--留言记录详情时间线线条颜色-->
+    <color name="sobot_ticket_deal_line_grey">@color/sobot_color_line_divider</color>
+    <!--留言 选择业务 字体颜色-->
+    <color name="sobot_post_msg_template_text_color">@color/sobot_color</color>
+
+    <!-- 评价、技能组、切换业务、留言弹窗 选择按钮选中背景色-->
+    <color name="sobot_dialog_btn_select">@color/sobot_color</color>
+
+    <!-- 大模型机器人 顶踩按钮选中 背景颜色-->
+    <color name="sobot_color_robot_aiagent_checked_bg">#FFF5E3</color>
+    <!-- 评价 点踩原因卡片 标签按钮默认文字颜色-->
+    <color name="sobot_chat_lable_checkbox_text_color">@color/sobot_color_text_first</color>
+    <!--评价 提交按钮-->
+    <color name="sobot_evaluate_btn_press">@color/sobot_color</color>
+    <color name="sobot_evaluate_btn_nor">#4ADABE</color>
+
+    <!--十分评价 （方块） 选中的颜色 -->
+    <color name="sobot_ten_evaluate_select">#FA8314</color>
+    <!--五星评价控件下边 对应描述的颜色-->
+    <color name="sobot_color_evaluate_ratingBar_des_tv">#FA8314</color>
+
+    <!--多轮会话 标签 字体颜色-->
+    <color name="sobot_template2_lable_text_color">@color/sobot_color</color>
+    <!--多轮会话 查看详情 字体颜色-->
+    <color name="sobot_template4_more_text_color">@color/sobot_common_blue</color>
+
+    <!--历史记录里 引导问题中的问题的颜色-->
+    <color name="sobot_color_suggestion_history">@color/sobot_color_text_first</color>
+    <!--文件消息 发送和下载 button背景 -->
+    <color name="sobot_btn_normal_color">@color/sobot_color</color>
+
+    <!--文件进度条前景色-->
+    <color name="sobot_sectorProgressView_fgColor">#4D000000</color>
+    <!--半透明-->
+    <color name="sobot_half_transparent">#73000000</color>
+
+    <!--自动补全背景色-->
+    <color name="sobot_auto_complete_press">@color/sobot_color_bg_second</color>
+    <color name="sobot_auto_complete">@color/sobot_color_transparent</color>
+
+    <!--自定义卡片   -->
+    <color name="sobot_card_goods_desc">@color/sobot_color_text_third</color>
+    <color name="sobot_card_goods_price">#FFFE7F02</color>
+    <!--边框-->
+    <color name="sobot_card_mgs_bg">@color/sobot_white</color>
+    <color name="sobot_card_mgs_bg1">#fffdff</color>
+    <color name="sobot_card_mgs_bg2">#fbf8fb</color>
+    <color name="sobot_card_mgs_bg3">#f4f1f5</color>
+    <!--未读引导-->
+    <color name="sobot_readinfo_bg">@color/sobot_color_bg_third</color>
+    <!--工单已解决状态  -->
+    <color name="sobot_ticket_resolved_text">#52C41A</color>
+    <color name="sobot_ticket_resolved_bg">#F2FFE6</color>
+    <!--工单处理中状态  -->
+    <color name="sobot_ticket_deal_text">#FA8314</color>
+    <color name="sobot_ticket_deal_bg">#FFF5E3</color>
+    <!--工单待回复状态  -->
+    <color name="sobot_ticket_reply_text">#2D85EC</color>
+    <color name="sobot_ticket_reply_bg">#E6F7FF</color>
+    <!--级评级-->
+    <color name="sobot_evaluate_text_unselect">#B6BECB</color>
+    <color name="sobot_evaluate_text_select">@color/sobot_color_text_first</color>
+    <!--淡绿色 评级标签按钮的背景中空色 -->
+    <color name="sobot_light_green">#E6F6F7</color>
+
+    <!--下拉刷新  背景颜色-->
+    <color name="sobot_refresh_bg_color">@color/sobot_transparent</color>
+</resources>

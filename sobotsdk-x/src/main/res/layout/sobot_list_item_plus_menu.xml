@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
+
+    <LinearLayout
+        android:id="@+id/sobot_ly_root"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|top"
+        android:orientation="vertical">
+
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_plus_menu_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:image_width="32dp"
+            app:image_height="32dp"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/sobot_plus_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:textColor="@color/sobot_color_bottom_btn_wz_color"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
+</LinearLayout>

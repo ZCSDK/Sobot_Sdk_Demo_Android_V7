@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天页面 消息列表 气泡底部 顶踩和转人工-->
+<com.sobot.chat.widget.SobotAntoLineLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_chat_more_action"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/sobot_msg_ll"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
+    android:layout_toEndOf="@+id/sobot_msg_face_iv"
+    android:orientation="horizontal"
+    android:visibility="gone"
+    app:sobot_fillMode="1"
+    app:sobot_horizontalGap="8dp"
+    app:sobot_verticalGap="8dp">
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_bottom_likeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_chat_dingcai_bottom_def"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="7dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/sobot_iv_bottom_likeBtn"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/sobot_evaluate_btn_zan_selector" />
+
+        <TextView
+            android:id="@+id/sobot_tv_bottom_likeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:text="@string/sobot_ding"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_12" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_bottom_dislikeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_chat_dingcai_bottom_def"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="7dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/sobot_iv_bottom_dislikeBtn"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
+
+        <TextView
+            android:id="@+id/sobot_tv_bottom_dislikeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:includeFontPadding="false"
+            android:text="@string/sobot_cai"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_transferBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_chat_msg_transfer_hollow_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="7dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/sobot_icon_transfer" />
+
+        <TextView
+            android:id="@+id/sobot_tv_transferBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
+</com.sobot.chat.widget.SobotAntoLineLayout>
