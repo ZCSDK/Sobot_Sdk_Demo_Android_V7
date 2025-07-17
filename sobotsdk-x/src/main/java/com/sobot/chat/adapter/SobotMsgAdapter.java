@@ -1025,7 +1025,11 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && data.getRobotAnswerMessageType().equals("MESSAGE")) {
                 //拼接消息
                 String oldDate = info.getContent();
-                String newDate = data.getContent();
+                String newDate = "";
+                if (!isEnd) {
+                    //如果是结尾就不再追加message内容，因为最后一条实际是倒数第二条message
+                    newDate = data.getContent();
+                }
                 String content = oldDate + newDate;
                 info.setContent(content);
                 ZhiChiReplyAnswer answer = info.getAnswer();
