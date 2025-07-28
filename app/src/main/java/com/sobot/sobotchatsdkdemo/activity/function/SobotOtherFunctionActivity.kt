@@ -32,15 +32,12 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
     private var sobot_rl_4_7_6_1: RelativeLayout? = null
     private var sobot_rl_4_7_6_2: RelativeLayout? = null
     private var sobot_rl_4_7_8: RelativeLayout? = null
-    private var sobot_rl_4_7_9: RelativeLayout? = null
     private var sobotImage4761: ImageView? = null
     private var sobotImage4762: ImageView? = null
     private var sobotImage478: ImageView? = null
-    private var sobotImage479: ImageView? = null
     private var status4761 = false
     private var status4762 = false
     private var status478 = false
-    private var status479 = false
     private var tv_other_fun_4_7_2: TextView? = null
     private var sobot_tv_save: TextView? = null
     private var sobot_et_scope_time: EditText? = null
@@ -77,9 +74,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
         sobot_rl_4_7_8 = findViewById<View>(R.id.sobot_rl_4_7_8) as RelativeLayout
         sobot_rl_4_7_8!!.setOnClickListener(this)
         sobotImage478 = findViewById<View>(R.id.sobot_image_4_7_8) as ImageView
-        sobot_rl_4_7_9 = findViewById<View>(R.id.sobot_rl_4_7_9) as RelativeLayout
-        sobot_rl_4_7_9!!.setOnClickListener(this)
-        sobotImage479 = findViewById<View>(R.id.sobot_image_4_7_9) as ImageView
         if (information != null) {
             status4761 = information!!.isHideRototEvaluationLabels
             setImageShowStatus(status4761, sobotImage4761)
@@ -89,8 +83,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
         }
         status478 = getBooleanData(this, "auto_match_timezone", false)
         setImageShowStatus(status478, sobotImage478)
-        status479 = getBooleanData(this, "show_permission_tips_pop", false)
-        setImageShowStatus(status479, sobotImage479)
         sobot_et_scope_time!!.setText(
             SharedPreferencesUtil.getLongData(
                 context,
@@ -156,9 +148,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
                     this,
                     "custom_language_value",
                     sobot_et_langue!!.text.toString().trim { it <= ' ' })
-                //是否在申请权限前弹出权限用途提示框,默认不弹
-                ZCSobotApi.setSwitchMarkStatus(MarkConfig.SHOW_PERMISSION_TIPS_POP, status479)
-                saveBooleanData(this, "show_permission_tips_pop", status479)
                 ZCSobotApi.outCurrentUserZCLibInfo(context,"")
                 finish()
             }
@@ -173,10 +162,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
             R.id.sobot_rl_4_7_8 -> {
                 status478 = !status478
                 setImageShowStatus(status478, sobotImage478)
-            }
-            R.id.sobot_rl_4_7_9 -> {
-                status479 = !status479
-                setImageShowStatus(status479, sobotImage479)
             }
         }
     }

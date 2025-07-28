@@ -1022,14 +1022,11 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
         ZhiChiMessageBase info = getMsgInfo(id);
         if (info != null) {
-            if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && data.getRobotAnswerMessageType().equals("MESSAGE")) {
+            if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && !"SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
+                //SENSITIVE_WORD 如果是敏感词，就拼接，直接覆盖显示
                 //拼接消息
                 String oldDate = info.getContent();
-                String newDate = "";
-                if (!isEnd) {
-                    //如果是结尾就不再追加message内容，因为最后一条实际是倒数第二条message
-                    newDate = data.getContent();
-                }
+                String newDate = data.getContent();
                 String content = oldDate + newDate;
                 info.setContent(content);
                 ZhiChiReplyAnswer answer = info.getAnswer();

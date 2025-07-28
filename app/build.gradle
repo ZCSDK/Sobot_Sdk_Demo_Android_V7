@@ -11,8 +11,8 @@ android {
         applicationId "com.sobot.sobotchatsdkdemo"
         minSdk 24
         targetSdk 35
-        versionCode 426
-        versionName "4.2.6"
+        versionCode 427
+        versionName "4.2.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
