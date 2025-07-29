@@ -1022,40 +1022,48 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
         ZhiChiMessageBase info = getMsgInfo(id);
         if (info != null) {
-            if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && !"SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
-                //SENSITIVE_WORD 如果是敏感词，就拼接，直接覆盖显示
-                //拼接消息
-                String oldDate = info.getContent();
-                String newDate = data.getContent();
-                String content = oldDate + newDate;
-                info.setContent(content);
-                ZhiChiReplyAnswer answer = info.getAnswer();
-                if (answer != null) {
-                    doMarkDownData(content, answer);
-                    if (!isEnd && answer.getRichList() != null) {
-                        //如果是aiagent 答案 因为没有结束，结尾加个|
-                        ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
-                        richListModel.setMsg("  |");
-                        richListModel.setType(0);
-                        answer.getRichList().add(richListModel);
-                    }
-                    answer.setMsg(content);
-                    info.setAnswer(answer);
-                }
-                info.setRevaluateState(data.getRevaluateState());
-                if (isEnd && (answer == null || answer.getRichList() == null || answer.getRichList().isEmpty())) {
-                    //空消息 直接删除
-                    removeByMsgId(id);
-                } else {
-                    notifyItemByMsgId(id);
-                }
+            if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
+                //SENSITIVE_WORD 是敏感词，直接覆盖显示
+                updateMsgDataByMsgId(id, data);
             } else {
-                if (isEnd && (StringUtils.isEmpty(data.getContent()))) {
-                    //空消息 直接删除
-                    removeByMsgId(id);
+                if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && data.getRobotAnswerMessageType().equals("MESSAGE")) {
+                    //拼接消息
+                    String oldDate = info.getContent();
+                    String newDate = "";
+                    if (!isEnd) {
+                        //如果是结尾就不再追加message内容，因为最后一条实际是倒数第二条message内容
+                        newDate = data.getContent();
+                    }
+                    String content = oldDate + newDate;
+                    info.setContent(content);
+                    ZhiChiReplyAnswer answer = info.getAnswer();
+                    if (answer != null) {
+                        doMarkDownData(content, answer);
+                        if (!isEnd && answer.getRichList() != null) {
+                            //如果是aiagent 答案 因为没有结束，结尾加个|
+                            ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
+                            richListModel.setMsg("  |");
+                            richListModel.setType(0);
+                            answer.getRichList().add(richListModel);
+                        }
+                        answer.setMsg(content);
+                        info.setAnswer(answer);
+                    }
+                    info.setRevaluateState(data.getRevaluateState());
+                    if (isEnd && (answer == null || answer.getRichList() == null || answer.getRichList().isEmpty())) {
+                        //空消息 直接删除
+                        removeByMsgId(id);
+                    } else {
+                        notifyItemByMsgId(id);
+                    }
                 } else {
-                    //不是拼接消息，直接展示
-                    updateMsgDataByMsgId(id, data);
+                    if (isEnd && (StringUtils.isEmpty(data.getContent()))) {
+                        //空消息 直接删除
+                        removeByMsgId(id);
+                    } else {
+                        //不是拼接消息，直接展示
+                        updateMsgDataByMsgId(id, data);
+                    }
                 }
             }
         } else {
