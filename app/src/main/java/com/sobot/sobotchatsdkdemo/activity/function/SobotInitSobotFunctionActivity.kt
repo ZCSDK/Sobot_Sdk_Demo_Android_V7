@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
-import com.sobot.chat.utils.ToastUtil
+import com.sobot.chat.widget.toast.ToastUtil
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject

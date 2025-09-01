@@ -22,9 +22,11 @@ import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.apiUtils.ZhiChiUrlApi;
 import com.sobot.chat.api.enumtype.SobotChatStatusMode;
+import com.sobot.chat.api.model.BaseCode;
 import com.sobot.chat.api.model.CommonModel;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.Information;
+import com.sobot.chat.api.model.NureadMsgModel;
 import com.sobot.chat.api.model.OrderCardContentModel;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.api.model.SobotLeaveReplyModel;
@@ -32,6 +34,7 @@ import com.sobot.chat.api.model.SobotLocationModel;
 import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.api.model.SobotTransferOperatorParam;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.conversation.SobotChatActivity;
 import com.sobot.chat.core.channel.Const;
@@ -60,10 +63,12 @@ import com.sobot.chat.utils.SystemUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.network.apiUtils.SobotHttpUtils;
 import com.sobot.network.http.callback.StringResultCallBack;
+import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -1351,5 +1356,46 @@ public class ZCSobotApi {
         intent.setAction(ZhiChiConstant.SOBOT_BROCAST_ACTION_SEND_CUSTOM_CARD);
         intent.putExtra(ZhiChiConstant.SOBOT_SEND_DATA, custiomCard);
         localBroadcastManager.sendBroadcast(intent);
+    }
+    /**
+     * 获取未读消息数量
+     * @param context   上下文  必填
+     * @param appkey    用户的appkey  必填 如果是平台用户需要传总公司的appkey
+     * @param partnerid 用户的唯一标识不能传一样的值
+     * @param callBack 返回内容为NureadMsgModel对象，字段描述：totalSize 当前用户的未读消息数总和,offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空，message 收到最后一条消息内容 （eg:您收到了一条新消息），time  收到最后一条消息的时间戳 （未读消息、离线消息、未确认消息 三者比较取时间为最后的一条消息），object 接口返回的全部数据
+     */
+    public static void offlineMsgSize(final Context context, final String appkey, final String partnerid,StringResultCallBack<NureadMsgModel> callBack){
+
+        SobotMsgManager.getInstance(context).getZhiChiApi().offlineMsgSize(context, partnerid, appkey, new StringResultCallBack<NureadMsgModel>() {
+
+            @Override
+            public void onSuccess(NureadMsgModel stringObjectMap) {
+                int mUnreadNum = SobotMsgManager.getInstance(context).getUnreadCount(appkey, false, partnerid);
+                stringObjectMap.setUnReadSize(mUnreadNum);
+                List<ZhiChiMessageBase> tmpList = SobotMsgManager.getInstance(context).getConfig(appkey).getMessageList();
+                if (tmpList != null && tmpList.size() > 0) {
+                    ZhiChiMessageBase zhiChiMessageBase = tmpList.get(tmpList.size() - 1);
+                    if (zhiChiMessageBase != null && SobotStringUtils.isEmpty(zhiChiMessageBase.getT())){
+                        long t = Long.parseLong(zhiChiMessageBase.getT());
+                        if(t>stringObjectMap.getTime()){
+                            stringObjectMap.setTime(t);
+                        }
+                    }
+                }
+                stringObjectMap.setTotalSize(stringObjectMap.getUnAckSize()+stringObjectMap.getUnReadSize()+stringObjectMap.getOfflineSize());
+                stringObjectMap.setMessage(context.getResources().getString(R.string.sobot_receive_new_message));
+                if (callBack != null) {
+                    callBack.onSuccess(stringObjectMap);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+                if (callBack != null) {
+                    callBack.onFailure(e,des);
+                }
+            }
+
+        });
     }
 }

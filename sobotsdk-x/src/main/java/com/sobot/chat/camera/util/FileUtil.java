@@ -10,7 +10,7 @@ import com.sobot.chat.R;
 import com.sobot.chat.utils.IOUtils;
 import com.sobot.chat.utils.SobotPathManager;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

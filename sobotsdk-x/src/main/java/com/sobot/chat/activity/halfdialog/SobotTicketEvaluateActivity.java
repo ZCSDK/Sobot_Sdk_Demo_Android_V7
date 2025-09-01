@@ -28,12 +28,12 @@ import com.sobot.chat.notchlib.utils.ScreenUtil;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotEditTextLayout;
 import com.sobot.chat.widget.SobotFiveStarsLayout;
 import com.sobot.chat.widget.SobotTenRatingLayout;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;

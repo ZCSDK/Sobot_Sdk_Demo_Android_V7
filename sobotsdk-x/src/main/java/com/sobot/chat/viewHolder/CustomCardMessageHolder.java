@@ -341,6 +341,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                     ll_order_good_info_h.setVisibility(View.GONE);
                     if (sobot_v_h!=null) {
                         sobot_v_h.setMaxWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext,  16 + 16));
+                        sobot_v_h.setMinimumWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext,  16 + 16));
                     }
                     sobot_v_h.setVisibility(View.VISIBLE);
                     //平铺
@@ -620,18 +621,9 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
             }
             if (isRight) {
                 if(ll_order_good_info_h.getVisibility()==View.GONE) {
-                    if (isOnlyOne) {
-                        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-                            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 16 + 16));
-                        }
-                    } else {
-                        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-                            if (msgMaxWidthL > 0) {
-                                ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidthL + ScreenUtils.dip2px(mContext, 16 + 16));
-                            } else {
-                                ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
-                            }
-                        }
+                    if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
+                        ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 16 + 16));
+                        ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 16 + 16));
                     }
                 }else{
                     ll_order_good_info_h.getLayoutParams().width=(msgMaxWidthL + ScreenUtils.dip2px(mContext, 16 + 16));
@@ -653,9 +645,30 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                     e.printStackTrace();
                 }
             } else {
-                resetMaxWidth();
-                if(ll_order_good_info.getVisibility()==View.VISIBLE){
-                    ll_order_good_info.getLayoutParams().width= msgCardWidth;
+                //左边
+                if (isOnlyOne) {
+                    //单个商品，全屏显示
+                    if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
+                        ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 16 + 16));
+                        ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 16 + 16));
+                    }
+                }else {
+                    if (ll_order_good_info.getVisibility() == View.VISIBLE) {
+                        //列表
+                        ll_order_good_info.getLayoutParams().width = msgCardWidth;
+                    }else if (ll_order_good_info_h.getVisibility() == View.VISIBLE) {
+                        //横向订单
+                        ll_order_good_info_h.getLayoutParams().width = (msgMaxWidthL + ScreenUtils.dip2px(mContext, 16 + 16));
+                    }else if (sobot_v_h != null && sobot_v_h.getVisibility() == View.VISIBLE) {
+                        //横向滑动卡片
+                        sobot_v_h.setMaxWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext,  16 + 16));
+                        sobot_v_h.setMinimumWidth(ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext,  16 + 16));
+                    } else {
+                        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
+                            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
+                            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
+                        }
+                    }
                 }
             }
 

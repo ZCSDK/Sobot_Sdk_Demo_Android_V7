@@ -9,23 +9,30 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.base.SobotBaseHelpCenterActivity;
 import com.sobot.chat.adapter.SobotHelpCenterAdapter;
 import com.sobot.chat.api.ZhiChiApi;
+import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.model.HelpConfigModel;
 import com.sobot.chat.api.model.StCategoryModel;
 import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.utils.ChatUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.widget.SobotAutoGridView;
 import com.sobot.chat.widget.statusbar.StatusBarUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
+import com.sobot.utils.SobotSharedPreferencesUtil;
 import com.sobot.utils.SobotStringUtils;
 
 import java.util.List;
@@ -57,7 +64,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
     @Override
     protected void initView() {
         setTitle(R.string.sobot_help_center_title);
-        showLeftMenu( true);
+        showLeftMenu(true);
         mEmptyView = findViewById(R.id.ll_empty_view);
         ll_bottom = findViewById(R.id.ll_bottom);
         ll_bottom_h = findViewById(R.id.ll_bottom_h);
@@ -81,6 +88,29 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         tv_sobot_layout_online_tel_v.setOnClickListener(this);
         mGridView.setOnItemClickListener(this);
         configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
+        try {
+            View decorView = getWindow().getDecorView();
+            ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                    int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+                    LogUtils.d("SobotHelpCenterActivity 状态栏高度: " + statusBarHeight);
+                    StatusBarUtil.SOBOT_STATUS_HIGHT = statusBarHeight;
+                    if (SobotApp.getApplicationContext() != null) {
+                        SobotSharedPreferencesUtil.getInstance(SobotApp.getApplicationContext()).put("SobotStatusBarHeight", statusBarHeight);
+                    }
+                    setTool();
+                    return insets;
+                }
+            });
+        } catch (Exception e) {
+            setTool();
+        }
+        displayInNotch(mGridView);
+        displayInNotch(ll_bottom);
+    }
+
+    private void setTool() {
         if (configModel != null) {
             setToobar(configModel);
         }
@@ -97,8 +127,6 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
             }
         });
-        displayInNotch(mGridView);
-        displayInNotch(ll_bottom);
     }
 
     //设置导航条颜色
@@ -124,7 +152,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                             ll_bottom_v.setVisibility(View.GONE);
                         }
                     }
-                },100);
+                }, 100);
             } else {
                 if (!TextUtils.isEmpty(configModel.getHotlineName()) && !TextUtils.isEmpty(configModel.getHotlineTel())) {
                     tel = configModel.getHotlineTel();
@@ -144,7 +172,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                                 ll_bottom_v.setVisibility(View.GONE);
                             }
                         }
-                    },100);
+                    }, 100);
                 } else {
                     tv_sobot_layout_online_tel.setVisibility(View.GONE);
                     view_split_online_tel.setVisibility(View.GONE);

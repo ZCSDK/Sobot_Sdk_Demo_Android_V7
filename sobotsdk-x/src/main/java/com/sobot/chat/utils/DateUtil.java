@@ -487,31 +487,26 @@ public class DateUtil {
      * 北京时间转化为本地时间
      */
     public static String bjToLocal(String bjTime, String format, Boolean isAutoMatchTimeZone) {
-        if (!isAutoMatchTimeZone) {
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
-            try {
-                return dateToString(stringToDate(bjTime,"yyyy-MM-dd HH:mm:ss"), format);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (bjTime == null || "".equals(bjTime)) {
+            return "";
+        }
+        try {
+            if (!isAutoMatchTimeZone) {
+                SimpleDateFormat sdf = new SimpleDateFormat(format);
+                return dateToString(stringToDate(bjTime, "yyyy-MM-dd HH:mm:ss"), format);
             }
-        }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        Date utcDate = null;
-        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+            Date utcDate = null;
             utcDate = sdf.parse(bjTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        sdf.setTimeZone(TimeZone.getDefault());
-        Date locatlDate = null;
-        String localTime = sdf.format(utcDate.getTime());
-        try {
+            sdf.setTimeZone(TimeZone.getDefault());
+            Date locatlDate = null;
+            String localTime = sdf.format(utcDate.getTime());
             locatlDate = sdf.parse(localTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
+            return dateToString(locatlDate, format);
+        } catch (ParseException | NullPointerException ignored) {
         }
-        return dateToString(locatlDate, format);
+        return "";
     }
 
     /**

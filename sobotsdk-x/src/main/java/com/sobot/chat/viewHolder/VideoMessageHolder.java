@@ -14,10 +14,10 @@ import com.sobot.chat.api.model.SobotCacheFile;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.ZhiChiMessageMsgModel;
+import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
-import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.network.http.model.SobotProgress;
 import com.sobot.network.http.upload.SobotUpload;
 import com.sobot.network.http.upload.SobotUploadListener;
@@ -39,11 +39,15 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
 
     public VideoMessageHolder(Context context, View convertView) {
         super(context, convertView);
+        sobot_rl_hollow_container = convertView.findViewById(R.id.sobot_rl_hollow_container);
         st_tv_play = (ImageView) convertView.findViewById(R.id.st_tv_play);
         st_iv_pic = (SobotProgressImageView) convertView.findViewById(R.id.st_iv_pic);
         answersList = (LinearLayout) convertView
                 .findViewById(R.id.sobot_answersList);
         st_tv_play.setOnClickListener(this);
+        if (st_iv_pic != null) {
+            st_iv_pic.setOnClickListener(this);
+        }
         mResNetError = R.drawable.sobot_icon_send_fail;
         mResRemove = R.drawable.sobot_icon_remove;
     }
@@ -118,7 +122,7 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (mData != null) {
-            if (st_tv_play == v) {
+            if (st_tv_play == v || st_iv_pic == v) {
                 if (mData.getAnswer() != null && mData.getAnswer().getCacheFile() != null) {
                     SobotCacheFile cacheFile = mData.getAnswer().getCacheFile();
                     // 播放视频

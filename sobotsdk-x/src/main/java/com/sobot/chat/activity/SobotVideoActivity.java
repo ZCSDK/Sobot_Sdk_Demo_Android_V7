@@ -20,28 +20,13 @@ import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.StVideoView;
 import com.sobot.chat.camera.listener.StVideoListener;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.SobotPathManager;
-import com.sobot.network.http.HttpBaseUtils;
-import com.sobot.network.http.db.SobotDownloadManager;
-import com.sobot.network.http.download.SobotDownload;
-import com.sobot.network.http.download.SobotDownloadListener;
-import com.sobot.network.http.download.SobotDownloadTask;
-import com.sobot.network.http.model.SobotProgress;
 import com.sobot.pictureframe.SobotBitmapUtil;
-
-import java.io.File;
 
 /**
  * @author Created by jinxl on 2018/12/3.
  */
 public class SobotVideoActivity extends FragmentActivity implements View.OnClickListener {
     private static final String EXTRA_VIDEO_FILE_DATA = "EXTRA_VIDEO_FILE_DATA";
-    private static final String EXTRA_IMAGE_FILE_PATH = "EXTRA_IMAGE_FILE_PATH";
-    private static final String EXTRA_VIDEO_FILE_PATH = "EXTRA_VIDEO_FILE_PATH";
-    private static final String SOBOT_TAG_DOWNLOAD_ACT_VIDEO = "SOBOT_TAG_DOWNLOAD_ACT_VIDEO";
-    private static final int RESULT_CODE = 103;
-
-    public static final int ACTION_TYPE_PHOTO = 0;
     public static final int ACTION_TYPE_VIDEO = 1;
 
     private StVideoView mVideoView;
@@ -50,8 +35,6 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
     private ProgressBar progressBar;
 
     private SobotCacheFile mCacheFile;
-    private SobotDownloadTask mTask;
-    private SobotDownloadListener mDownloadListener;
 
     /**
      * @param context 应用程序上下文
@@ -73,44 +56,29 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.sobot_activity_video);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            //避免刘海屏遮挡
+            WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+            layoutParams.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(layoutParams);
+        }
         MyApplication.getInstance().addActivity(this);
         mVideoView = (StVideoView) findViewById(R.id.sobot_videoview);
         st_tv_play = (TextView) findViewById(R.id.st_tv_play);
         st_iv_pic = (ImageView) findViewById(R.id.st_iv_pic);
         progressBar = (ProgressBar) findViewById(R.id.sobot_msgProgressBar);
         st_tv_play.setOnClickListener(this);
-        mDownloadListener = new SobotDownloadListener(SOBOT_TAG_DOWNLOAD_ACT_VIDEO) {
-            @Override
-            public void onStart(SobotProgress progress) {
-                refreshUI(progress);
-            }
-
-            @Override
-            public void onProgress(SobotProgress progress) {
-                refreshUI(progress);
-            }
-
-            @Override
-            public void onError(SobotProgress progress) {
-                refreshUI(progress);
-            }
-
-            @Override
-            public void onFinish(File result, SobotProgress progress) {
-                refreshUI(progress);
-            }
-
-            @Override
-            public void onRemove(SobotProgress progress) {
-
-            }
-        };
         initData();
         mVideoView.setVideoLisenter(new StVideoListener() {
 
             @Override
             public void onStart() {
                 st_tv_play.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onPrepared() {
+                showFinishUi();
             }
 
             @Override
@@ -140,111 +108,42 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
             if (mCacheFile == null) {
                 return;
             }
-
-            SobotDownload.getInstance().setFolder(SobotPathManager.getInstance().getVideoDir());
+            showLoadingUi();
             if (!TextUtils.isEmpty(mCacheFile.getFilePath())) {
-                showFinishUi(mCacheFile.getFilePath());
-            } else {
-                restoreTask();
+                //设置视频保存路径
+                mVideoView.setVideoPath(mCacheFile.getFilePath());
+                mVideoView.playVideo();
+            } else if (!TextUtils.isEmpty(mCacheFile.getUrl())) {
+                //设置视频保存路径
+                mVideoView.setVideoPath(mCacheFile.getUrl());
+                mVideoView.playVideo();
             }
+
         } catch (Exception e) {
             //ignore
             e.printStackTrace();
         }
     }
 
-    /**
-     * 恢复任务
-     */
-    private void restoreTask() {
-        //更新数据
-        SobotProgress progress = SobotDownloadManager.getInstance().get(mCacheFile.getUrl());
-        if (progress != null) {
-            if (progress.status != SobotProgress.FINISH) {
-                downloadFile(progress);
-            } else {
-                if (!TextUtils.isEmpty(progress.filePath) && new File(progress.filePath).exists()) {
-                    refreshUI(progress);
-                } else {
-                    downloadFile(progress);
-                }
-            }
-        } else {
-            downloadFile(null);
-        }
-    }
 
-    private void downloadFile(SobotProgress progress) {
-        if (progress != null) {
-            mTask = SobotDownload.restore(progress);
-            if (mTask != null) {
-                mTask.remove(true);
-            }
-        }
-        mTask = HttpBaseUtils.getInstance().addDownloadFileTask(mCacheFile.getUrl(), mCacheFile.getUrl(), mCacheFile.getFileName(), null,null);
-        if (mTask != null) {
-            mTask.register(mDownloadListener).start();
-        }
-    }
-
-
-    /**
-     * 根据任务状态显示对应的ui
-     *
-     * @param progress
-     */
-    private void refreshUI(SobotProgress progress) {
-        switch (progress.status) {
-            case SobotProgress.NONE:
-            case SobotProgress.WAITING:
-                st_tv_play.setVisibility(View.GONE);
-                progressBar.setVisibility(View.VISIBLE);
-                st_iv_pic.setVisibility(View.VISIBLE);
-                SobotBitmapUtil.display(this, mCacheFile.getSnapshot(), st_iv_pic,0,0);
-                break;
-            case SobotProgress.ERROR:
-                SobotDownload.getInstance().removeTask(progress.tag);
-                showErrorUi();
-                break;
-            case SobotProgress.PAUSE:
-            case SobotProgress.LOADING:
-                showLoadingUi(progress.fraction, progress.currentSize, progress.totalSize);
-                break;
-            case SobotProgress.FINISH:
-                mCacheFile.setFilePath(progress.filePath);
-                showFinishUi(progress.filePath);
-                break;
-        }
-    }
-
-    private void showLoadingUi(float fraction, long pcurrentSize, long ptotalSize) {
+    private void showLoadingUi() {
         st_tv_play.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         st_iv_pic.setVisibility(View.VISIBLE);
-        SobotBitmapUtil.display(this, mCacheFile.getSnapshot(), st_iv_pic,0,0);
+        SobotBitmapUtil.display(this, mCacheFile.getSnapshot(), st_iv_pic, 0, 0);
     }
 
     private void showErrorUi() {
         st_tv_play.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
         st_iv_pic.setVisibility(View.VISIBLE);
-        SobotBitmapUtil.display(this, mCacheFile.getSnapshot(), st_iv_pic,0,0);
+        SobotBitmapUtil.display(this, mCacheFile.getSnapshot(), st_iv_pic, 0, 0);
     }
 
-    private void showFinishUi(String videoFile) {
-        if (!TextUtils.isEmpty(videoFile)) {
-            File file = new File(videoFile);
-            if (file.exists() && file.isFile()) {
-                st_tv_play.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                st_iv_pic.setVisibility(View.GONE);
-
-                //设置视频保存路径
-                mVideoView.setVideoPath(videoFile);
-//                mVideoView.setVisibility(View.VISIBLE);
-                mVideoView.playVideo();
-            }
-        }
+    private void showFinishUi() {
+        st_tv_play.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        st_iv_pic.setVisibility(View.GONE);
     }
 
 
@@ -256,7 +155,9 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -281,13 +182,6 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         MyApplication.getInstance().deleteActivity(this);
-        SobotDownload.getInstance().unRegister(SOBOT_TAG_DOWNLOAD_ACT_VIDEO);
-        if (mTask != null && (mTask.progress.status == SobotProgress.FINISH
-                || mTask.progress.status == SobotProgress.NONE
-                || mTask.progress.status == SobotProgress.PAUSE
-                || mTask.progress.status == SobotProgress.ERROR)) {
-            SobotDownload.getInstance().removeTask(mTask.progress.tag);
-        }
         super.onDestroy();
     }
 

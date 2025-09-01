@@ -22,9 +22,9 @@ import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.StCategoryModel;
 import com.sobot.chat.api.model.StDocModel;
 import com.sobot.chat.core.channel.SobotMsgManager;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.statusbar.StatusBarUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.List;

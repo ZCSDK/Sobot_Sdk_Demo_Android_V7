@@ -179,47 +179,7 @@
 }
 
 
-# Glide
--keep class com.bumptech.glide.Glide { *; }
--dontwarn com.bumptech.glide.**
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
-
-# Gson
--keep class com.google.gson.stream.** { *; }
-# 使用Gson时需要配置Gson的解析对象及变量都不混淆。不然Gson会找不到变量。
-# 将下面替换成自己的实体类
--keep class com.sobot.custom.model.** { *; }
--dontwarn com.google.gson.**
 
 #sobot SDK
 -keep class com.sobot.chat.** {*;}
 -dontwarn com.sobot.chat.**
-
-# OkHttp3
--dontwarn okhttp3.**
--dontwarn okio.**
--dontwarn javax.annotation.**
--keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
-
-## ----------------------------------
-##      Glide相关
-## ----------------------------------
--keep class com.bumptech.glide.Glide { *; }
--keep class com.bumptech.glide.request.RequestOptions {*;}
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
--dontwarn com.bumptech.glide.**
-
-## ----------------------------------
-##      Picasso相关
-## ----------------------------------
--keep class com.squareup.picasso.Picasso { *; }
--dontwarn com.squareup.okhttp.**
--dontwarn com.squareup.picasso.**

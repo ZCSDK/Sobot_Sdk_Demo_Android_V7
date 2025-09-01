@@ -13,24 +13,30 @@
         android:id="@+id/sobot_reminde_time_Text"
         style="@style/sobot_center_remind_time" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:orientation="horizontal">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:orientation="vertical">
-            <!-- 昵称 -->
-            <TextView
-                android:id="@+id/sobot_msg_nike_name_tv"
-                style="@style/sobot_chatting_right_nickname"
-                android:visibility="gone" />
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
 
+        <!--头像-->
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_msg_face_iv"
+            style="@style/sobot_chatting_left_face_style"
+            android:visibility="gone" />
+
+        <!-- 昵称 -->
+        <TextView
+            android:id="@+id/sobot_msg_nike_name_tv"
+            style="@style/sobot_chatting_nickname"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sobot_msg_nike_name_tv"
+            android:layout_toEndOf="@+id/sobot_msg_face_iv"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/ll_status"
@@ -100,10 +106,5 @@
                 </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <!--头像-->
-        <com.sobot.chat.widget.image.SobotProgressImageView
-            android:id="@+id/sobot_msg_face_iv"
-            style="@style/sobot_chatting_left_face_style"
-            android:visibility="gone" />
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

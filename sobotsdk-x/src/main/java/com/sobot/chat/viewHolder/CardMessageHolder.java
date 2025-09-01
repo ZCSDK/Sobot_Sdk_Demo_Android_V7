@@ -11,10 +11,11 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.CommonUtils;
-import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
+import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.utils.SobotStringUtils;
 
@@ -38,7 +39,6 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
 
     @Override
     public void bindData(final Context context, final ZhiChiMessageBase message) {
-        resetMaxWidth();
         mConsultingContent = message.getConsultingContent();
 
         if (message.getConsultingContent() != null) {
@@ -89,6 +89,10 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
         sobot_msg_content_ll.setOnClickListener(this);
         setLongClickListener(sobot_msg_content_ll);
         refreshReadStatus();
+        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 +16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16+16));
+        }
     }
 
     @Override

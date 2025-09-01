@@ -30,12 +30,12 @@ import com.sobot.chat.api.model.SobotUserTicketEvaluate;
 import com.sobot.chat.api.model.SobotUserTicketInfo;
 import com.sobot.chat.api.model.StUserDealTicketInfo;
 import com.sobot.chat.utils.ChatUtils;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.toast.CustomToast;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.io.Serializable;
@@ -290,7 +290,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
         zhiChiApi.addTicketSatisfactionScoreInfo(SobotTicketDetailActivity.this, mUid, mCompanyId, mTicketInfo.getTicketId(), score, remark, labelTag, defaultQuestionFlag, new StringResultCallBack<String>() {
             @Override
             public void onSuccess(String result) {
-                CustomToast.makeText(SobotTicketDetailActivity.this, getResources().getString(R.string.sobot_leavemsg_success_tip), 1000, R.drawable.sobot_icon_success).show();
+                ToastUtil.showCustomToast(SobotTicketDetailActivity.this, getResources().getString(R.string.sobot_leavemsg_success_tip), R.drawable.sobot_icon_success);
                 sobot_evaluate_tv.setVisibility(View.GONE);
                 SobotUserTicketEvaluate evaluate = null;
                 if (mEvaluate != null) {

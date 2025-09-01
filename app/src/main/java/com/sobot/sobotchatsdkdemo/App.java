@@ -21,7 +21,7 @@ import com.sobot.chat.listener.SobotMiniProgramClickListener;
 import com.sobot.chat.listener.SobotPlusMenuListener;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StMapOpenHelper;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel;
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil;
 
@@ -55,8 +55,6 @@ public class App extends Application {
             ZCSobotApi.initSobotSDK(this, information.getApp_key(), information.getPartnerid());
         }
 
-        //是否在申请权限前弹出权限用途提示框,默认不弹
-        ZCSobotApi.setSwitchMarkStatus(MarkConfig.SHOW_PERMISSION_TIPS_POP, SobotSPUtil.INSTANCE.getBooleanData(this, "show_permission_tips_pop", false));
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE, SobotSPUtil.INSTANCE.getBooleanData(this, "auto_match_timezone", false));
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN, SobotSPUtil.INSTANCE.getBooleanData(this, "landscape_screen", false));
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH, SobotSPUtil.INSTANCE.getBooleanData(this, "display_innotch", false));

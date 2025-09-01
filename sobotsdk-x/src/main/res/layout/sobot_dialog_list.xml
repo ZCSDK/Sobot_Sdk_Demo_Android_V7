@@ -56,8 +56,9 @@
         <TextView
             android:id="@+id/tv_nodata"
             android:layout_width="match_parent"
-            android:layout_height="110dp"
-            android:layout_marginBottom="117dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="60dp"
+            android:paddingBottom="117dp"
             android:background="@color/sobot_color_bg_first"
             android:gravity="center"
             android:text="@string/sobot_no_data_string"

@@ -45,7 +45,6 @@ import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StMapOpenHelper;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotSectorProgressView;
@@ -53,6 +52,7 @@ import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.image.SobotRCImageView;
 import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.gson.reflect.TypeToken;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
@@ -157,6 +157,15 @@ public class AppointTextMessageHolder extends MsgHolderBase {
         }
         if (sobot_appoint_content_ll != null && sobot_rich_ll != null && message.getAppointMessage() != null && tv_appoint_type != null) {
 //            resetMaxWidth(sobot_appoint_content_ll);
+            sobot_appoint_content_ll.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //跳转到引用详情
+                    Intent intent = new Intent(mContext, SobotQuoteDetailActivity.class);
+                    intent.putExtra("AppointMessage", message.getAppointMessage());
+                    mContext.startActivity(intent);
+                }
+            });
             showAppointMessage(message.getAppointMessage(), sobot_rich_ll, mContext, isRight);
             String tempStr = "";
             // -1-未知 0-客服 1-客户 2-引用机器人
@@ -168,15 +177,6 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                 tempStr = mContext.getResources().getString(R.string.sobot_cus_service);
             }
             tv_appoint_type.setText(tempStr);
-            sobot_appoint_content_ll.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //跳转到引用详情
-                    Intent intent = new Intent(mContext, SobotQuoteDetailActivity.class);
-                    intent.putExtra("AppointMessage", message.getAppointMessage());
-                    mContext.startActivity(intent);
-                }
-            });
             sobot_appoint_content_ll.setVisibility(View.VISIBLE);
         } else {
             sobot_appoint_content_ll.setVisibility(View.GONE);
@@ -320,7 +320,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
     }
 
     public void showAppointMessage(final ZhiChiAppointMessage appointMessage, LinearLayout sobot_rich_ll, final Context context, final boolean isRight) {
-        if (appointMessage != null && context != null && sobot_rich_ll != null) {
+        if (appointMessage != null && context != null && sobot_rich_ll != null && sobot_appoint_content_ll != null) {
             sobot_rich_ll.removeAllViews();
             //0文本,1图片,2音频,3视频,4文件,5对象,当msgType=5 时，根据content里边的 type 判断具体的时哪种消息 0-富文本 1-多伦会话 2-位置 3-小卡片 4-订单卡片 6-小程序 17-文章 21-自定义卡片
             int msgType = appointMessage.getMsgType();
@@ -346,6 +346,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                             cacheFile.setMsgId(appointMessage.getMsgId());
                             showFileView(sobot_rich_ll, context, cacheFile, false, true);
                         } else {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //0 语音
                             View view = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_audio, null);
                             TextView voiceTimeLong = view.findViewById(R.id.sobot_voiceTimeLong);
@@ -539,8 +540,10 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                             });
                             setCopyAndAppointView(context, sobot_rich_ll);
                         } else if ("1".equals(contentJsonObject.optString("type"))) {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //多伦会话类型 只有历史记录有，机器人实时接口返回没有message
                         } else if ("2".equals(contentJsonObject.optString("type"))) {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //位置
                             if (contentJsonObject.has("msg") && !TextUtils.isEmpty(contentJsonObject.optString("msg"))) {
                                 JSONObject jsonObj = new JSONObject(contentJsonObject.optString("msg"));
@@ -593,6 +596,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                 setCopyAndAppointView(context, otherView);
                             }
                         } else if ("3".equals(contentJsonObject.optString("type"))) {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //商品卡片
                             if (contentJsonObject.has("msg") && !TextUtils.isEmpty(contentJsonObject.optString("msg"))) {
                                 try {
@@ -650,8 +654,9 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                             }
                         } else if ("4".equals(contentJsonObject.optString("type"))) {
                             //订单卡片
-
+                            sobot_appoint_content_ll.setOnClickListener(null);
                         } else if ("6".equals(contentJsonObject.optString("type"))) {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //小程序卡片
                             if (contentJsonObject.has("msg") && !TextUtils.isEmpty(contentJsonObject.optString("msg"))) {
                                 try {
@@ -755,6 +760,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                 }
                             }
                         } else if ("21".equals(contentJsonObject.optString("type"))) {
+                            sobot_appoint_content_ll.setOnClickListener(null);
                             //自定义卡片类型
                             SobotChatCustomCard model = SobotGsonUtil.jsonToBeans(contentJsonObject.optString("msg"),
                                     new TypeToken<SobotChatCustomCard>() {

@@ -1,8 +1,10 @@
 package com.sobot.chat.activity;
 
 import static com.sobot.chat.SobotUIConfig.sobot_webview_title_display;
+import static com.sobot.widget.ui.SobotBaseConstant.REQUEST_CODE_MAKEPICTUREFROMCAMERA;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -27,11 +29,13 @@ import android.widget.TextView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotChatBaseActivity;
+import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
+import com.sobot.widget.ui.utils.SobotWidgetUtils;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class WebViewActivity extends SobotChatBaseActivity implements View.OnClickListener {
@@ -56,7 +60,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
     //千人千面UI
     private boolean isChangeThemeColor = false;
-    private int themeColor =0;
+    private int themeColor = 0;
     private boolean canGoForward = false;
     private boolean canGoBack = false;
 
@@ -81,7 +85,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     @Override
     protected void initView() {
         setTitle("");
-        showLeftMenu( true);
+        showLeftMenu(true);
         isChangeThemeColor = ThemeUtils.isChangedThemeColor(this);
         mWebView = (WebView) findViewById(R.id.sobot_mWebView);
         mProgressBar = (ProgressBar) findViewById(R.id.sobot_loadProgress);
@@ -103,12 +107,12 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         sobot_webview_copy.setOnClickListener(this);
 
 
-        if(isChangeThemeColor){
+        if (isChangeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(this);
             Drawable reload = getResources().getDrawable(R.drawable.sobot_webview_btn_reload_selector);
             Drawable copy = getResources().getDrawable(R.drawable.sobot_webview_btn_copy_selector);
-            sobot_webview_reload.setImageDrawable(ThemeUtils.applyColorToDrawable(reload,themeColor));
-            sobot_webview_copy.setImageDrawable(ThemeUtils.applyColorToDrawable(copy,themeColor));
+            sobot_webview_reload.setImageDrawable(ThemeUtils.applyColorToDrawable(reload, themeColor));
+            sobot_webview_copy.setImageDrawable(ThemeUtils.applyColorToDrawable(copy, themeColor));
         }
         sobot_webview_goback.setEnabled(false);
         sobot_webview_forward.setEnabled(false);
@@ -145,7 +149,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                     "    <body>" + mUrl + "  </body>\n" +
                     "</html>";
             //显示文本内容
-            mWebView.loadDataWithBaseURL("about:blank", mUrl.replace("<p>","").replace("</p>","<br/>").replace("<P>","").replace("</P>","<br/>"), "text/html", "utf-8", null);
+            mWebView.loadDataWithBaseURL("about:blank", mUrl.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"), "text/html", "utf-8", null);
         }
         LogUtils.i("webViewActivity---" + mUrl);
     }
@@ -319,10 +323,31 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 uploadMessageAboveL = filePathCallback;
-                chooseAlbumPic();
+                // 1. 检查是否包含 capture="camera"
+                boolean isCaptureCamera = false;
+                try {
+                    Intent intent = fileChooserParams.createIntent();
+                    if (intent != null && intent.hasExtra("capture")) {
+                        String capture = intent.getStringExtra("capture");
+                        if ("camera".equals(capture)) {
+                            isCaptureCamera = true;
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.e("Error in onShowFileChooser", e);
+                }
+
+                // 2. 获取 accept 类型数组
+                String[] acceptTypes = fileChooserParams.getAcceptTypes();
+                if (isCaptureCamera || (acceptTypes != null && acceptTypes.length > 0 && "image/*".equals(acceptTypes[0]))) {
+                    // 是拍照行为
+                    openCapture(); // 打开相机
+                } else {
+                    // 是文件上传行为，转换 acceptTypes 到 Intent.setType()
+                    chooseFile(acceptTypes); // 传入 acceptTypes 进行 setType 设置
+                }
                 return true;
             }
-
         });
     }
 
@@ -341,23 +366,24 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         }
         super.onPause();
     }
-    private void refreshBtn(){
-        LogUtils.d("===========canGoBack="+canGoBack+"=========canGoForward="+canGoForward);
-        if(isChangeThemeColor){
+
+    private void refreshBtn() {
+        LogUtils.d("===========canGoBack=" + canGoBack + "=========canGoForward=" + canGoForward);
+        if (isChangeThemeColor) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Drawable forward = getResources().getDrawable(R.drawable.sobot_webview_toolsbar_forward_disable);
                     Drawable back = getResources().getDrawable(R.drawable.sobot_webview_toolsbar_back_disable);
-                    if(canGoBack){
-                        sobot_webview_goback.setImageDrawable(ThemeUtils.applyColorToDrawable(back,themeColor));
-                    }else{
+                    if (canGoBack) {
+                        sobot_webview_goback.setImageDrawable(ThemeUtils.applyColorToDrawable(back, themeColor));
+                    } else {
                         sobot_webview_goback.setImageDrawable(ThemeUtils.applyColorToDrawable(back, "#c2c4c4"));
                     }
-                    if(canGoForward){
-                        sobot_webview_forward.setImageDrawable(ThemeUtils.applyColorToDrawable(forward,themeColor));
-                    }else{
-                        sobot_webview_forward.setImageDrawable(ThemeUtils.applyColorToDrawable(forward,"#c2c4c4"));
+                    if (canGoForward) {
+                        sobot_webview_forward.setImageDrawable(ThemeUtils.applyColorToDrawable(forward, themeColor));
+                    } else {
+                        sobot_webview_forward.setImageDrawable(ThemeUtils.applyColorToDrawable(forward, "#c2c4c4"));
                     }
                 }
             });
@@ -396,7 +422,6 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
     private static final int REQUEST_CODE_ALBUM = 0x0111;
 
-    private ValueCallback<Uri> uploadMessage;
     private ValueCallback<Uri[]> uploadMessageAboveL;
 
     public Context getContext() {
@@ -404,56 +429,90 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     }
 
     /**
-     * 选择相册照片
+     * 打开相机拍照
      */
-    private void chooseAlbumPic() {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-        i.addCategory(Intent.CATEGORY_OPENABLE);
-//        i.setType("image/*");
-        i.setType("video/*;image/*");//可以选择视频或图片
-        startActivityForResult(Intent.createChooser(i, "Image Chooser"), REQUEST_CODE_ALBUM);
+    private void openCapture() {
+        cameraFile = null;
+        permissionListener = new PermissionListenerImpl() {
+            @Override
+            public void onPermissionSuccessListener() {
+                if (isCameraCanUse()) {
+                    cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+                }
+            }
+
+            @Override
+            public void onPermissionErrorListener(Activity activity, String title) {
+                super.onPermissionErrorListener(activity, title);
+                // 权限拒绝，通知 WebView 取消上传
+                if (uploadMessageAboveL != null) {
+                    uploadMessageAboveL.onReceiveValue(null);
+                    uploadMessageAboveL = null;
+                }
+            }
+        };
+        if (!isHasPermission(3, 3)) {
+            return;
+        }
+        if (isCameraCanUse()) {
+            cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+        }
+    }
+
+    /**
+     * 打开文件系统选取文件上传
+     */
+    private void chooseFile(String[] acceptTypes) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (acceptTypes != null && acceptTypes.length > 0) {
+            if (acceptTypes.length == 1) {
+                if (StringUtils.isEmpty(acceptTypes[0])) {
+                    intent.setType("*/*"); // 默认所有类型
+                } else {
+                    intent.setType(acceptTypes[0]); // 单一类型，如 image/*, application/pdf
+                }
+            } else {
+                intent.setType("*/*"); // 多种类型，使用通配符并配合 EXTRA_MIME_TYPES
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, acceptTypes);
+            }
+        } else {
+            intent.setType("*/*"); // 默认所有类型
+        }
+        startActivityForResult(intent, REQUEST_CODE_ALBUM);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_ALBUM) {
-            if (uploadMessage == null && uploadMessageAboveL == null) {
+        if (requestCode == REQUEST_CODE_ALBUM || requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+            if (uploadMessageAboveL == null) {
                 return;
             }
             if (resultCode != RESULT_OK) {
                 //一定要返回null,否则<input file> 就是没有反应
-                if (uploadMessage != null) {
-                    uploadMessage.onReceiveValue(null);
-                    uploadMessage = null;
-                }
                 if (uploadMessageAboveL != null) {
                     uploadMessageAboveL.onReceiveValue(null);
                     uploadMessageAboveL = null;
-
                 }
             }
-
             if (resultCode == RESULT_OK) {
                 Uri imageUri = null;
-                switch (requestCode) {
-                    case REQUEST_CODE_ALBUM:
-
-                        if (data != null) {
-                            imageUri = data.getData();
-                        }
-                        break;
+                if (requestCode == REQUEST_CODE_ALBUM) {
+                    if (data != null) {
+                        imageUri = data.getData();
+                    }
+                } else if (requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+                    if (cameraFile != null && cameraFile.exists()) {
+                        imageUri = SobotWidgetUtils.getUri(getSobotBaseActivity(), cameraFile);
+                    }
                 }
-
-                //上传文件
-                if (uploadMessage != null) {
-                    uploadMessage.onReceiveValue(imageUri);
-                    uploadMessage = null;
-                }
-                if (uploadMessageAboveL != null) {
-                    uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
-                    uploadMessageAboveL = null;
+                if (imageUri != null) {
+                    //上传文件
+                    if (uploadMessageAboveL != null) {
+                        uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
+                        uploadMessageAboveL = null;
+                    }
                 }
             }
         }

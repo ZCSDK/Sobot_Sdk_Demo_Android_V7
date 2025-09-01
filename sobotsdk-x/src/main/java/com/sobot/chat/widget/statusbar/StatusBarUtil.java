@@ -709,22 +709,26 @@ public class StatusBarUtil {
      * @return 状态栏高度
      */
     private static int getStatusBarHeight(Activity context) {
-        if(SOBOT_STATUS_HIGHT>0){
+        if (SOBOT_STATUS_HIGHT > 0) {
+            LogUtils.d("1状态栏高度:" + SOBOT_STATUS_HIGHT);
             return SOBOT_STATUS_HIGHT;
         }
         if (context == null) {
             return 96;
         }
         int result = 0;
-        if(SobotApp.getApplicationContext() != null){
+        if (SobotApp.getApplicationContext() != null) {
             result = SobotSharedPreferencesUtil.getInstance(SobotApp.getApplicationContext()).get("SobotStatusBarHeight", 0);
+            LogUtils.d("2状态栏高度:" + result);
         }
         if (result == 0) {
             int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
             if (resourceId > 0) {
                 result = context.getResources().getDimensionPixelSize(resourceId);
+                LogUtils.d("3状态栏高度:" + result);
             }
         }
+        LogUtils.d("=====获取状态栏高度=====" + result);
         return result;
     }
 

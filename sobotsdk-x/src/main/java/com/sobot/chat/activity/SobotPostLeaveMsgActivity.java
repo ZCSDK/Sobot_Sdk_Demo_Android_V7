@@ -16,13 +16,12 @@ import com.sobot.chat.api.model.BaseCode;
 import com.sobot.chat.api.model.SobotOfflineLeaveMsgModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.utils.ChatUtils;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 /**
@@ -136,7 +135,7 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
         if (v == sobot_btn_submit) {
             final String content = sobot_post_et_content.getText().toString().trim();
             if (TextUtils.isEmpty(content) || TextUtils.isEmpty(mUid)) {
-                CustomToast.makeText(SobotPostLeaveMsgActivity.this, getResources().getString(R.string.sobot_problem_description) + getResources().getString(R.string.sobot__is_null), 1000).show();
+                ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_problem_description) + getResources().getString(R.string.sobot__is_null));
                 return;
             }
             KeyboardUtil.hideKeyboard(sobot_post_et_content);

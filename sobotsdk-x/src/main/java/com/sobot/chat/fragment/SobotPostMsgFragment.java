@@ -52,7 +52,6 @@ import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.presenter.StPostMsgPresenter;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ImageUtils;
 import com.sobot.chat.utils.LogUtils;
@@ -64,13 +63,14 @@ import com.sobot.chat.utils.SobotJsonUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.CustomToast;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.utils.SobotStringUtils;
 
@@ -414,7 +414,7 @@ public class SobotPostMsgFragment extends SobotChatBaseFragment implements View.
 
     public void showHint(String content) {
         if (!TextUtils.isEmpty(content)) {
-            CustomToast.makeText(getSobotActivity(), content, 1000).show();
+            ToastUtil.showToast(getSobotActivity(), content);
         }
     }
 

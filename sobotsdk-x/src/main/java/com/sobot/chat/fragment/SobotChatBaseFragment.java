@@ -41,8 +41,8 @@ import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -229,18 +229,58 @@ public abstract class SobotChatBaseFragment extends Fragment {
                 } else {
                     showPerssionUi(0);
                 }
-                //申请权限
-                requestStoragePermission(checkPermissionType);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请权限
+                            requestStoragePermission(checkPermissionType);
+                        }
+                    }, 2000);
+                } else {
+                    //申请权限
+                    requestStoragePermission(checkPermissionType);
+                }
             }
         } else if (type == 2) {
             isHasPermission = checkAudioPermission();
             if (!isHasPermission) {
                 showPerssionUi(2);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请麦克风权限
+                            requestAudioPermission();
+                        }
+                    }, 2000);
+                } else {
+                    //申请麦克风权限
+                    requestAudioPermission();
+                }
             }
         } else if (type == 3) {
             isHasPermission = checkCameraPermission();
             if (!isHasPermission) {
                 showPerssionUi(3);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请相机权限
+                            requestCameraPermission();
+                        }
+                    }, 2000);
+                } else {
+                    //申请相机权限
+                    requestCameraPermission();
+                }
             }
         }
         return isHasPermission;
@@ -287,7 +327,7 @@ public abstract class SobotChatBaseFragment extends Fragment {
                         ll_info.setVisibility(View.VISIBLE);
                     }
                 }
-            }, 300);//延迟0.5s 是避免多次拒绝后ll_info 隐藏会出现闪一下的问题
+            }, 200);//延迟0.5s 是避免多次拒绝后ll_info 隐藏会出现闪一下的问题
             overlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -396,7 +436,7 @@ public abstract class SobotChatBaseFragment extends Fragment {
                 //检测是否有图片权限
                 if (ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.READ_MEDIA_IMAGES)
                         == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.READ_MEDIA_VIDEO)
-                        == PackageManager.PERMISSION_GRANTED ) {
+                        == PackageManager.PERMISSION_GRANTED) {
                     //有权限
                     return 0;
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
@@ -441,12 +481,25 @@ public abstract class SobotChatBaseFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotActivity().getApplicationContext()) >= 23) {
             if (ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.RECORD_AUDIO)
                     != PackageManager.PERMISSION_GRANTED) {
-                this.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
-                        ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_CODE);
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * 申请录音权限
+     *
+     * @return true, 已经获取权限;false,没有权限,尝试获取
+     */
+    protected void requestAudioPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotActivity().getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                this.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                        ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_CODE);
+            }
+        }
     }
 
     /**
@@ -458,12 +511,25 @@ public abstract class SobotChatBaseFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotActivity().getApplicationContext()) >= 23) {
             if (ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
-                this.requestPermissions(new String[]{Manifest.permission.CAMERA}
-                        , ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_CODE);
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * 检查相机权限
+     *
+     * @return true, 已经获取权限;false,没有权限,尝试获取
+     */
+    protected void requestCameraPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotActivity().getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(getSobotActivity(), Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                this.requestPermissions(new String[]{Manifest.permission.CAMERA}
+                        , ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_CODE);
+            }
+        }
     }
 
 

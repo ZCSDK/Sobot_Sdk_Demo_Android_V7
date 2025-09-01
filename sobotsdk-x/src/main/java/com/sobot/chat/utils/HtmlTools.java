@@ -231,13 +231,15 @@ public class HtmlTools {
         if (content.startsWith("<br/>") && content.length() >= 5) {
             content = content.substring(5);// 去掉开头的<br/>
         }
+        if (content.contains("&")) {
+            content = Html.fromHtml(content).toString();//转义符还原
+        }
 
         while (content.length() > 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
             content = content.substring(0, content.length() - 5);// 去掉结尾的<br/>
         }
-
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
-        Spanned span = formatRichTextWithPic(widget, content.replace("&", "&amp;").replace("\n", "<br/>"), color);
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), color);
         // 显示表情
         span = InputHelper.displayEmoji(context.getApplicationContext(), span);
         // 显示链接

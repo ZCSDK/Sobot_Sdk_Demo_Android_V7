@@ -69,6 +69,7 @@ import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.channel.Const;
 import com.sobot.chat.core.channel.LimitQueue;
 import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.handler.SobotMsgHandler;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
@@ -82,10 +83,9 @@ import com.sobot.chat.utils.NotificationUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.Util;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.gson.SobotGsonUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.utils.SobotStringUtils;
 
@@ -684,7 +684,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                                     @Override
                                                     public void run() {
                                                         updateMsgToHandler(msgId, handler, ZhiChiConstant.MSG_SEND_STATUS_ERROR);
-                                                        customerServiceOffline(initModel, 4);
+                                                        customerServiceOffline(initModel, 5);
                                                     }
                                                 });
                                             }

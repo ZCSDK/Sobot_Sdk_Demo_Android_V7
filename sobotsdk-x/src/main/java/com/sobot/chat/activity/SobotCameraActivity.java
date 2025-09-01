@@ -133,11 +133,7 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
 
             @Override
             public void AudioPermissionError() {
-                permissionListener = new PermissionListenerImpl() {
-                };
-                if (!isHasPermission(2, 3)) {
-                } else {
-                }
+
             }
 
             @Override

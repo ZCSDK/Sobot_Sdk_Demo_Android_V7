@@ -13,7 +13,7 @@ import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.api.model.SobotPostMsgTemplate;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.channel.SobotMsgManager;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.ArrayList;

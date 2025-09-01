@@ -18,7 +18,7 @@ import com.sobot.chat.api.enumtype.SobotChatAvatarDisplayMode
 import com.sobot.chat.api.enumtype.SobotChatTitleDisplayMode
 import com.sobot.chat.api.model.Information
 import com.sobot.chat.utils.SharedPreferencesUtil
-import com.sobot.chat.utils.ToastUtil
+import com.sobot.chat.widget.toast.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity

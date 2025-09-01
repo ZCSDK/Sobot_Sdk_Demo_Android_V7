@@ -27,7 +27,9 @@ import android.widget.TextView;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotPhotoActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.apiUtils.ZhiChiConstants;
@@ -47,12 +49,12 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.ReSendDialog;
 import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.image.SobotProgressImageView;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.utils.SobotDensityUtil;
 import com.sobot.utils.SobotStringUtils;
 
@@ -301,11 +303,16 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     msgCardWidth = SobotDensityUtil.dp2px(mContext, 260);
                 }
             }
-            //算出左边的宽度，用于左右消息宽度一致的消息
-            if (isShowFace || (information != null && information.isShowRightMsgFace())) {
-                msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 32 + 8 + 16 + 16 + 16);
-            } else {
-                msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 16 + 16 + 16);
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                //横屏最宽是300dp
+                msgMaxWidthL = SobotDensityUtil.dp2px(mContext, 300);
+            }else {
+                //算出左边的宽度，用于左右消息宽度一致的消息
+                if (isShowFace || (information != null && information.isShowRightMsgFace())) {
+                    msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 32 + 8 + 16 + 16 + 16);
+                } else {
+                    msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 16 + 16 + 16);
+                }
             }
             if (name == null || imgHead == null) {
                 return;

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,9 +28,9 @@ import com.sobot.chat.api.model.SobotTransferOperatorParam;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.utils.SobotStringUtils;
 
@@ -55,8 +54,9 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     private LinearLayout ll_list;
     private ScrollView sobot_scroll_v;
     private TextView tv_start_tip, tv_permission_tip, btnSubmit, tv_nodata;
-    private String formExplain="";////表单说明
-    private String cid,uid,schemeId;//
+    private String formExplain = "";
+    /// /表单说明
+    private String cid, uid, schemeId;//
     private SobotConnCusParam param;//用于返回后转人工
     private SobotTransferOperatorParam tparam;//用于返回后转人工
     private boolean isInit;//是否是进入会话的询前表单
@@ -78,7 +78,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         cid = getIntent().getStringExtra("cid");
         uid = getIntent().getStringExtra("uid");
         schemeId = getIntent().getStringExtra("schemeId");
-        isInit = getIntent().getBooleanExtra("isInit",false);
+        isInit = getIntent().getBooleanExtra("isInit", false);
 
         if (formInfoModel != null) {
             allData = new ArrayList<>();
@@ -103,7 +103,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         zhiChiApi.queryFormConfig(this, uid, new StringResultCallBack<SobotQueryFormModel>() {
             @Override
             public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
-                if(sobotQueryFormModel!=null && SobotStringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
+                if (sobotQueryFormModel != null && SobotStringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
                     formExplain = sobotQueryFormModel.getFormSafety();
                 }
                 if (SobotStringUtils.isNoEmpty(formExplain)) {
@@ -128,7 +128,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isInit){
+        if (!isInit) {
             //进入会话时
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 if (event.getY() <= 0) {
@@ -172,7 +172,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             });
         }
         //根据主题色更改背景色
-        if (btnSubmit !=null && ThemeUtils.isChangedThemeColor(this)) {
+        if (btnSubmit != null && ThemeUtils.isChangedThemeColor(this)) {
             int themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = btnSubmit.getBackground();
             if (bg != null) {
@@ -190,16 +190,15 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     }
 
 
-
-    private void delectList(String pid){
-        int index =0;
+    private void delectList(String pid) {
+        int index = 0;
         for (int i = 0; i < ll_list.getChildCount(); i++) {
             View view1 = ll_list.getChildAt(i);
-            if(view1.getTag().toString().equals(pid)){
-                index=i;
+            if (view1.getTag().toString().equals(pid)) {
+                index = i;
             }
         }
-        for (int i = ll_list.getChildCount()-1; i > index; i--) {
+        for (int i = ll_list.getChildCount() - 1; i > index; i--) {
             ll_list.removeViewAt(i);
         }
     }
@@ -212,7 +211,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 for (int j = 0; j < allData.size(); j++) {
 
                     if (allData.get(j).getId().equals(xiageid)) {
-                        if(allData.get(j).getNodeType()==1) {
+                        if (allData.get(j).getNodeType() == 1) {
                             datas.add(allData.get(j));
                         }
                         if (allData.get(j).getFieldType() == 8) {
@@ -230,15 +229,15 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
     }
 
-    private void showSelectData(String id,String fieldDataId) {
+    private void showSelectData(String id, String fieldDataId) {
         //从第一个节点开始，至选择类型的结束
         List<FormNodeInfo> tmpDatas = new ArrayList<>();
         for (int i = 0; i < relationshipList.size(); i++) {
-            if ((!id.equals("-1") && relationshipList.get(i).getPreNodeId().equals(id))||(!fieldDataId.equals("-1") && relationshipList.get(i).getFieldDataId() != null && relationshipList.get(i).getFieldDataId().equals(fieldDataId))) {
+            if ((!id.equals("-1") && relationshipList.get(i).getPreNodeId().equals(id)) || (!fieldDataId.equals("-1") && relationshipList.get(i).getFieldDataId() != null && relationshipList.get(i).getFieldDataId().equals(fieldDataId))) {
                 String xiageid = relationshipList.get(i).getNextNodeId();
                 for (int j = 0; j < allData.size(); j++) {
                     if (allData.get(j).getId().equals(xiageid)) {
-                        if(allData.get(j).getNodeType()==1) {
+                        if (allData.get(j).getNodeType() == 1) {
                             tmpDatas.add(allData.get(j));
                             datas.add(allData.get(j));
                         }
@@ -246,7 +245,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                             addList(tmpDatas);
                             return;
                         } else {
-                            showSelectData(allData.get(j).getId(),"-1");
+                            showSelectData(allData.get(j).getId(), "-1");
                             break;
                         }
                     }
@@ -302,7 +301,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                             tv_value.setText(formNodeInfo.getName());//
                             tv_value.setTag(formNodeInfo);
                         }
-                        showSelectData("-1",formNodeInfo.getId());
+                        showSelectData("-1", formNodeInfo.getId());
 
                     }
                 });
@@ -310,11 +309,11 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         }
     }
 
-    public void submit(){
+    public void submit() {
         List<FormNodeInfo> submitData = new ArrayList<>();
         for (int i = 0; i < ll_list.getChildCount(); i++) {
             FormNodeInfo info = new FormNodeInfo();
-            View view  = ll_list.getChildAt(i);
+            View view = ll_list.getChildAt(i);
             TextView lable = view.findViewById(R.id.work_order_customer_field_text_lable);
             FormNodeInfo oldInfo = (FormNodeInfo) lable.getTag();
             info.setId(oldInfo.getId());
@@ -323,85 +322,85 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             info.setFieldName(oldInfo.getFieldName());
             info.setFieldType(oldInfo.getFieldType());
             info.setFieldFrom(oldInfo.getFieldFrom());
-            if(view.findViewById(R.id.work_order_customer_field_text_single) instanceof TextView){
+            if (view.findViewById(R.id.work_order_customer_field_text_single) instanceof TextView) {
                 //选择
-                TextView tv=view.findViewById(R.id.work_order_customer_field_text_single);
+                TextView tv = view.findViewById(R.id.work_order_customer_field_text_single);
                 FormNodeInfo value = (FormNodeInfo) tv.getTag();
-                if(value!=null) {
+                if (value != null) {
                     info.setFieldValues(value.getName());
                     info.setFieldId(value.getId());
-                }else{
+                } else {
                     String valueTxt = tv.getText().toString();
                     info.setFieldValues(valueTxt);
                 }
             }
             String value = info.getFieldValues();
-            if(SobotStringUtils.isNoEmpty(value)){
+            if (SobotStringUtils.isNoEmpty(value)) {
                 submitData.add(info);
-            }else{
+            } else {
                 //都是必填
                 ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                 return;
             }
-            if(oldInfo.getFieldFrom()==12 && oldInfo.getFieldVariable()!=null){
+            if (oldInfo.getFieldFrom() == 12 && oldInfo.getFieldVariable() != null) {
                 ///固定字段校验内容是否合符标准
                 String match = "";
-                if(oldInfo.getFieldVariable().equals("uname")) {
+                if (oldInfo.getFieldVariable().equals("uname")) {
                     match = "^.+$";
-                }else if(oldInfo.getFieldVariable().equals("source")){
+                } else if (oldInfo.getFieldVariable().equals("source")) {
                     match = "^.+$";
-                }else if(oldInfo.getFieldVariable().equals("tel")){
+                } else if (oldInfo.getFieldVariable().equals("tel")) {
                     match = "^[0-9+,]{3,16}$";
-                }else if(oldInfo.getFieldVariable().equals("email")){
+                } else if (oldInfo.getFieldVariable().equals("email")) {
                     match = "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
-                }else if(oldInfo.getFieldVariable().equals("qq")){
+                } else if (oldInfo.getFieldVariable().equals("qq")) {
                     match = "^[1-9][0-9]{4,14}$";
-                }else if(oldInfo.getFieldVariable().equals("wx")){
+                } else if (oldInfo.getFieldVariable().equals("wx")) {
                     match = "^[a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}$";
                 }
                 Pattern p = Pattern.compile(match);
                 Matcher m = p.matcher(info.getFieldValues());
-                if(SobotStringUtils.isNoEmpty(match) && !m.matches()) {
+                if (SobotStringUtils.isNoEmpty(match) && !m.matches()) {
                     ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                     return;
                 }
-            }else if(oldInfo.getFieldFrom()==22 && oldInfo.getFieldVariable()!=null){
+            } else if (oldInfo.getFieldFrom() == 22 && oldInfo.getFieldVariable() != null) {
 
                 String match = "";
-                if(oldInfo.getFieldVariable().equals("enterpriseName")) {
+                if (oldInfo.getFieldVariable().equals("enterpriseName")) {
                     match = "^.+$";
-                }else if(oldInfo.getFieldVariable().equals("enterpriseDomain")) {
+                } else if (oldInfo.getFieldVariable().equals("enterpriseDomain")) {
                     match = "^.+$";
                 }
                 Pattern p = Pattern.compile(match);
                 Matcher m = p.matcher(info.getFieldValues());
-                if(SobotStringUtils.isNoEmpty(match) && !m.matches()) {
+                if (SobotStringUtils.isNoEmpty(match) && !m.matches()) {
                     ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                     return;
                 }
-            }else{
+            } else {
                 //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式  9 请输入 3～16 位数字、英文符号, +
                 String LimitOptions = oldInfo.getLimitOptions();
                 String LimitChar = oldInfo.getLimitChar();
-                if ( LimitOptions.contains("1")) {
+                if (LimitOptions.contains("1")) {
                     if (value.contains(" ")) {
                         ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                         return;
                     }
                 }
-                if ( LimitOptions.contains("2")) {
+                if (LimitOptions.contains("2")) {
                     if (value.contains(".")) {
                         ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                         return;
                     }
                 }
                 if (LimitOptions.contains("3")) {
-                    if (!StringUtils.isNumber(value) && value.length()<=2) {
+                    if (!StringUtils.isNumber(value) && value.length() <= 2) {
                         ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                         return;
                     }
                 }
-                if ( LimitOptions.contains("4")) {
+                if (LimitOptions.contains("4")) {
                     String regex = "^[a-zA-Z0-9\u4E00-\u9FA5]+$";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher match = pattern.matcher(value);
@@ -411,7 +410,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         return;
                     }
                 }
-                if ( LimitOptions.contains("5")) {
+                if (LimitOptions.contains("5")) {
                     String regex = "[0-9]*";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher match = pattern.matcher(value);
@@ -421,7 +420,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         return;
                     }
                 }
-                if ( LimitOptions.contains("7")) {
+                if (LimitOptions.contains("7")) {
                     if (!ScreenUtils.isEmail(value)) {
                         ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                         return;
@@ -433,7 +432,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         return;
                     }
                 }
-                if ( LimitOptions.contains("9")) {
+                if (LimitOptions.contains("9")) {
                     String regex = "^[A-Za-z0-9+]{3,16}$";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher match = pattern.matcher(value);
@@ -443,21 +442,21 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         return;
                     }
                 }
-                if (!StringUtils.isEmpty(LimitChar) && value.length()>Integer.parseInt(LimitChar)) {
+                if (!StringUtils.isEmpty(LimitChar) && value.length() > Integer.parseInt(LimitChar)) {
                     ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
                     return;
                 }
             }
         }
 
-        zhiChiApi.submitFormInfo(getContext(), cid, uid,schemeId, formInfoModel.getId(),submitData, new StringResultCallBack<FormInfoModel>() {
+        zhiChiApi.submitFormInfo(getContext(), cid, uid, schemeId, formInfoModel.getId(), submitData, new StringResultCallBack<FormInfoModel>() {
             @Override
             public void onSuccess(FormInfoModel formInfoModel) {
                 Intent intent = new Intent();
                 intent.putExtra("isInit", isInit);
                 intent.putExtra("param", param);
                 intent.putExtra("tparam", tparam);
-                setResult(ZhiChiConstant.REQUEST_COCE_TO_FORMINFO,intent);
+                setResult(ZhiChiConstant.REQUEST_COCE_TO_FORMINFO, intent);
                 finish();
             }
 
@@ -467,6 +466,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             }
         });
     }
+
     private void addList(List<FormNodeInfo> tmpDatas) {
         tv_nodata.setVisibility(View.GONE);
         ll_list.setVisibility(View.VISIBLE);
@@ -503,13 +503,8 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 if (nodeInfo.getLimitOptions().contains("8")) {
                     value.setInputType(EditorInfo.TYPE_CLASS_PHONE);
                 }
-                //不允许输入换行
-                value.setOnKeyListener(new View.OnKeyListener() {
-                    @Override
-                    public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                        return (keyEvent.getKeyCode()==KeyEvent.KEYCODE_ENTER);
-                    }
-                });
+                // 设置为单行模式，自然屏蔽换行，保留完成功能
+                value.setSingleLine(true);
             }
             v.setTag(nodeInfo.getId());
             TextView lable = v.findViewById(R.id.work_order_customer_field_text_lable);

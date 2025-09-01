@@ -26,11 +26,11 @@ import android.widget.PopupWindow;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.WebViewActivity;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.toast.CustomToast;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.chat.widget.zxing.Result;
 import com.sobot.chat.widget.zxing.util.CodeUtils;
 import com.sobot.pictureframe.SobotBitmapUtil;
@@ -221,8 +221,8 @@ public class SelectPicPopupWindow extends PopupWindow {
     };
 
     private void showHint(String content) {
-        CustomToast.makeText(context, content, 1000,
-                R.drawable.sobot_icon_success).show();
+        ToastUtil.showCustomToast(context, content,
+                R.drawable.sobot_icon_success);
     }
 
     public void saveImageToGallery(Context context, Bitmap bmp) {

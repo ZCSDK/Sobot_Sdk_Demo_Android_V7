@@ -33,6 +33,7 @@ import com.sobot.chat.utils.NotificationUtils;
 import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.Util;
 import com.sobot.chat.utils.ZhiChiConfig;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -250,9 +251,26 @@ public class SobotSessionServer extends Service {
             if (config.getInitModel() != null) {
                 base.setT(Calendar.getInstance().getTime().getTime() + "");
                 base.setMsgId(pushMessage.getMsgId());
-                base.setSender(pushMessage.getAname());
-                base.setSenderName(pushMessage.getAname());
-                base.setSenderFace(pushMessage.getAface());
+                String aface = "";
+                String aname = "";
+                try {
+                     aface = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aFace, "");
+                     aname = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aName, "");
+                } catch (Exception e) {
+                }
+                //两种超时 如果消息中没有头像和昵称 赋值转人工的客服的头像和昵称
+                if (StringUtils.isEmpty(pushMessage.getAface())) {
+                    base.setSenderFace(aface);
+                } else {
+                    base.setSenderFace(pushMessage.getAface());
+                }
+                if (StringUtils.isEmpty(pushMessage.getAname())) {
+                    base.setSenderName(aname);
+                    base.setSender(aname);
+                } else {
+                    base.setSenderName(pushMessage.getAname());
+                    base.setSender(pushMessage.getAname());
+                }
                 if (!TextUtils.isEmpty(pushMessage.getSysType()) && ("1".equals(pushMessage.getSysType()) || "2".equals(pushMessage.getSysType()) || "5".equals(pushMessage.getSysType()))) {
                     //客服超时提示 1
                     //客户超时提示 2 都显示在左侧

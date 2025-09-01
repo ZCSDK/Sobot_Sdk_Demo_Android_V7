@@ -54,6 +54,7 @@
         <activity android:name=".activity.function.SobotCustomUiFunctionActivity" android:theme="@style/actity_theme"/>
         <activity android:name=".activity.function.SobotInfomationFunctionActivity" android:theme="@style/actity_theme"/>
         <activity android:name=".activity.function.SobotDuolunActivity" android:theme="@style/actity_theme"/>
+        <activity android:name=".activity.function.SobotUnReadMsgActivity" android:theme="@style/actity_theme"/>
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true"

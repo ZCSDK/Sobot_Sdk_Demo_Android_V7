@@ -22,15 +22,15 @@ import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.listener.ISobotCusField;
 import com.sobot.chat.presenter.StCusFieldPresenter;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.CustomToast;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.ArrayList;
@@ -130,8 +130,8 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
             public void onSuccess(CommonModel data) {
                 isSubmitting = false;
                 if (data != null && "1".equals(data.getCode())) {
-                    CustomToast.makeText(getBaseContext(), getResources().getString(R.string.sobot_leavemsg_success_tip), 1000,
-                            R.drawable.sobot_icon_success).show();
+                    ToastUtil.showCustomToast(getBaseContext(), getResources().getString(R.string.sobot_leavemsg_success_tip),
+                            R.drawable.sobot_icon_success);
                     saveIntentWithFinish();
                 } else if (data != null && "0".equals(data.getCode())) {
                     ToastUtil.showToast(getApplicationContext(), data.getMsg());

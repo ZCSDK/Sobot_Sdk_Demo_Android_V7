@@ -33,6 +33,7 @@ import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
+import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
@@ -194,18 +195,19 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                 try {
                     JSONObject contentJsonObject = new JSONObject(appointMessage.getContent());
                     if (contentJsonObject.has("url") && !TextUtils.isEmpty(contentJsonObject.optString("url"))) {
-                        SobotCacheFile cacheFile = new SobotCacheFile();
-                        cacheFile.setUrl(contentJsonObject.optString("url"));
-                        cacheFile.setFileName(contentJsonObject.optString("fileName"));
-                        cacheFile.setFileType(GsonUtil.changeFileType(contentJsonObject.optInt("type")));
-                        cacheFile.setFileSize(contentJsonObject.optString("fileSize"));
-                        cacheFile.setSnapshot(contentJsonObject.optString("snapshot"));
+                        SobotCacheFile cache = new SobotCacheFile();
+                        cache.setUrl(contentJsonObject.optString("url"));
+                        cache.setFileName(contentJsonObject.optString("fileName"));
+                        cache.setFileType(GsonUtil.changeFileType(contentJsonObject.optInt("type")));
+                        cache.setFileSize(contentJsonObject.optString("fileSize"));
+                        cache.setSnapshot(contentJsonObject.optString("snapshot"));
 
                         View videoView = LayoutInflater.from(this).inflate(R.layout.sobot_chat_msg_item_rich_vedio_view, null);
-                        ImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
-//                        if (!TextUtils.isEmpty(richListModel.getVideoImgUrl())) {
-//                            SobotBitmapUtil.display(this, richListModel.getVideoImgUrl(), sobot_video_first_image, R.drawable.sobot_rich_item_vedoi_default, R.drawable.sobot_rich_item_vedoi_default);
-//                        }
+                        SobotProgressImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
+                        if (!TextUtils.isEmpty(cache.getUrl())) {
+                            sobot_video_first_image.setImageUrl(cache.getUrl());
+                            sobot_video_first_image.setImageWidthAndHeight(msgMaxWidth, msgMaxWidth * 146 / 246);
+                        }
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgMaxWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
                         videoView.setLayoutParams(layoutParams);
                         sobot_rich_ll.addView(videoView);
@@ -213,9 +215,9 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                             @Override
                             public void onClick(View v) {
                                 SobotCacheFile cacheFile = new SobotCacheFile();
-                                cacheFile.setFileName(cacheFile.getFileName());
-                                cacheFile.setUrl(cacheFile.getUrl());
-                                cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(cacheFile.getUrl())));
+                                cacheFile.setFileName(cache.getFileName());
+                                cacheFile.setUrl(cache.getUrl());
+                                cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(cache.getUrl())));
                                 Intent intent = SobotVideoActivity.newIntent(SobotQuoteDetailActivity.this, cacheFile);
                                 startActivity(intent);
                             }
@@ -426,9 +428,12 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                     sobot_rich_ll.addView(imageView);
                                                 } else if (richListModel.getType() == 3 && HtmlTools.isHasPatterns(richListModel.getMsg())) {
                                                     View videoView = LayoutInflater.from(this).inflate(R.layout.sobot_chat_msg_item_rich_vedio_view, null);
-                                                    ImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
+                                                    SobotProgressImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
                                                     if (!TextUtils.isEmpty(richListModel.getVideoImgUrl())) {
-                                                        SobotBitmapUtil.display(this, richListModel.getVideoImgUrl(), sobot_video_first_image, R.drawable.sobot_rich_item_vedoi_default, R.drawable.sobot_rich_item_vedoi_default);
+                                                        sobot_video_first_image.setImageUrl(richListModel.getVideoImgUrl());
+                                                    }else if (!TextUtils.isEmpty(richListModel.getMsg())) {
+                                                        sobot_video_first_image.setImageUrl(richListModel.getMsg());
+                                                        sobot_video_first_image.setImageWidthAndHeight(msgMaxWidth, msgMaxWidth * 146 / 246);
                                                     }
                                                     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgMaxWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
                                                     if (i != 0) {
@@ -531,14 +536,14 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                         model.setTitle(StringUtils.checkStringIsNull(miniJsonObj.optString("title")));
                                     }
                                     View view = LayoutInflater.from(this).inflate(R.layout.sobot_chat_msg_item_article_card_common, null);
-                                    ImageView iv_snapshot = (ImageView) view.findViewById(R.id.iv_snapshot);
+                                    SobotProgressImageView iv_snapshot = (SobotProgressImageView) view.findViewById(R.id.iv_snapshot);
                                     TextView tv_title = (TextView) view.findViewById(R.id.tv_title);
                                     TextView tv_desc = (TextView) view.findViewById(R.id.tv_desc);
                                     tv_title.setTextColor(ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
                                     tv_desc.setTextColor(ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
                                     if (model != null) {
                                         if (!TextUtils.isEmpty(model.getSnapshot())) {
-                                            SobotBitmapUtil.display(getSobotBaseContext(), model.getSnapshot(), iv_snapshot);
+                                            iv_snapshot.setImageUrl(model.getSnapshot());
                                             iv_snapshot.setVisibility(View.VISIBLE);
                                         } else {
                                             iv_snapshot.setVisibility(View.GONE);

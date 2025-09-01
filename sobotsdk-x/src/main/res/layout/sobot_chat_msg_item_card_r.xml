@@ -35,7 +35,7 @@
                 android:id="@+id/ll_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:gravity="center_vertical|end"
                 android:orientation="horizontal">
 
                 <FrameLayout
@@ -44,11 +44,13 @@
                     <!-- 消息已读未读 -->
                     <ImageView
                         android:id="@+id/sobot_msg_read_status"
-                        style="@style/sobot_msg_read_status_style" />
+                        style="@style/sobot_msg_read_status_style"
+                        android:contentDescription="@null" />
                     <!-- 消息的状态 -->
                     <ImageView
                         android:id="@+id/sobot_msgStatus"
                         style="@style/sobot_msg_send_status_style"
+                        android:contentDescription="@null"
                         android:visibility="gone" />
 
                     <!-- 消息的loading -->
@@ -84,7 +86,7 @@
 
                         <TextView
                             android:id="@+id/sobot_goods_title"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"

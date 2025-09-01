@@ -13,7 +13,7 @@ import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.api.apiUtils.SobotVerControl
 import com.sobot.chat.api.model.Information
 import com.sobot.chat.utils.SharedPreferencesUtil
-import com.sobot.chat.utils.ToastUtil
+import com.sobot.chat.widget.toast.ToastUtil
 import com.sobot.chat.utils.ZhiChiConstant
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.activity.function.*
@@ -72,6 +72,8 @@ class SobotDemoNewSettingFragment : Fragment(), View.OnClickListener {
         rl_14.setOnClickListener(this)
         val rl_15 = view!!.findViewById<View>(R.id.rl_15) as RelativeLayout
         rl_15.setOnClickListener(this)
+        val rl_116 = view!!.findViewById<View>(R.id.rl_116) as RelativeLayout
+        rl_116.setOnClickListener(this)
         val rl_16 = view!!.findViewById<View>(R.id.rl_16) as RelativeLayout
         rl_16.setOnClickListener(this)
     }
@@ -171,6 +173,10 @@ class SobotDemoNewSettingFragment : Fragment(), View.OnClickListener {
             }
             R.id.rl_16 -> {
                 intent = Intent(activity, SobotDuolunActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.rl_116 -> {
+                intent = Intent(activity, SobotUnReadMsgActivity::class.java)
                 startActivity(intent)
             }
             else -> {}

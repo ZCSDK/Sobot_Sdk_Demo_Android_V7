@@ -1,5 +1,8 @@
 package com.sobot.chat.activity;
 
+import static com.sobot.widget.ui.SobotBaseConstant.REQUEST_CODE_MAKEPICTUREFROMCAMERA;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,15 +32,19 @@ import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.StDocModel;
 import com.sobot.chat.api.model.StHelpDocModel;
 import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.utils.ChatUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.statusbar.StatusBarUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.utils.SobotStringUtils;
+import com.sobot.widget.ui.utils.SobotWidgetUtils;
 
 /**
  * 帮助中心问题详情
@@ -84,7 +91,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     @Override
     protected void initView() {
         changeAppLanguage();
-        showLeftMenu(  true);
+        showLeftMenu(true);
         setTitle(R.string.sobot_problem_detail_title);
         ll_bottom = findViewById(R.id.ll_bottom);
         ll_bottom_h = findViewById(R.id.ll_bottom_h);
@@ -334,7 +341,29 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 uploadMessageAboveL = filePathCallback;
-                chooseAlbumPic();
+                // 1. 检查是否包含 capture="camera"
+                boolean isCaptureCamera = false;
+                try {
+                    Intent intent = fileChooserParams.createIntent();
+                    if (intent != null && intent.hasExtra("capture")) {
+                        String capture = intent.getStringExtra("capture");
+                        if ("camera".equals(capture)) {
+                            isCaptureCamera = true;
+                        }
+                    }
+                } catch (Exception e) {
+                    LogUtils.e("Error in onShowFileChooser", e);
+                }
+
+                // 2. 获取 accept 类型数组
+                String[] acceptTypes = fileChooserParams.getAcceptTypes();
+                if (isCaptureCamera || (acceptTypes != null && acceptTypes.length > 0 && "image/*".equals(acceptTypes[0]))) {
+                    // 是拍照行为
+                    openCapture(); // 打开相机
+                } else {
+                    // 是文件上传行为，转换 acceptTypes 到 Intent.setType()
+                    chooseFile(acceptTypes); // 传入 acceptTypes 进行 setType 设置
+                }
                 return true;
             }
 
@@ -342,60 +371,93 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     }
 
     private static final int REQUEST_CODE_ALBUM = 0x0111;
-
-    private ValueCallback<Uri> uploadMessage;
     private ValueCallback<Uri[]> uploadMessageAboveL;
 
     /**
-     * 选择相册照片
+     * 打开相机拍照
      */
-    private void chooseAlbumPic() {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-        i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType("video/*;image/*");
-        startActivityForResult(Intent.createChooser(i, "Image Chooser"), REQUEST_CODE_ALBUM);
+    private void openCapture() {
+        cameraFile = null;
+        permissionListener = new PermissionListenerImpl() {
+            @Override
+            public void onPermissionSuccessListener() {
+                if (isCameraCanUse()) {
+                    cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+                }
+            }
+
+            @Override
+            public void onPermissionErrorListener(Activity activity, String title) {
+                super.onPermissionErrorListener(activity, title);
+                // 权限拒绝，通知 WebView 取消上传
+                if (uploadMessageAboveL != null) {
+                    uploadMessageAboveL.onReceiveValue(null);
+                    uploadMessageAboveL = null;
+                }
+            }
+        };
+        if (!isHasPermission(3, 3)) {
+            return;
+        }
+        if (isCameraCanUse()) {
+            cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+        }
+    }
+
+    /**
+     * 打开文件系统选取文件上传
+     */
+    private void chooseFile(String[] acceptTypes) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        if (acceptTypes != null && acceptTypes.length > 0) {
+            if (acceptTypes.length == 1) {
+                if (StringUtils.isEmpty(acceptTypes[0])) {
+                    intent.setType("*/*"); // 默认所有类型
+                } else {
+                    intent.setType(acceptTypes[0]); // 单一类型，如 image/*, application/pdf
+                }
+            } else {
+                intent.setType("*/*"); // 多种类型，使用通配符并配合 EXTRA_MIME_TYPES
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, acceptTypes);
+            }
+        } else {
+            intent.setType("*/*"); // 默认所有类型
+        }
+        startActivityForResult(intent, REQUEST_CODE_ALBUM);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_ALBUM) {
-            if (uploadMessage == null && uploadMessageAboveL == null) {
+        if (requestCode == REQUEST_CODE_ALBUM || requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+            if (uploadMessageAboveL == null) {
                 return;
             }
             if (resultCode != RESULT_OK) {
                 //一定要返回null,否则<input file> 就是没有反应
-                if (uploadMessage != null) {
-                    uploadMessage.onReceiveValue(null);
-                    uploadMessage = null;
-                }
                 if (uploadMessageAboveL != null) {
                     uploadMessageAboveL.onReceiveValue(null);
                     uploadMessageAboveL = null;
-
                 }
             }
-
             if (resultCode == RESULT_OK) {
                 Uri imageUri = null;
-                switch (requestCode) {
-                    case REQUEST_CODE_ALBUM:
-
-                        if (data != null) {
-                            imageUri = data.getData();
-                        }
-                        break;
+                if (requestCode == REQUEST_CODE_ALBUM) {
+                    if (data != null) {
+                        imageUri = data.getData();
+                    }
+                } else if (requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+                    if (cameraFile != null && cameraFile.exists()) {
+                        imageUri = SobotWidgetUtils.getUri(getSobotBaseActivity(), cameraFile);
+                    }
                 }
-
-                //上传文件
-                if (uploadMessage != null) {
-                    uploadMessage.onReceiveValue(imageUri);
-                    uploadMessage = null;
-                }
-                if (uploadMessageAboveL != null) {
-                    uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
-                    uploadMessageAboveL = null;
+                if (imageUri != null) {
+                    //上传文件
+                    if (uploadMessageAboveL != null) {
+                        uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
+                        uploadMessageAboveL = null;
+                    }
                 }
             }
         }

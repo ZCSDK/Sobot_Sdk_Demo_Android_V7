@@ -108,9 +108,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             R.layout.sobot_chat_msg_item_location_r,//22位置信息的布局文件
             R.layout.sobot_chat_msg_item_notice,//23通告消息的布局文件
             R.layout.sobot_chat_msg_item_card_r,//24商品卡片右侧信息的布局文件
-            R.layout.sobot_chat_msg_item_order_card_r,//25订单卡片右侧消息
-            R.layout.sobot_chat_msg_item_order_card_l,//26订单卡片左侧消息
-            R.layout.sobot_chat_msg_item_card_l,//27商品卡片左侧信息的布局文件
+            R.layout.sobot_chat_msg_item_card_l,//25商品卡片左侧信息的布局文件
+            R.layout.sobot_chat_msg_item_order_card_r,//26订单卡片右侧消息
+            R.layout.sobot_chat_msg_item_order_card_l,//27订单卡片左侧消息
             R.layout.sobot_chat_msg_item_template6_l,//28机器人  多轮会话模板 6
             R.layout.sobot_chat_msg_item_system_tip,//29防诈骗系统消息的布局文件
             R.layout.sobot_chat_msg_item_video_l,//30小视频左边的布局文件
@@ -237,17 +237,18 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
      */
     public static final int MSG_TYPE_CARD_R = 24;
     /**
+     * 商品卡片左侧
+     */
+    public static final int MSG_TYPE_CARD_L = 25;
+    /**
      * 订单卡片右侧消息
      */
-    public static final int MSG_TYPE_ROBOT_ORDERCARD_R = 25;
+    public static final int MSG_TYPE_ROBOT_ORDERCARD_R = 26;
     /**
      * 订单卡片左侧侧消息
      */
-    public static final int MSG_TYPE_ROBOT_ORDERCARD_L = 26;
-    /**
-     * 商品卡片左侧
-     */
-    public static final int MSG_TYPE_CARD_L = 27;
+    public static final int MSG_TYPE_ROBOT_ORDERCARD_L = 27;
+
     /**
      * 机器人  多轮会话模板 6(为松果添加的)
      */

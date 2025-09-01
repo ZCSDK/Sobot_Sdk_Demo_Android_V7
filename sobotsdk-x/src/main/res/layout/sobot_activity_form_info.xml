@@ -38,13 +38,13 @@
             android:id="@+id/tv_start_tip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/sobot_announcement_bgcolor"
+            android:background="@color/sobot_color_bg_second"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:paddingStart="@dimen/sobot_msg_margin_edge"
             android:paddingTop="10dp"
             android:paddingEnd="@dimen/sobot_msg_margin_edge"
             android:paddingBottom="10dp"
-            android:textColor="@color/sobot_ticket_deal_text"
+            android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_12" />
 
         <LinearLayout

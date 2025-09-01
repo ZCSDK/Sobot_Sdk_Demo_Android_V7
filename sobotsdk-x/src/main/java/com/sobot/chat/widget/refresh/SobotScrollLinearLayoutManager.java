@@ -38,7 +38,7 @@ public class SobotScrollLinearLayoutManager extends LinearLayoutManager {
                 if (speed > 20) {
                     speed = 20f;
                 }
-                LogUtils.i("滚动速率" + speed);
+//                LogUtils.d("滚动速率" + speed);
                 return speed / displayMetrics.densityDpi;
             }
 

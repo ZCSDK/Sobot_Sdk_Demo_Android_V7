@@ -14,11 +14,11 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotTimezone;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.timePicker.view.SobotWheelTime;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.utils.SobotDateUtil;
 import com.sobot.utils.SobotStringUtils;
@@ -52,6 +52,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
     private SobotCusFieldConfig cusFieldConfig;//当前自定义字段
     private int themeColor;
     private boolean changeThemeColor;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,7 +192,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
     private void requestZone(final boolean showDialog) {
         if (requestCount > 5) {
             //显示暂无数据
-            if(showDialog) {
+            if (showDialog) {
                 showDialog();
             }
             return;
@@ -219,7 +220,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
 
     @Override
     public void onClick(View v) {
-         if (v == tv_time_zone) {
+        if (v == tv_time_zone) {
             //显示dialog
             if (list == null || list.size() == 0) {
                 requestZone(true);
@@ -229,7 +230,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
         } else if (v == btnSubmit) {
             //如果自定义字段是必填的，时区就是必填的
             if (selectTimeZone == null) {
-                CustomToast.makeText(SobotTimeZoneActivity.this, getResources().getString(R.string.sobot_time_zone_hint), 1000).show();
+                ToastUtil.showToast(SobotTimeZoneActivity.this, getResources().getString(R.string.sobot_time_zone_hint));
                 return;
             }
             //去掉秒

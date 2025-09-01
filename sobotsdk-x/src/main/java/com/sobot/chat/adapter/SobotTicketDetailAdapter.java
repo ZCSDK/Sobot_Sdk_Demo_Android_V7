@@ -220,7 +220,9 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                         vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
                     }
                 }
-                vh.tv_time.setText(DateUtil.stringToFormatString(data.getTimeStr(), DATE_TIME_FORMAT, ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE)));
+                if(null != data.getTimeStr()) {
+                    vh.tv_time.setText(DateUtil.stringToFormatString(data.getTimeStr(), DATE_TIME_FORMAT, ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE)));
+                }
                 vh.tv_exp.setHaveFile(data.getFileList() != null && data.getFileList().size() > 0);
                 vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(),false,listener));
             }
@@ -361,7 +363,9 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                     vh.sobot_tv_status.setText(R.string.sobot_ticket_me_reply);
                     vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : Html.fromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
                 }
-                vh.sobot_tv_time.setText(DateUtil.toDate(reply.getReplyTime(), DateUtil.DATE_FORMAT));
+                if(reply.getReplyTime()>0) {
+                    vh.sobot_tv_time.setText(DateUtil.toDate(reply.getReplyTime(), DateUtil.DATE_FORMAT));
+                }
                 vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
 
 

@@ -23,6 +23,7 @@ import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
+import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 
 import java.math.BigDecimal;
@@ -61,7 +62,6 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
     @SuppressLint("SetTextI18n")
     @Override
     public void bindData(final Context context, final ZhiChiMessageBase message) {
-        resetMaxWidth();
         orderCardContent = message.getOrderCardContent();
         if (orderCardContent != null) {
             if (orderCardContent.getGoods() != null && orderCardContent.getGoods().size() > 0) {
@@ -197,7 +197,6 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
             mSeeAllTV.setTextColor(ThemeUtils.getThemeColor(mContext));
 
             if (isRight) {
-                sobot_msg_content_ll.getLayoutParams().width = msgCardWidth;
                 try {
                     msgStatus.setClickable(true);
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
@@ -219,6 +218,10 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
         }
         sobot_msg_content_ll.setOnClickListener(this);
         refreshReadStatus();
+        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 +16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16+16));
+        }
     }
 
     @Override

@@ -208,6 +208,15 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
         }
     }
 
+
+    //准备完成
+    private void postPrepared() {
+        if (mVideoListener != null) {
+            mVideoListener.onPrepared();
+        }
+    }
+
+
     private void postError() {
         if (mVideoListener != null) {
             mVideoListener.onError();
@@ -268,12 +277,8 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
             postError();
             return;
         }
-        File file = new File(mVideoUrl);
-        if (!file.exists() || !file.isFile()) {
-            postError();
-            return;
-        }
         try {
+            LogUtils.d("播放视频地址："+mVideoUrl);
             Surface surface = mVideoView.getHolder().getSurface();
             StCmeraLog.i("surface.isValid():" + surface.isValid());
             //surface没准备好时不执行播放
@@ -303,6 +308,7 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    postPrepared();
                     updateVideoViewSize(mp.getVideoWidth(), mp
                             .getVideoHeight());
                     startVideo();
@@ -311,6 +317,15 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
             mMediaPlayer.setLooping(false);
             mMediaPlayer.prepareAsync();
             mMediaPlayer.setOnCompletionListener(this);
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    // 处理错误
+                    postError();
+                    return true;
+                }
+            });
+
 
         } catch (Exception e) {
             e.printStackTrace();

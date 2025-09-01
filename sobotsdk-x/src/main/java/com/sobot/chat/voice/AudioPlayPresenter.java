@@ -11,7 +11,7 @@ import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.utils.AudioTools;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotPathManager;
-import com.sobot.chat.utils.ToastUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.io.File;
 import java.io.IOException;

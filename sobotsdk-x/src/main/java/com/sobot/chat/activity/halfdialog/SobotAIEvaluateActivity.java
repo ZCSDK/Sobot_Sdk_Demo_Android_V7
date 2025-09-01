@@ -45,12 +45,12 @@ import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotEditTextLayout;
 import com.sobot.chat.widget.SobotFiveStarsLayout;
 import com.sobot.chat.widget.SobotTenRatingLayout;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.utils.SobotStringUtils;
 

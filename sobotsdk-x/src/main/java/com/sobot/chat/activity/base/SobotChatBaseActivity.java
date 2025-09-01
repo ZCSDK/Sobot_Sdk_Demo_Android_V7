@@ -12,6 +12,9 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +52,7 @@ import com.sobot.chat.activity.SobotSelectPicAndVideoActivity;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
+import com.sobot.chat.api.model.HelpConfigModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
@@ -62,9 +66,9 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.statusbar.StatusBarUtil;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.utils.SobotSharedPreferencesUtil;
 
 import java.io.File;
@@ -144,6 +148,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         } catch (Exception e) {
             setUpToolBar();
         }
+        setUpToolBar();
         zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
         MyApplication.getInstance().addActivity(this);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -466,18 +471,58 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 } else {
                     showPerssionUi(0);
                 }
-                //申请权限
-                requestStoragePermission(checkPermissionType);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请权限
+                            requestStoragePermission(checkPermissionType);
+                        }
+                    }, 2000);
+                } else {
+                    //申请权限
+                    requestStoragePermission(checkPermissionType);
+                }
             }
         } else if (type == 2) {
             isHasPermission = checkAudioPermission();
             if (!isHasPermission) {
                 showPerssionUi(2);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请麦克风权限
+                            requestAudioPermission();
+                        }
+                    }, 2000);
+                } else {
+                    //申请麦克风权限
+                    requestAudioPermission();
+                }
             }
         } else if (type == 3) {
             isHasPermission = checkCameraPermission();
             if (!isHasPermission) {
                 showPerssionUi(3);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请相机权限
+                            requestCameraPermission();
+                        }
+                    }, 2000);
+                } else {
+                    //申请相机权限
+                    requestCameraPermission();
+                }
             }
         }
         return isHasPermission;
@@ -524,7 +569,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                         ll_info.setVisibility(View.VISIBLE);
                     }
                 }
-            }, 300);//延迟0.3s 是避免多次拒绝后ll_info 隐藏会出现闪一下的问题
+            }, 200);//延迟0.3s 是避免多次拒绝后ll_info 隐藏会出现闪一下的问题
             overlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -681,12 +726,23 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotBaseActivity().getApplicationContext()) >= 23) {
             if (ContextCompat.checkSelfPermission(getSobotBaseActivity(), Manifest.permission.RECORD_AUDIO)
                     != PackageManager.PERMISSION_GRANTED) {
-                this.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
-                        ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_ACTIVITY_CODE);
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * 申请录音权限
+     */
+    protected void requestAudioPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotBaseActivity().getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(getSobotBaseActivity(), Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                this.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},
+                        ZhiChiConstant.SOBOT_PERMISSIONS_REQUEST_ACTIVITY_CODE);
+            }
+        }
     }
 
 
@@ -696,6 +752,19 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * @return true, 已经获取权限;false,没有权限,尝试获取
      */
     protected boolean checkCameraPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotBaseActivity().getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(getSobotBaseActivity(), Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 申请相机权限
+     */
+    protected boolean requestCameraPermission() {
         if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(getSobotBaseActivity().getApplicationContext()) >= 23) {
             if (ContextCompat.checkSelfPermission(getSobotBaseActivity(), Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -732,6 +801,28 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
 
         // 打开拍摄页面
         startActivityForResult(SobotCameraActivity.newIntent(getSobotBaseContext()), ChatUtils.REQUEST_CODE_CAMERA);
+    }
+
+    //判断相机是否可用
+    public boolean isCameraCanUse() {
+        if (getSobotBaseActivity() == null) return false;
+
+        CameraManager cameraManager = (CameraManager) getSobotBaseActivity().getSystemService(Context.CAMERA_SERVICE);
+        if (cameraManager == null) return false;
+
+        try {
+            for (String cameraId : cameraManager.getCameraIdList()) {
+                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+                Integer facing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                // 只检测后置或前置摄像头是否存在
+                if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
+                    return true; // 存在后置摄像头
+                }
+            }
+        } catch (CameraAccessException e) {
+        }
+
+        return false;
     }
 
     /**
@@ -852,7 +943,21 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      */
     private void setToolBarDefBg() {
         try {
-            int[] colors = new int[]{getResources().getColor(R.color.sobot_color_title_bar_left_bg), getResources().getColor(R.color.sobot_color_title_bar_bg)};
+            HelpConfigModel configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
+            int[] colors = null;
+            if (configModel != null && StringUtils.isNoEmpty(configModel.getTopBarColor())) {
+                String topBarColor[] = configModel.getTopBarColor().split(",");
+                if (topBarColor.length > 1) {
+                    colors = new int[topBarColor.length];
+                    for (int i = 0; i < topBarColor.length; i++) {
+                        colors[i] = Color.parseColor(topBarColor[i]);
+                    }
+                } else {
+                    colors = new int[]{Color.parseColor(topBarColor[0])};
+                }
+            } else {
+                colors = new int[]{getResources().getColor(R.color.sobot_color_title_bar_left_bg), getResources().getColor(R.color.sobot_color_title_bar_bg)};
+            }
             GradientDrawable gradientDrawable = new GradientDrawable();
             gradientDrawable.setShape(GradientDrawable.RECTANGLE);
             gradientDrawable.setColors(colors); //添加颜色组

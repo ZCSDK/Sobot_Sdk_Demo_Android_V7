@@ -83,11 +83,11 @@ public class SobotTenRatingLayout extends LinearLayout {
             if (i != 5) {
                 lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
                         LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                lp.setMarginEnd(ScreenUtils.dip2px(getContext(), spaceWidth));
             } else {
                 lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
                         LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.rightMargin = 0;
+                lp.setMarginEnd(0);
             }
             textView.setLayoutParams(lp);
             if (i == defScore) {
@@ -118,11 +118,11 @@ public class SobotTenRatingLayout extends LinearLayout {
             if (i != 10) {
                 lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
                         LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                lp.setMarginEnd (ScreenUtils.dip2px(getContext(), spaceWidth));
             } else {
                 lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
                         LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.rightMargin = 0;
+                lp.setMarginEnd (0);
             }
             textView.setLayoutParams(lp);
             if (i == defScore) {

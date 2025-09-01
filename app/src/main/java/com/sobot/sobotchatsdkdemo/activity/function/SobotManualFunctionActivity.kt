@@ -17,7 +17,7 @@ import com.sobot.chat.api.model.Information
 import com.sobot.chat.api.model.OrderCardContentModel
 import com.sobot.chat.api.model.OrderCardContentModel.Goods
 import com.sobot.chat.utils.CommonUtils
-import com.sobot.chat.utils.ToastUtil
+import com.sobot.chat.widget.toast.ToastUtil
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel
@@ -298,11 +298,11 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
                         //咨询内容
                         val consultingContent = ConsultingContent()
                         //咨询内容标题，必填
-                        consultingContent.sobotGoodsTitle = "XXX超级电视50英寸2D智能LED黑色"
+                        consultingContent.sobotGoodsTitle = "2D智能LED黑色"
                         //咨询内容图片，选填 但必须是图片地址
-                        consultingContent.sobotGoodsImgUrl = "http://www.li7.jpg"
+                        consultingContent.sobotGoodsImgUrl = "https://developer.zhichi.com/img/logo-nzc.png"
                         //咨询来源页，必填
-                        consultingContent.sobotGoodsFromUrl = "www.sobot.com"
+                        consultingContent.sobotGoodsFromUrl = "https://www.sobot.com"
                         //描述，选填
                         consultingContent.sobotGoodsDescribe = "XXX超级电视 S5"
                         //标签，选填

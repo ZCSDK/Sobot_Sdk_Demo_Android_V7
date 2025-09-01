@@ -41,7 +41,6 @@ import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
-import com.sobot.chat.utils.CustomToast;
 import com.sobot.chat.utils.FastClickUtils;
 import com.sobot.chat.utils.ImageUtils;
 import com.sobot.chat.utils.LogUtils;
@@ -51,13 +50,14 @@ import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.utils.ToastUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
 import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.toast.CustomToast;
+import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.io.File;
@@ -302,7 +302,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements  View
                     @Override
                     public void onSuccess(String s) {
                         LogUtils.e(s);
-                        CustomToast.makeText(getApplicationContext(), getContext().getResources().getString(R.string.sobot_leavemsg_success_tip), 1000, R.drawable.sobot_icon_success).show();
+                        ToastUtil.showCustomToast(getApplicationContext(), getContext().getResources().getString(R.string.sobot_leavemsg_success_tip), R.drawable.sobot_icon_success);
                         try {
                             Thread.sleep(500);//睡眠一秒  延迟拉取数据
                         } catch (InterruptedException e) {
@@ -480,7 +480,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements  View
     }
 
     public void showHint(String content) {
-        CustomToast.makeText(getApplicationContext(), content, 1000).show();
+        ToastUtil.showToast(getApplicationContext(), content);
     }
 
     private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.sobot.chat.api.model.SobotLocationModel;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 /**
  * @author Created by jinxl on 2018/12/6.

@@ -122,7 +122,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="@null"
-                android:imeOptions="actionDone"
                 android:maxHeight="160dp"
                 android:maxLength="1000"
                 android:scrollbars="vertical"
