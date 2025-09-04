@@ -1376,6 +1376,27 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         }
     }
 
+    /**
+     * 设置加载中导航栏渐变色
+     */
+    private void setLoadingToolBarDefBg() {
+        try {
+            int[] colors = new int[]{getResources().getColor(R.color.sobot_color_chat_bg), getResources().getColor(R.color.sobot_color_chat_bg)};
+            GradientDrawable gradientDrawable = new GradientDrawable();
+            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+            gradientDrawable.setColors(colors); //添加颜色组
+            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
+            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
+            relative.setBackground(gradientDrawable);
+            GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+            } else {
+                StatusBarUtil.setColor(getSobotActivity(), aDrawable);
+            }
+        } catch (Exception e) {
+        }
+    }
+
     protected void initData() {
         setLoadingToolBarDefBg();
         if (StatusBarUtil.SOBOT_STATUS_HIGHT == 0) {
@@ -8380,7 +8401,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     public void checkUnReadMsg() {
         for (int i = 0; i < messageList.size(); i++) {
             ZhiChiMessageBase messageBase = messageList.get(i);
-            if (!TextUtils.isEmpty(messageBase.getMsgId())) {
+            if(!TextUtils.isEmpty(messageBase.getMsgId())) {
                 if (messageBase.getSenderType() == ZhiChiConstant.message_sender_type_robot && initModel.getAdminReadFlag() == 1) {
                     unReadMsgIds.put(messageBase.getMsgId(), messageBase);
                 } else if (messageBase.getSenderType() == ZhiChiConstant.message_sender_type_service && messageBase.getReadStatus() == 1) {
@@ -8946,26 +8967,5 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 onInitResult(initModel);
             }
         });
-    }
-
-    /**
-     * 设置加载中导航栏渐变色
-     */
-    private void setLoadingToolBarDefBg() {
-        try {
-            int[] colors = new int[]{getResources().getColor(R.color.sobot_color_chat_bg), getResources().getColor(R.color.sobot_color_chat_bg)};
-            GradientDrawable gradientDrawable = new GradientDrawable();
-            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-            gradientDrawable.setColors(colors); //添加颜色组
-            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-            relative.setBackground(gradientDrawable);
-            GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-            } else {
-                StatusBarUtil.setColor(getSobotActivity(), aDrawable);
-            }
-        } catch (Exception e) {
-        }
     }
 }

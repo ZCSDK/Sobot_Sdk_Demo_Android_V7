@@ -384,11 +384,11 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     //后端返回的昵称需要显示
                     if (isShowNickName) {
                         name.setVisibility(View.VISIBLE);
+                        //相邻两条消息同一个人，1分钟内不显示
+                        if (!message.isShowFaceAndNickname()) {
+                            name.setVisibility(View.GONE);
+                        }
                     } else {
-                        name.setVisibility(View.GONE);
-                    }
-                    //相邻两条消息同一个人，1分钟内不显示
-                    if (!message.isShowFaceAndNickname()) {
                         name.setVisibility(View.GONE);
                     }
                 }
@@ -399,13 +399,13 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     //后端返回的头像需要显示
                     if (isShowFace) {
                         imgHead.setVisibility(View.VISIBLE);
+                        //相邻两条消息同一个人，1分钟内不显示
+                        if (!message.isShowFaceAndNickname()) {
+                            //占位
+                            imgHead.setVisibility(View.INVISIBLE);
+                        }
                     } else {
                         imgHead.setVisibility(View.GONE);
-                    }
-                    //相邻两条消息同一个人，1分钟内不显示
-                    if (!message.isShowFaceAndNickname()) {
-                        //占位
-                        imgHead.setVisibility(View.INVISIBLE);
                     }
                 }
             }
