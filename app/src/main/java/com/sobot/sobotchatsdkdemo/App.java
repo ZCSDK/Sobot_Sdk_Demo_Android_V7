@@ -24,6 +24,7 @@ import com.sobot.chat.utils.StMapOpenHelper;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.sobotchatsdkdemo.model.SobotDemoOtherModel;
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil;
+import com.umeng.commonsdk.UMConfigure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,15 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 //        Fresco.initialize(this);
+        //设置LOG开关，默认为false
+        UMConfigure.setLogEnabled(true);
+        UMConfigure.preInit(this,"68ccf3c6c0c131698b71f7c3","v6demo");
+        /**
+         * 注意: 即使您已经在AndroidManifest.xml中配置过appkey和channel值，也需要在App代码中调
+         * 用初始化接口（如需要使用AndroidManifest.xml中配置好的appkey和channel值，
+         * UMConfigure.init调用中appkey和channel参数请置为null）。
+         */
+        UMConfigure.init(this,"68ccf3c6c0c131698b71f7c3","v6demo",UMConfigure.DEVICE_TYPE_PHONE,"");
         ZCSobotApi.setShowDebug(true);
         SobotDemoOtherModel otherModel = (SobotDemoOtherModel) SobotSPUtil.INSTANCE.getObject(this, "sobot_demo_otherModel");
         if (otherModel == null) {
@@ -55,8 +65,7 @@ public class App extends Application {
             ZCSobotApi.initSobotSDK(this, information.getApp_key(), information.getPartnerid());
         }
 
-        ZCSobotApi.setSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE, SobotSPUtil.INSTANCE.getBooleanData(this, "auto_match_timezone", false));
-        ZCSobotApi.setSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN, SobotSPUtil.INSTANCE.getBooleanData(this, "landscape_screen", false));
+           ZCSobotApi.setSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN, SobotSPUtil.INSTANCE.getBooleanData(this, "landscape_screen", false));
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH, SobotSPUtil.INSTANCE.getBooleanData(this, "display_innotch", false));
         ZCSobotApi.setSwitchMarkStatus(MarkConfig.LEAVE_COMPLETE_CAN_REPLY, SobotSPUtil.INSTANCE.getBooleanData(this, "leave_complete_can_reply", false));
 

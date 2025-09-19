@@ -122,8 +122,7 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
                     information!!.locale = sobot_et_server_langue!!.text.toString()
                     saveObject(this, "sobot_demo_infomation", information!!)
                 }
-                ZCSobotApi.setSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE, status478)
-                saveBooleanData(this, "auto_match_timezone", status478)
+                   saveBooleanData(this, "auto_match_timezone", status478)
                 val scope_time = sobot_et_scope_time!!.text.toString().trim { it <= ' ' }
                 if (!TextUtils.isEmpty(scope_time)) {
                     ZCSobotApi.setScope_time(context, scope_time.toLong())
