@@ -64,11 +64,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="68ccf3c6c0c131698b71f7c3" />
             </intent-filter>
         </activity>
+
+        <!-- value的值填写你在友盟后台申请的应用Appkey -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="68ccf3c6c0c131698b71f7c3" />
     </application>
 
 </manifest>
