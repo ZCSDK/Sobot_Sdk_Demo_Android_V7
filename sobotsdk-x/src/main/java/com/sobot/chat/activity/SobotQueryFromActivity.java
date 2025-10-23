@@ -27,9 +27,8 @@ import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.SobotInputView;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.chat.widget.toast.CustomToast;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -70,6 +69,11 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
         }
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotQueryFromActivity";
+    }
+
     private void initIntent(Bundle mIntentBundleData) {
         mQueryFormModel = (SobotQueryFormModel) mIntentBundleData.getSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_FIELD);
         param = (SobotConnCusParam) mIntentBundleData.getSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM);
@@ -81,8 +85,8 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
 
     @Override
     protected void initView() {
-        showLeftMenu(  true);
-        sobot_btn_submit =   findViewById(R.id.sobot_btn_submit);
+        showLeftMenu(true);
+        sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_queryfrom_submit_text);
         sobot_btn_submit.setOnClickListener(this);
         if (ThemeUtils.isChangedThemeColor(this)) {
@@ -103,7 +107,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
             }
         }
         displayInNotch(sobot_tv_doc);
-        StCusFieldPresenter.addWorkOrderCusFields(SobotQueryFromActivity.this, SobotQueryFromActivity.this, mField, sobot_container, SobotQueryFromActivity.this);
+        StCusFieldPresenter.addWorkOrderCusFieldsNew(SobotQueryFromActivity.this,  mField, sobot_container, SobotQueryFromActivity.this);
     }
 
     @Override
@@ -149,7 +153,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
     private void saveIntentWithFinish() {
         // 保存返回值 并且结束当前页面
         try {
-            KeyboardUtil.hideKeyboard(sobot_container);
+            hideKeyboard();
             Intent intent = new Intent();
             intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
             setResult(ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM, intent);
@@ -287,14 +291,13 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
                             if (model != null && fieldId.equals(model.getFieldId())) {
                                 model.setChecked(true);
                                 model.setProvinceModel(mFinalData);
-                                View view = sobot_container.findViewWithTag(fieldId);
+                                SobotInputView view = sobot_container.findViewWithTag(fieldId);
                                 if (view != null) {
-                                    TextView textClick = (TextView) view.findViewById(R.id.work_order_customer_date_text_click);
                                     String pStr = mFinalData.provinceName == null ? "" : mFinalData.provinceName;
                                     String cStr = mFinalData.cityName == null ? "" : mFinalData.cityName;
                                     String aStr = mFinalData.areaName == null ? "" : mFinalData.areaName;
                                     String str = pStr + cStr + aStr;
-                                    textClick.setText(str);
+                                    view.setInputValue(str);
                                 }
                             }
                         }

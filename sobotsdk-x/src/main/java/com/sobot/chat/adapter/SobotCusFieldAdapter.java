@@ -3,6 +3,7 @@ package com.sobot.chat.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -22,8 +23,8 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = View.inflate(mContext, R.layout.sobot_activity_cusfield_listview_items, null);
+            convertView = View.inflate(mContext, R.layout.sobot_item_cusfield_listview, null);
             myViewHolder = new MyViewHolder(mActivity, convertView);
             convertView.setTag(myViewHolder);
         } else {
@@ -78,9 +79,9 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
         }
         if (position < displayList.size()) {
             String data = displayList.get(position).getDataName();
-            if (SobotStringUtils.isNoEmpty(data)) {
+            if (StringUtils.isNoEmpty(data)) {
                 SpannableString spannableString = new SpannableString(data);
-                if (SobotStringUtils.isNoEmpty(searchText)) {
+                if (StringUtils.isNoEmpty(searchText)) {
                     if (data.toLowerCase().contains(searchText.toLowerCase()) ) {
                         int index = data.toLowerCase().indexOf(searchText.toLowerCase());
                         if(index>=0) {
@@ -94,15 +95,17 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
             }
 
             if (displayList.get(position).isChecked()) {
+                myViewHolder.categorySmallTitle.setTypeface( null,Typeface.BOLD);
                 myViewHolder.categorySmallIshave.setVisibility(View.VISIBLE);
                 if (ThemeUtils.isChangedThemeColor(context)) {
                     int themeColor = ThemeUtils.getThemeColor(context);
-                    Drawable bg = context.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                    Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                     if (bg != null) {
                         myViewHolder.categorySmallIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                     }
                 }
             } else {
+                myViewHolder.categorySmallTitle.setTypeface( null,Typeface.NORMAL);
                 myViewHolder.categorySmallIshave.setVisibility(View.GONE);
             }
         } else {

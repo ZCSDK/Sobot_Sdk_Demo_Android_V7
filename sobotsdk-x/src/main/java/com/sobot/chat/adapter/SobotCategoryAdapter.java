@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.sobot.chat.MarkConfig;
@@ -16,6 +17,7 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.StDocModel;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.CommonUtils;
 
 import java.util.List;
 
@@ -46,17 +48,26 @@ public class SobotCategoryAdapter extends SobotBaseAdapter<StDocModel> {
     }
 
     private static class ViewHolder {
-        private TextView sobot_tv_title;
+        private TextView tv_title;
+        private ImageView iv_arrow;
         private Activity mActivity;
 
         public ViewHolder(Context context, Activity activity, View view) {
             this.mActivity = activity;
-            sobot_tv_title = (TextView) view.findViewById(R.id.sobot_tv_title);
+            tv_title = view.findViewById(R.id.tv_title);
+            iv_arrow = view.findViewById(R.id.iv_arrow);
         }
 
         public void bindData(int position, StDocModel data) {
-            sobot_tv_title.setText(data.getQuestionTitle());
-            displayInNotch(sobot_tv_title);
+            tv_title.setText(data.getQuestionTitle());
+            displayInNotch(tv_title);
+            if (mActivity != null) {
+                if (CommonUtils.checkSDKIsAr(mActivity)) {
+                    iv_arrow.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                } else {
+                    iv_arrow.setImageResource(R.drawable.sobot_icon_right_arrow);
+                }
+            }
         }
 
         public void displayInNotch(final View view) {

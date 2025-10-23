@@ -17,9 +17,8 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotTimeZoneAdapter;
 import com.sobot.chat.api.model.SobotTimezone;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +54,11 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotTimeZoneDialog";
+    }
+
+    @Override
     protected void initData() {
         list = (ArrayList<SobotTimezone>) getIntent().getSerializableExtra("zoneList");
         if (list == null) {
@@ -84,6 +88,7 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
 
     @Override
     protected void initView() {
+        super.initView();
         //根布局
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
@@ -109,9 +114,9 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    KeyboardUtil.showKeyboard(et_search);
+                    showSoftKeyboard();
                 } else {
-                    KeyboardUtil.hideKeyboard(v);
+                    hideKeyboard();
                 }
             }
         });
@@ -142,16 +147,16 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
 
     private void setIv_search() {
         final String searchText = et_search.getText().toString();
-        if (SobotStringUtils.isEmpty(searchText)) {
+        if (StringUtils.isEmpty(searchText)) {
             showAll();
         } else {
             List<SobotTimezone> temList = new ArrayList();
             for (int i = 0; i < list.size(); i++) {
-                if (SobotStringUtils.isNoEmpty(list.get(i).getTimezoneValue()) && list.get(i).getTimezoneValue().toLowerCase().contains(searchText.toLowerCase())) {
+                if (StringUtils.isNoEmpty(list.get(i).getTimezoneValue()) && list.get(i).getTimezoneValue().toLowerCase().contains(searchText.toLowerCase())) {
                     temList.add(list.get(i));
                 }
             }
-            adapter.setList(temList,searchText);
+            adapter.setList(temList, searchText);
             if (temList.size() > 0) {
                 showList();
             } else {
@@ -169,11 +174,12 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
         tv_nodata.setVisibility(View.GONE);
         rv_list.setVisibility(View.VISIBLE);
     }
+
     private void showAll() {
         //显示全部数据
         List<SobotTimezone> temList = new ArrayList();
         temList.addAll(list);
-        adapter.setList(temList,"");
+        adapter.setList(temList, "");
         if (temList.size() > 0) {
             showList();
         } else {

@@ -23,49 +23,45 @@ import java.util.ArrayList;
  */
 public class ChangeLanguaeMessageHolder extends MsgHolderBase {
     private LinearLayout sobot_languaeList;//语言列表
-
+    private TextView tv_more;//更多语言按钮
+    private View view_split;//更多语言按钮 分割线
 
     public ChangeLanguaeMessageHolder(Context context, View convertView) {
         super(context, convertView);
         sobot_languaeList = (LinearLayout) convertView.findViewById(R.id.sobot_languaeList);
+        tv_more = convertView.findViewById(R.id.tv_more);
+        view_split = convertView.findViewById(R.id.view_split);
     }
 
     @Override
-    public void bindData(final Context context, final ZhiChiMessageBase message) {
-        if (message.getLanguaeModels() != null && message.getLanguaeModels().size() > 0) {
-            final ArrayList<SobotlanguaeModel> languaeModels = message.getLanguaeModels();
+    public void bindData(Context context, ZhiChiMessageBase message) {
+        if (message.getLanguaeModels() != null && !message.getLanguaeModels().isEmpty()) {
+            ArrayList<SobotlanguaeModel> languaeModels = message.getLanguaeModels();
             sobot_languaeList.removeAllViews();
-            for (int i = 0; i < languaeModels.size(); i++) {
-                if (i > 5) {
-                    TextView lanTV = new TextView(context);
-                    lanTV.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 268), ViewGroup.LayoutParams.WRAP_CONTENT));
-                    lanTV.setTextSize(TypedValue.COMPLEX_UNIT_PX,mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
-                    lanTV.setTextColor(ThemeUtils.getThemeColor(mContext));
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    lp.topMargin = ScreenUtils.dip2px(context, 12);
-                    lanTV.setLayoutParams(lp);
-                    lanTV.setLineSpacing(context.getResources().getDimension(R.dimen.sobot_text_line_spacing_extra), 1);
-                    lanTV.setPadding(ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 7), ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 7));
-                    lanTV.setGravity(Gravity.CENTER);
-                    lanTV.setBackgroundResource(R.drawable.sobot_oval_white_bg);
-                    lanTV.setText(context.getResources().getString(R.string.sobot_more_language));
-                    lanTV.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (FastClickUtils.isCanClick(1500)) {
-                                if (msgCallBack != null) {
-                                    msgCallBack.chooseByAllLangaue(languaeModels, message);
-                                }
+            if (languaeModels.size() > 6) {
+                view_split.setVisibility(View.VISIBLE);
+                tv_more.setVisibility(View.VISIBLE);
+                tv_more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (FastClickUtils.isCanClick(2000)) {
+                            if (msgCallBack != null) {
+                                msgCallBack.chooseByAllLangaue(languaeModels, message);
                             }
                         }
-                    });
-                    sobot_languaeList.addView(lanTV);
-                    break;
-                } else {
+                    }
+                });
+            } else {
+                view_split.setVisibility(View.GONE);
+                tv_more.setVisibility(View.GONE);
+            }
+            tv_more.setTextColor(ThemeUtils.getThemeColor(mContext));
+            for (int i = 0; i < languaeModels.size(); i++) {
+                if (i < 6) {
                     final SobotlanguaeModel model = languaeModels.get(i);
                     TextView lanTV = new TextView(context);
-                    lanTV.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 268), ViewGroup.LayoutParams.WRAP_CONTENT));
-                    lanTV.setTextSize(TypedValue.COMPLEX_UNIT_PX,mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
+                    lanTV.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    lanTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
                     lanTV.setTextColor(ThemeUtils.getThemeColor(mContext));
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     if (i != 0) {
@@ -74,7 +70,7 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
                         lp.topMargin = ScreenUtils.dip2px(context, 10);
                     }
                     lanTV.setLayoutParams(lp);
-                    lanTV.setPadding(ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 7), ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 7));
+                    lanTV.setPadding(ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 9), ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 9));
                     String tempStr = model.getName();
                     lanTV.setGravity(Gravity.CENTER);
                     lanTV.setBackgroundResource(R.drawable.sobot_oval_white_bg);

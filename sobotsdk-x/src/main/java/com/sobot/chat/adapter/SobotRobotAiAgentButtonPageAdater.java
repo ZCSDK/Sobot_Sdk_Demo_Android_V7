@@ -17,10 +17,10 @@ import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.lablesview.SobotLablesViewModel;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class SobotRobotAiAgentButtonPageAdater extends PagerAdapter {
                             msgObj.setNodeId(messageBase.getNodeId());
                             msgObj.setProcessId(messageBase.getProcessId());
                             msgObj.setVariableId(messageBase.getVariableId());
-                            msgObj.setContent(SobotStringUtils.checkStringIsNull(label.get(finalI).getTitle()));
+                            msgObj.setContent(StringUtils.checkStringIsNull(label.get(finalI).getTitle()));
                             msgCallBack.sendMessageToRobot(msgObj, 6, 1, "");
                         }
                     }

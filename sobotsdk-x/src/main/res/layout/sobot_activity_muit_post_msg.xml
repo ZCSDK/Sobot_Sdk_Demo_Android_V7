@@ -9,34 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/sobot_dialog_title_bg"
         app:sobot_mhv_HeightRatio="0.8">
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                style="@style/sobot_dialog_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sobot_line_height_dp"
-            android:background="@color/sobot_color_line_divider" />
+        <include layout="@layout/sobot_dialog_title"/>
 
         <ScrollView
             android:id="@+id/sobot_sv_root"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/sobot_color_bg_first"
             android:fillViewport="true">
 
             <LinearLayout
@@ -64,7 +46,6 @@
                     android:id="@+id/sobot_post_title_rl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_color_bg_first"
                     android:gravity="center_vertical"
                     android:minHeight="54dp"
                     android:orientation="vertical"
@@ -117,7 +98,6 @@
                     android:id="@+id/sobot_post_question_ll"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_color_bg_first"
                     android:gravity="center_vertical"
                     android:orientation="vertical"
                     >
@@ -166,7 +146,6 @@
                     android:id="@+id/sobot_post_customer_field"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_color_bg_first"
                     android:orientation="vertical" />
 
                 <!--            描述-->
@@ -174,7 +153,6 @@
                     android:id="@+id/sobot_ll_content_img"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_color_bg_first"
                     android:orientation="vertical">
                     <!--描述-->
                     <LinearLayout

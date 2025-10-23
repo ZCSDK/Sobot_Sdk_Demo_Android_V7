@@ -42,7 +42,7 @@ import java.util.List;
  * 咨询列表
  * Created by jinxl on 2017/9/6.
  */
-public class SobotConsultationListActivity extends SobotChatBaseActivity implements SobotMsgCenterHandler.SobotMsgCenterCallBack{
+public class SobotConsultationListActivity extends SobotChatBaseActivity implements SobotMsgCenterHandler.SobotMsgCenterCallBack {
     //刷新列表
     private static final int REFRESH_DATA = 1;
 
@@ -112,6 +112,11 @@ public class SobotConsultationListActivity extends SobotChatBaseActivity impleme
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotConsultationListActivity";
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initBrocastReceiver();
@@ -134,7 +139,7 @@ public class SobotConsultationListActivity extends SobotChatBaseActivity impleme
 
     @Override
     public void initView() {
-        showLeftMenu( true);
+        showLeftMenu(true);
         setTitle(R.string.sobot_consultation_list);
 
         sobot_ll_msg_center = (ListView) findViewById(R.id.sobot_ll_msg_center);
@@ -165,7 +170,7 @@ public class SobotConsultationListActivity extends SobotChatBaseActivity impleme
                                 ZhiChiApi zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
                                 String platformID = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.SOBOT_PLATFORM_UNIONCODE, "");
                                 zhiChiApi.removeMerchant(SobotConsultationListActivity.this, platformID
-                                        , currentUid,data, new StringResultCallBack<SobotMsgCenterModel>() {
+                                        , currentUid, data, new StringResultCallBack<SobotMsgCenterModel>() {
                                             @Override
                                             public void onSuccess(SobotMsgCenterModel deleteData) {
                                                 if (deleteData != null && deleteData.getInfo() != null && datas != null) {
@@ -190,7 +195,7 @@ public class SobotConsultationListActivity extends SobotChatBaseActivity impleme
 
     @Override
     public void initData() {
-        SobotMsgCenterHandler.getMsgCenterAllData(SobotConsultationListActivity.this,SobotConsultationListActivity.this,currentUid,this);
+        SobotMsgCenterHandler.getMsgCenterAllData(SobotConsultationListActivity.this, SobotConsultationListActivity.this, currentUid, this);
     }
 
     @Override

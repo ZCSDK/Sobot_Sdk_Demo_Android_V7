@@ -66,7 +66,7 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
                 vh.tv_selected.setVisibility(View.GONE);
                 if (selectId.equals(checkin.getId())) {
                     if (ThemeUtils.isChangedThemeColor(mContext)) {
-                        Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                        Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                         if (bg != null) {
                             vh.iv_exts.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                         }

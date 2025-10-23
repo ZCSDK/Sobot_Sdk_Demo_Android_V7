@@ -20,11 +20,13 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //留言级联字段 adapter
 public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo> {
@@ -37,13 +39,25 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
 
     //过滤时候的总数据 这个是不变的数据
     private List<SobotCusFieldDataInfo> adminList;
+    private List<SobotCusFieldDataInfo> searchList;//搜索的数据
     private MyFilter mFilter;
 
-    public SobotPostCascadeAdapter(Activity activity, Context context, List list) {
+    private SobotCallBack callBack;
+
+    public SobotPostCascadeAdapter(Activity activity, Context context, List list,SobotCallBack callBack) {
         super(context, list);
         this.mContext = context;
         this.mActivity = activity;
+        this.callBack = callBack;
         adminList = list;
+    }
+
+    public List<SobotCusFieldDataInfo> getSearchList() {
+        return searchList;
+    }
+
+    public void setSearchList(List<SobotCusFieldDataInfo> searchList) {
+        this.searchList = searchList;
     }
 
     public void setSearchText(String searchText) {
@@ -60,15 +74,20 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
         } else {
             myViewHolder = (ViewHolder) convertView.getTag();
         }
-        String data = list.get(position).getDataName();
-        if (SobotStringUtils.isNoEmpty(data)) {
+        String data = StringUtils.isNoEmpty(searchText)?list.get(position).getPathName():list.get(position).getDataName();
+        if (StringUtils.isNoEmpty(data)) {
             SpannableString spannableString = new SpannableString(data);
-            if (SobotStringUtils.isNoEmpty(searchText)) {
-                if (data.toLowerCase().contains(searchText.toLowerCase())) {
-                    int index = data.toLowerCase().indexOf(searchText.toLowerCase());
-                    if (index >= 0) {
-                        spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), index, index + searchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
+            if (StringUtils.isNoEmpty(searchText)) {
+                // 构建正则表达式，匹配所有出现的matchText（不区分大小写）
+                Pattern pattern = Pattern.compile(searchText, Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(data);
+
+                // 遍历所有匹配项并设置高亮
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = matcher.end();
+                    // 设置黄色背景高亮，可根据需要修改颜色
+                    spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
             }
             myViewHolder.categoryTitle.setText(spannableString);
@@ -79,10 +98,16 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
             myViewHolder.categoryIshave.setVisibility(View.GONE);
         } else {
             myViewHolder.categoryIshave.setVisibility(View.VISIBLE);
-            myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_right_arrow_icon);
+            myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow);
         }
-
-
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(callBack!=null){
+                    callBack.itemClick(list.get(position));
+                }
+            }
+        });
         return convertView;
     }
 
@@ -143,10 +168,10 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
 
                 final ArrayList<SobotCusFieldDataInfo> newValues = new ArrayList<>();
 
-                for (int i = 0; i < adminList.size(); i++) {
-                    final String value = adminList.get(i).getDataName();
-                    if (SobotStringUtils.isNoEmpty(value) && value.toLowerCase().contains(prefixString.toLowerCase())) {//我这里的规则就是筛选出和prefix相同的元素
-                        newValues.add(adminList.get(i));
+                for (int i = 0; i < searchList.size(); i++) {
+                    final String value = searchList.get(i).getPathName();
+                    if (StringUtils.isNoEmpty(value) && value.toLowerCase().contains(prefixString.toLowerCase())) {//我这里的规则就是筛选出和prefix相同的元素
+                        newValues.add(searchList.get(i));
                     }
                 }
 
@@ -168,5 +193,7 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
             }
         }
     }
-
+    public interface SobotCallBack {
+        void itemClick(SobotCusFieldDataInfo info);
+    }
 }

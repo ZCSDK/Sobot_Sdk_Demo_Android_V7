@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/sobot_color_bg_first"
     android:orientation="vertical">
 
     <include layout="@layout/sobot_layout_common_titlebar" />
+
+    <include
+        android:id="@+id/sobot_rl_net_error"
+        layout="@layout/sobot_layout_net_error" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -85,8 +90,4 @@
 
     </LinearLayout>
 
-
-    <include
-        android:id="@+id/sobot_rl_net_error"
-        layout="@layout/sobot_layout_net_error" />
 </LinearLayout>

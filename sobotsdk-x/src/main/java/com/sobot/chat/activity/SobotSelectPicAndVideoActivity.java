@@ -50,6 +50,11 @@ public class SobotSelectPicAndVideoActivity extends SobotChatBaseActivity {
         updateList();
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotSelectPicAndVideoActivity";
+    }
+
     private void updateList() {
         if (albumFileList == null) {
             albumFileList = new ArrayList<>();
@@ -92,10 +97,10 @@ public class SobotSelectPicAndVideoActivity extends SobotChatBaseActivity {
             }
         });
 
-        if(ThemeUtils.isChangedThemeColor(this)){
-            Drawable bg= getResources().getDrawable(R.drawable.sobot_bg_theme_color_4dp);
-            if(bg!=null){
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable( bg,ThemeUtils.getThemeColor(this)));
+        if (ThemeUtils.isChangedThemeColor(this)) {
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_4dp);
+            if (bg != null) {
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
         }
         sobot_btn_submit.setAlpha(0.5f);

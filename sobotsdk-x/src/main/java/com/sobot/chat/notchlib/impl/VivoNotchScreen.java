@@ -1,6 +1,5 @@
 package com.sobot.chat.notchlib.impl;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 /**
  * 测试之后发现vivo并不需要适配，因为vivo没有将显示区域绘制到耳朵区的API
  */
-@TargetApi(Build.VERSION_CODES.O)
+@androidx.annotation.RequiresApi(Build.VERSION_CODES.O)
 public class VivoNotchScreen implements INotchScreen {
     public static boolean isNotch() {
         boolean value = false;

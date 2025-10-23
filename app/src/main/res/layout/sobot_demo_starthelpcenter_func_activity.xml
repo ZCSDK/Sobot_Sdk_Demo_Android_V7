@@ -3,7 +3,6 @@
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sobot_white"
     android:orientation="vertical">
 
     <include
@@ -20,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="3.4.3.1 客服电话"
-            android:textColor="@color/sobot_common_gray1"
+            android:textColor="@color/sobot_textview_text_color"
             android:textSize="16sp" />
 
         <TextView
@@ -28,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="[说明:客服电话按钮文案和对应的电话都有值客户服务中心页面底部显示拨打电话按钮，点击可直接电话联系客服]"
-            android:textColor="@color/sobot_common_gray1"
+            android:textColor="@color/sobot_textview_text_color"
             android:textSize="14sp" />
 
         <EditText
@@ -41,8 +40,8 @@
             android:hint="客服电话按钮显示文案"
             android:padding="6dp"
             android:scrollbars="none"
-            android:textColor="@color/sobot_common_gray1"
-            android:textColorHint="@color/sobot_common_gray3"
+            android:textColor="@color/sobot_textview_text_color"
+            android:textColorHint="@color/sobot_textview_text_color_third"
             android:textSize="14sp" />
 
         <EditText
@@ -55,8 +54,8 @@
             android:hint="客服电话按钮对应号码 例如：400-100000"
             android:padding="6dp"
             android:scrollbars="none"
-            android:textColor="@color/sobot_common_gray1"
-            android:textColorHint="@color/sobot_common_gray3"
+            android:textColor="@color/sobot_textview_text_color"
+            android:textColorHint="@color/sobot_textview_text_color_third"
             android:textSize="14sp" />
 
     </LinearLayout>
@@ -66,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="@color/sobot_common_gray2"
+        android:background="@color/sobot_textview_text_color_second"
         android:padding="6dp"
         android:text="参考文档"
         android:textSize="14sp" />
@@ -86,7 +85,7 @@
         android:layout_height="0.4dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/sobot_common_gray1" />
+        android:background="@color/sobot_textview_text_color" />
 
 
     <TextView
@@ -97,11 +96,11 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/sobot_btn_bg_help_center"
+        android:background="@drawable/sobot_demo_btn_bg"
         android:gravity="center"
         android:padding="6dp"
         android:text="启动客户服务中心"
-        android:textColor="@color/sobot_common_gray1"
+        android:textColor="@color/sobot_textview_text_color"
         android:textSize="16sp"
         android:layout_marginEnd="12dp"
         android:layout_marginStart="12dp" />

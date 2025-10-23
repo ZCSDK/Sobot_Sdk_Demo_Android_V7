@@ -29,8 +29,6 @@ import com.sobot.chat.camera.util.StCmeraLog;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ResourceUtils;
 
-import java.io.File;
-
 
 public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, View.OnClickListener
         , StProgressViewUpdateHelper.Callback, MediaPlayer.OnCompletionListener {

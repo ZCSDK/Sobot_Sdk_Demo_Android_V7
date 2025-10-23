@@ -1,6 +1,5 @@
 package com.sobot.chat;
 
-import static com.sobot.chat.presenter.StPostMsgPresenter.INTENT_KEY_CONFIG;
 import static com.sobot.chat.presenter.StPostMsgPresenter.INTENT_KEY_UID;
 
 import android.content.Context;
@@ -10,19 +9,17 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sobot.chat.activity.SobotConsultationListActivity;
 import com.sobot.chat.activity.SobotHelpCenterActivity;
-import com.sobot.chat.activity.SobotPostMsgActivity;
 import com.sobot.chat.activity.SobotTicketListActivity;
+import com.sobot.chat.activity.SobotTicketNewActivity;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.apiUtils.ZhiChiUrlApi;
 import com.sobot.chat.api.enumtype.SobotChatStatusMode;
-import com.sobot.chat.api.model.BaseCode;
 import com.sobot.chat.api.model.CommonModel;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.Information;
@@ -59,16 +56,16 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotCache;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StServiceUtils;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.SystemUtil;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.network.apiUtils.SobotHttpUtils;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -107,8 +104,6 @@ public class ZCSobotApi {
             SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_LANGUAGE);
             SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
             SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
-            //清除夜间模式设置
-            SharedPreferencesUtil.removeKey(context, ZCSobotConstant.LOCAL_NIGHT_MODE);
             if (!CommonUtils.inMainProcess(context.getApplicationContext())) {
                 return;
             }
@@ -140,18 +135,6 @@ public class ZCSobotApi {
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_SCOPE_TIME);
         //配置用户提交人工满意度评价后释放会话
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_CHAT_EVALUATION_COMPLETED_EXIT);
-        //自定义客服欢迎语
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_ADMIN_HELLO_WORD);
-        //自定义机器人欢迎语
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_ROBOT_HELLO_WORD);
-        //自定义用户超时提示语
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_USER_TIP_WORD);
-        //自定义客服超时提示语
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_ADMIN_TIP_WORD);
-        //自定义客服不在线的说辞
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_ADMIN_OFFLINE_TITLE);
-        //自定义用户超时下线提示语
-        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_USER_OUT_WORD);
         //设置溢出公司id
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_FLOW_COMPANYID);
         //是否溢出到主商户
@@ -230,7 +213,7 @@ public class ZCSobotApi {
      *
      * @param context          上下文  必填
      * @param info             用户的appkey  必填 如果是平台用户需要传总公司的appkey
-     * @param isOnlyShowTicket true只显示留言记录界面，false 请您留言和留言记录界面都显示
+     * @param isOnlyShowTicket true只显示留言记录界面，false 新建留言
      */
     public static void openLeave(final Context context, final Information info, final boolean isOnlyShowTicket) {
         if (info == null) {
@@ -248,77 +231,69 @@ public class ZCSobotApi {
         SobotMsgManager.getInstance(context).getZhiChiApi()
                 .sobotInit(context, info, new StringResultCallBack<ZhiChiInitModeBase>() {
                     @Override
-                    public void onSuccess(final ZhiChiInitModeBase initModel) {
-                        SharedPreferencesUtil.saveObject(context,
-                                ZhiChiConstant.sobot_last_current_info, info);
-                        if (!TextUtils.isEmpty(info.getLeaveTemplateId())) {
-                            SobotMsgManager.getInstance(context).getZhiChiApi().getMsgTemplateConfig(this, initModel.getPartnerid(), info.getLeaveTemplateId(), new StringResultCallBack<SobotLeaveMsgConfig>() {
-                                @Override
-                                public void onSuccess(SobotLeaveMsgConfig data) {
-                                    if (data != null) {
-                                        if(isOnlyShowTicket){
-                                            Intent intent = new Intent(context, SobotTicketListActivity.class);
-                                            intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
-                                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
-                                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
-                                            context.startActivity(intent);
-                                        }else {
-                                            Intent intent = new Intent(context, SobotPostMsgActivity.class);
-                                            intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
-                                            intent.putExtra(INTENT_KEY_CONFIG, data);
-                                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
-                                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
-                                            intent.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
-                                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
-                                            context.startActivity(intent);
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Exception e, String des) {
-                                    e.printStackTrace();
-                                    LogUtils.i("通过配置模版id跳转到留言界面：" + des);
-                                }
-                            });
-                        } else {
-                            SobotLeaveMsgConfig config = new SobotLeaveMsgConfig();
-                            config.setEmailFlag(initModel.isEmailFlag());
-                            config.setEmailShowFlag(initModel.isEmailShowFlag());
-                            config.setEnclosureFlag(initModel.isEnclosureFlag());
-                            config.setEnclosureShowFlag(initModel.isEnclosureShowFlag());
-                            config.setTelFlag(initModel.isTelFlag());
-                            config.setTelShowFlag(initModel.isTelShowFlag());
-                            config.setTicketStartWay(initModel.isTicketStartWay());
-                            config.setTicketShowFlag(initModel.isTicketShowFlag());
-                            config.setCompanyId(initModel.getCompanyId());
-                            if (!TextUtils.isEmpty(info.getLeaveMsgTemplateContent())) {
-                                config.setMsgTmp(info.getLeaveMsgTemplateContent());
-                            } else {
-                                config.setMsgTmp(initModel.getMsgTmp());
-                            }
-                            if (!TextUtils.isEmpty(info.getLeaveMsgGuideContent())) {
-                                config.setMsgTxt(info.getLeaveMsgGuideContent());
-                            } else {
-                                config.setMsgTxt(initModel.getMsgTxt());
-                            }
-
+                    public void onSuccess(ZhiChiInitModeBase initModel) {
+                        if (initModel != null) {
+                            SharedPreferencesUtil.saveObject(context,
+                                    ZhiChiConstant.sobot_last_current_info, info);
+                            SharedPreferencesUtil.saveObject(context,
+                                    ZhiChiConstant.sobot_last_current_initModel, initModel);
+                            ThemeUtils.updateThemeStyle(context);
                             if(isOnlyShowTicket){
+                                //留言记录
                                 Intent intent = new Intent(context, SobotTicketListActivity.class);
                                 intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
+                                //留言记录，但不显示新建
+                                intent.putExtra("isOnlyShowTicket", true);
                                 context.startActivity(intent);
                             }else{
-                                Intent intent = new Intent(context, SobotPostMsgActivity.class);
-                                intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
-                                intent.putExtra(INTENT_KEY_CONFIG, config);
-                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
-                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
-                                intent.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
-                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
-                                context.startActivity(intent);
+                                //新建留言
+                                if (!TextUtils.isEmpty(info.getLeaveTemplateId())) {
+                                    SobotMsgManager.getInstance(context).getZhiChiApi().getMsgTemplateConfig(this, initModel.getPartnerid(), info.getLeaveTemplateId(), new StringResultCallBack<SobotLeaveMsgConfig>() {
+                                        @Override
+                                        public void onSuccess(SobotLeaveMsgConfig data) {
+                                            if (data != null) {
+                                                //新建留言，传模板配置
+                                                Intent intent = new Intent(context, SobotTicketNewActivity.class);
+                                                intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CONFIG, data);
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
+                                                context.startActivity(intent);
+                                            }else{
+                                                //新建留言工单,显示所有模板
+                                                Intent intent = new Intent(context, SobotTicketListActivity.class);
+                                                intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
+                                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
+                                                if (!isOnlyShowTicket) {
+                                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, 1);
+                                                }
+                                                context.startActivity(intent);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e, String des) {
+                                            e.printStackTrace();
+                                            LogUtils.i("通过配置模版id跳转到留言界面：" + des);
+                                        }
+                                    });
+                                } else {
+                                    Intent intent = new Intent(context, SobotTicketListActivity.class);
+                                    intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
+                                    if (!isOnlyShowTicket) {
+                                        //新建留言工单,显示所有模板
+                                        intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, 1);
+                                    }
+                                    context.startActivity(intent);
+                                }
                             }
+
                         }
                     }
 
@@ -465,6 +440,9 @@ public class ZCSobotApi {
         localBroadcastManager.sendBroadcast(intent);
     }
 
+    //防止重复调用
+    private static long requestReplyMsgTime = 0;
+
     /**
      * 获取留言未读回复列表
      *
@@ -472,9 +450,7 @@ public class ZCSobotApi {
      * @param partnerId                用户唯一标识 与information中传的partnerId一致
      * @param noReadLeaveReplyListener 留言未读回复列表回调，返回List<SobotLeaveReplyModel>
      */
-    private static long requestReplyMsgTime = 0;
-
-    public static void getLastLeaveReplyMessage(final Context context, String partnerId, final SobotNoReadLeaveReplyListener noReadLeaveReplyListener) {
+    public static void getLastLeaveReplyMessage(Context context, String partnerId, SobotNoReadLeaveReplyListener noReadLeaveReplyListener) {
         if (context == null) {
             LogUtils.e("getLastLeaveReplyMessage context 为空");
             return;
@@ -493,23 +469,29 @@ public class ZCSobotApi {
             LogUtils.e("getLastLeaveReplyMessage companyId 不能为空,请检查是否调用初始化方法");
             return;
         }
-        final List<SobotLeaveReplyModel> sobotLeaveReplyModels = new ArrayList<>();
+        List<SobotLeaveReplyModel> sobotLeaveReplyModels = new ArrayList<>();
         SobotMsgManager.getInstance(context).getZhiChiApi()
                 .getUserTicketReplyInfo(context, companyId, partnerId, new StringResultCallBack<List<SobotLeaveReplyModel>>() {
                     @Override
                     public void onSuccess(List<SobotLeaveReplyModel> leaveReplyModelList) {
-                        if (leaveReplyModelList != null && leaveReplyModelList.size() > 0) {
+                        if (leaveReplyModelList != null && !leaveReplyModelList.isEmpty()) {
                             //客户获取留言回复，如果获取到有未读的留言回复，把最新的一条回复展示在通知栏中
                             sobotLeaveReplyModels.addAll(leaveReplyModelList);
                             if (noReadLeaveReplyListener != null) {
                                 noReadLeaveReplyListener.onNoReadLeaveReplyListener(sobotLeaveReplyModels);
+                            }
+                        } else {
+                            if (noReadLeaveReplyListener != null) {
+                                noReadLeaveReplyListener.onNoReadLeaveReplyListener(new ArrayList<>());
                             }
                         }
                     }
 
                     @Override
                     public void onFailure(Exception e, String des) {
-
+                        if (noReadLeaveReplyListener != null) {
+                            noReadLeaveReplyListener.onFailureListener("net error");
+                        }
                     }
                 });
     }
@@ -636,7 +618,7 @@ public class ZCSobotApi {
 
             if (!TextUtils.isEmpty(cid) && !TextUtils.isEmpty(uid)) {
                 ZhiChiApi zhiChiApi = SobotMsgManager.getInstance(context).getZhiChiApi();
-                zhiChiApi.out(cid, uid, reason , new StringResultCallBack<CommonModel>() {
+                zhiChiApi.out(cid, uid, reason, new StringResultCallBack<CommonModel>() {
                     @Override
                     public void onSuccess(CommonModel result) {
                         LogUtils.i("下线成功");
@@ -940,151 +922,6 @@ public class ZCSobotApi {
     }
 
     /**
-     * @param context Context 对象
-     * @param content 自定义客服欢迎语
-     * @deprecated Use {@link #setAdmin_Hello_Word(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomAdminHelloWord(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_HELLO_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义客服欢迎语
-     */
-    public static void setAdmin_Hello_Word(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_HELLO_WORD, content);
-    }
-
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义机器人欢迎语
-     * @deprecated Use {@link #setRobot_Hello_Word(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomRobotHelloWord(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ROBOT_HELLO_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义机器人欢迎语
-     */
-    public static void setRobot_Hello_Word(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ROBOT_HELLO_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义用户超时提示语
-     * @deprecated Use {@link #setUser_Tip_Word(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomUserTipWord(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_TIP_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义用户超时提示语
-     */
-    public static void setUser_Tip_Word(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_TIP_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义客服超时提示语
-     * @deprecated Use {@link #setAdmin_Tip_Word(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomAdminTipWord(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_TIP_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义客服超时提示语
-     */
-    public static void setAdmin_Tip_Word(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_TIP_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义客服不在线的说辞
-     * @deprecated Use {@link #setAdmin_Offline_Title(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomAdminNonelineTitle(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_OFFLINE_TITLE, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义客服不在线的说辞
-     */
-    public static void setAdmin_Offline_Title(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_ADMIN_OFFLINE_TITLE, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义用户超时下线提示语
-     * @deprecated Use {@link #setUser_Out_Word(Context, String)} instead.
-     */
-    @Deprecated
-    public static void setCustomUserOutWord(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_OUT_WORD, content);
-    }
-
-    /**
-     * @param context Context 对象
-     * @param content 自定义用户超时下线提示语
-     */
-    public static void setUser_Out_Word(Context context, String content) {
-        if (context == null) {
-            return;
-        }
-        SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_OUT_WORD, content);
-    }
-
-    /**
      * 获取消息中心数据
      *
      * @param context
@@ -1312,42 +1149,14 @@ public class ZCSobotApi {
         return null;
     }
 
-    /**
-     * 设置界面白天、夜间模式或者跟随系统，默认跟随系统
-     * sdk 初始化后设置，因为每次初始化后会还原
-     *
-     * @param context
-     * @param mode    AppCompatDelegate.MODE_NIGHT_NO:白天模式
-     *                AppCompatDelegate.MODE_NIGHT_YES:夜间模式
-     *                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:跟随系统
-     *                AppCompatDelegate.MODE_NIGHT_AUTO:根据当前时间在day/night主题间切换
-     */
-    public static void setLocalNightMode(Context context, int mode) {
-        if (context != null) {
-            //AppCompatDelegate.MODE_NIGHT_NO:白天模式
-            //AppCompatDelegate.MODE_NIGHT_YES:夜间模式
-            //AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:跟随系统
-            //AppCompatDelegate.MODE_NIGHT_AUTO:根据当前时间在day/night主题间切换
-            int appCompatDelegate;
-            if (mode == 1) {
-                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_NO;
-            } else if (mode == 2) {
-                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_YES;
-            } else if (mode == 0) {
-                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_AUTO;
-            } else {
-                appCompatDelegate = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-            }
-            SharedPreferencesUtil.saveIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, appCompatDelegate);
-        }
-    }
 
     /**
      * 发送自定义卡片
+     *
      * @param context
      * @param custiomCard
      */
-    public static void sendCustomCard(Context context, SobotChatCustomCard custiomCard){
+    public static void sendCustomCard(Context context, SobotChatCustomCard custiomCard) {
         if (context == null || custiomCard == null) {
             return;
         }
@@ -1357,14 +1166,16 @@ public class ZCSobotApi {
         intent.putExtra(ZhiChiConstant.SOBOT_SEND_DATA, custiomCard);
         localBroadcastManager.sendBroadcast(intent);
     }
+
     /**
      * 获取未读消息数量
+     *
      * @param context   上下文  必填
      * @param appkey    用户的appkey  必填 如果是平台用户需要传总公司的appkey
      * @param partnerid 用户的唯一标识不能传一样的值
-     * @param callBack 返回内容为NureadMsgModel对象，字段描述：totalSize 当前用户的未读消息数总和,offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空，message 收到最后一条消息内容 （eg:您收到了一条新消息），time  收到最后一条消息的时间戳 （未读消息、离线消息、未确认消息 三者比较取时间为最后的一条消息），object 接口返回的全部数据
+     * @param callBack  返回内容为map类型，key的描述：offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空，message 收到最后一条消息内容 （eg:您收到了一条新消息），time  收到最后一条消息的时间戳 （未读消息、离线消息、未确认消息 三者比较取时间为最后的一条消息），object 接口返回的全部数据
      */
-    public static void offlineMsgSize(final Context context, final String appkey, final String partnerid,StringResultCallBack<NureadMsgModel> callBack){
+    public static void offlineMsgSize(final Context context, final String appkey, final String partnerid, StringResultCallBack<NureadMsgModel> callBack) {
 
         SobotMsgManager.getInstance(context).getZhiChiApi().offlineMsgSize(context, partnerid, appkey, new StringResultCallBack<NureadMsgModel>() {
 
@@ -1375,14 +1186,13 @@ public class ZCSobotApi {
                 List<ZhiChiMessageBase> tmpList = SobotMsgManager.getInstance(context).getConfig(appkey).getMessageList();
                 if (tmpList != null && tmpList.size() > 0) {
                     ZhiChiMessageBase zhiChiMessageBase = tmpList.get(tmpList.size() - 1);
-                    if (zhiChiMessageBase != null && SobotStringUtils.isEmpty(zhiChiMessageBase.getT())){
+                    if (zhiChiMessageBase != null && StringUtils.isEmpty(zhiChiMessageBase.getT())) {
                         long t = Long.parseLong(zhiChiMessageBase.getT());
-                        if(t>stringObjectMap.getTime()){
+                        if (t > stringObjectMap.getTime()) {
                             stringObjectMap.setTime(t);
                         }
                     }
                 }
-                stringObjectMap.setTotalSize(stringObjectMap.getUnAckSize()+stringObjectMap.getUnReadSize()+stringObjectMap.getOfflineSize());
                 stringObjectMap.setMessage(context.getResources().getString(R.string.sobot_receive_new_message));
                 if (callBack != null) {
                     callBack.onSuccess(stringObjectMap);
@@ -1392,7 +1202,7 @@ public class ZCSobotApi {
             @Override
             public void onFailure(Exception e, String des) {
                 if (callBack != null) {
-                    callBack.onFailure(e,des);
+                    callBack.onFailure(e, des);
                 }
             }
 

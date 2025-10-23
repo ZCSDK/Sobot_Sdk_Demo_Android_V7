@@ -28,18 +28,17 @@ import com.sobot.chat.api.model.RegionModel;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.widget.dialog.DialogItemOnClick;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
+import com.sobot.chat.widget.loading.SobotLoadingLayout;
+import com.sobot.chat.widget.refresh.layout.SobotRefreshLayout;
+import com.sobot.chat.widget.refresh.layout.api.RefreshLayout;
+import com.sobot.chat.widget.refresh.layout.footer.ClassicsFooter;
+import com.sobot.chat.widget.refresh.layout.header.ClassicsHeader;
+import com.sobot.chat.widget.refresh.layout.listener.OnLoadMoreListener;
+import com.sobot.chat.widget.refresh.layout.listener.OnRefreshListener;
 import com.sobot.network.http.callback.SobotResultCallBack;
-import com.sobot.utils.SobotLogUtils;
-import com.sobot.widget.loading.SobotLoadingLayout;
-import com.sobot.widget.refresh.layout.SobotRefreshLayout;
-import com.sobot.widget.refresh.layout.api.RefreshLayout;
-import com.sobot.widget.refresh.layout.footer.ClassicsFooter;
-import com.sobot.widget.refresh.layout.header.ClassicsHeader;
-import com.sobot.widget.refresh.layout.listener.OnLoadMoreListener;
-import com.sobot.widget.refresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ import java.util.Map;
  */
 public class SobotPostRegionActivity extends SobotDialogBaseActivity implements View.OnClickListener {
 
-    private LinearLayout  ll_level;
+    private LinearLayout ll_level;
     private TextView sobot_tv_title;
     private TextView btnSubmit;
     private String[] selectedIdArr;
@@ -94,6 +93,11 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotPostRegionActivity";
+    }
+
+    @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_select_region;
     }
@@ -119,7 +123,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
 
     @Override
     protected void initView() {
-
+        super.initView();
         listMap = new HashMap<>();
         provinceList = new ArrayList<>();
         checkList = new HashMap<>();
@@ -192,7 +196,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     btnSubmit.setVisibility(View.VISIBLE);
-                    KeyboardUtil.showKeyboard(et_search);
+                    showSoftKeyboard();
                     //列表中显示搜索
                     listMap.put(curLevel, provinceList);
                     ll_search_data.setVisibility(View.VISIBLE);
@@ -237,7 +241,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
                         }
                     }
                 } else {
-                    KeyboardUtil.hideKeyboard(v);
+                    hideKeyboard();
                 }
             }
         });
@@ -369,7 +373,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
         }
         btnSubmit.setVisibility(View.GONE);
         ll_level.removeAllViews();
-        SobotLogUtils.d("=====checkList====" + checkList.size());
+        LogUtils.d("=====checkList====" + checkList.size());
         if (curLevel == 0) {
             ll_level.setVisibility(View.GONE);
         } else {

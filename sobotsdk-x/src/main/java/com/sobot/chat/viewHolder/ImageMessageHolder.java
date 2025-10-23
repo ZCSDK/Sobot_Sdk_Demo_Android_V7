@@ -1,15 +1,16 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
@@ -19,23 +20,29 @@ import com.sobot.chat.widget.image.SobotProgressImageView;
  */
 public class ImageMessageHolder extends MsgHolderBase {
 
-    private LinearLayout ll_msg_content;
     SobotProgressImageView image;
-    private RelativeLayout sobot_rl_real_pic;
     TextView isGif;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
 
     public ImageMessageHolder(Context context, View convertView) {
         super(context, convertView);
         isGif = (TextView) convertView.findViewById(R.id.sobot_pic_isgif);
         image = (SobotProgressImageView) convertView.findViewById(R.id.sobot_iv_picture);
-        sobot_rl_real_pic = convertView.findViewById(R.id.sobot_rl_real_pic);
-        ll_msg_content = convertView.findViewById(R.id.ll_msg_content);
     }
 
     @Override
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         isGif.setVisibility(View.GONE);
         image.setVisibility(View.VISIBLE);
+        if (msgMaxWidth> ScreenUtils.dip2px(mContext,320)){
+            image.setMaxWidth(ScreenUtils.dip2px(mContext,320));
+        }else {
+            image.setMaxWidth(msgMaxWidth);
+        }
+        image.setMaxHeight(ScreenUtils.dip2px(mContext,320));
+
         if (isRight) {
             if (ZhiChiConstant.MSG_SEND_STATUS_ERROR == message.getSendSuccessState()) {
                 msgStatus.setVisibility(View.VISIBLE);
@@ -44,18 +51,40 @@ public class ImageMessageHolder extends MsgHolderBase {
                 msgStatus.setOnClickListener(new RetrySendImageLisenter(context, message
                         .getId(), message.getAnswer().getMsg(), msgStatus, msgCallBack));
                 goneReadStatus();
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
             } else if (ZhiChiConstant.MSG_SEND_STATUS_SUCCESS == message.getSendSuccessState()) {
                 msgStatus.setVisibility(View.GONE);
                 msgProgressBar.setVisibility(View.GONE);
                 refreshReadStatus();
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
             } else if (ZhiChiConstant.MSG_SEND_STATUS_LOADING == message.getSendSuccessState()) {
-                msgProgressBar.setVisibility(View.VISIBLE);
-                msgStatus.setVisibility(View.GONE);
-                goneReadStatus();
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
+                loadingRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        msgProgressBar.setVisibility(View.VISIBLE);
+                        msgStatus.setVisibility(View.GONE);
+                        goneReadStatus();
+                    }
+                };
+                handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
             } else {
                 goneReadStatus();
                 msgStatus.setVisibility(View.GONE);
                 msgProgressBar.setVisibility(View.GONE);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
             }
         } else {
             refreshItem();//左侧消息刷新顶和踩布局
@@ -63,15 +92,15 @@ public class ImageMessageHolder extends MsgHolderBase {
             //关联问题显示逻辑
             if (message != null && message.getSugguestions() != null && message.getSugguestions().length > 0) {
                 resetAnswersList();
-                if (ll_msg_content != null) {
+                if (sobot_msg_content_ll != null) {
                     //图片、视频、文件、小程序根据关联问题数量动态判断气泡内间距
-                    ll_msg_content.setPadding((int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge));
+                    sobot_msg_content_ll.setPadding((int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge));
                 }
             } else {
                 hideAnswers();
-                if (ll_msg_content != null) {
+                if (sobot_msg_content_ll != null) {
                     //图片、视频、文件、小程序根据关联问题数量动态判断气泡内间距
-                    ll_msg_content.setPadding(0, 0, 0, 0);
+                    sobot_msg_content_ll.setPadding(0, 0, 0, 0);
                 }
             }
         }

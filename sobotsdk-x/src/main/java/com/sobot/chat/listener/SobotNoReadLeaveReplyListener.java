@@ -10,5 +10,9 @@ import java.util.List;
 
 public interface SobotNoReadLeaveReplyListener {
 
+    //请求成功
     void onNoReadLeaveReplyListener(List<SobotLeaveReplyModel> sobotLeaveReplyModelList);
+
+    //请求失败（网络原因导致的）
+    void onFailureListener(String erroMsg);
 }

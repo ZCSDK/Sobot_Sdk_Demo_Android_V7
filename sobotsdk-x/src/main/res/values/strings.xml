@@ -50,7 +50,7 @@
     <string name="sobot_receive_new_message">您收到了一条新消息</string>
     <string name="sobot_rating_score">评分</string>
     <string name="sobot_rating_dec">评语</string>
-    <string name="sobot_question">是否解决了您的问题？</string>
+    <string name="sobot_question">%s 是否解决了您的问题？</string>
     <string name="sobot_processing">受理中</string>
     <string name="sobot_problem_types">问题分类</string>
     <string name="sobot_problem_detail_title">问题详情</string>
@@ -62,7 +62,7 @@
     <string name="sobot_please_leave_a_message">请您留言</string>
     <string name="sobot_please_input_reply_no_empty">回复内容不能为空</string>
     <string name="sobot_please_input_reply_hint">请输入您的回复内容</string>
-    <string name="sobot_please_input">请输入</string>
+    <string name="sobot_please_input">请输入...</string>
     <string name="sobot_please_evaluate_this_service">服务评价</string>
     <string name="sobot_please_evaluate">邀请您对本次服务进行评价</string>
     <string name="sobot_please_comment">请您对本次服务进行评价</string>
@@ -227,8 +227,8 @@
     <string name="sobot_parsing">解析中...</string>
     <string name="sobot_keep_queuing">继续排队</string>
     <string name="sobot_keep_queuing_string">如果继续等待，点击</string>
-    <string name="sobot_ding">顶</string>
-    <string name="sobot_cai">踩</string>
+    <string name="sobot_ding">有用</string>
+    <string name="sobot_cai">没用</string>
     <string name="sobot_outline_closed">会话已结束，可重新发起咨询</string>
     <string name="sobot_service_for_you">在线客服正在为您服务</string>
     <string name="sobot_btn_queryfrom_submit_text">提交并咨询</string>
@@ -295,24 +295,31 @@
     <!--4.2.2 二级评级-->
     <string name="sobot_satisfied">满意</string>
     <string name="sobot_dissatisfied">不满意</string>
-<!--    4.2.2 询前表单-->
+    <!--    4.2.2 询前表单-->
     <string name="sobot_from_title">请填写询前表单</string>
-<!--    4.2.3 工单状态-->
+    <!--    4.2.3 工单状态-->
     <string name="sobot_ticket_service_reply">回复了您</string>
     <string name="sobot_ticket_me_reply">您的回复</string>
-<!--    4.2.3 新版UI添加-->
+    <!--    4.2.3 新版UI添加-->
     <string name="sobot_ticket_update_file">上传附件</string>
     <string name="sobot_notice_expand_all">展开全部</string>
     <string name="sobot_ticket_no_reply">暂无回复</string>
     <string name="sobot_ticket_update_file_hite">最多上传 %s 个，大小不超过 %s</string>
     <string name="sobot_ticket_update_file_max_hite">已达上限 15 个</string>
     <string name="sobot_cus_level_all">全部</string>
-    <string name="sobot_please_choice">请选择</string>
+    <string name="sobot_please_choice">请选择...</string>
     <string name="sobot_skill_no_service">暂无客服在线，点击进行留言。</string>
     <string name="sobot_leaveMsg_create_success_des_new">工单处理状态更新后将在会话中提醒您。</string>
     <string name="sobot_phone_code">区号</string>
-<!--    4.2.4 -->
+    <!--    4.2.4 -->
     <string name="sobot_goods_count">商品数</string>
     <string name="sobot_card_more_info">更多信息</string>
     <string name="sobot_see_more">查看更多</string>
+
+    <!--    4.3.0 -->
+    <string name="sobot_str_timeout">加载超时</string>
+    <string name="sobot_str_timeout_reloading">页面加载超时，请重新加载</string>
+    <string name="sobot_ticket_finish">您的工单已完成</string>
+    <string name="sobot_ticket_reply">回复…</string>
+    <string name="sobot_customer_service_representative">人工客服</string>
 </resources>

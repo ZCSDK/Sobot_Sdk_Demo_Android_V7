@@ -16,7 +16,6 @@ import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.pictureframe.SobotBitmapUtil;
-import com.sobot.utils.SobotStringUtils;
 
 /**
  * 自定义卡片
@@ -72,7 +71,7 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
                     tv_head.setVisibility(View.GONE);
                 }
 
-                if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardName())) {
+                if (StringUtils.isNoEmpty(customGoods.getCustomCardName())) {
                     sobot_goods_title.setText(customGoods.getCustomCardName());
                     sobot_goods_title.setVisibility(View.VISIBLE);
                 } else {
@@ -85,13 +84,13 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
                 } else {
                     sobot_goods_pic.setVisibility(View.GONE);
                 }
-                if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardDesc())) {
+                if (StringUtils.isNoEmpty(customGoods.getCustomCardDesc())) {
                     sobot_goods_des.setText(customGoods.getCustomCardDesc());
                     sobot_goods_des.setVisibility(View.VISIBLE);
                 } else {
                     sobot_goods_des.setVisibility(View.GONE);
                 }
-                if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
+                if (StringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
                     sobot_count.setText(context.getResources().getString(R.string.sobot_goods_count) + "：" + customGoods.getCustomCardNum());
                     sobot_count.setVisibility(View.VISIBLE);
                 } else {

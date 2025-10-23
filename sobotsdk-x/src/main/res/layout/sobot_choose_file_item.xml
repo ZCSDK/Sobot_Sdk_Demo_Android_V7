@@ -30,7 +30,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:layout_toEndOf="@+id/sobot_tv_radioBtn"
-            android:background="@drawable/sobot_icon_file" />
+            android:background="@drawable/sobot_icon_file_unknow" />
 
         <TextView
             android:id="@+id/sobot_tv_name"

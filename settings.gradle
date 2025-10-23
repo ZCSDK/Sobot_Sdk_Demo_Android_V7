@@ -13,6 +13,6 @@ dependencyResolutionManagement {
         google()
     }
 }
-rootProject.name = "Sobot_Sdk_Demo_Android_v6_kt"
+rootProject.name = "Sobot_Sdk_Demo_Android_V7"
 include ':app'
 include ':sobotsdk-x'

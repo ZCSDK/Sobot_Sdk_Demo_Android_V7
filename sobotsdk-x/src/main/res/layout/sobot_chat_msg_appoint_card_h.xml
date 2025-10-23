@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="133dp"
-    android:layout_height="wrap_content"
-    android:background="@drawable/sobot_chat_msg_bg_white"
-    android:padding="8dp">
+    style="@style/sobot_msg_appoint_hollow_bg_style">
 
 
     <com.sobot.chat.widget.image.SobotRCImageView
@@ -25,7 +22,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/sobot_color_text_first"
-        android:textSize="@dimen/sobot_text_font_9"
+        android:textSize="@dimen/sobot_text_font_14"
         android:textStyle="bold" />
 
     <TextView
@@ -37,7 +34,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/sobot_goods_des_text_color"
-        android:textSize="@dimen/sobot_text_font_7" />
+        android:textSize="@dimen/sobot_text_font_12" />
 
     <TextView
         android:id="@+id/sobot_goods_label"
@@ -46,5 +43,5 @@
         android:layout_below="@id/sobot_goods_des"
         android:layout_marginTop="7dp"
         android:textColor="@color/sobot_goods_price_text_color"
-        android:textSize="@dimen/sobot_text_font_7" />
+        android:textSize="@dimen/sobot_text_font_12" />
 </RelativeLayout>

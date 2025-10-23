@@ -80,12 +80,12 @@
     </declare-styleable>
 
     <declare-styleable name="sobot_SubsamplingScaleImageView">
-        <attr name="sobot_src" format="reference"/>
-        <attr name="sobot_assetName" format="string"/>
-        <attr name="sobot_panEnabled" format="boolean"/>
-        <attr name="sobot_zoomEnabled" format="boolean"/>
-        <attr name="sobot_quickScaleEnabled" format="boolean"/>
-        <attr name="sobot_tileBackgroundColor" format="color"/>
+        <attr name="sobot_src" format="reference" />
+        <attr name="sobot_assetName" format="string" />
+        <attr name="sobot_panEnabled" format="boolean" />
+        <attr name="sobot_zoomEnabled" format="boolean" />
+        <attr name="sobot_quickScaleEnabled" format="boolean" />
+        <attr name="sobot_tileBackgroundColor" format="color" />
     </declare-styleable>
 
     <!--KPSwitchPanelLayout -->
@@ -120,5 +120,31 @@
         <attr name="image_is_show_progressbar" format="boolean" />
         <!--预加载时背景色-->
         <attr name="image_bg" format="color" />
+    </declare-styleable>
+    
+    <!--  带标题、输入框、错误提示  -->
+    <declare-styleable name="SobotInputView">
+        <!-- 是否隐藏标题-->
+        <attr name="sobot_hint_title" format="boolean" />
+        <!-- 输入类型：single_line、many_lines、select-->
+        <attr name="sobot_input_type" format="string" />
+        <!-- 标题-->
+        <attr name="sobot_input_title" format="string" />
+        <!-- 输入提示-->
+        <attr name="sobot_input_hint" format="string" />
+        <!-- 输入的默认值-->
+        <attr name="sobot_input_value" format="string" />
+        <!-- 输入框输入内容的类型：邮箱、电话、数字-->
+        <attr name="sobot_input_view_type" format="string" />
+        <!-- 选择框右边的小图标,时间、日历、箭头等小图标-->
+        <attr name="sobot_input_select_icon" format="reference" />
+        <!-- 输入框内容长度限制-->
+        <attr name="sobot_input_length_limit" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="SobotLoadingView">
+        <attr name="backgroundColor" format="color" />
+        <attr name="progressColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
 </resources>

@@ -1,6 +1,6 @@
 <resources>
     <style name="sobot_activity_def_theme" parent="Theme.AppCompat.DayNight.NoActionBar" >
-        <!--当设置为 true 时，使底部导航栏变为半透明状态;Activity 的内容可以延伸到导航栏区域显示;用户仍然可以看到导航栏的按键，但它们会覆盖在应用内容之上-->
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@color/sobot_color_transparent</item> <!-- 状态栏颜色 -->
+        <item name="android:navigationBarColor">@color/sobot_color_bg_first</item> <!-- 导航栏颜色 -->
     </style>
 </resources>

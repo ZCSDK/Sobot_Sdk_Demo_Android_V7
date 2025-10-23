@@ -12,10 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiGroupBase;
+import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.horizontalgridpage.SobotRecyclerCallBack;
-import com.sobot.chat.widget.image.SobotProgressImageView;
+import com.sobot.chat.widget.image.SobotRCImageView;
+import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.List;
 
@@ -84,6 +88,10 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
 
     @Override
     public void onBindViewHolder(final SobotSkillAdapter.ViewHolder viewHolder, int position) {
+        if (getInitModel() != null && getInitModel().getAssignmentMode() == 1) {
+            //异步接待 屏蔽留言
+            msgFlag = ZhiChiConstant.sobot_msg_flag_close;
+        }
         viewHolder.itemView.setTag(position);
         ZhiChiGroupBase zhiChiSkillIModel = (ZhiChiGroupBase) list.get(position);
         if (zhiChiSkillIModel != null) {
@@ -91,14 +99,16 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
                 //图文样式
                 viewHolder.sobot_tv_group_name.setText(zhiChiSkillIModel.getGroupName());
                 if (!TextUtils.isEmpty(zhiChiSkillIModel.getGroupPic())) {
-                    viewHolder.sobot_iv_group_img.setImageUrl(zhiChiSkillIModel.getGroupPic());
+                    SobotBitmapUtil.display(mContext, CommonUtils.encode(zhiChiSkillIModel.getGroupPic())
+                            , viewHolder.sobot_iv_group_img);
                 }
             } else if (zhiChiSkillIModel.getGroupStyle() == STYLE_PIC_TEXT_DES) {
                 //图文+描述样式
                 viewHolder.sobot_tv_group_name.setText(zhiChiSkillIModel.getGroupName());
                 viewHolder.sobot_tv_group_desc.setText(zhiChiSkillIModel.getDescription());
                 if (!TextUtils.isEmpty(zhiChiSkillIModel.getGroupPic())) {
-                    viewHolder.sobot_iv_group_img.setImageUrl(zhiChiSkillIModel.getGroupPic());
+                    SobotBitmapUtil.display(mContext, CommonUtils.encode(zhiChiSkillIModel.getGroupPic())
+                            , viewHolder.sobot_iv_group_img);
                 }
             } else {
                 //纯文本
@@ -123,7 +133,7 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
 
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        private SobotProgressImageView sobot_iv_group_img;
+        private SobotRCImageView sobot_iv_group_img;
         private TextView sobot_tv_group_name;
         private TextView sobot_tv_group_desc;
         private LinearLayout sobot_ll_content;
@@ -162,5 +172,14 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
 
     public void setMsgFlag(int msgFlag) {
         this.msgFlag = msgFlag;
+    }
+
+    public ZhiChiInitModeBase getInitModel() {
+        ZhiChiInitModeBase initModel = null;
+        if (mContext != null) {
+            initModel = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(mContext,
+                    ZhiChiConstant.sobot_last_current_initModel);
+        }
+        return initModel;
     }
 }

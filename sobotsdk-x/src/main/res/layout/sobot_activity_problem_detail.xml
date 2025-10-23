@@ -14,9 +14,9 @@
         android:id="@+id/sobot_text_problem_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="@dimen/sobot_Left_right_margin_edge"
+        android:layout_marginTop="@dimen/sobot_Left_right_margin_edge"
+        android:layout_marginEnd="@dimen/sobot_Left_right_margin_edge"
         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
         android:textColor="@color/sobot_color_text_first"
         android:textSize="@dimen/sobot_text_font_16"
@@ -25,12 +25,12 @@
     <com.sobot.chat.widget.SobotWebview
         android:id="@+id/sobot_webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/sobot_Left_right_margin_edge"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="@dimen/sobot_Left_right_margin_edge"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:paddingBottom="8dp"
         android:scrollbars="none" />
 
     <include layout="@layout/sobot_layout_online_service_bottom" />

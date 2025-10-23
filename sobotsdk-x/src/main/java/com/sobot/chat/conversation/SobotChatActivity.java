@@ -1,8 +1,6 @@
 package com.sobot.chat.conversation;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.KeyEvent;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -48,6 +46,11 @@ public class SobotChatActivity extends SobotChatBaseActivity {
         }
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG="SobotChatActivity";
+    }
+
     public static void addFragmentToActivity(FragmentManager fragmentManager,
                                              Fragment fragment, int frameId) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -60,14 +63,6 @@ public class SobotChatActivity extends SobotChatBaseActivity {
 
     }
 
-    @SuppressLint("RestrictedApi")
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if(chatFragment.dispatchkeyEvent(event)){
-            return true;
-        }
-        return super.dispatchKeyEvent(event);
-    }
 
     @Override
     public void onBackPressed() {

@@ -7,13 +7,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
@@ -36,14 +37,16 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
     private ListView listView;
     private TextView sobot_tv_title;
     private ImageView sobot_iv_clear;
+    private LinearLayout sobot_ll_search;
     private EditText sobot_et_search;
     private HorizontalScrollView horizontalScrollView_ll;
     private LinearLayout ll_level;
-    private View sobot_v,v_search_line;
+    private View sobot_v, v_search_line;
 
     private SparseArray<List<SobotCusFieldDataInfo>> tmpMap;//显示的列表
     private List<SobotCusFieldDataInfo> tmpDatas;//选中的数据
     private List<SobotCusFieldDataInfo> selectCusFieldDataInfos;//选中的数据
+    private List<SobotCusFieldDataInfo> searchList;//搜索的全量
     private int currentLevel = 0;
     private String fieldId;
 
@@ -57,7 +60,13 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotPostCascadeActivity";
+    }
+
+    @Override
     protected void initView() {
+        super.initView();
         tmpMap = new SparseArray<>();
         tmpDatas = new ArrayList<>();
         selectCusFieldDataInfos = new ArrayList<>();
@@ -73,6 +82,7 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
         ll_level = findViewById(R.id.ll_level);
         sobot_et_search = (EditText) findViewById(R.id.sobot_et_search);
         sobot_iv_clear = findViewById(R.id.sobot_iv_clear);
+        sobot_ll_search = findViewById(R.id.sobot_ll_search);
         sobot_iv_clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,43 +120,19 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
 
             }
         });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Drawable bgDrawable =  ContextCompat.getDrawable(this,R.drawable.sobot_bg_line_4);
+        sobot_et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                sobot_et_search.setText("");
-                selectCusFieldDataInfos.add(categoryAdapter.getDatas().get(position));
-                if (getNextLevelList(categoryAdapter.getDatas().get(position).getDataId()).size() > 0) {
-                    currentLevel++;
-                    showDataWithLevel(position, categoryAdapter.getDatas().get(position).getDataId());
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    sobot_ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(SobotPostCascadeActivity.this)));
                 } else {
-                    //回显回去
-                    Intent intent = new Intent();
-                    intent.putExtra("CATEGORYSMALL", "CATEGORYSMALL");
-                    intent.putExtra("fieldType", ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE);
-                    String typeName = "";
-                    String typeValue = "";
-                    for (int i = 1; i < selectCusFieldDataInfos.size(); i++) {
-                        if (i == (selectCusFieldDataInfos.size() - 1)) {
-                            typeName = typeName + selectCusFieldDataInfos.get(i).getDataName();
-                            typeValue = typeValue + selectCusFieldDataInfos.get(i).getDataValue();
-                        } else {
-                            typeName = typeName + selectCusFieldDataInfos.get(i).getDataName() + ",";
-                            typeValue = typeValue + selectCusFieldDataInfos.get(i).getDataValue() + ",";
-                        }
-                    }
-                    intent.putExtra("category_typeName", typeName);
-                    intent.putExtra("category_fieldId", fieldId);
-                    intent.putExtra("category_typeValue", typeValue);
-                    setResult(ZhiChiConstant.work_order_list_display_type_category, intent);
-                    for (int i = 0; i < tmpMap.get(currentLevel).size(); i++) {
-                        tmpMap.get(currentLevel).get(i).setChecked(i == position);
-                    }
-                    categoryAdapter.notifyDataSetChanged();
-                    finish();
+                    sobot_ll_search.setBackground(ContextCompat.getDrawable(SobotPostCascadeActivity.this,R.drawable.sobot_bg_line_4));
                 }
             }
         });
+
+        searchList = new ArrayList<>();
     }
 
     @Override
@@ -168,12 +154,33 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
 
         //存贮一级List
         currentLevel = 0;
-        tmpMap.put(0, getNextLevelList(""));
-        if (cusFieldDataInfoList != null && cusFieldDataInfoList.size() != 0) {
+        List<SobotCusFieldDataInfo> fristList = getNextLevelList("");
+        //初始化搜索的数据
+        initSearchMap("","",fristList);
+        tmpMap.put(0, fristList);
+        if (cusFieldDataInfoList != null && !cusFieldDataInfoList.isEmpty()) {
             showDataWithLevel(-1, "");
         }
     }
 
+    private void initSearchMap(String pathName,String pathId,List<SobotCusFieldDataInfo> fristList){
+        //遍历全量数据，整合到map中
+        List<SobotCusFieldDataInfo> list = new ArrayList<>();
+        for (int i = 0; i < fristList.size(); i++) {
+            fristList.get(i).setPathName((StringUtils.isNoEmpty(pathName)?(pathName+" / "):"")+fristList.get(i).getDataName());
+            fristList.get(i).setPathId((StringUtils.isNoEmpty(pathId)?(pathId+","):"")+fristList.get(i).getDataId());
+            if(fristList.get(i).isHasNext()){
+                list.add(fristList.get(i));
+            }else{
+                searchList.add(fristList.get(i));
+            }
+        }
+        if(!list.isEmpty()){
+            for (int i = 0; i < list.size(); i++) {
+                initSearchMap(list.get(i).getPathName(),list.get(i).getPathId(), getNextLevelList(list.get(i).getDataId()));
+            }
+        }
+    }
     private void showDataWithLevel(int position, String dataId) {
         if (position >= 0) {
             tmpMap.put(currentLevel, getNextLevelList(dataId));
@@ -191,35 +198,63 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
         if (categoryAdapter != null) {
             categoryAdapter.notifyDataSetChanged();
         } else {
-            categoryAdapter = new SobotPostCascadeAdapter(SobotPostCascadeActivity.this, SobotPostCascadeActivity.this, tmpDatas);
+            categoryAdapter = new SobotPostCascadeAdapter(SobotPostCascadeActivity.this, SobotPostCascadeActivity.this, tmpDatas, new SobotPostCascadeAdapter.SobotCallBack() {
+                @Override
+                public void itemClick(SobotCusFieldDataInfo info) {
+                    sobot_et_search.clearFocus();
+                    if(StringUtils.isNoEmpty(sobot_et_search.getText().toString())){
+                        sobot_et_search.setText("");
+                        //回显回去
+                        Intent intent = new Intent();
+                        intent.putExtra("CATEGORYSMALL", "CATEGORYSMALL");
+                        intent.putExtra("fieldType", ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE);
+
+                        intent.putExtra("category_typeName", info.getPathName());
+                        intent.putExtra("category_fieldId", fieldId);
+                        intent.putExtra("category_typeValue", info.getPathId());
+                        setResult(ZhiChiConstant.work_order_list_display_type_category, intent);
+                        finish();
+                    }else {
+                        selectCusFieldDataInfos.add(info);
+                        if (getNextLevelList(info.getDataId()).size() > 0) {
+                            currentLevel++;
+                            showDataWithLevel(1, info.getDataId());
+                        } else {
+                            //回显回去
+                            Intent intent = new Intent();
+                            intent.putExtra("CATEGORYSMALL", "CATEGORYSMALL");
+                            intent.putExtra("fieldType", ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE);
+                            String typeName = "";
+                            String typeValue = "";
+                            for (int i = 1; i < selectCusFieldDataInfos.size(); i++) {
+                                if (i == (selectCusFieldDataInfos.size() - 1)) {
+                                    typeName = typeName + selectCusFieldDataInfos.get(i).getDataName();
+                                    typeValue = typeValue + selectCusFieldDataInfos.get(i).getDataValue();
+                                } else {
+                                    typeName = typeName + selectCusFieldDataInfos.get(i).getDataName() + " / ";
+                                    typeValue = typeValue + selectCusFieldDataInfos.get(i).getDataValue() + ",";
+                                }
+                            }
+                            intent.putExtra("category_typeName", typeName);
+                            intent.putExtra("category_fieldId", fieldId);
+                            intent.putExtra("category_typeValue", typeValue);
+                            setResult(ZhiChiConstant.work_order_list_display_type_category, intent);
+                            for (int i = 0; i < tmpMap.get(currentLevel).size(); i++) {
+                                tmpMap.get(currentLevel).get(i).setChecked(tmpMap.get(currentLevel).get(i).getDataId().equals(info.getDataId()));
+                            }
+                            categoryAdapter.notifyDataSetChanged();
+                            finish();
+                        }
+                    }
+                }
+            });
+            categoryAdapter.setSearchList(searchList);
             listView.setAdapter(categoryAdapter);
         }
         updateIndicator();
     }
 
-    /**
-     * 点击标题
-     */
-    private void clickLevel() {
-        if (currentLevel == 0) {
-            finish();
-        } else {
-            currentLevel--;
-            if (currentLevel == 0) {
-                sobot_v.setVisibility(View.VISIBLE);
-                horizontalScrollView_ll.setVisibility(View.GONE);
-                v_search_line.setVisibility(View.GONE);
-            }
-            if (currentLevel >= 1) {
-                sobot_v.setVisibility(View.GONE);
-                horizontalScrollView_ll.setVisibility(View.VISIBLE);
-                v_search_line.setVisibility(View.VISIBLE);
-            }
-            selectCusFieldDataInfos.remove(selectCusFieldDataInfos.size() - 1);
-            List<SobotCusFieldDataInfo> sobotTypeModels = tmpMap.get(currentLevel);
-            notifyListData(sobotTypeModels);
-        }
-    }
+
 
     //获取下一级显示数据
     private List<SobotCusFieldDataInfo> getNextLevelList(String parentDataId) {
@@ -264,13 +299,7 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
                 View view = View.inflate(this, R.layout.sobot_item_cus_level, null);
                 TextView titleTv = view.findViewById(R.id.tv_level);
                 ImageView iv_right = view.findViewById(R.id.iv_right);
-                if (ThemeUtils.isChangedThemeColor(this)) {
-                    int themeColor = ThemeUtils.getThemeColor(this);
-                    Drawable bg = getResources().getDrawable(R.drawable.sobot_cur_level);
-                    if (bg != null) {
-                        iv_right.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
-                    }
-                }
+
                 if (i == selectCusFieldDataInfos.size() - 1) {
                     //最后一项
                     iv_right.setVisibility(View.GONE);
@@ -281,23 +310,23 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
                         @Override
                         public void onClick(View v) {
                             currentLevel = (int) v.getTag();//1
-                            if (currentLevel>0) {
+                            if (currentLevel > 0) {
                                 SobotCusFieldDataInfo select = selectCusFieldDataInfos.get(currentLevel);
                                 showDataWithLevel(currentLevel, select.getDataId());
-                                if(selectCusFieldDataInfos.size()>1){
-                                    int count = selectCusFieldDataInfos.size()-currentLevel-1;
-                                    if(count>0) {
-                                        for (int j = 0; j <count; j++) {
-                                            selectCusFieldDataInfos.remove(selectCusFieldDataInfos.size()-1);
+                                if (selectCusFieldDataInfos.size() > 1) {
+                                    int count = selectCusFieldDataInfos.size() - currentLevel - 1;
+                                    if (count > 0) {
+                                        for (int j = 0; j < count; j++) {
+                                            selectCusFieldDataInfos.remove(selectCusFieldDataInfos.size() - 1);
                                         }
                                     }
                                 }
-                            }else{
+                            } else {
                                 //显示全部
-                                if(selectCusFieldDataInfos.size()>1){
-                                    int count = selectCusFieldDataInfos.size()-1;
-                                    for (int j = 0; j <count; j++) {
-                                        selectCusFieldDataInfos.remove(selectCusFieldDataInfos.size()-1);
+                                if (selectCusFieldDataInfos.size() > 1) {
+                                    int count = selectCusFieldDataInfos.size() - 1;
+                                    for (int j = 0; j < count; j++) {
+                                        selectCusFieldDataInfos.remove(selectCusFieldDataInfos.size() - 1);
                                     }
                                 }
                                 showDataWithLevel(-1, "");

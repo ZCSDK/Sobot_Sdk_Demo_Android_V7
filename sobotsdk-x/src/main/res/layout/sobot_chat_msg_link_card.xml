@@ -4,8 +4,11 @@
     android:id="@+id/sobot_link_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/sobot_bg_normal"
-    android:padding="12dp">
+    android:background="@drawable/sobot_link_card_bg_normal"
+    android:paddingStart="16dp"
+    android:paddingTop="11dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="11dp">
 
     <TextView
         android:id="@+id/tv_title"
@@ -20,17 +23,18 @@
 
     <com.sobot.chat.widget.image.SobotRCImageView
         android:id="@+id/image_link"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
         android:layout_below="@+id/tv_title"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/sobot_bottom_appoint_bg_color"
         android:scaleType="centerCrop"
-        app:sobot_round_corner_bottom_left="2dp"
-        app:sobot_round_corner_bottom_right="2dp"
-        app:sobot_round_corner_top_left="2dp"
-        app:sobot_round_corner_top_right="2dp" />
+        app:sobot_round_corner_bottom_left="4dp"
+        app:sobot_round_corner_bottom_right="4dp"
+        app:sobot_round_corner_top_left="4dp"
+        app:sobot_round_corner_top_right="4dp" />
 
     <TextView
         android:id="@+id/tv_des"
@@ -38,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_title"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:layout_toStartOf="@+id/image_link"
         android:ellipsize="end"
         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"

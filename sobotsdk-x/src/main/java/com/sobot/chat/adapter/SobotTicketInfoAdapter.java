@@ -1,7 +1,5 @@
 package com.sobot.chat.adapter;
 
-import static com.sobot.chat.utils.DateUtil.DATE_TIME_FORMAT;
-
 import android.app.Activity;
 import android.graphics.Rect;
 import android.text.Html;
@@ -23,9 +21,13 @@ import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.SobotUserTicketInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
+import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 留言记录适配器
@@ -40,10 +42,11 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
     private SobotItemListener listener;
 
 
-    public SobotTicketInfoAdapter(Activity activity, List<SobotUserTicketInfo> list,SobotItemListener listener) {
+    public SobotTicketInfoAdapter(Activity activity, List<SobotUserTicketInfo> list, SobotItemListener listener) {
         this.activity = activity;
         this.listener = listener;
         this.list = list;
+        statusList = ChatUtils.getStatusList();
     }
 
     public void setStatusList(List<SobotTicketStatus> statusList) {
@@ -63,10 +66,13 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         TicketInfoViewHolder vh = (TicketInfoViewHolder) viewHolder;
         final SobotUserTicketInfo data = list.get(i);
+        if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
+            vh.tv_title.setText(data.getTicketTitle());
+        }
         if (data != null && !TextUtils.isEmpty(data.getContent())) {
             String tempStr = data.getContent().replaceAll("<br/>", "").replace("<p></p>", "")
                     .replaceAll("<p>", "").replaceAll("</p>", "").replaceAll("\n", "");
-            if(tempStr.contains("<img")) {
+            if (tempStr.contains("<img")) {
                 tempStr = tempStr.replaceAll("<img[^>]*>", " [" + activity.getResources().getString(R.string.sobot_upload) + "] ");
             }
             vh.tv_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(tempStr));
@@ -77,19 +83,18 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             if (status.getStatusType() == 1 || status.getStatusType() == 2 || status.getStatusType() == 4) {
                 //处理中
                 vh.tv_ticket_status.setTextColor(activity.getResources().getColor(R.color.sobot_ticket_deal_text));
-                vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
             } else if (status.getStatusType() == 3) {
                 //带您回复
                 vh.tv_ticket_status.setTextColor(activity.getResources().getColor(R.color.sobot_ticket_reply_text));
-                vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_reply);
             } else if (status.getStatusType() == 5 || status.getStatusType() == 6) {
                 //已解决
                 vh.tv_ticket_status.setTextColor(activity.getResources().getColor(R.color.sobot_ticket_resolved_text));
-                vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_resolved);
             }
         }
         vh.sobot_tv_new.setVisibility(data.isNewFlag() ? View.VISIBLE : View.GONE);
-        vh.tv_time.setText(DateUtil.stringToFormatString(data.getTimeStr(), DATE_TIME_FORMAT, ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE)));
+        Locale locale = (Locale) SharedPreferencesUtil.getObject(activity, ZhiChiConstant.SOBOT_LANGUAGE);
+        String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+        vh.tv_time.setText(DateUtil.longStrToDateStr(data.getTime(), formatString, locale));
 
         displayInNotch(vh.tv_time);
         displayInNotch(vh.tv_content);
@@ -98,7 +103,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 data.setNewFlag(false);
                 notifyDataSetChanged();
-                if(listener!=null){
+                if (listener != null) {
                     listener.onItemClick(data);
                 }
             }
@@ -112,7 +117,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
 
     class TicketInfoViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_ticket_status;
-        private TextView tv_content;
+        private TextView tv_content,tv_title;
         private TextView tv_time;
         private ImageView sobot_tv_new;
 
@@ -120,6 +125,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             super(view);
             tv_ticket_status = view.findViewById(R.id.sobot_tv_ticket_status);
             tv_content = view.findViewById(R.id.sobot_tv_content);
+            tv_title = view.findViewById(R.id.sobot_tv_title);
             tv_time = view.findViewById(R.id.sobot_tv_time);
             sobot_tv_new = view.findViewById(R.id.sobot_tv_new);
         }
@@ -157,7 +163,8 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
 
         }
     }
-    public interface  SobotItemListener {
+
+    public interface SobotItemListener {
         void onItemClick(SobotUserTicketInfo model);
     }
 }

@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         childOfLine = new ArrayList<>();
         int childCount = getChildCount();
-        int totalHeight = 0,tempTotalH=0;
+        int totalHeight = 0,tempTotalH= ScreenUtils.dip2px(getContext(), 46);
         int totalWidth = MeasureSpec.getSize(widthMeasureSpec);
         int curLineChildCount = 0;
         int curLineWidth = 0;

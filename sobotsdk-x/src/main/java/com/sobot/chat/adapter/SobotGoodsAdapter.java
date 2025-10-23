@@ -49,7 +49,6 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int itemWidth;
     private int themeColor;
     private boolean changeThemeColor;
-    private boolean isOne = false;//是否是一个商品
     /**
      * 外层--自定义字段
      * 最多只支持十个自定义字段
@@ -61,7 +60,7 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Map<String, Object> ticketPartnerField;
 
 
-    public SobotGoodsAdapter(Context context, List<SobotChatCustomGoods> list, int cardStyle, Map<String, Object> ticketPartnerField,Map<String, Object> customField,boolean isRight, SobotMsgAdapter.SobotMsgCallBack msgCallBack, boolean isHistory, boolean isOne) {
+    public SobotGoodsAdapter(Context context, List<SobotChatCustomGoods> list, int cardStyle, Map<String, Object> ticketPartnerField,Map<String, Object> customField,boolean isRight, SobotMsgAdapter.SobotMsgCallBack msgCallBack, boolean isHistory) {
         this.context = context;
         this.ticketPartnerField = ticketPartnerField;
         this.customField = customField;
@@ -74,7 +73,6 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.isRight = isRight;
         this.msgCallBack = msgCallBack;
         this.isHistory = isHistory;
-        this.isOne = isOne;
         if (mData == null) {
             mData = new ArrayList<>();
         } else {
@@ -194,15 +192,6 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 //                }
             } else {
                 holder.sobot_goods_pic.setVisibility(View.GONE);
-                //显示横线
-//                if (holder.line != null) {
-//                    //如果只有一个商品，不显示线
-//                    if (isOne) {
-//                        holder.line.setVisibility(View.GONE);
-//                    } else {
-//                        holder.line.setVisibility(View.VISIBLE);
-//                    }
-//                }
             }
 
 //            holder.sobot_goods_pic.setOnClickListener(new MsgHolderBase.ImageClickLisenter(context, customGoods.getCustomCardThumbnail(), isRight));
@@ -418,15 +407,8 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             holder.sobot_goods_btn.setText(menu.getMenuName());
                             holder.sobot_goods_btn.setTag(index);
                             holder.sobot_goods_btn.setVisibility(View.VISIBLE);
-                            if (isOne) {
-                                Drawable drawable = context.getResources().getDrawable(R.drawable.sobot_evaluate_commit_selector);
-                                drawable = ThemeUtils.applyColorToDrawable(drawable, themeColor);
-                                holder.sobot_goods_btn.setBackground(drawable);
-                                holder.sobot_goods_btn.setTextColor(context.getResources().getColor(R.color.sobot_color_white));
-                            } else {
-                                if (changeThemeColor) {
-                                    holder.sobot_goods_btn.setTextColor(themeColor);
-                                }
+                            if (changeThemeColor) {
+                                holder.sobot_goods_btn.setTextColor(themeColor);
                             }
                             if (menu.isDisable()) {
                                 holder.sobot_goods_btn.setEnabled(false);

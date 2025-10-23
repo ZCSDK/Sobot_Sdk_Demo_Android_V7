@@ -79,6 +79,11 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotQuoteDetailActivity";
+    }
+
+    @Override
     protected void initData() {
         if (appointMessage != null) {
             //0文本,1图片,2音频,3视频,4文件,5对象,当msgType=5 时，根据content里边的 type 判断具体的时哪种消息 0-富文本 1-多伦会话 2-位置 3-小卡片 4-订单卡片 6-小程序 17-文章 21-自定义卡片
@@ -89,7 +94,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                 //文本
                 String text = appointMessage.getContent();
                 TextView textView = new TextView(this);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimensionPixelSize(R.dimen.sobot_text_font_18));
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.sobot_text_font_18));
                 textView.setTextColor(ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
                 textView.setLayoutParams(wlayoutParams);
                 //设置行间距
@@ -275,7 +280,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                 // 0：文本，1：图片，2：音频，3：视频，4：文件
                                                 if (richListModel.getType() == 0) {
                                                     TextView textView = new TextView(this);
-                                                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
+                                                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
                                                     textView.setLayoutParams(wlayoutParams);
                                                     textView.setMaxWidth(msgMaxWidth);
                                                     textView.setTextColor(ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
@@ -431,7 +436,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                     SobotProgressImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
                                                     if (!TextUtils.isEmpty(richListModel.getVideoImgUrl())) {
                                                         sobot_video_first_image.setImageUrl(richListModel.getVideoImgUrl());
-                                                    }else if (!TextUtils.isEmpty(richListModel.getMsg())) {
+                                                    } else if (!TextUtils.isEmpty(richListModel.getMsg())) {
                                                         sobot_video_first_image.setImageUrl(richListModel.getMsg());
                                                         sobot_video_first_image.setImageWidthAndHeight(msgMaxWidth, msgMaxWidth * 146 / 246);
                                                     }
@@ -448,8 +453,8 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                             String name = MD5Util.encode(richListModel.getMsg());
                                                             int dotIndex = richListModel.getMsg().lastIndexOf('.');
                                                             if (dotIndex == -1) {
-                                                                name = name +".mp4";
-                                                            }else {
+                                                                name = name + ".mp4";
+                                                            } else {
                                                                 name = name + richListModel.getMsg().substring(dotIndex + 1);
                                                             }
                                                             cacheFile.setFileName(name);

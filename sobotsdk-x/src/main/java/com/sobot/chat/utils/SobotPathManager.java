@@ -1,7 +1,6 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Environment;
 
 import com.sobot.chat.api.apiUtils.SobotApp;
@@ -55,40 +54,24 @@ public class SobotPathManager {
 
     //sdcard/download/xxxx/video
     public String getVideoDir() {
-        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT){
-            return getRootDir() + File.separator + VIDEO_DIR + File.separator;
-        } else {
-            return mContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getPath() + File.separator;
-        }
+        return mContext.getExternalFilesDir(Environment.DIRECTORY_MOVIES).getPath() + File.separator;
     }
 
     //sdcard/download/xxxx/voice
     public String getVoiceDir() {
-        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT){
-            return getRootDir() + File.separator + VOICE_DIR + File.separator;
-        } else {
-            return mContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC).getPath() + File.separator;
-        }
+        return mContext.getExternalFilesDir(Environment.DIRECTORY_MUSIC).getPath() + File.separator;
 
     }
 
     //sdcard/download/xxxx/pic
     public String getPicDir() {
-        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT){
-            return getRootDir() + File.separator + PIC_DIR + File.separator;
-        } else {
-            return mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + File.separator;
-        }
+        return mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + File.separator;
 
     }
 
     //sdcard/download/xxxx/cache
     public String getCacheDir() {
-        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.KITKAT){
-            return getRootDir() + File.separator + CACHE_DIR + File.separator;
-        } else {
-            return mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + CACHE_DIR + File.separator;
-        }
+        return mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath() + File.separator + CACHE_DIR + File.separator;
 
     }
 

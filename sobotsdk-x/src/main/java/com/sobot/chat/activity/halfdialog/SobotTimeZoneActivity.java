@@ -14,14 +14,14 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotTimezone;
+import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.timePicker.view.SobotWheelTime;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
-import com.sobot.utils.SobotDateUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,7 +73,13 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotTimeZoneActivity";
+    }
+
+    @Override
     protected void initView() {
+        super.initView();
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
         tv_time_zone = findViewById(R.id.tv_time_zone);
         type = new boolean[]{true, true, true, true, true, false};//显示类型 默认全部显示
@@ -100,7 +106,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
         sobot_tv_title.setText(cusFieldConfig.getFieldName());
         String timsStr;
         //设置默认值
-        if (SobotStringUtils.isNoEmpty(cusFieldConfig.getShowName())) {
+        if (StringUtils.isNoEmpty(cusFieldConfig.getShowName())) {
             String[] zoneName = cusFieldConfig.getShowName().split(",");
             String[] zoneValue = cusFieldConfig.getValue().split(",");
             if (zoneName.length == 2) {
@@ -113,7 +119,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
             } else {
                 timsStr = cusFieldConfig.getText();
             }
-            Date date1 = SobotDateUtil.parse(timsStr, new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()));
+            Date date1 = DateUtil.parse(timsStr, new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()));
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date1);
             wheelTime.setPicker(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 0);
@@ -268,7 +274,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 30003 && data != null) {
             selectTimeZone = (SobotTimezone) data.getSerializableExtra("selectStauts");
-            if (selectTimeZone != null && SobotStringUtils.isNoEmpty(selectTimeZone.getTimezoneValue())) {
+            if (selectTimeZone != null && StringUtils.isNoEmpty(selectTimeZone.getTimezoneValue())) {
                 tv_time_zone.setText(selectTimeZone.getTimezoneValue());
             } else {
                 tv_time_zone.setText("");

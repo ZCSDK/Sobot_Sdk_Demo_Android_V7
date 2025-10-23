@@ -8,8 +8,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sobot.chat.utils.LogUtils;
-
 /**
  * 调整RecyclerView的滚动速度 滚动距离越远，速度越快
  */

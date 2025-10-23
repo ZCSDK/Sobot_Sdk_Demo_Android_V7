@@ -2,6 +2,7 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.model.SobotLink;
@@ -34,6 +36,9 @@ public class TextMessageHolder extends MsgHolderBase {
     LinearLayout sobot_ll_card;//超链接显示的卡片
     //离线留言信息标志
     TextView sobot_tv_icon;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
 
     public TextMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -146,6 +151,7 @@ public class TextMessageHolder extends MsgHolderBase {
 
             if (isRight) {
                 try {
+                    msg.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
                     msgStatus.setClickable(true);
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
                         if (!StringUtils.isEmpty(message.getDesensitizationWord())) {
@@ -154,20 +160,41 @@ public class TextMessageHolder extends MsgHolderBase {
                         msgStatus.setVisibility(View.GONE);
                         msgProgressBar.setVisibility(View.GONE);
                         sobot_msg_content_ll.setVisibility(View.VISIBLE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_ERROR) {
                         msgStatus.setVisibility(View.VISIBLE);
                         msgProgressBar.setVisibility(View.GONE);
                         msgStatus.setOnClickListener(new ReSendTextLisenter(context, message
                                 .getId(), content, msgStatus, msgCallBack));
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_LOADING) {
-                        msgProgressBar.setVisibility(View.VISIBLE);
-                        msgStatus.setVisibility(View.GONE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
+                        loadingRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                msgProgressBar.setVisibility(View.VISIBLE);
+                                msgStatus.setVisibility(View.GONE);
+                            }
+                        };
+                        handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                     }
                     if (sobot_tv_icon != null) {
                         sobot_tv_icon.setVisibility(message.isLeaveMsgFlag() ? View.VISIBLE : View.GONE);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // 当状态变为成功或失败时，移除延迟任务
+                    if (handler != null && loadingRunnable != null) {
+                        handler.removeCallbacks(loadingRunnable);
+                    }
                 }
             }
         } else {

@@ -12,8 +12,8 @@ import android.widget.LinearLayout;
 import com.sobot.chat.R;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.utils.SobotStringUtils;
 
 //拖拽吸附控件
 public class SobotRobotAttachLinearlayout extends LinearLayout {
@@ -142,7 +142,7 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
                             // 测量 换业务 文字的宽度，向右移动该宽度
                             float width = paint.measureText(getResources().getString(R.string.sobot_switch_business));
                             String language = SharedPreferencesUtil.getStringData(getContext(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
-                            if (SobotStringUtils.isNoEmpty(language)) {
+                            if (StringUtils.isNoEmpty(language)) {
                                 //自动贴边
 //                                if (mLastRawX <= center) {
                                 if ("ar".equals(language)) {

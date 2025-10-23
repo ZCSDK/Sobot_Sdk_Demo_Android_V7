@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Vue de contenu introuvable. Avez-vous oublié de l\'ajouter dans le fichier de mise en page XML ?</string>
+    <string name="sobot_srl_header_pulling">Tirer vers le bas pour actualiser</string>
+    <string name="sobot_srl_header_refreshing">Actualisation en cours...</string>
+    <string name="sobot_srl_header_loading">En attente de la fin du chargement du bas...</string>
+    <string name="sobot_srl_header_release">Relâcher pour actualiser immédiatement</string>
+    <string name="sobot_srl_header_finish">Actualisation terminée</string>
+    <string name="sobot_srl_header_failed">Échec de l\'actualisation</string>
+    <string name="sobot_srl_header_update">Dernière mise à jour %s</string>
+    <string name="sobot_srl_header_secondary">Relâcher pour accéder au deuxième étage</string>
+    <string name="sobot_srl_footer_pulling">Tirer vers le haut pour charger plus</string>
+    <string name="sobot_srl_footer_release">Relâcher pour charger immédiatement</string>
+    <string name="sobot_srl_footer_loading">Chargement en cours...</string>
+    <string name="sobot_srl_footer_refreshing">En attente de la fin de l\'actualisation de l\'en-tête...</string>
+    <string name="sobot_srl_footer_finish">Chargement terminé</string>
+    <string name="sobot_srl_footer_failed">Échec du chargement</string>
+    <string name="sobot_srl_footer_nothing">Plus de données disponibles</string>
+    <string name="sobot_no_data_string">Aucune donnée disponible</string>
+    <string name="sobot_no_net_string">Pas de connexion réseau, veuillez vérifier votre réseau...</string>
+    <string name="sobot_error_click_reload_string">Échec du chargement, cliquez pour réessayer~~</string>
+    <string name="sobot_loading_string">Chargement en cours...</string>
+</resources>

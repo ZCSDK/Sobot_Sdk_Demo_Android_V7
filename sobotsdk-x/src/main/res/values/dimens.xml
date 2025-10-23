@@ -8,13 +8,25 @@
 
 
     <!--聊天界面 图片消息气泡中的 单独一张图片 最大 宽度-->
-    <dimen name="sobot_msg_picture_max_width">160dp</dimen>
+    <dimen name="sobot_msg_picture_max_width">320dp</dimen>
     <!--聊天界面 图片消息气泡中的 单独一张图片 最大 高度 -->
-    <dimen name="sobot_msg_picture_max_height">160dp</dimen>
+    <dimen name="sobot_msg_picture_max_height">320dp</dimen>
     <!--聊天界面 图片消息气泡中的 单独一张图片 最小 宽度-->
-    <dimen name="sobot_msg_picture_min_width">160dp</dimen>
+    <dimen name="sobot_msg_picture_min_width">44dp</dimen>
     <!--聊天界面 图片消息气泡中的 单独一张图片 最小 高度 -->
-    <dimen name="sobot_msg_picture_min_height">160dp</dimen>
+    <dimen name="sobot_msg_picture_min_height">44dp</dimen>
+    <!--聊天界面 图片消息气泡中的 单独一个视频 最大 宽度-->
+    <dimen name="sobot_msg_video_max_width">240dp</dimen>
+    <!--聊天界面 图片消息气泡中的 单独一个视频 最大 高度 -->
+    <dimen name="sobot_msg_video_max_height">240dp</dimen>
+    <!--聊天界面 图片消息气泡中的  单独一个视频 最小 宽度-->
+    <dimen name="sobot_msg_video_min_width">100dp</dimen>
+    <!--聊天界面 图片消息气泡中的  单独一个视频 最小 高度 -->
+    <dimen name="sobot_msg_video_min_height">100dp</dimen>
+    <!--聊天界面 引用消息气泡中的 单独一张图片 最大 宽度-->
+    <dimen name="sobot_appoint_msg_picture_max_width">80dp</dimen>
+    <!--聊天界面 引用消息气泡中的 单独一张图片 最大 高度 -->
+    <dimen name="sobot_appoint_msg_picture_max_height">80dp</dimen>
 
     <!--文字大小-->
     <dimen name="sobot_text_font_7">7sp</dimen>
@@ -38,13 +50,20 @@
     <dimen name="sobot_text_line_spacing_extra">4dp</dimen>
 
     <!--activity界面导航栏通用高度（不包含状态栏） -->
-    <dimen name="sobot_common_titlebar_hight">44dp</dimen>
+    <dimen name="sobot_common_titlebar_hight">54dp</dimen>
     <!---activity界面导航栏 标题文字大小-->
-    <dimen name="sobot_common_titlebar_name_sp">@dimen/sobot_text_font_16</dimen>
+    <dimen name="sobot_common_titlebar_name_sp">@dimen/sobot_text_font_14</dimen>
 
+    <!--通用 距屏幕边 间距 -->
+    <dimen name="sobot_Left_right_margin_edge">20dp</dimen>
+
+    <!-- 通用头部 中间文字最大宽度 -->
+    <dimen name="sobot_title_max_width">260dp</dimen>
     <!--聊天界面-->
     <!--头部导航栏高度（不包含状态栏） -->
-    <dimen name="sobot_header_titlebar_hight">44dp</dimen>
+    <dimen name="sobot_header_titlebar_hight">54dp</dimen>
+    <!--导航栏头像 宽高 -->
+    <dimen name="sobot_header_face_width_heigth">36dp</dimen>
     <!--头部导航栏昵称 文字 大小 -->
     <dimen name="sobot_header_titlebar_name_sp">@dimen/sobot_text_font_14</dimen>
     <!--头部导航栏公司 文字 大小 -->
@@ -52,50 +71,70 @@
 
     <!--聊天界面 中间消息列表 -->
     <!--两个消息 上下间 间距 -->
-    <dimen name="sobot_msg_top_bottom_margin">12dp</dimen>
+    <dimen name="sobot_msg_top_bottom_margin">20dp</dimen>
+    <!--两个消息 上下间 间距 1分钟相邻两条消息是同一个人发的，调整间距变小 -->
+    <dimen name="sobot_msg_top_bottom_small_margin">4dp</dimen>
     <!--头像 宽高 -->
-    <dimen name="sobot_msg_face_width_heigth">32dp</dimen>
+    <dimen name="sobot_msg_face_width_heigth">22dp</dimen>
     <!--昵称 文字 大小 -->
     <dimen name="sobot_msg_nickname_size">12sp</dimen>
     <!--左、右侧消息 距屏幕边 间距 -->
-    <dimen name="sobot_msg_margin_edge">16dp</dimen>
+    <dimen name="sobot_msg_margin_edge">20dp</dimen>
     <!--左、右侧消息 气泡左右内间距 -->
     <dimen name="sobot_msg_left_right_padding_edge">16dp</dimen>
     <!--左、右侧消息 气泡上下内间距 -->
-    <dimen name="sobot_msg_top_bottom_padding_edge">12dp</dimen>
+    <dimen name="sobot_msg_top_bottom_padding_edge">13dp</dimen>
     <!--线条边框消息 内间距 ，例如小程序 文章 商品、订单卡片消息  -->
     <dimen name="sobot_msg_frame_msgtype_spacing">12dp</dimen>
-    <!--左、右侧消息 气泡 圆角大小 -->
+    <!--左、右侧消息 气泡 小圆角弧度 -->
     <dimen name="sobot_msg_corner_radius">4dp</dimen>
-    <!--左、右侧消息 气泡 圆角大小 用户卡片消息 -->
-    <dimen name="sobot_msg_corner_radius_second">8dp</dimen>
+    <!--左、右侧消息 气泡 大圆角弧度 -->
+    <dimen name="sobot_msg_big_corner_radius">20dp</dimen>
+    <!--左、右侧消息 气泡 圆角大小 卡片消息 文章 小程序 位置 图片 视频 文件 -->
+    <dimen name="sobot_msg_corner_radius_second">12dp</dimen>
+    <!--左、右侧消息 气泡 图片\视频消息 圆角弧度 -->
+    <dimen name="sobot_msg_image_video_corner_radius">12dp</dimen>
     <!--右侧消息 (文件、商品卡片、订单卡片、文件类型的气泡) 线框边框宽度 -->
     <dimen name="sobot_right_msg_line_width">1dp</dimen>
     <!--消息气泡边界到屏幕边上的宽度 -->
-    <dimen name="sobot_chat_msg_boundary_to_empty_width">56dp</dimen>
+    <dimen name="sobot_chat_msg_boundary_to_empty_width">60dp</dimen>
+    <!--消息 头像和昵称之间的间距 头像和气泡上线布局 -->
+    <dimen name="sobot_chat_msg_nick_face_margin_edge">8dp</dimen>
+    <!--消息 昵称和气泡之间的间距 头像昵称和气泡上线布局-->
+    <dimen name="sobot_chat_msg_nick_bubble_margin_edge">4dp</dimen>
+    <!--消息 （文章、文件等）最大宽度-->
+    <dimen name="sobot_msg_max_width">400dp</dimen>
+    <!--消息 （文章、文件、多轮等）最小宽度-->
+    <dimen name="sobot_msg_min_width">288dp</dimen>
 
     <!--线条高度 -->
-    <dimen name="sobot_line_height_dp">0.6dp</dimen>
+    <dimen name="sobot_line_height_dp">1dp</dimen>
 
     <!---聊天界面 底部 快捷菜单 输入框 扩展菜单 -->
     <!--快捷菜单 菜单之间的间距 -->
     <dimen name="sobot_layout_lable_margin_right">8dp</dimen>
+
+
+    <dimen name="sobot_min_panel_height">280dp</dimen>
+    <dimen name="sobot_max_panel_height">400dp</dimen>
+    <dimen name="sobot_min_keyboard_height">160dp</dimen>
+
+    <!--留言顶部距离 -->
+    <dimen name="sobot_tiket_text_line_margin">16dp</dimen>
+    <dimen name="sobot_tiket_text_and_value_margin">4dp</dimen>
+    <!--弹窗的边距-->
+    <dimen name="sobot_dialog_margin">24dp</dimen>
+
 
     <!--底部多功能菜单高度 -->
     <!--底部多功能菜单一行的高度 -->
     <dimen name="sobot_chat_plus_one_line_height">158dp</dimen>
     <!--底部多功能菜单两行的高度 -->
     <dimen name="sobot_chat_plus_two_line_height">250dp</dimen>
-    <dimen name="sobot_min_panel_height">280dp</dimen>
-    <dimen name="sobot_max_panel_height">400dp</dimen>
-    <dimen name="sobot_min_keyboard_height">160dp</dimen>
-    <!--底部多功能菜单表情图标大小 -->
-    <dimen name="sobot_item_emoticon_size_default">32dp</dimen>
+    <!--加号里边表情区域 高度-->
+    <dimen name="sobot_emoji_panel_height">284dp</dimen>
+    <!--表情 宽高度-->
+    <dimen name="sobot_item_emoticon_size_default">28dp</dimen>
 
-    <!--留言顶部距离 -->
-    <dimen name="sobot_tiket_text_line_margin">12dp</dimen>
-    <dimen name="sobot_tiket_text_and_value_margin">4dp</dimen>
-    <!--弹窗的边距-->
-    <dimen name="sobot_dialog_margin">16dp</dimen>
 
 </resources>

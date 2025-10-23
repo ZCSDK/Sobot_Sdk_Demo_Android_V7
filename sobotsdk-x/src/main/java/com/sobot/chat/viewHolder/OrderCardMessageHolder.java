@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.OrderCardContentModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
@@ -19,6 +20,7 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -28,6 +30,7 @@ import com.sobot.chat.widget.image.SobotProgressImageView;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 /**
  * 订单卡片
@@ -44,6 +47,10 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
     private View mSeeAllSplitTV;
     private TextView mSeeAllTV;
     private OrderCardContentModel orderCardContent;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
+
 
     public OrderCardMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -132,16 +139,16 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
             StringBuilder s = new StringBuilder();
             StringBuilder s1 = new StringBuilder();
             if (!TextUtils.isEmpty(orderCardContent.getGoodsCount())) {
-                s .append(context.getResources().getString(R.string.sobot_card_order_num) + " " +orderCardContent.getGoodsCount() +" " + context.getResources().getString(R.string.sobot_how_goods));
-                s1 .append(context.getResources().getString(R.string.sobot_card_order_num) + " " +orderCardContent.getGoodsCount() +" " + context.getResources().getString(R.string.sobot_how_goods));
+                s.append(context.getResources().getString(R.string.sobot_card_order_num) + " " + orderCardContent.getGoodsCount() + " " + context.getResources().getString(R.string.sobot_how_goods));
+                s1.append(context.getResources().getString(R.string.sobot_card_order_num) + " " + orderCardContent.getGoodsCount() + " " + context.getResources().getString(R.string.sobot_how_goods));
             }
-            if(s.length()>0){
+            if (s.length() > 0) {
                 s.append(" ");
                 s1.append("\n");
             }
             if (!TextUtils.isEmpty(getMoney(orderCardContent.getTotalFee()))) {
-                s.append( context.getResources().getString(R.string.sobot_order_total_money) + " " + getMoney(orderCardContent.getTotalFee()) + " " + context.getResources().getString(R.string.sobot_money_format));
-                s1.append( context.getResources().getString(R.string.sobot_order_total_money) + " "  + getMoney(orderCardContent.getTotalFee()) + " " + context.getResources().getString(R.string.sobot_money_format));
+                s.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + getMoney(orderCardContent.getTotalFee()) + " " + context.getResources().getString(R.string.sobot_money_format));
+                s1.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + getMoney(orderCardContent.getTotalFee()) + " " + context.getResources().getString(R.string.sobot_money_format));
             }
             mGoodsCount.setText(s);
             final StringBuilder finalS = s1;
@@ -163,7 +170,9 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
             }
 
             if (!TextUtils.isEmpty(orderCardContent.getCreateTime())) {
-                mOrderCreatetime.setText(context.getResources().getString(R.string.sobot_order_time_lable) + "：" + DateUtil.longToDateStr(Long.parseLong(orderCardContent.getCreateTime()), "yyyy-MM-dd HH:mm:ss"));
+                Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
+                String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+                mOrderCreatetime.setText(context.getResources().getString(R.string.sobot_order_time_lable) + "：" + DateUtil.longStrToDateStr(orderCardContent.getCreateTime(), formatString, locale));
                 mOrderCreatetime.setVisibility(View.VISIBLE);
             } else {
                 mOrderCreatetime.setVisibility(View.GONE);
@@ -202,14 +211,30 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
                         msgStatus.setVisibility(View.GONE);
                         msgProgressBar.setVisibility(View.GONE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_ERROR) {
                         msgStatus.setVisibility(View.VISIBLE);
                         msgProgressBar.setVisibility(View.GONE);
-//                        msgStatus.setOnClickListener(new TextMessageHolder.ReSendTextLisenter(context, message
-//                                .getId(), content, msgStatus, msgCallBack));
+// 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_LOADING) {
-                        msgProgressBar.setVisibility(View.VISIBLE);
-                        msgStatus.setVisibility(View.GONE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
+                        loadingRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                msgProgressBar.setVisibility(View.VISIBLE);
+                                msgStatus.setVisibility(View.GONE);
+                            }
+                        };
+                        handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -219,8 +244,8 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
         sobot_msg_content_ll.setOnClickListener(this);
         refreshReadStatus();
         if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 +16));
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16+16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
         }
     }
 

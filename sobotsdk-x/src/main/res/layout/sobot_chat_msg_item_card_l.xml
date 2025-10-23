@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,7 +36,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="vertical">
 
             <LinearLayout
@@ -48,10 +48,11 @@
                 <!--消息内容 -->
                 <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                     android:id="@+id/sobot_msg_content_ll"
-                    style="@style/sobot_msg_file_left_content_ll_bg_style"
+                    style="@style/sobot_msg_content_ll_hollow_bg_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
+                    android:background="@drawable/sobot_bg_line_12"
                     android:orientation="horizontal">
 
 

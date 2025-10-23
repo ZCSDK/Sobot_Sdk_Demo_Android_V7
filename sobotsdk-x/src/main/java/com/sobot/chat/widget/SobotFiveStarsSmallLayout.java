@@ -55,9 +55,9 @@ public class SobotFiveStarsSmallLayout extends LinearLayout {
             lp = new LayoutParams(ScreenUtils.dip2px(getContext(), 15),
                     ScreenUtils.dip2px(getContext(), 15));
             if (i != 4) {
-                lp.setMarginEnd(ScreenUtils.dip2px(getContext(), 10f));
+                lp.rightMargin = ScreenUtils.dip2px(getContext(), 10f);
             } else {
-                lp.setMarginEnd(0);
+                lp.rightMargin = 0;
             }
             imageView.setLayoutParams(lp);
             if (i < defScore) {

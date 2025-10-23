@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_fad"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical">
+    android:background="@drawable/sobot_item_issue_selector"
+    android:gravity="center_vertical"
+    android:paddingEnd="10dp"
+    android:paddingStart="10dp"
+    android:paddingTop="9dp"
+    android:paddingBottom="9dp">
 
     <TextView
         android:id="@+id/sobot_tv_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
         android:layout_weight="1"
+        android:gravity="start|center_vertical"
         android:includeFontPadding="false"
-        android:paddingTop="11dp"
-        android:paddingBottom="10dp"
         android:textColor="@color/sobot_color_text_first"
         android:textSize="@dimen/sobot_text_font_14" />
 
     <ImageView
         android:id="@+id/sobot_im_icon_right"
-        android:layout_width="10dp"
-        android:layout_height="20dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="fitXY"
-        android:src="@drawable/sobot_right_arrow_icon" />
-
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/sobot_icon_right_arrow" />
 </LinearLayout>

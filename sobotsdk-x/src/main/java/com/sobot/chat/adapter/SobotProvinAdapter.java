@@ -84,7 +84,7 @@ public class SobotProvinAdapter extends SobotBaseAdapter<SobotProvinInfo.SobotPr
 
             if (data.nodeFlag) {
                 categoryIshave.setVisibility(View.VISIBLE);
-                categoryIshave.setImageResource(R.drawable.sobot_right_arrow_icon);
+                categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow);
             } else {
                 categoryIshave.setVisibility(View.GONE);
             }
@@ -94,7 +94,7 @@ public class SobotProvinAdapter extends SobotBaseAdapter<SobotProvinInfo.SobotPr
                 categoryIshave.setVisibility(View.VISIBLE);
                 if (ThemeUtils.isChangedThemeColor(mActivity)) {
                     int themeColor = ThemeUtils.getThemeColor(mActivity);
-                    Drawable bg = mActivity.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                    Drawable bg = mActivity.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                     if (bg != null) {
                         categoryIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                     }

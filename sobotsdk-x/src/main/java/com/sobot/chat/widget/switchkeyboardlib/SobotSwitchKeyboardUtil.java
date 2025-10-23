@@ -1,0 +1,262 @@
+package com.sobot.chat.widget.switchkeyboardlib;
+
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+
+public class SobotSwitchKeyboardUtil extends SobotBaseSwitchKeyboardUtil {
+    private OnKeyboardMenuListener onKeyboardMenuListener;
+    private final SobotMenuModeView IDLE = new SobotMenuModeView(null, null);
+    private SobotMenuModeView menuMode = IDLE;
+    private SobotMenuModeView[] menuModeViews;
+    private View lastVisibleView;
+    private SobotMenuModeView lastMenuModeView;
+
+    public SobotSwitchKeyboardUtil(Activity activity) {
+        super(activity);
+    }
+
+    /**
+     * @param menuModeView 展开的点击按钮和对应的隐藏布局
+     */
+    public void setToggleMenuViews(SobotMenuModeView... menuModeView) {
+        menuModeViews = menuModeView;
+    }
+
+    @Override
+    protected void onCreate(@NonNull LifecycleOwner owner) {
+        super.onCreate(owner);
+        super.setOnKeyboardMenuListener(new OnKeyboardMenuListener() {
+            @Override
+            public void onScrollToBottom() {
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onScrollToBottom();
+                }
+            }
+
+            @Override
+            public void onKeyboardHide(int keyboardHeight) {
+                if (menuMode == IDLE && menuViewContainer != null) {
+                    menuViewContainer.setVisibility(View.GONE);
+                }
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onKeyboardHide(keyboardHeight);
+                }
+            }
+
+            @Override
+            public void onKeyboardShow(int keyboardHeight) {
+                menuMode = IDLE;
+                isShowMenu = false;
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onKeyboardShow(keyboardHeight);
+                }
+            }
+
+            @Override
+            public void onCallShowKeyboard() {
+                menuMode = IDLE;
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onCallShowKeyboard();
+                }
+            }
+
+            @Override
+            public void onCallHideKeyboard() {
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onCallHideKeyboard();
+                }
+            }
+
+            @Override
+            public void onShowMenuLayout(View layoutView) {
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onShowMenuLayout(layoutView);
+                }
+            }
+
+            @Override
+            public void onHideMenuViewContainer() {
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onHideMenuViewContainer();
+                }
+            }
+        });
+        if (menuModeViews != null) {
+            int childNum = menuViewContainer.getChildCount();
+            for (SobotMenuModeView menuModeView : menuModeViews) {
+                boolean isHasView = false;
+                for (int i = 0; i < childNum; i++) {
+                    View view = menuViewContainer.getChildAt(i);
+                    if (view == menuModeView.toggleViewContainer) {
+                        isHasView = true;
+                    }
+                }
+                if (!isHasView) {
+                    throw new IllegalArgumentException("menuModeView.toggleViewContainer 必须是 menuViewContainer 的子View");
+                }
+                menuModeView.clickToggleView.setOnClickListener(v -> {
+                    if (menuModeView.clickToggleViewIsMenuContainer) {
+                        switchMenuIn(menuModeView);
+                    } else {
+                        switchMenu(menuModeView);
+                    }
+                });
+                if (menuModeView.backView != null) {
+                    menuModeView.backView.setOnClickListener(v -> {
+                        for (SobotMenuModeView menuModeView2 : menuModeViews) {
+                            menuModeView2.toggleViewContainer.setVisibility(View.GONE);
+                        }
+                        if (lastVisibleView != null) {
+                            lastVisibleView.setVisibility(View.VISIBLE);
+                        }
+                        setSwitchAnim(lastMenuModeView, menuViewContainer.getVisibility(), false);
+                    });
+                }
+            }
+        }
+    }
+
+    private void switchMenu(SobotMenuModeView clickViewMenuMode) {
+        recordLastVisibleView();
+        int menuViewContainerVisibility = menuViewContainer.getVisibility();
+        if (menuMode == IDLE) {
+            menuMode = clickViewMenuMode;
+            boolean showMenu = toggleMoreView();
+            for (SobotMenuModeView menuModeView : menuModeViews) {
+                menuModeView.toggleViewContainer.setVisibility(clickViewMenuMode == menuModeView ? View.VISIBLE : View.GONE);
+            }
+            setSwitchAnim(clickViewMenuMode, menuViewContainerVisibility, showMenu);
+            if (onKeyboardMenuListener != null) {
+                onKeyboardMenuListener.onShowMenuLayout(clickViewMenuMode.toggleViewContainer);
+            }
+        } else if (menuMode != clickViewMenuMode) {
+            isShowMenu = true;
+            menuMode = clickViewMenuMode;
+            for (SobotMenuModeView menuModeView : menuModeViews) {
+                menuModeView.toggleViewContainer.setVisibility(clickViewMenuMode == menuModeView ? View.VISIBLE : View.GONE);
+            }
+            setSwitchAnim(clickViewMenuMode, menuViewContainerVisibility, false);
+            if (onKeyboardMenuListener != null) {
+                onKeyboardMenuListener.onShowMenuLayout(clickViewMenuMode.toggleViewContainer);
+            }
+        } else {
+            boolean showMenu = toggleMoreView();
+            if (showMenu) {
+                for (SobotMenuModeView menuModeView : menuModeViews) {
+                    menuModeView.toggleViewContainer.setVisibility(clickViewMenuMode == menuModeView ? View.VISIBLE : View.GONE);
+                }
+                setSwitchAnim(clickViewMenuMode, menuViewContainerVisibility, true);
+                if (onKeyboardMenuListener != null) {
+                    onKeyboardMenuListener.onShowMenuLayout(clickViewMenuMode.toggleViewContainer);
+                }
+            } else {
+                showKeyboardAnim();
+            }
+        }
+    }
+
+
+    private void switchMenuIn(SobotMenuModeView clickViewMenuMode) {
+        recordLastVisibleView();
+        for (SobotMenuModeView menuModeView : menuModeViews) {
+            menuModeView.toggleViewContainer.setVisibility(clickViewMenuMode == menuModeView ? View.VISIBLE : View.GONE);
+        }
+        setSwitchAnim(clickViewMenuMode, menuViewContainer.getVisibility(), false);
+    }
+
+    private void setSwitchAnim(SobotMenuModeView clickViewMenuMode, int menuViewContainerVisibility, boolean isHideKeyboard) {
+        if (lastVisibleView == null || !useSwitchAnim || (menuViewHeightEqualKeyboard && keyboardHeight == 0)) {
+            return;
+        }
+        final ViewHeight viewHeight = new ViewHeight(menuViewContainer);
+        if (menuViewContainerVisibility == View.GONE) {
+            viewHeight.setViewHeight(0);
+        }
+        clickViewMenuMode.toggleViewContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                stopSwitchAnim();
+                clickViewMenuMode.toggleViewContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                menuViewContainer.setVisibility(View.VISIBLE);
+                int startHeight = menuViewContainerVisibility == View.GONE ? 0 : menuViewContainer.getHeight();
+                int marginVertical = 0;
+                if (menuViewContainer instanceof FrameLayout) {
+                    FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) clickViewMenuMode.toggleViewContainer.getLayoutParams();
+                    marginVertical = layoutParams.topMargin + layoutParams.bottomMargin;
+                } else if (menuViewContainer instanceof RelativeLayout) {
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) clickViewMenuMode.toggleViewContainer.getLayoutParams();
+                    marginVertical = layoutParams.topMargin + layoutParams.bottomMargin;
+                } else if (menuViewContainer instanceof LinearLayout) {
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) clickViewMenuMode.toggleViewContainer.getLayoutParams();
+                    marginVertical = layoutParams.topMargin + layoutParams.bottomMargin;
+                }
+                clickViewMenuMode.toggleViewContainer.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                int endHeight = clickViewMenuMode.toggleViewContainer.getMeasuredHeight() + menuViewContainer.getPaddingTop() + menuViewContainer.getPaddingBottom() + marginVertical;
+                int distance = Math.abs(startHeight - endHeight);
+                int duration = distance / SWITCH_ANIM_SPEED;
+                if (duration < 200) {
+                    duration = 200;
+                }
+                int finalEndHeight = menuViewHeightEqualKeyboard ? keyboardHeight : endHeight;
+                if (startHeight != finalEndHeight) {
+                    ObjectAnimator switchAnim1 = ObjectAnimator.ofInt(viewHeight, "viewHeight", startHeight, finalEndHeight);
+                    switchAnim1.setDuration(duration);
+                    switchAnim = new AnimatorSet();
+                    if (!isHideKeyboard && useMenuUpAnim) {
+                        ObjectAnimator switchAnim2 = ObjectAnimator.ofFloat(clickViewMenuMode.toggleViewContainer, "translationY", finalEndHeight, 0);
+                        switchAnim2.setDuration(duration);
+                        switchAnim.playTogether(switchAnim1, switchAnim2);
+                    } else {
+                        switchAnim.playTogether(switchAnim1);
+                    }
+                    switchAnim.start();
+                } else {
+                    viewHeight.setViewHeight(finalEndHeight);
+                    if (!isHideKeyboard && useMenuUpAnim) {
+                        ObjectAnimator switchAnim2 = ObjectAnimator.ofFloat(clickViewMenuMode.toggleViewContainer, "translationY", finalEndHeight, 0);
+                        switchAnim2.setDuration(duration);
+                        switchAnim = new AnimatorSet();
+                        switchAnim.playTogether(switchAnim2);
+                        switchAnim.start();
+                    }
+                }
+            }
+        });
+    }
+
+
+    private void recordLastVisibleView() {
+        for (SobotMenuModeView menuModeView : menuModeViews) {
+            if (menuModeView.toggleViewContainer.getVisibility() == View.VISIBLE) {
+                lastVisibleView = menuModeView.toggleViewContainer;
+                lastMenuModeView = menuModeView;
+            }
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (super.onKeyDown(keyCode, event)) {
+            menuMode = IDLE;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void setOnKeyboardMenuListener(OnKeyboardMenuListener onKeyboardMenuListener) {
+        this.onKeyboardMenuListener = onKeyboardMenuListener;
+    }
+
+}

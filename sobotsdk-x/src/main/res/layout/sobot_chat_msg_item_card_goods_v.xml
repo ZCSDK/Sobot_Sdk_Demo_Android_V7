@@ -5,83 +5,91 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/sobot_color_transparent"
-    android:orientation="horizontal"
-    >
-
-    <com.sobot.chat.widget.image.SobotRCImageView
-        android:id="@+id/sobot_goods_pic"
-        android:layout_width="76dp"
-        android:layout_height="76dp"
-        android:layout_marginEnd="12dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/sobot_icon_consulting_default_pic"
-        android:visibility="visible"
-        app:sobot_round_corner="4dp" />
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/sobot_goods_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/sobot_goods_title_text_color"
-            android:textSize="@dimen/sobot_text_font_14" />
-
-        <TextView
-            android:id="@+id/sobot_goods_des"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/sobot_card_goods_desc"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:textSize="@dimen/sobot_text_font_12" />
+        <com.sobot.chat.widget.image.SobotRCImageView
+            android:id="@+id/sobot_goods_pic"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sobot_icon_consulting_default_pic"
+            android:visibility="visible"
+            app:sobot_round_corner="4dp" />
 
         <LinearLayout
-            android:id="@+id/sobot_ll_btns"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/sobot_goods_price"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:layout_marginEnd="10dp"
-                android:gravity="bottom"
-                android:singleLine="true"
-                android:layout_weight="1"
-                android:textColor="@color/sobot_card_goods_price"
-                android:textSize="@dimen/sobot_text_font_18" />
-
-            <TextView
-                android:id="@+id/sobot_goods_btn"
-                android:layout_width="68dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="3dp"
-                android:background="@drawable/sobot_btn_bg_transparent_22"
+                android:id="@+id/sobot_goods_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:gravity="center"
-                android:lines="1"
-                android:paddingStart="7dp"
-                android:paddingEnd="7dp"
-                android:textColor="@color/sobot_common_green"
+                android:maxLines="1"
+                android:textColor="@color/sobot_goods_title_text_color"
+                android:textSize="@dimen/sobot_text_font_12"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/sobot_goods_des"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxLines="1"
+                android:textColor="@color/sobot_card_goods_desc"
                 android:textSize="@dimen/sobot_text_font_12" />
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/sobot_ll_btns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="bottom">
 
-        <View
-            android:id="@+id/v_line_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sobot_line_height_dp"
-            android:layout_marginTop="16dp"/>
+                <TextView
+                    android:id="@+id/sobot_goods_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:singleLine="true"
+                    android:textColor="@color/sobot_card_goods_price"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <TextView
+                    android:id="@+id/sobot_goods_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/sobot_btn_bg_transparent_22"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:lines="1"
+                    android:maxWidth="90dp"
+                    android:paddingStart="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/sobot_color"
+                    android:textSize="@dimen/sobot_text_font_12" />
+
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/v_line_bottom"
+        android:layout_width="1dp"
+        android:layout_height="20dp" />
 </LinearLayout>

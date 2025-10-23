@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Nie znaleziono widoku zawartości. Czy zapomniałeś dodać go w pliku układu XML?</string>
+    <string name="sobot_srl_header_pulling">Przeciągnij w dół, aby odświeżyć</string>
+    <string name="sobot_srl_header_refreshing">Odświeżanie...</string>
+    <string name="sobot_srl_header_loading">Oczekiwanie na zakończenie ładowania dolnej części...</string>
+    <string name="sobot_srl_header_release">Puść, aby natychmiast odświeżyć</string>
+    <string name="sobot_srl_header_finish">Odświeżanie zakończone</string>
+    <string name="sobot_srl_header_failed">Odświeżanie nie powiodło się</string>
+    <string name="sobot_srl_header_update">Ostatnia aktualizacja %s</string>
+    <string name="sobot_srl_header_secondary">Puść, aby wejść na drugie piętro</string>
+    <string name="sobot_srl_footer_pulling">Przeciągnij w górę, aby załadować więcej</string>
+    <string name="sobot_srl_footer_release">Puść, aby natychmiast załadować</string>
+    <string name="sobot_srl_footer_loading">Ładowanie...</string>
+    <string name="sobot_srl_footer_refreshing">Oczekiwanie na zakończenie odświeżania nagłówka...</string>
+    <string name="sobot_srl_footer_finish">Ładowanie zakończone</string>
+    <string name="sobot_srl_footer_failed">Ładowanie nie powiodło się</string>
+    <string name="sobot_srl_footer_nothing">Brak dalszych danych</string>
+    <string name="sobot_no_data_string">Brak danych</string>
+    <string name="sobot_no_net_string">Brak połączenia z siecią, sprawdź swoje połączenie...</string>
+    <string name="sobot_error_click_reload_string">Ładowanie nie powiodło się, kliknij, aby spróbować ponownie~~</string>
+    <string name="sobot_loading_string">Ładowanie...</string>
+</resources>

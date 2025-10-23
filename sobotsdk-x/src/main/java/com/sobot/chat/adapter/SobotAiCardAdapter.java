@@ -19,10 +19,11 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.api.model.customcard.SobotChatCustomMenu;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.pictureframe.SobotBitmapUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,30 +75,33 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View v) {
                     if (!isRight && !isHistory && OnItemListener != null) {
-                        //发送
-                        OnItemListener.onSendClick("", customGoods);
-                    }
-                    //跳转详情，以后可能会用到
-                    /*if (TextUtils.isEmpty(customGoods.getCustomCardLink())) {
-                        LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
-                        return;
-                    }
-                    if (SobotOption.hyperlinkListener != null) {
-                        SobotOption.hyperlinkListener.onUrlClick(customGoods.getCustomCardLink());
-                        return;
-                    }
+                        if (customGoods.getCustomCardType() == 0) {
+                            //发送
+                            OnItemListener.onSendClick("", customGoods);
+                        } else if (customGoods.getCustomCardType() == 1) {
+                            //打开连接
+                            if (TextUtils.isEmpty(customGoods.getCustomCardLink())) {
+                                LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
+                                return;
+                            }
+                            if (SobotOption.hyperlinkListener != null) {
+                                SobotOption.hyperlinkListener.onUrlClick(customGoods.getCustomCardLink());
+                                return;
+                            }
 
-                    if (SobotOption.newHyperlinkListener != null) {
-                        //如果返回true,拦截;false 不拦截
-                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, customGoods.getCustomCardLink());
-                        if (isIntercept) {
-                            return;
+                            if (SobotOption.newHyperlinkListener != null) {
+                                //如果返回true,拦截;false 不拦截
+                                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, customGoods.getCustomCardLink());
+                                if (isIntercept) {
+                                    return;
+                                }
+                            }
+                            Intent intent = new Intent(context, WebViewActivity.class);
+                            intent.putExtra("url", customGoods.getCustomCardLink());
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
                         }
                     }
-                    Intent intent = new Intent(context, WebViewActivity.class);
-                    intent.putExtra("url", customGoods.getCustomCardLink());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);*/
                 }
             });
             if (customGoods.getCustomCardHeader() != null && customGoods.getCustomCardHeader().size() > 0) {
@@ -116,7 +120,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             } else {
                 holder.tv_head.setVisibility(View.GONE);
             }
-            if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardName())) {
+            if (StringUtils.isNoEmpty(customGoods.getCustomCardName())) {
                 holder.sobot_goods_title.setText(customGoods.getCustomCardName());
                 holder.sobot_goods_title.setVisibility(View.VISIBLE);
             } else {
@@ -129,13 +133,13 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             } else {
                 holder.sobot_goods_pic.setVisibility(View.GONE);
             }
-            if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardDesc())) {
+            if (StringUtils.isNoEmpty(customGoods.getCustomCardDesc())) {
                 holder.sobot_goods_des.setText(customGoods.getCustomCardDesc());
                 holder.sobot_goods_des.setVisibility(View.VISIBLE);
             } else {
                 holder.sobot_goods_des.setVisibility(View.GONE);
             }
-            if (SobotStringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
+            if (StringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
                 holder.sobot_count.setText(context.getResources().getString(R.string.sobot_goods_count) + "：" + customGoods.getCustomCardNum());
                 holder.sobot_count.setVisibility(View.VISIBLE);
             } else {
@@ -216,7 +220,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                                 OnItemListener.onItemClick(menu.getMenuName(), customGoods);
                                             }
                                             //自定义
-                                            if (SobotStringUtils.isNoEmpty(menu.getMenuLink())) {
+                                            if (StringUtils.isNoEmpty(menu.getMenuLink())) {
                                                 Intent intent = new Intent(context, WebViewActivity.class);
                                                 intent.putExtra("url", menu.getMenuLink());
                                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -231,13 +235,13 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 }
             } else {
-                if(holder.sobot_tv_curs.getVisibility()==View.VISIBLE){
+                if (holder.sobot_tv_curs.getVisibility() == View.VISIBLE) {
                     holder.sobot_ll_btns.setVisibility(View.INVISIBLE);
-                }else {
+                } else {
                     holder.sobot_ll_btns.setVisibility(View.GONE);
                 }
             }
-            if(holder.sobot_tv_curs.getVisibility()==View.GONE && holder.sobot_ll_btns.getVisibility()==View.GONE){
+            if (holder.sobot_tv_curs.getVisibility() == View.GONE && holder.sobot_ll_btns.getVisibility() == View.GONE) {
                 holder.line.setVisibility(View.INVISIBLE);
             }
         }
@@ -246,6 +250,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     // 手动添加长按事件
     public interface OnItemListener {
         void onSendClick(String menuName, SobotChatCustomGoods goods);
+
         void onItemClick(String menuName, SobotChatCustomGoods goods);
     }
 

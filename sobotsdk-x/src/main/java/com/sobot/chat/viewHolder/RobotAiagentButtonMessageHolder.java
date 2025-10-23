@@ -1,14 +1,13 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.sobot.chat.R;
@@ -26,9 +25,10 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
     // 聊天的消息内容
     private TextView tv_msg;
     public ZhiChiMessageBase message;
-    private TextView sobot_template2_item_previous_page;//上一页
-    private TextView sobot_template2_item_last_page;//下一页
-    private LinearLayout ll_sobot_template2_item_page;//分页ll
+    private ImageView ivPreviousPage;//上一页
+    private ImageView ivLastPage;//下一页
+    private LinearLayout llPage;//分页ll
+    private TextView tvCusPageCount;//当前页数
 
     private RobotAiAgentButtonViewPager view_pager;
     private SobotRobotAiAgentButtonPageAdater templatePageAdater;
@@ -37,10 +37,11 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
 
     public RobotAiagentButtonMessageHolder(Context context, View convertView) {
         super(context, convertView);
-        tv_msg = (TextView) convertView.findViewById(R.id.sobot_template2_msg);
-        sobot_template2_item_previous_page = (TextView) convertView.findViewById(R.id.sobot_template2_item_previous_page);
-        sobot_template2_item_last_page = (TextView) convertView.findViewById(R.id.sobot_template2_item_last_page);
-        ll_sobot_template2_item_page = (LinearLayout) convertView.findViewById(R.id.ll_sobot_template2_item_page);
+        tv_msg = convertView.findViewById(R.id.sobot_template2_msg);
+        tvCusPageCount = convertView.findViewById(R.id.tv_cus_page_count);
+        ivPreviousPage = convertView.findViewById(R.id.iv_previous_page);
+        ivLastPage = convertView.findViewById(R.id.iv_next_page);
+        llPage = convertView.findViewById(R.id.ll_pre_next_page);
         view_pager = convertView.findViewById(R.id.view_pager);
         this.mContext = context;
     }
@@ -68,17 +69,20 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                     lablesViewModel.setTitle(str);
                     label.add(lablesViewModel);
                 }
-                if (label.size() >= 10) {
-                    ll_sobot_template2_item_page.setVisibility(View.VISIBLE);
-                } else {
-                    ll_sobot_template2_item_page.setVisibility(View.GONE);
-                }
                 templatePageAdater = new SobotRobotAiAgentButtonPageAdater(mContext, label, message, msgCallBack);
                 //绑定adapter 判断上一页下一页 使用 message  缓存当前页，下次加载时滚动上次选中页使用
                 view_pager.setTemplatePageAdater(templatePageAdater, message);
                 view_pager.setAdapter(templatePageAdater);
                 view_pager.setCurrentItem(message.getCurrentPageNum());
-                initPreAndLastBtn(mContext);
+                if (label.size() >= 6) {
+                    // 每页6个，计算总页数
+                    int totalPageCount = (int) Math.ceil(label.size() / 6.0);
+                    tvCusPageCount.setText((message.getCurrentPageNum() + 1) + "/" + totalPageCount);
+                    llPage.setVisibility(View.VISIBLE);
+                    updatePreAndLastUI();
+                } else {
+                    llPage.setVisibility(View.GONE);
+                }
             } else {
                 view_pager.setVisibility(View.GONE);
             }
@@ -93,37 +97,8 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
             @Override
             public void onPageSelected(int i) {
                 view_pager.updateMessageSelectItem(i);
-                if (view_pager.isFirstPage()) {
-                    sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-                    Drawable img = mContext.getResources().getDrawable(R.drawable.sobot_no_pre_page);
-                    if (img != null) {
-                        img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-                        sobot_template2_item_previous_page.setCompoundDrawables(null, null, img, null);
-                    }
-                } else {
-                    sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-                    Drawable img = mContext.getResources().getDrawable(R.drawable.sobot_pre_page);
-                    if (img != null) {
-                        img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-                        sobot_template2_item_previous_page.setCompoundDrawables(null, null, img, null);
-                    }
-                }
-
-                if (view_pager.isLastPage()) {
-                    sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-                    Drawable img = mContext.getResources().getDrawable(R.drawable.sobot_no_last_page);
-                    if (img != null) {
-                        img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-                        sobot_template2_item_last_page.setCompoundDrawables(null, null, img, null);
-                    }
-                } else {
-                    sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-                    Drawable img = mContext.getResources().getDrawable(R.drawable.sobot_last_page);
-                    if (img != null) {
-                        img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-                        sobot_template2_item_last_page.setCompoundDrawables(null, null, img, null);
-                    }
-                }
+                setCountText();
+                updatePreAndLastUI();
             }
 
             @Override
@@ -132,18 +107,20 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
             }
         });
 
-        sobot_template2_item_previous_page.setOnClickListener(new View.OnClickListener() {
+        ivPreviousPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 view_pager.selectPreviousPage();
-                updatePreBtn(context);
+                setCountText();
+                updatePreAndLastUI();
             }
         });
-        sobot_template2_item_last_page.setOnClickListener(new View.OnClickListener() {
+        ivLastPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 view_pager.selectLastPage();
-                updateLastBtn(context);
+                setCountText();
+                updatePreAndLastUI();
             }
         });
 
@@ -159,72 +136,32 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
         refreshReadStatus();
     }
 
-    //上一页下一页ui初始化
-    public void initPreAndLastBtn(Context context) {
-        sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-        Drawable lastImg = mContext.getResources().getDrawable(R.drawable.sobot_last_page);
-        lastImg.setBounds(0, 0, lastImg.getMinimumWidth(), lastImg.getMinimumHeight());
-        sobot_template2_item_last_page.setCompoundDrawables(null, null, lastImg, null);
+    private void setCountText() {
+        if (tvCusPageCount != null && view_pager != null) {
+            int currentPage = view_pager.getCurrentItem() + 1;
+            int totalPages = 0;
 
-        sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-        Drawable preImg = mContext.getResources().getDrawable(R.drawable.sobot_pre_page);
-        preImg.setBounds(0, 0, preImg.getMinimumWidth(), preImg.getMinimumHeight());
-        sobot_template2_item_previous_page.setCompoundDrawables(null, null, preImg, null);
-
-        if (view_pager.isFirstPage()) {
-            sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-            Drawable npPreImg = mContext.getResources().getDrawable(R.drawable.sobot_no_pre_page);
-            if (npPreImg != null) {
-                npPreImg.setBounds(0, 0, npPreImg.getMinimumWidth(), npPreImg.getMinimumHeight());
-                sobot_template2_item_previous_page.setCompoundDrawables(null, null, npPreImg, null);
+            // 通过适配器获取总页数
+            if (templatePageAdater != null) {
+                totalPages = templatePageAdater.getCount();
             }
-        }
 
-        if (view_pager.isLastPage()) {
-            sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-            Drawable noLastImg = mContext.getResources().getDrawable(R.drawable.sobot_no_last_page);
-            if (noLastImg != null) {
-                noLastImg.setBounds(0, 0, noLastImg.getMinimumWidth(), noLastImg.getMinimumHeight());
-                sobot_template2_item_last_page.setCompoundDrawables(null, null, noLastImg, null);
-            }
+            tvCusPageCount.setText(currentPage + "/" + totalPages);
         }
     }
 
-    public void updatePreBtn(Context context) {
-        sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-        Drawable lastImg = mContext.getResources().getDrawable(R.drawable.sobot_last_page);
-        lastImg.setBounds(0, 0, lastImg.getMinimumWidth(), lastImg.getMinimumHeight());
-        sobot_template2_item_last_page.setCompoundDrawables(null, null, lastImg, null);
-
-        Drawable img = null;
-        img = mContext.getResources().getDrawable(R.drawable.sobot_pre_page);
-        sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
+    //上一页下一页 UI
+    public void updatePreAndLastUI() {
         if (view_pager.isFirstPage()) {
-            sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-            img = mContext.getResources().getDrawable(R.drawable.sobot_no_pre_page);
+            ivPreviousPage.setAlpha(0.3f);
+        } else {
+            ivPreviousPage.setAlpha(1f);
         }
-        if (img != null) {
-            img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-            sobot_template2_item_previous_page.setCompoundDrawables(null, null, img, null);
-        }
-    }
-
-    public void updateLastBtn(Context context) {
-        sobot_template2_item_previous_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-        Drawable preImg = mContext.getResources().getDrawable(R.drawable.sobot_pre_page);
-        preImg.setBounds(0, 0, preImg.getMinimumWidth(), preImg.getMinimumHeight());
-        sobot_template2_item_previous_page.setCompoundDrawables(null, null, preImg, null);
-
-        sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_second));
-        Drawable img = null;
-        img = mContext.getResources().getDrawable(R.drawable.sobot_last_page);
         if (view_pager.isLastPage()) {
-            sobot_template2_item_last_page.setTextColor(ContextCompat.getColor(context, R.color.sobot_color_text_third));
-            img = mContext.getResources().getDrawable(R.drawable.sobot_no_last_page);
-        }
-        if (img != null) {
-            img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
-            sobot_template2_item_last_page.setCompoundDrawables(null, null, img, null);
+            ivLastPage.setAlpha(0.3f);
+        } else {
+            ivLastPage.setAlpha(1f);
         }
     }
+
 }

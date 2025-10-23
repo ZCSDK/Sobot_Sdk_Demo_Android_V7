@@ -23,12 +23,13 @@ import com.sobot.chat.api.model.SobotFaqDetailModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.horizontalscroll.IssueViewPagerdAdapter;
 import com.sobot.chat.widget.horizontalscroll.MyHorizontalScrollView;
+import com.sobot.chat.widget.image.SobotRCImageView;
 import com.sobot.pictureframe.SobotBitmapUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private MyHorizontalScrollView fastMenu;
     private IssueViewPagerdAdapter fastMenuAdapter;
 
-    private ImageView sobot_hot_pic;
+    private SobotRCImageView sobot_hot_pic;
     private HorizontalScrollView tab_hot_title;//问题分类
     private View v_tab_hot_title_split;//分割线
     private LinearLayout horizontalScrollView_ll, lin_question_list;//分体分类
@@ -64,6 +65,17 @@ public class HotIssueMessageHolder extends MsgHolderBase {
         v_tab_hot_title_split = convertView.findViewById(R.id.v_tab_hot_title_split);
         horizontalScrollView_ll = convertView.findViewById(R.id.horizontalScrollView_ll);
         sobot_hot_pic = convertView.findViewById(R.id.sobot_hot_pic);
+        if (CommonUtils.checkSDKIsAr(mContext)) {
+            sobot_hot_pic.setTopRightRadius(ScreenUtils.dip2px(mContext, 12));
+            sobot_hot_pic.setBottomRightRadius(ScreenUtils.dip2px(mContext, 12));
+            sobot_hot_pic.setTopLeftRadius(0);
+            sobot_hot_pic.setBottomLeftRadius(0);
+        }else{
+            sobot_hot_pic.setTopRightRadius(0);
+            sobot_hot_pic.setBottomRightRadius(0);
+            sobot_hot_pic.setTopLeftRadius(ScreenUtils.dip2px(mContext, 12));
+            sobot_hot_pic.setBottomLeftRadius(ScreenUtils.dip2px(mContext, 12));
+        }
         lin_question_list = convertView.findViewById(R.id.lin_question_list);
         sobot_ll_switch_list = convertView.findViewById(R.id.sobot_ll_switch_list);
         sobot_ll_switch_list.setVisibility(View.GONE);
@@ -109,7 +121,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             tab_hot_title.setVisibility(View.GONE);
             v_tab_hot_title_split.setVisibility(View.GONE);
         } else if (bean.getShowType() == 2) {
-            PAGE_NUM = 5;
+            PAGE_NUM = bean.getGuidePageCount();
             List<GroupRespVo> groupRespVoList = bean.getGroupRespVos();
 
             if (!TextUtils.isEmpty(bean.getImgUrl())) {
@@ -127,7 +139,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 showTab(groupRespVoList);
             }
         } else if (bean.getShowType() == 3) {
-            PAGE_NUM = 5;
+            PAGE_NUM = bean.getGuidePageCount();
             //显示豆腐块、分组、列表
             List<BusinessLineRespVo> businessLineRespVoList = bean.getBusinessLineRespVos();
             showBlock(businessLineRespVoList);
@@ -155,13 +167,14 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 answer.setText(info.getQuestionName());
                 answer.setLines(1);
                 answer.setEllipsize(TextUtils.TruncateAt.END);
-                answer.setOnClickListener(new View.OnClickListener() {
+                view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         //questionType 问题类型：0-单轮，1-多轮，2-内部知识库文章，3-内部知识库普通问题
                         msgCallBack.clickIssueItem(info, "");
                     }
                 });
+                view.setBackgroundResource(R.drawable.sobot_item_issue_selector);
                 lin_question_list.addView(view, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             }
             int childCount = lin_question_list.getChildCount();
@@ -172,6 +185,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     ImageView rightIV = view.findViewById(R.id.sobot_im_icon_right);
                     answer.setText("");
                     rightIV.setVisibility(View.GONE);
+                    view.setBackgroundResource(R.drawable.sobot_item_issue_selector);
                     lin_question_list.addView(view,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
                 }
             }
@@ -209,13 +223,14 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 answer.setText(info.getQuestionName());
                 answer.setLines(1);
                 answer.setEllipsize(TextUtils.TruncateAt.END);
-                answer.setOnClickListener(new View.OnClickListener() {
+                view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         //questionType 问题类型：0-单轮，1-多轮，2-内部知识库文章，3-内部知识库普通问题
                         msgCallBack.clickIssueItem(info, "");
                     }
                 });
+                view.setBackgroundResource(R.drawable.sobot_item_issue_selector);
                 lin_question_list.addView(view);
             }
         }
@@ -285,11 +300,13 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private void showBlock(List<BusinessLineRespVo> businessLineList) {
         if (businessLineList != null && businessLineList.size() > 0) {
             final List<BusinessLineRespVo> businessLineRespVoList = changeBusinessTitleMaxLength(businessLineList);
-            fastMenuAdapter = new IssueViewPagerdAdapter(mContext, businessLineRespVoList);
+            fastMenuAdapter = new IssueViewPagerdAdapter(mContext, businessLineRespVoList,blockIndex);
             fastMenu.setOnItemClickListener(new MyHorizontalScrollView.OnItemClickListener() {
                 @Override
                 public void onClick(View view, int pos) {
                     blockIndex = pos;
+                    fastMenuAdapter.setSelectIndex(blockIndex);
+                    fastMenu.initDatas(fastMenuAdapter);
                     if (businessLineRespVoList.get(blockIndex).getHasGroup() != 2) {
                         //图片
                         if (!TextUtils.isEmpty(businessLineRespVoList.get(blockIndex).getImgUrl())) {
@@ -383,7 +400,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private List<BusinessLineRespVo> changeBusinessTitleMaxLength(List<BusinessLineRespVo> businessLineRespVoList) {
         String maxlenghtTitle = "";
         for (int i = 0; i < businessLineRespVoList.size(); i++) {
-            if (SobotStringUtils.isNoEmpty(businessLineRespVoList.get(i).getBusinessLineName()) && businessLineRespVoList.get(i).getBusinessLineName().length() > maxlenghtTitle.length()) {
+            if (StringUtils.isNoEmpty(businessLineRespVoList.get(i).getBusinessLineName()) && businessLineRespVoList.get(i).getBusinessLineName().length() > maxlenghtTitle.length()) {
                 maxlenghtTitle = businessLineRespVoList.get(i).getBusinessLineName();
             }
         }

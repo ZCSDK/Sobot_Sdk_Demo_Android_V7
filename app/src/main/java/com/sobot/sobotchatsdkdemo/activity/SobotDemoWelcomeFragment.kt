@@ -95,7 +95,6 @@ class SobotDemoWelcomeFragment : Fragment(), View.OnClickListener {
 //                            true )
 //                    }
                     information.isHideManualEvaluationLabels = true
-                    information.isHideMenuSatisfaction = true
                     information.isShowLeftBackPop = true
                     information.isShowSatisfaction = true
                     information.isCanBackWithNotEvaluation = true

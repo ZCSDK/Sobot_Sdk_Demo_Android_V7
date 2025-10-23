@@ -48,7 +48,7 @@
        <string name="sobot_receive_new_message">您收到了壹條新消息</string>
        <string name="sobot_rating_score">評分</string>
        <string name="sobot_rating_dec">評語</string>
-       <string name="sobot_question">是否解決了您的問題？</string>
+       <string name="sobot_question">%s 是否解決了您的問題？</string>
        <string name="sobot_processing">受理中</string>
        <string name="sobot_problem_types">問題分類</string>
        <string name="sobot_problem_detail_title">問題詳情</string>
@@ -135,7 +135,7 @@
        <string name="sobot_delete">刪除</string>
        <string name="sobot_data_wrong_hint">數據錯誤</string>
        <string name="sobot_cus_service">客服</string>
-       <string name="sobot_ctrl_v_success">復制成功</string>
+       <string name="sobot_ctrl_v_success">復制成功！</string>
        <string name="sobot_ctrl_copy">復制</string>
        <string name="sobot_created_1">已創建</string>
        <string name="sobot_count_down">倒計時</string>
@@ -222,8 +222,8 @@
        <string name="sobot_parsing">解析中…</string>
        <string name="sobot_keep_queuing">繼續排隊</string>
        <string name="sobot_keep_queuing_string">如果繼續等待，點擊</string>
-       <string name="sobot_ding">頂</string>
-       <string name="sobot_cai">踩</string>
+       <string name="sobot_ding">有用</string>
+       <string name="sobot_cai">沒用</string>
        <string name="sobot_outline_closed">會話已結束，可重新發起諮詢</string>
        <string name="sobot_service_for_you">線上客服正在為您服務</string>
        <string name="sobot_btn_queryfrom_submit_text">提交並諮詢</string>
@@ -287,11 +287,11 @@
        <string name="sobot_notice_expand_all">展開全部</string>
        <string name="sobot_notice_collapse">收起</string>
        <string name="sobot_ticket_no_reply">暫無回覆</string>
-       <string name="sobot_please_input">請輸入</string>
-       <string name="sobot_ticket_update_file_hite">最多上傳%s 個，大小不超過%s</string>
+       <string name="sobot_please_input">請輸入...</string>
+       <string name="sobot_ticket_update_file_hite">最多上傳 %s 個，大小不超過 %s</string>
        <string name="sobot_ticket_update_file_max_hite">已達上限15 個</string>
        <string name="sobot_cus_level_all">全部</string>
-       <string name="sobot_please_choice">請選擇</string>
+       <string name="sobot_please_choice">請選擇...</string>
        <string name="sobot_skill_no_service">暫無客服在線，點選進行留言。</string>
        <string name="sobot_leaveMsg_create_success_des_new">工單處理狀態更新後將在會話中提醒您</string>
        <string name="sobot_release_to_cancel">放開取消</string>
@@ -301,4 +301,9 @@
        <string name="sobot_goods_count">商品数</string>
        <string name="sobot_card_more_info">更多資訊</string>
        <string name="sobot_see_more">查看更多</string>
+       <string name="sobot_str_timeout">加載超時</string>
+       <string name="sobot_str_timeout_reloading">頁面加載超時，請重新加載</string>
+       <string name="sobot_ticket_finish">您的工單已完成</string>
+       <string name="sobot_ticket_reply">回覆…</string>
+       <string name="sobot_customer_service_representative">人工客服</string>
 </resources>

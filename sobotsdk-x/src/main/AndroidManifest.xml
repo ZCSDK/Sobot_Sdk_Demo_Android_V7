@@ -51,7 +51,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
         <activity
-            android:name=".activity.SobotPostMsgActivity"
+            android:name=".activity.SobotTicketNewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
@@ -138,16 +138,12 @@
         <activity
             android:name=".activity.halfdialog.SobotReplyActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent2" />
         <activity
             android:name=".activity.halfdialog.SobotRobotListActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
-        <activity
-            android:name=".widget.dialog.SobotClearHistoryActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
-        <activity
+           <activity
             android:name=".activity.halfdialog.SobotTicketEvaluateActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
@@ -157,10 +153,6 @@
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
         <activity
             android:name=".activity.halfdialog.SobotAIEvaluateActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
-        <activity
-            android:name=".activity.halfdialog.SobotPostMsgTmpListActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
         <activity

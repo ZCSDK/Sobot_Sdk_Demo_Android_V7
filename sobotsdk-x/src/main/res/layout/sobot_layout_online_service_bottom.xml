@@ -19,36 +19,66 @@
         android:paddingBottom="8dp"
         android:visibility="visible">
 
-        <TextView
-            android:id="@+id/tv_sobot_layout_online_service"
+        <LinearLayout
+            android:id="@+id/ll_sobot_layout_online_service"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:padding="8dp"
-            android:text="@string/sobot_help_center_online_service"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14" />
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/sobot_help_bottom_chat" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:text="@string/sobot_help_center_online_service"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
+
 
         <View
             android:id="@+id/view_split_online_tel"
             android:layout_width="8dp"
             android:layout_height="44dp" />
 
-        <TextView
-            android:id="@+id/tv_sobot_layout_online_tel"
+        <LinearLayout
+            android:id="@+id/ll_sobot_layout_online_tel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:padding="8dp"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/sobot_help_bottom_call" />
+
+            <TextView
+                android:id="@+id/tv_sobot_layout_online_tel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -63,28 +93,58 @@
         android:paddingBottom="8dp"
         android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tv_sobot_layout_online_service_v"
+        <LinearLayout
+            android:id="@+id/ll_sobot_layout_online_service_v"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:padding="8dp"
-            android:text="@string/sobot_help_center_online_service"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14" />
+            android:orientation="horizontal"
+            android:padding="10dp">
 
-        <TextView
-            android:id="@+id/tv_sobot_layout_online_tel_v"
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/sobot_help_bottom_chat" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:text="@string/sobot_help_center_online_service"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_sobot_layout_online_tel_v"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:padding="8dp"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14" />
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/sobot_help_bottom_call" />
+
+            <TextView
+                android:id="@+id/tv_sobot_layout_online_tel_v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:text="@string/sobot_help_center_online_service"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

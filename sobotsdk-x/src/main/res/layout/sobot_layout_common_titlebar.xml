@@ -1,55 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/sobot_layout_titlebar"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tl_titlebar"
     android:layout_width="match_parent"
     android:layout_height="@dimen/sobot_common_titlebar_hight"
-    android:background="@drawable/sobot_header_toolbar_bg">
+    android:background="@drawable/sobot_header_toolbar_bg"
+    app:contentInsetStart="0dp">
 
-    <TextView
-        android:id="@+id/sobot_text_title"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
-        android:ellipsize="end"
-        android:gravity="center|center_horizontal"
-        android:includeFontPadding="false"
-        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-        android:maxWidth="200dp"
-        android:singleLine="true"
-        android:textColor="@color/sobot_color_title_bar_nike_name"
-        android:textSize="@dimen/sobot_common_titlebar_name_sp"
-        android:textStyle="bold" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-
-    <ImageView
-        android:id="@+id/sobot_iv_left"
-        android:layout_width="wrap_content"
-        android:layout_height="44dp"
-        android:layout_centerVertical="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/sobot_icon_titlebar_back" />
+        <TextView
+            android:id="@+id/sobot_text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:ellipsize="end"
+            android:gravity="center|center_horizontal"
+            android:includeFontPadding="false"
+            android:maxWidth="@dimen/sobot_title_max_width"
+            android:singleLine="true"
+            android:textColor="@color/sobot_color_title_bar_nike_name"
+            android:textSize="@dimen/sobot_common_titlebar_name_sp"
+            android:textStyle="bold" />
 
 
-    <TextView
-        android:id="@+id/sobot_tv_right"
-        android:layout_width="80dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentEnd="true"
-        android:drawablePadding="5dp"
-        android:gravity="center_vertical|end"
-        android:paddingStart="0dp"
-        android:paddingEnd="10dp"
-        android:textColor="@color/sobot_color_title_bar_menu_text"
-        android:textSize="@dimen/sobot_header_titlebar_name_sp"
-        android:visibility="gone" />
+        <ImageView
+            android:id="@+id/sobot_iv_left"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sobot_icon_titlebar_back" />
 
-    <ImageView
-        android:id="@+id/sobot_iv_right"
-        android:layout_width="40dp"
-        android:layout_height="44dp"
-        android:src="@drawable/sobot_delete_history_msg"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone" />
-</RelativeLayout>
+
+        <TextView
+            android:id="@+id/sobot_tv_right"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical|end"
+            android:paddingStart="0dp"
+            android:paddingEnd="10dp"
+            android:textColor="@color/sobot_color_title_bar_nike_name"
+            android:textSize="@dimen/sobot_header_titlebar_name_sp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/iv_right"
+            android:layout_width="40dp"
+            android:layout_height="44dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/sobot_icon_toolbar_more"
+            android:visibility="gone" />
+    </RelativeLayout>
+</androidx.appcompat.widget.Toolbar>

@@ -1,12 +1,12 @@
 package com.sobot.chat.activity;
 
 import static com.sobot.chat.SobotUIConfig.sobot_webview_title_display;
-import static com.sobot.widget.ui.SobotBaseConstant.REQUEST_CODE_MAKEPICTUREFROMCAMERA;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -24,29 +25,29 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.base.SobotChatBaseActivity;
 import com.sobot.chat.listener.PermissionListenerImpl;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
-import com.sobot.widget.ui.utils.SobotWidgetUtils;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class WebViewActivity extends SobotChatBaseActivity implements View.OnClickListener {
 
     private WebView mWebView;
     private ProgressBar mProgressBar;
-    private RelativeLayout sobot_rl_net_error;
+    private LinearLayout sobot_rl_net_error;
 
-    private Button sobot_btn_reconnect;
-    private TextView sobot_txt_loading;
-    private TextView sobot_textReConnect;
+    private Button btnReconnect;
+    private ImageView ivIconNonet;
 
     private String mUrl = "";
     private LinearLayout sobot_webview_toolsbar;
@@ -83,20 +84,81 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "WebViewActivity";
+    }
+
+    // 键盘真正显示，避免多次走回调
+    private boolean isKeyboardShown = false;
+
+    private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            try {
+                Rect r = new Rect();
+                mWebView.getWindowVisibleDisplayFrame(r);
+                int screenHeight = mWebView.getRootView().getHeight();
+                // 计算键盘高度，考虑工具栏
+                int keypadHeight = screenHeight - r.bottom;
+                //自定义导航栏高度
+                View toolBar = getToolBar();
+                if (toolBar != null && toolBar.getVisibility() == View.VISIBLE) {
+                    keypadHeight -= toolBar.getHeight();
+                }
+                if (keypadHeight < 0) {
+                    keypadHeight = 0;
+                }
+                LogUtils.i("键盘高度===========" + keypadHeight);
+                boolean currentlyKeyboardShown = keypadHeight > screenHeight * 0.15;
+                // 只有状态真正改变时才处理
+                if (currentlyKeyboardShown && !isKeyboardShown) {
+                    // 键盘刚显示
+                    isKeyboardShown = true;
+                    adjustWebViewForKeyboard(keypadHeight);
+                } else if (!currentlyKeyboardShown && isKeyboardShown) {
+                    // 键盘刚隐藏
+                    isKeyboardShown = false;
+                    resetWebViewLayout();
+                }
+            } catch (Exception e) {
+            }
+        }
+    };
+
+    //webview高度 - 键盘高度
+    private void adjustWebViewForKeyboard(int keyboardHeight) {
+        try {
+            //LinearLayout.LayoutParams 需要自己判断具体的类型
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mWebView.getLayoutParams();
+            params.height = mWebView.getHeight() - keyboardHeight;
+            mWebView.setLayoutParams(params);
+        } catch (Exception e) {
+        }
+    }
+
+    //webview高度 还原
+    private void resetWebViewLayout() {
+        try {
+            //LinearLayout.LayoutParams 需要自己判断具体的类型
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mWebView.getLayoutParams();
+            params.height = LinearLayout.LayoutParams.MATCH_PARENT;
+            mWebView.setLayoutParams(params);
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
     protected void initView() {
         setTitle("");
         showLeftMenu(true);
         isChangeThemeColor = ThemeUtils.isChangedThemeColor(this);
         mWebView = (WebView) findViewById(R.id.sobot_mWebView);
         mProgressBar = (ProgressBar) findViewById(R.id.sobot_loadProgress);
-        sobot_rl_net_error = (RelativeLayout) findViewById(R.id.sobot_rl_net_error);
+        sobot_rl_net_error = findViewById(R.id.sobot_rl_net_error);
         sobot_webview_toolsbar = (LinearLayout) findViewById(R.id.sobot_webview_toolsbar);
-        sobot_btn_reconnect = (Button) findViewById(R.id.sobot_btn_reconnect);
-        sobot_btn_reconnect.setText(R.string.sobot_reunicon);
-        sobot_btn_reconnect.setOnClickListener(this);
-        sobot_textReConnect = (TextView) findViewById(R.id.sobot_textReConnect);
-        sobot_textReConnect.setText(R.string.sobot_try_again);
-        sobot_txt_loading = (TextView) findViewById(R.id.sobot_txt_loading);
+        btnReconnect = (Button) findViewById(R.id.sobot_btn_reconnect);
+        btnReconnect.setOnClickListener(this);
+        ivIconNonet = findViewById(R.id.sobot_icon_nonet);
         sobot_webview_goback = (ImageView) findViewById(R.id.sobot_webview_goback);
         sobot_webview_forward = (ImageView) findViewById(R.id.sobot_webview_forward);
         sobot_webview_reload = (ImageView) findViewById(R.id.sobot_webview_reload);
@@ -105,7 +167,16 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         sobot_webview_forward.setOnClickListener(this);
         sobot_webview_reload.setOnClickListener(this);
         sobot_webview_copy.setOnClickListener(this);
-
+        try {
+            ivIconNonet.setImageDrawable(ThemeUtils.applyColorToDrawable(ivIconNonet.getDrawable(), ThemeUtils.getThemeColor(getSobotBaseActivity())));
+            btnReconnect.setTextColor(ThemeUtils.getThemeTextAndIconColor(getSobotBaseActivity()));
+            Drawable bg = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_button_style, null);
+            if (bg != null) {
+                Drawable btnReconnectBg = ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseActivity()));
+                btnReconnect.setBackground(btnReconnectBg);
+            }
+        } catch (Exception e) {
+        }
 
         if (isChangeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(this);
@@ -120,6 +191,10 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
         resetViewDisplay();
         initWebView();
+        loadUrl();
+    }
+
+    private void loadUrl() {
         if (isUrlOrText) {
             //加载url
             mWebView.loadUrl(mUrl);
@@ -166,7 +241,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
     @Override
     public void onClick(View view) {
-        if (view == sobot_btn_reconnect) {
+        if (view == btnReconnect) {
             if (!TextUtils.isEmpty(mUrl)) {
                 resetViewDisplay();
             }
@@ -185,19 +260,10 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         if (TextUtils.isEmpty(url)) {
             return;
         }
-
-        if (Build.VERSION.SDK_INT >= 11) {
-            LogUtils.i("API是大于11");
-            android.content.ClipboardManager cmb = (android.content.ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            cmb.setText(url);
-            cmb.getText();
-        } else {
-            LogUtils.i("API是小于11");
-            android.text.ClipboardManager cmb = (android.text.ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            cmb.setText(url);
-            cmb.getText();
-        }
-
+        LogUtils.i("API是大于11");
+        android.content.ClipboardManager cmb = (android.content.ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        cmb.setText(url);
+        cmb.getText();
         ToastUtil.showToast(getApplicationContext(), CommonUtils.getResString(WebViewActivity.this, "sobot_ctrl_v_success"));
     }
 
@@ -207,6 +273,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     private void resetViewDisplay() {
         if (CommonUtils.isNetWorkConnected(getApplicationContext())) {
             mWebView.setVisibility(View.VISIBLE);
+            loadUrl();
             sobot_webview_toolsbar.setVisibility(View.VISIBLE);
             sobot_rl_net_error.setVisibility(View.GONE);
         } else {
@@ -218,12 +285,10 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
     @SuppressLint("NewApi")
     private void initWebView() {
-        if (Build.VERSION.SDK_INT >= 11) {
-            try {
-                mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
-            } catch (Exception e) {
-                //ignor
-            }
+        try {
+            mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
+        } catch (Exception e) {
+            //ignor
         }
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
@@ -237,6 +302,8 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                 startActivity(intent);
             }
         });
+        // 注册键盘监听器
+        mWebView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
         mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
         mWebView.getSettings().setDefaultFontSize(16);
         mWebView.getSettings().setTextZoom(100);
@@ -394,6 +461,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     @Override
     protected void onDestroy() {
         if (mWebView != null) {
+            mWebView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardLayoutListener);
             mWebView.removeAllViews();
             final ViewGroup viewGroup = (ViewGroup) mWebView.getParent();
             if (viewGroup != null) {
@@ -437,7 +505,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             @Override
             public void onPermissionSuccessListener() {
                 if (isCameraCanUse()) {
-                    cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+                    cameraFile = openCamera(getSobotBaseActivity());
                 }
             }
 
@@ -455,7 +523,8 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             return;
         }
         if (isCameraCanUse()) {
-            cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+            openCapture();
+            cameraFile = openCamera(getSobotBaseActivity());
         }
     }
 
@@ -485,7 +554,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_ALBUM || requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+        if (requestCode == REQUEST_CODE_ALBUM || requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
             if (uploadMessageAboveL == null) {
                 return;
             }
@@ -502,9 +571,9 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                     if (data != null) {
                         imageUri = data.getData();
                     }
-                } else if (requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+                } else if (requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
                     if (cameraFile != null && cameraFile.exists()) {
-                        imageUri = SobotWidgetUtils.getUri(getSobotBaseActivity(), cameraFile);
+                        imageUri = ChatUtils.getUri(getSobotBaseActivity(), cameraFile);
                     }
                 }
                 if (imageUri != null) {

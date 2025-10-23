@@ -1,57 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sobot_container"
+    android:id="@+id/sobot_rl"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/sobot_help_center_item_bg"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:padding="0.4dp"
-    android:visibility="visible">
+    android:padding="16dp">
 
-    <RelativeLayout
-        android:id="@+id/sobot_rl"
+    <LinearLayout
+        android:id="@+id/ll_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/ll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.sobot.chat.widget.image.SobotProgressImageView
-                android:id="@+id/sobot_tv_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:image_width="32dp"
-                app:image_height="32dp"
-                app:sobot_round_corner_bottom_left="@dimen/sobot_msg_corner_radius"
-                app:sobot_round_corner_bottom_right="@dimen/sobot_msg_corner_radius"
-                app:sobot_round_corner_top_left="@dimen/sobot_msg_corner_radius"
-                app:sobot_round_corner_top_right="@dimen/sobot_msg_corner_radius"/>
-
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                android:textColor="@color/sobot_color_text_first"
-                android:textSize="@dimen/sobot_text_font_14" />
-        </LinearLayout>
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_tv_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:image_height="32dp"
+            app:image_width="32dp"
+            app:sobot_round_corner_bottom_left="@dimen/sobot_msg_corner_radius"
+            app:sobot_round_corner_bottom_right="@dimen/sobot_msg_corner_radius"
+            app:sobot_round_corner_top_left="@dimen/sobot_msg_corner_radius"
+            app:sobot_round_corner_top_right="@dimen/sobot_msg_corner_radius" />
 
         <TextView
-            android:id="@+id/sobot_tv_descripe"
+            android:id="@+id/sobot_tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/ll"
-            android:layout_marginTop="8dp"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:textColor="@color/sobot_color_text_third"
-            android:textSize="@dimen/sobot_text_font_12" />
+            android:layout_marginStart="8dp"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="0dp"
+            android:lineSpacingMultiplier="0.9"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+    </LinearLayout>
 
-    </RelativeLayout>
-</LinearLayout>
+    <TextView
+        android:id="@+id/sobot_tv_descripe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_title"
+        android:layout_marginTop="6dp"
+        android:includeFontPadding="false"
+        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+        android:textColor="@color/sobot_color_text_third"
+        android:textSize="@dimen/sobot_text_font_12" />
+
+</RelativeLayout>

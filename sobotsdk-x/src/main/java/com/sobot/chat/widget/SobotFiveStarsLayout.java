@@ -57,10 +57,13 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 ImageView imageView = new ImageView(getContext());
                 lp = new LayoutParams(ScreenUtils.dip2px(getContext(), itemW),
                         ScreenUtils.dip2px(getContext(), itemW));
+                imageView.setBackgroundResource(R.drawable.sobot_dialog_close_bg);
+                int p= ScreenUtils.dip2px(getContext(), 3);
+                imageView.setPadding(p,p,p,p);
                 if (i != 4) {
-                    lp.setMarginEnd(ScreenUtils.dip2px(getContext(), 24f));
+                    lp.rightMargin = ScreenUtils.dip2px(getContext(), 6f);
                 } else {
-                    lp.setMarginEnd(0);
+                    lp.rightMargin = 0;
                 }
                 imageView.setLayoutParams(lp);
                 if (i < defScore) {
@@ -68,6 +71,7 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 } else {
                     imageView.setImageResource(R.drawable.sobot_evaluate_star_empty);
                 }
+                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 final int position = i;
                 imageView.setOnClickListener(new OnClickListener() {
                     @Override

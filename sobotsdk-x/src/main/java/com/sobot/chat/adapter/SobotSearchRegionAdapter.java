@@ -71,7 +71,7 @@ public class SobotSearchRegionAdapter extends RecyclerView.Adapter {
         if(tempCode.equals(code)){
             if (ThemeUtils.isChangedThemeColor(mContext)) {
                 int themeColor = ThemeUtils.getThemeColor(mContext);
-                Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                 if (bg != null) {
                     viewHolder.iv_exts.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                 }

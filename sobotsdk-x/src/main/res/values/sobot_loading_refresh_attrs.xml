@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="sobotSrlStyle" format="reference" /><!--样式-->
+
+    <attr name="sobotSrlDrawableSize" format="dimension" /><!--图片尺寸-->
+    <attr name="sobotSrlDrawableArrowSize" format="dimension" /><!--箭头图片尺寸-->
+    <attr name="sobotSrlDrawableProgressSize" format="dimension" /><!--箭头图片尺寸-->
+    <attr name="sobotSrlDrawableMarginRight" format="dimension" /><!--图片和文字的间距-->
+    <attr name="sobotSrlTextSizeTitle" format="dimension" /><!--标题字体-->
+    <attr name="sobotSrlTextSizeTime" format="dimension" /><!--时间字体-->
+    <attr name="sobotSrlFinishDuration" format="integer" /><!--完成时停留时间-->
+    <attr name="sobotSrlPrimaryColor" format="color" /><!--主要颜色-->
+    <attr name="sobotSrlAccentColor" format="color" /><!--强调颜色-->
+    <attr name="sobotSrlDrawableArrow" format="reference" /><!--箭头图片-->
+    <attr name="sobotSrlColorArrow" format="color" /><!--强调颜色-->
+    <attr name="sobotSrlDrawableProgress" format="reference" /><!--转动图片-->
+    <attr name="sobotSrlColorProgress" format="color" /><!--强调颜色-->
+    <attr name="sobotSrlEnableHorizontalDrag" format="boolean" /><!--支持水平拖动-->
+
+    <attr name="sobotSrlTextPulling" format="string" />
+    <attr name="sobotSrlTextLoading" format="string" />
+    <attr name="sobotSrlTextRelease" format="string" />
+    <attr name="sobotSrlTextFinish" format="string" />
+    <attr name="sobotSrlTextFailed" format="string" />
+    <attr name="sobotSrlTextUpdate" format="string" />
+    <attr name="sobotSrlTextSecondary" format="string" />
+    <attr name="sobotSrlTextRefreshing" format="string" />
+    <attr name="sobotSrlTextNothing" format="string" />
+    <attr name="sobotSrlClassicsSpinnerStyle" format="enum">
+        <enum name="Translate" value="0" /><!--平行移动-->
+        <enum name="Scale" value="1" /><!--拉伸形变-->
+        <enum name="FixedBehind" value="2" /><!--固定在背后-->
+    </attr>
+
+    <declare-styleable name="SobotRefreshLayout">
+        <attr name="android:clipChildren" />
+        <attr name="android:clipToPadding" />
+        <attr name="sobotSrlPrimaryColor" />
+        <attr name="sobotSrlAccentColor" />
+        <attr name="srlReboundDuration" format="integer" />
+        <attr name="srlHeaderHeight" format="dimension" />
+        <attr name="srlFooterHeight" format="dimension" />
+        <attr name="srlHeaderInsetStart" format="dimension" />
+        <attr name="srlFooterInsetStart" format="dimension" />
+        <attr name="srlDragRate" format="float" />
+        <attr name="srlHeaderMaxDragRate" format="float" />
+        <attr name="srlFooterMaxDragRate" format="float" />
+        <attr name="srlHeaderTriggerRate" format="float" />
+        <attr name="srlFooterTriggerRate" format="float" />
+        <attr name="srlEnableRefresh" format="boolean" />
+        <attr name="srlEnableLoadMore" format="boolean" />
+        <attr name="srlEnableHeaderTranslationContent" format="boolean" />
+        <attr name="srlEnableFooterTranslationContent" format="boolean" />
+        <attr name="srlHeaderTranslationViewId" format="reference" />
+        <attr name="srlFooterTranslationViewId" format="reference" />
+        <attr name="srlEnablePreviewInEditMode" format="boolean" />
+        <attr name="srlEnableAutoLoadMore" format="boolean" />
+        <attr name="srlEnableOverScrollBounce" format="boolean" />
+        <attr name="srlEnablePureScrollMode" format="boolean" />
+        <attr name="srlEnableNestedScrolling" format="boolean" />
+        <attr name="srlEnableScrollContentWhenLoaded" format="boolean" />
+        <attr name="srlEnableScrollContentWhenRefreshed" format="boolean" />
+        <attr name="srlEnableLoadMoreWhenContentNotFull" format="boolean" />
+        <attr name="srlEnableFooterFollowWhenLoadFinished" format="boolean" />
+        <attr name="srlEnableFooterFollowWhenNoMoreData" format="boolean" />
+        <attr name="srlEnableClipHeaderWhenFixedBehind" format="boolean" />
+        <attr name="srlEnableClipFooterWhenFixedBehind" format="boolean" />
+        <attr name="srlEnableOverScrollDrag" format="boolean" />
+        <attr name="srlDisableContentWhenRefresh" format="boolean" />
+        <attr name="srlDisableContentWhenLoading" format="boolean" />
+        <attr name="srlFixedHeaderViewId" format="reference" />
+        <attr name="srlFixedFooterViewId" format="reference" />
+    </declare-styleable>
+
+    <attr name="sobot_layout_srlSpinnerStyle" format="enum">
+        <enum name="Translate" value="0" /><!--平行移动-->
+        <enum name="Scale" value="1" /><!--拉伸形变-->
+        <enum name="FixedBehind" value="2" /><!--固定在背后-->
+        <enum name="FixedFront" value="3" /><!--固定在前面-->
+        <enum name="MatchLayout" value="4" /><!--填满布局-->
+    </attr>
+
+    <declare-styleable name="SobotRefreshLayout_Layout">
+        <attr name="sobot_layout_srlSpinnerStyle" />
+        <attr name="layout_srlBackgroundColor" format="color" />
+    </declare-styleable>
+
+    <style name="SobotRefreshStyle">
+        <item name="sobotSrlPrimaryColor">@android:color/holo_blue_dark</item>
+        <item name="sobotSrlAccentColor">@android:color/white</item>
+        <item name="srlReboundDuration">300</item>
+        <item name="srlHeaderHeight">100dp</item>
+        <item name="srlFooterHeight">60dp</item>
+        <item name="srlHeaderInsetStart">0dp</item>
+        <item name="srlFooterInsetStart">0dp</item>
+        <item name="srlDragRate">0.5</item>
+        <item name="srlHeaderMaxDragRate">2.5</item>
+        <item name="srlFooterMaxDragRate">2.5</item>
+        <item name="srlHeaderTriggerRate">1</item>
+        <item name="srlFooterTriggerRate">1</item>
+        <!--<item name="srlEnableRefresh">true</item>-->
+        <!--<item name="srlEnableLoadMore">true</item>-->
+        <!--<item name="srlEnableHeaderTranslationContent">true</item>-->
+        <!--<item name="srlEnableFooterTranslationContent">true</item>-->
+        <!--<item name="srlHeaderTranslationViewId">-1</item>-->
+        <!--<item name="srlFooterTranslationViewId">-1</item>-->
+        <item name="srlEnablePreviewInEditMode">true</item>
+        <item name="srlEnableAutoLoadMore">true</item>
+        <item name="srlEnableOverScrollDrag">false</item>
+        <item name="srlEnableOverScrollBounce">true</item>
+        <item name="srlEnablePureScrollMode">false</item>
+        <item name="srlEnableNestedScrolling">true</item>
+        <item name="srlEnableScrollContentWhenLoaded">true</item>
+        <item name="srlEnableScrollContentWhenRefreshed">true</item>
+        <item name="srlEnableLoadMoreWhenContentNotFull">true</item>
+        <!--<item name="srlEnableFooterFollowWhenLoadFinished" format="boolean"/>-->
+        <item name="srlEnableFooterFollowWhenNoMoreData">false</item>
+        <item name="srlEnableClipHeaderWhenFixedBehind">true</item>
+        <item name="srlEnableClipFooterWhenFixedBehind">true</item>
+        <item name="srlDisableContentWhenRefresh">false</item>
+        <item name="srlDisableContentWhenLoading">false</item>
+        <!--<item name="srlFixedHeaderViewId" format="reference"/>-->
+        <!--<item name="srlFixedFooterViewId" format="reference"/>-->
+    </style>
+
+    <declare-styleable name="SobotClassicsFooter">
+        <attr name="sobotSrlClassicsSpinnerStyle" />
+        <attr name="sobotSrlPrimaryColor" />
+        <attr name="sobotSrlAccentColor" />
+        <attr name="sobotSrlFinishDuration" />
+        <attr name="sobotSrlTextSizeTitle" />
+        <attr name="sobotSrlColorArrow" />
+        <attr name="sobotSrlDrawableArrow" />
+        <attr name="sobotSrlDrawableProgress" />
+        <attr name="sobotSrlColorProgress" />
+        <attr name="sobotSrlDrawableMarginRight" />
+        <attr name="sobotSrlDrawableSize" />
+        <attr name="sobotSrlDrawableArrowSize" />
+        <attr name="sobotSrlDrawableProgressSize" />
+
+        <attr name="sobotSrlTextPulling" />
+        <attr name="sobotSrlTextRelease" />
+        <attr name="sobotSrlTextLoading" />
+        <attr name="sobotSrlTextRefreshing" />
+        <attr name="sobotSrlTextFinish" />
+        <attr name="sobotSrlTextFailed" />
+        <attr name="sobotSrlTextNothing" />
+
+    </declare-styleable>
+
+    <declare-styleable name="SobotClassicsHeader">
+        <attr name="sobotSrlClassicsSpinnerStyle" />
+        <attr name="sobotSrlPrimaryColor" />
+        <attr name="sobotSrlAccentColor" />
+        <attr name="sobotSrlFinishDuration" />
+        <attr name="sobotSrlDrawableArrow" />
+        <attr name="sobotSrlColorArrow" />
+        <attr name="sobotSrlColorProgress" />
+        <attr name="sobotSrlDrawableProgress" />
+        <attr name="sobotSrlDrawableMarginRight" />
+        <attr name="sobotSrlDrawableSize" />
+        <attr name="sobotSrlDrawableArrowSize" />
+        <attr name="sobotSrlDrawableProgressSize" />
+        <attr name="sobotSrlTextSizeTitle" />
+        <attr name="sobotSrlTextSizeTime" />
+        <attr name="sobotSrlTextTimeMarginTop" format="dimension" />
+        <attr name="sobotSrlEnableLastTime" format="boolean" />
+
+        <attr name="sobotSrlTextPulling" />
+        <attr name="sobotSrlTextLoading" />
+        <attr name="sobotSrlTextRelease" />
+        <attr name="sobotSrlTextFinish" />
+        <attr name="sobotSrlTextFailed" />
+        <attr name="sobotSrlTextUpdate" />
+        <attr name="sobotSrlTextSecondary" />
+        <attr name="sobotSrlTextRefreshing" />
+
+    </declare-styleable>
+</resources>

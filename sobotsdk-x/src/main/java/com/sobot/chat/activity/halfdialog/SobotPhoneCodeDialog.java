@@ -18,9 +18,9 @@ import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotPhoneCodeAdapter;
 import com.sobot.chat.api.model.SobotPhoneCode;
 import com.sobot.chat.utils.SobotPhoneCodeUtil;
+import com.sobot.chat.utils.SobotSoftKeyboardUtils;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +39,12 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
     private LinearLayout ll_search;
     private EditText et_search;//搜索
     private ImageView iv_clear;
-    private TextView tv_nodata,sobot_tv_title;
+    private TextView tv_nodata, sobot_tv_title;
 
     @Override
     public void onClick(View v) {
         if (v == sobot_sureButton) {
-            if(selectStauts!=null) {
+            if (selectStauts != null) {
                 Intent intent = new Intent();
                 intent.putExtra("selectCode", selectStauts.getPhone_code());
                 setResult(4001, intent);
@@ -53,7 +53,7 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
         } else if (v == iv_clear) {
             et_search.setText("");
             //显示全部数据
-            adapter.setList(list,"");
+            adapter.setList(list, "");
             showList();
 //        } else if (v == iv_search) {
 //            et_search.clearFocus();
@@ -63,16 +63,21 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotPhoneCodeDialog";
+    }
+
+    @Override
     protected void initData() {
         list = new ArrayList<>();
         List<SobotPhoneCode> templist = SobotPhoneCodeUtil.initCurrenty(this);
-        if(templist == null){
+        if (templist == null) {
             templist = new ArrayList<>();
         }
-        String pinyin="";
+        String pinyin = "";
         for (int i = 0; i < templist.size(); i++) {
-            String frist = templist.get(i).getPinyin().substring(0,1  );
-            if(!frist.equals(pinyin)){
+            String frist = templist.get(i).getPinyin().substring(0, 1);
+            if (!frist.equals(pinyin)) {
                 pinyin = frist;
                 SobotPhoneCode code = new SobotPhoneCode();
                 code.setPinyin(frist);
@@ -97,6 +102,7 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
 
     @Override
     protected void initView() {
+        super.initView();
         //根布局
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
@@ -107,7 +113,7 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
         sobot_sureButton = findViewById(R.id.btnSubmit);
         sobot_sureButton.setOnClickListener(this);
         if (ThemeUtils.isChangedThemeColor(this)) {
-           int themeColor = ThemeUtils.getThemeColor(this);
+            int themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = sobot_sureButton.getBackground();
             if (bg != null) {
                 sobot_sureButton.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
@@ -124,9 +130,9 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    KeyboardUtil.showKeyboard(et_search);
+                    SobotSoftKeyboardUtils.showSoftKeyboard(getSobotBaseActivity());
                 } else {
-                    KeyboardUtil.hideKeyboard(v);
+                    SobotSoftKeyboardUtils.hideKeyboard(getSobotBaseActivity());
                 }
             }
         });
@@ -153,21 +159,22 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
                 setIv_search();
             }
         });
-        
+
     }
-    private void setIv_search(){
+
+    private void setIv_search() {
         final String searchText = et_search.getText().toString();
-        if(SobotStringUtils.isEmpty(searchText)){
+        if (StringUtils.isEmpty(searchText)) {
             showList();
-            adapter.setList(list,searchText);
-        }else {
+            adapter.setList(list, searchText);
+        } else {
             List<SobotPhoneCode> temList = new ArrayList();
             for (int i = 0; i < list.size(); i++) {
-                if (SobotStringUtils.isNoEmpty(list.get(i).getPhone_code()) && list.get(i).getPhone_code().contains(searchText)) {
+                if (StringUtils.isNoEmpty(list.get(i).getPhone_code()) && list.get(i).getPhone_code().contains(searchText)) {
                     temList.add(list.get(i));
                 }
             }
-            adapter.setList(temList,searchText);
+            adapter.setList(temList, searchText);
             if (temList.size() > 0) {
                 showList();
             } else {
@@ -175,12 +182,13 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
             }
         }
     }
-    private void showEmpt(){
+
+    private void showEmpt() {
         tv_nodata.setVisibility(View.VISIBLE);
         rv_list.setVisibility(View.GONE);
     }
 
-    private void showList(){
+    private void showList() {
         tv_nodata.setVisibility(View.GONE);
         rv_list.setVisibility(View.VISIBLE);
     }

@@ -17,10 +17,10 @@
         android:gravity="center"
         android:includeFontPadding="false"
         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-        android:paddingStart="10dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="7dp"
+        android:paddingStart="16dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="9dp"
         android:textColor="@color/sobot_template2_lable_text_color"
         android:textSize="@dimen/sobot_text_font_14" />
 

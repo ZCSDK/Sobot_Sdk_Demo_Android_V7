@@ -1,0 +1,29 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <!--聊天页面加载loading 帧动画-->
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_first"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_second"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_third"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_second"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_seven"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_four"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_five"
+        android:duration="100" />
+    <item
+        android:drawable="@drawable/sobot_progressbar_loading_six"
+        android:duration="100" />
+
+</animation-list>

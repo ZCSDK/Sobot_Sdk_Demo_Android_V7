@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,24 +37,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容  列表 -->
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_left_content_ll_bg_style"
+                android:orientation="vertical"
                 android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:orientation="vertical">
+                android:paddingEnd="0dp">
                 <!--标题-->
                 <TextView
                     android:id="@+id/tv_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
                     android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
                     android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginBottom="12dp"
                     android:orientation="vertical" />
 
                 <!--商品列表-->
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
-                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"/>
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge" />
 
                 <!--展开按钮-->
                 <LinearLayout

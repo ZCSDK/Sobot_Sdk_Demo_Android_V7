@@ -44,6 +44,11 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotDateTimeActivity";
+    }
+
+    @Override
     protected void initData() {
     }
 
@@ -54,13 +59,13 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
 
     @Override
     protected void initView() {
+        super.initView();
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
         findViewById(R.id.tv_time_zone).setVisibility(View.GONE);
         btnSubmit = findViewById(R.id.btnSubmit);
         v_top = findViewById(R.id.v_top);
         v_top.setOnClickListener(this);
         btnSubmit.setOnClickListener(this);
-
         // 时间转轮 自定义控件
         LinearLayout timePickerView = (LinearLayout) findViewById(R.id.timepicker);
 
@@ -76,15 +81,15 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
             finish();
         }
         sobot_tv_title.setText(cusFieldConfig.getFieldName());
-        if(cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE) {
+        if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE) {
             type = new boolean[]{true, true, true, false, false, false};//显示类型 默认全部显示
-        }else{
+        } else {
             type = new boolean[]{false, false, false, true, true, false};//显示类型 默认全部显示
         }
         wheelTime = new SobotWheelTime(timePickerView, type, gravity, Size_Content);
         String timsStr;
         //设置默认值
-//        if (SobotStringUtils.isNoEmpty(cusFieldConfig.getShowName())) {
+//        if (StringUtils.isNoEmpty(cusFieldConfig.getShowName())) {
 //            String[] zoneName = cusFieldConfig.getShowName().split(",");
 //            String[] zoneValue = cusFieldConfig.getValue().split(",");
 //            if (zoneName.length == 2) {
@@ -97,7 +102,7 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
 //            calendar.setTime(date1);
 //            wheelTime.setPicker(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 0);
 //        } else {
-            setTime();
+        setTime();
 //        }
 
         if (startDate != null && endDate != null) {
@@ -175,10 +180,10 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
             //去掉秒
             String time = "";
             //点击确定
-            if(cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE) {
-                time  =wheelTime.getDate();
-            }else{
-                time  =wheelTime.getTime();
+            if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE) {
+                time = wheelTime.getDate();
+            } else {
+                time = wheelTime.getTime();
             }
             Intent intent = new Intent();
             intent.putExtra("CATEGORYSMALL", "CATEGORYSMALL");

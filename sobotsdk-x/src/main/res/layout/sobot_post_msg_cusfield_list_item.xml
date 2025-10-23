@@ -11,8 +11,8 @@
         android:background="@color/sobot_color_bg_first"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge">
+        android:paddingStart="@dimen/sobot_dialog_margin"
+        android:paddingEnd="@dimen/sobot_dialog_margin">
 
 
         <!--   文本类型   -->
@@ -34,6 +34,7 @@
                 style="@style/sobot_sobot_cur_text_one_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/sobot_search_bg"
                 android:hint="@string/sobot_please_input" />
 
             <!--选择-->
@@ -42,6 +43,7 @@
                 style="@style/sobot_sobot_cur_text_one_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/sobot_search_bg"
                 android:hint="@string/sobot_please_choice" />
             <!--            多选-->
             <com.sobot.chat.widget.SobotAntoLineLayout
@@ -80,6 +82,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/sobot_line_height_dp"
         android:layout_marginStart="16dp"
-        android:background="@color/sobot_color_line_divider" />
+        android:background="@color/sobot_dialog_line" />
 
 </LinearLayout>

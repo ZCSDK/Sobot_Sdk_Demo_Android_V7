@@ -1,6 +1,5 @@
 package com.sobot.chat.utils;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,9 +16,11 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -29,6 +30,7 @@ import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.ResultCallBack;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.apiUtils.GsonUtil;
+import com.sobot.chat.api.model.ChatMessageRichListModel;
 import com.sobot.chat.api.model.CommonModel;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.SatisfactionSet;
@@ -60,7 +62,6 @@ import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,7 +75,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -85,6 +85,7 @@ import java.util.regex.Pattern;
 public class ChatUtils {
 
     public static final int REQUEST_CODE_CAMERA = 108;
+    public static final String SOBOT_ACTION_CLOSE_TIKET = "sobot_action_close_tiket";
     private static List<SobotTicketStatus> statusList;//工单状态集合
 
     public static void setStatusList(List<SobotTicketStatus> statusList) {
@@ -314,15 +315,16 @@ public class ChatUtils {
         ZhiChiMessageBase zhichiMessage = new ZhiChiMessageBase();
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
         reply.setMsg(imageUrl);
+        reply.setMsgType(ZhiChiConstant.message_type_pic);
         zhichiMessage.setAnswer(reply);
         zhichiMessage.setId(id);
         zhichiMessage.setMsgId(id);
         if (readFlag == 1) {
             zhichiMessage.setReadStatus(1);
         }
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         zhichiMessage.setSendSuccessState(ZhiChiConstant.MSG_SEND_STATUS_LOADING);
-        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer_sendImage);
+        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         if (information != null) {
             zhichiMessage.setSenderName(information.getUser_nick());
             zhichiMessage.setSenderFace(information.getFace());
@@ -413,13 +415,7 @@ public class ChatUtils {
         } else if (3 == type) { // 被加入黑名单
             return ResourceUtils.getResString(context, "sobot_outline_leverByManager");
         } else if (4 == type) { // 超时下线
-            String userOutWord = ZCSobotApi.getCurrentInfoSetting(context) != null ? ZCSobotApi.getCurrentInfoSetting(context).getUser_out_word() : "";
-            if (!TextUtils.isEmpty(userOutWord)) {
-                return userOutWord;
-            } else {
-                return initModel != null ? initModel.getUserOutWord() : ResourceUtils.getResString(context, "sobot_outline_leverByManager");
-            }
-
+            return initModel != null ? initModel.getUserOutWord() : ResourceUtils.getResString(context, "sobot_outline_leverByManager");
         } else if (5 == type) {
             return ResourceUtils.getResString(context, "sobot_outline_leverByManager");
         } else if (6 == type) {
@@ -450,7 +446,7 @@ public class ChatUtils {
      */
     public static ZhiChiMessageBase getCustomEvaluateMode(Context context, ZhiChiPushMessage pushMessage, SatisfactionSet satisfactionSet) {
         ZhiChiMessageBase base = new ZhiChiMessageBase();
-        base.setT(Calendar.getInstance().getTime().getTime() + "");
+        base.setT(System.currentTimeMillis() + "");
         base.setSenderName(TextUtils.isEmpty(pushMessage.getAname()) ? ResourceUtils.getResString(context, "sobot_cus_service") : pushMessage.getAname());
         SobotEvaluateModel sobotEvaluateModel = new SobotEvaluateModel();
         sobotEvaluateModel.setIsQuestionFlag(pushMessage.getIsQuestionFlag());
@@ -479,7 +475,7 @@ public class ChatUtils {
         if (readFlag == 1) {
             zhichiMessage.setReadStatus(1);
         }
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         reply.setMsgType(ZhiChiConstant.message_type_file);
         zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         if (information != null) {
@@ -499,7 +495,7 @@ public class ChatUtils {
         if (readFlag == 1) {
             zhichiMessage.setReadStatus(1);
         }
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         reply.setMsgType(ZhiChiConstant.message_type_location);
         zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         if (information != null) {
@@ -553,7 +549,7 @@ public class ChatUtils {
                 questionArray.put(object);
             }
             String cardOriginalInfo = card.getOriginalInfo();
-            if (goods != null && SobotStringUtils.isNoEmpty(cardOriginalInfo)) {
+            if (goods != null && StringUtils.isNoEmpty(cardOriginalInfo)) {
                 JSONObject object = new JSONObject(cardOriginalInfo);
                 JSONArray array = object.getJSONArray("customCards");
                 array.put(new JSONObject(goods.getOriginalString()));
@@ -564,9 +560,9 @@ public class ChatUtils {
             parame.put("question", SobotJsonUtils.object2Json(questionArray));//String 点击卡片的节点
             parame.put("showQuestion", cardOriginalInfo);//String 点击卡片的所有属性
             parame.put("inputTypeEnum", "PROCESS_CARD_CLICK");
-            if(SobotStringUtils.isNoEmpty(card.getInterfaceInfo())) {
+            if (StringUtils.isNoEmpty(card.getInterfaceInfo())) {
                 parame.put("interfaceInfo", SobotGsonUtil.jsonToMaps(card.getInterfaceInfo()));//全量的对象
-            }else{
+            } else {
                 parame.put("interfaceInfo", "");//全量的对象
             }
             parame.put("objMsgType", "21");
@@ -599,7 +595,7 @@ public class ChatUtils {
         }
         messageBase.setSenderType(ZhiChiConstant.message_sender_type_customer);
         messageBase.setCustomCard(card);
-        messageBase.setT(Calendar.getInstance().getTime().getTime() + "");
+        messageBase.setT(System.currentTimeMillis() + "");
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
         reply.setMsgType(ZhiChiConstant.message_type_card_msg);
         messageBase.setAnswer(reply);
@@ -612,7 +608,7 @@ public class ChatUtils {
         reply.setMsg(data);
         zhichiMessage.setAnswer(reply);
         zhichiMessage.setId(tmpMsgId);
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         reply.setMsgType(ZhiChiConstant.message_type_muiti_leave_msg);
         zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         if (information != null) {
@@ -639,7 +635,7 @@ public class ChatUtils {
         if (readFlag == 1) {
             zhichiMessage.setReadStatus(1);
         }
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         reply.setMsgType(ZhiChiConstant.message_type_video);
         zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         if (information != null) {
@@ -660,7 +656,7 @@ public class ChatUtils {
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
         reply.setMsg(initModel.getTransferManualPromptWord());
         reply.setMsgType(ZhiChiConstant.message_type_text);
-        robot.setT(Calendar.getInstance().getTime().getTime() + "");
+        robot.setT(System.currentTimeMillis() + "");
         robot.setAnswer(reply);
         robot.setSenderFace(initModel.getRobotLogo());
         robot.setSender(initModel.getRobotName());
@@ -682,7 +678,7 @@ public class ChatUtils {
         String announceMsg = initModel.getAnnounceMsg();
         reply.setMsg(announceMsg);
         reply.setMsgType(ZhiChiConstant.message_type_text);
-        robot.setT(Calendar.getInstance().getTime().getTime() + "");
+        robot.setT(System.currentTimeMillis() + "");
         robot.setAnswer(reply);
         robot.setSenderType(ZhiChiConstant.message_sender_type_notice);
         return robot;
@@ -827,7 +823,7 @@ public class ChatUtils {
         ZhiChiMessageBase base = new ZhiChiMessageBase();
         base.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
         base.setAction(ZhiChiConstant.action_remind_connt_success);
-        base.setT(Calendar.getInstance().getTime().getTime() + "");
+        base.setT(System.currentTimeMillis() + "");
         base.setSenderName(TextUtils.isEmpty(aname) ? "" : aname);
         base.setSenderFace(TextUtils.isEmpty(face) ? "" : face);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
@@ -835,6 +831,27 @@ public class ChatUtils {
         reply.setRemindType(ZhiChiConstant.sobot_remind_type_accept_request);
         base.setAnswer(reply);
         return base;
+    }
+
+    /**
+     * 获取富文本消息（人工欢迎语、待分配说辞）
+     */
+    public static ZhiChiMessageBase getRichListMsg(String msg, List<ChatMessageRichListModel> richListModels, String aname, String aface) {
+        if (richListModels != null && !richListModels.isEmpty()) {
+            ZhiChiMessageBase base = new ZhiChiMessageBase();
+            base.setT(System.currentTimeMillis() + "");
+            base.setSenderName(TextUtils.isEmpty(aname) ? "" : aname);
+            base.setSenderFace(TextUtils.isEmpty(aface) ? "" : aface);
+            ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
+            reply.setMsgType(ZhiChiConstant.message_type_emoji);
+            base.setSenderType(ZhiChiConstant.message_sender_type_service);
+            reply.setMsg(msg);
+            reply.setRichList(richListModels);
+            base.setAnswer(reply);
+            return base;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -851,7 +868,7 @@ public class ChatUtils {
         }
         ZhiChiMessageBase base = new ZhiChiMessageBase();
         base.setAction(ZhiChiConstant.action_remind_connt_success);
-        base.setT(Calendar.getInstance().getTime().getTime() + "");
+        base.setT(System.currentTimeMillis() + "");
         base.setSenderName(TextUtils.isEmpty(aname) ? "" : aname);
         base.setSenderFace(TextUtils.isEmpty(aface) ? "" : aface);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
@@ -875,7 +892,7 @@ public class ChatUtils {
             return null;
         }
         ZhiChiMessageBase base = new ZhiChiMessageBase();
-        base.setT(Calendar.getInstance().getTime().getTime() + "");
+        base.setT(System.currentTimeMillis() + "");
         base.setSenderName(TextUtils.isEmpty(aname) ? "" : aname);
         base.setSenderFace(TextUtils.isEmpty(aface) ? "" : aface);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
@@ -900,7 +917,7 @@ public class ChatUtils {
         tmpMsg.setAnswer(reply);
         tmpMsg.setLeaveMsgFlag(true);
         tmpMsg.setSenderType(ZhiChiConstant.message_sender_type_customer);
-        tmpMsg.setT(Calendar.getInstance().getTime().getTime() + "");
+        tmpMsg.setT(System.currentTimeMillis() + "");
         return tmpMsg;
     }
 
@@ -911,7 +928,7 @@ public class ChatUtils {
         ZhiChiMessageBase paiduizhichiMessageBase = new ZhiChiMessageBase();
         paiduizhichiMessageBase.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
         paiduizhichiMessageBase.setAction(ZhiChiConstant.action_remind_info_paidui);
-        paiduizhichiMessageBase.setT(Calendar.getInstance().getTime().getTime() + "");
+        paiduizhichiMessageBase.setT(System.currentTimeMillis() + "");
         ZhiChiReplyAnswer reply_paidui = new ZhiChiReplyAnswer();
         reply_paidui.setMsg(queueDoc);
         reply_paidui.setRemindType(ZhiChiConstant.sobot_remind_type_paidui_status);
@@ -943,7 +960,7 @@ public class ChatUtils {
      * @param context
      * @param reason  手动结束会话的原因，非必填
      */
-    public static void userLogout(final Context context, String reason) {
+    public static void userLogout(Context context, String reason) {
 
         SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_IS_EXIT, true);
         try {
@@ -1140,7 +1157,6 @@ public class ChatUtils {
             sobotMsgCenterModel.setFace(initModel.getCompanyLogo());
             sobotMsgCenterModel.setName(initModel.getCompanyName());
             sobotMsgCenterModel.setAppkey(appkey);
-//		sobotMsgCenterModel.setLastDateTime(Calendar.getInstance().getTime().getTime()+"");
             sobotMsgCenterModel.setUnreadCount(0);
 
             if (messageList != null) {
@@ -1157,34 +1173,26 @@ public class ChatUtils {
                         sobotMsgCenterModel.setSenderFace("");
                     }
                     String lastMsg = "";
-                    if ((ZhiChiConstant.message_sender_type_customer_sendImage == tempMsg.getSenderType())) {
-                        lastMsg = ResourceUtils.getResString(context, "sobot_upload");
-                    } else if ((ZhiChiConstant.message_sender_type_send_voice == tempMsg.getSenderType())) {
-                        lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_voice");
-                    } else if (tempMsg.getAnswer() != null) {
+                    if (tempMsg.getAnswer() != null) {
                         if (ZhiChiConstant.message_type_pic == tempMsg.getAnswer().getMsgType()) {
                             lastMsg = ResourceUtils.getResString(context, "sobot_upload");
+                        } else if (ZhiChiConstant.message_type_card == tempMsg.getAnswer().getMsgType()) {
+                            lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_goods");
+                        } else if (ZhiChiConstant.message_type_ordercard == tempMsg.getAnswer().getMsgType()) {
+                            lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_card");
+                        } else if (ZhiChiConstant.message_type_video == tempMsg.getAnswer().getMsgType()) {
+                            lastMsg = ResourceUtils.getResString(context, "sobot_upload_video");
+                        } else if (ZhiChiConstant.message_type_file == tempMsg.getAnswer().getMsgType()) {
+                            lastMsg = ResourceUtils.getResString(context, "sobot_choose_file");
                         } else {
-                            if (tempMsg.getAnswer().getMsg() == null) {
-                                if (ZhiChiConstant.message_type_card == tempMsg.getAnswer().getMsgType()) {
-                                    lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_goods");
-                                } else if (ZhiChiConstant.message_type_ordercard == tempMsg.getAnswer().getMsgType()) {
-                                    lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_card");
-                                } else if (ZhiChiConstant.message_type_video == tempMsg.getAnswer().getMsgType()) {
-                                    lastMsg = ResourceUtils.getResString(context, "sobot_upload_video");
-                                } else if (ZhiChiConstant.message_type_file == tempMsg.getAnswer().getMsgType()) {
-                                    lastMsg = ResourceUtils.getResString(context, "sobot_choose_file");
-                                } else {
-                                    lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_other_msg");
-                                }
-                            } else {
-                                lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_rich_text");
-                            }
+                            lastMsg = ResourceUtils.getResString(context, "sobot_chat_type_other_msg");
                         }
                     }
                     sobotMsgCenterModel.setLastMsg(lastMsg);
-                    sobotMsgCenterModel.setLastDate(DateUtil.toDate(Long.parseLong(!TextUtils.isEmpty(tempMsg.getT()) ? tempMsg.getT() : Calendar.getInstance().getTime().getTime() + ""), DateUtil.DATE_FORMAT));
-                    sobotMsgCenterModel.setLastDateTime(!TextUtils.isEmpty(tempMsg.getT()) ? tempMsg.getT() : Calendar.getInstance().getTime().getTime() + "");
+                    Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
+                    String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+                    sobotMsgCenterModel.setLastDate(DateUtil.longStrToDateStr(!TextUtils.isEmpty(tempMsg.getT()) ? tempMsg.getT() : System.currentTimeMillis() + "", formatString, locale));
+                    sobotMsgCenterModel.setLastDateTime(!TextUtils.isEmpty(tempMsg.getT()) ? tempMsg.getT() : System.currentTimeMillis() + "");
                     break;
                 }
                 sobotCache.put(SobotMsgManager.getMsgCenterDataKey(appkey, info.getPartnerid()), sobotMsgCenterModel);
@@ -1213,7 +1221,7 @@ public class ChatUtils {
         if (context != null && multiDiaRespInfo != null && interfaceRet != null) {
             ZhiChiMessageBase msgObj = new ZhiChiMessageBase();
             String content = "{\"interfaceRetList\":[" + GsonUtil.map2Json(interfaceRet) + "]," + "\"template\":" + multiDiaRespInfo.getTemplate() + "}";
-
+            msgObj.setT(System.currentTimeMillis()+"");
             msgObj.setContent(formatQuestionStr(multiDiaRespInfo.getOutPutParamList(), interfaceRet, multiDiaRespInfo));
             msgObj.setId(System.currentTimeMillis() + "");
             if (msgCallBack != null) {
@@ -1261,7 +1269,7 @@ public class ChatUtils {
         ZhiChiMessageBase robot = new ZhiChiMessageBase();
         robot.setSenderType(ZhiChiConstant.message_sender_type_questionRecommend);
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
-        robot.setT(Calendar.getInstance().getTime().getTime() + "");
+        robot.setT(System.currentTimeMillis() + "");
         reply.setQuestionRecommend(data);
         robot.setAnswer(reply);
         robot.setSenderFace(initModel.getRobotLogo());
@@ -1273,7 +1281,7 @@ public class ChatUtils {
     public static ZhiChiMessageBase getTipByText(String content) {
         ZhiChiMessageBase data = new ZhiChiMessageBase();
         data.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
-        data.setT(Calendar.getInstance().getTime().getTime() + "");
+        data.setT(System.currentTimeMillis() + "");
         ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
         reply.setMsg(content);
         reply.setRemindType(ZhiChiConstant.sobot_remind_type_tip);
@@ -1301,10 +1309,7 @@ public class ChatUtils {
 
     /**
      * 获取引导问题中的问题选项view
-     *
-     * @param context
      */
-    @SuppressLint("ResourceAsColor")
     public static TextView initAnswerItemTextView(Context context, boolean isHistoryMsg) {
         if (context == null) {
             context = MyApplication.getInstance().getApplicationContext();
@@ -1314,7 +1319,7 @@ public class ChatUtils {
         answer.setTextSize(14);
         answer.setIncludeFontPadding(false);
         answer.setLineSpacing(context.getResources().getDimension(R.dimen.sobot_text_line_spacing_extra), 1);
-        answer.setPadding(0, ScreenUtils.dip2px(context, 12), 0, 0);
+        answer.setPadding(0, ScreenUtils.dip2px(context, 8), 0, 0);
         // 设置字体的颜色的样式
         int colorId = 0;
         if (isHistoryMsg) {
@@ -1496,7 +1501,7 @@ public class ChatUtils {
 
     //markdown 里边是否有图片 true ：有，fasel:没有
     public static boolean isHasPictureInMarkdown(String markdownText) {
-        if (SobotStringUtils.isEmpty(markdownText)) {
+        if (StringUtils.isEmpty(markdownText)) {
             return false;
         }
         if (markdownText.contains("<img src")) {
@@ -1528,7 +1533,7 @@ public class ChatUtils {
 
     //解析MarkDown数据 转成Html
     public static String parseMarkdownData(String tempContent) {
-        if (SobotStringUtils.isEmpty(tempContent)) {
+        if (StringUtils.isEmpty(tempContent)) {
             return "";
         }
         String[] arrStr = tempContent.replace("1. **", "**1.")
@@ -1555,7 +1560,7 @@ public class ChatUtils {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < arrStr.length; i++) {
             String tempStr = arrStr[i];
-            if (SobotStringUtils.isEmpty(arrStr[i])) {
+            if (StringUtils.isEmpty(arrStr[i])) {
                 tempStr = "";
             }
             if (arrStr[i].startsWith("######")) {
@@ -1742,7 +1747,7 @@ public class ChatUtils {
      * @param isWidthConsistent true 宽度一致，false 宽度正常
      */
     public static void doTwoViewWidthConsistent(TextView textView1, String text1, TextView textView2, String text2, boolean isWidthConsistent) {
-        if (textView1 == null || textView2 == null || SobotStringUtils.isEmpty(text1) || SobotStringUtils.isEmpty(text1)) {
+        if (textView1 == null || textView2 == null || StringUtils.isEmpty(text1) || StringUtils.isEmpty(text1)) {
             return;
         }
         // 创建Paint对象
@@ -1765,5 +1770,30 @@ public class ChatUtils {
         // 设置文字
         textView1.setText(text1);
         textView2.setText(text2);
+    }
+
+    //通过设置为 false 来禁用 Android 15 (API 35) 新增的语言区域感知行高功能 (不然android15 光标变高了)
+    public static void useLocalePreferredLineHeightForMinimum(EditText editText) {
+        if (editText != null && Build.VERSION.SDK_INT >= 35) {
+            editText.setLocalePreferredLineHeightForMinimumUsed(false);
+        }
+    }
+
+    //判断在线客服座席是否是默认头像
+    public static boolean isDefaultFace(String adminFace) {
+        return StringUtils.isNoEmpty(adminFace) && (adminFace.contains("static-resource/account/image/admin.png") || adminFace.contains("console/common/face/admin.png") || adminFace.contains("static-resource/main/image/admin.png"));
+    }
+
+
+
+
+    public static Uri getUri(Context context, File file) {
+        Uri uri;
+        if (Build.VERSION.SDK_INT >= 24) {
+            uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+        } else {
+            uri = Uri.fromFile(file);
+        }
+        return uri;
     }
 }

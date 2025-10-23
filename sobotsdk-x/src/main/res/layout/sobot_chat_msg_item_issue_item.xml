@@ -2,36 +2,29 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_hot_item_hs"
-    android:layout_width="82dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="4dp"
-    android:background="@drawable/sobot_shadow_bg"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/ll_issue"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="11dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="6dp"
+        android:padding="10dp"
         android:gravity="center_horizontal"
+        android:background="@drawable/sobot_item_hot_selector"
         android:orientation="vertical">
 
-        <com.sobot.chat.widget.image.SobotProgressImageView
+        <com.sobot.chat.widget.image.SobotRCImageView
             android:id="@+id/sobot_hot_item_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="6dp"
-            app:image_height="40dp"
-            app:image_width="40dp" />
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:sobot_round_as_circle="true" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="6dp">
+            >
 
             <TextView
                 android:id="@+id/sobot_hot_item_title_zhanwei"
@@ -40,10 +33,11 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:layout_marginTop="4dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:textColor="@color/sobot_color_text_first"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:visibility="invisible" />
 
             <TextView
@@ -53,10 +47,16 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:layout_marginTop="4dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:textColor="@color/sobot_color_text_first"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
         </RelativeLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="12dp"
+        android:layout_height="1dp" />
 </LinearLayout>

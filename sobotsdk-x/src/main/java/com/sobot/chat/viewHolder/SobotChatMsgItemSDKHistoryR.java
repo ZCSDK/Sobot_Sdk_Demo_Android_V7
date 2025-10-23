@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 
 import java.util.List;
@@ -22,17 +23,21 @@ public class SobotChatMsgItemSDKHistoryR extends MsgHolderBase {
 
     @Override
     public void bindData(Context context, ZhiChiMessageBase message) {
-        if (message.getAnswer() != null && message.getAnswer().getInterfaceRetList() != null && message.getAnswer().getInterfaceRetList().size() > 0) {
-            List<Map<String, String>> listMap = message.getAnswer().getInterfaceRetList();
-            StringBuilder sbuffer = new StringBuilder();
-            for (int i = 0; i < listMap.size(); i++) {
-                Map<String, String> map = listMap.get(i);
-                if (map != null && map.size() > 0){
-                    sbuffer.append(map.get("title"));
+        try {
+            if (message.getAnswer() != null && message.getAnswer().getInterfaceRetList() != null && message.getAnswer().getInterfaceRetList().size() > 0) {
+                List<Map<String, String>> listMap = message.getAnswer().getInterfaceRetList();
+                StringBuilder sbuffer = new StringBuilder();
+                for (int i = 0; i < listMap.size(); i++) {
+                    Map<String, String> map = listMap.get(i);
+                    if (map != null && map.size() > 0){
+                        sbuffer.append(map.get("title"));
+                    }
                 }
+                sobot_sdk_history_msg.setText(sbuffer);
+                sobot_sdk_history_msg.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
             }
-            sobot_sdk_history_msg.setText(sbuffer);
+            refreshReadStatus();
+        } catch (Exception e) {
         }
-        refreshReadStatus();
     }
 }

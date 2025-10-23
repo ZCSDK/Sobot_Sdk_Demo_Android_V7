@@ -1,22 +1,15 @@
 package com.sobot.chat.presenter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 
-import com.sobot.chat.activity.SobotPostMsgActivity;
 import com.sobot.chat.activity.halfdialog.SobotMuItiPostMsgActivty;
-import com.sobot.chat.activity.halfdialog.SobotPostMsgTmpListActivity;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
-import com.sobot.chat.api.model.SobotPostMsgTemplate;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-
-import java.util.ArrayList;
 
 /**
  * 留言逻辑处理
@@ -29,6 +22,8 @@ public class StPostMsgPresenter {
     public static final String INTENT_KEY_GROUPID = "intent_key_groupid";
     public static final String INTENT_KEY_CUSTOMERID = "intent_key_customerid";
     public static final String INTENT_KEY_COMPANYID = "intent_key_companyid";
+    public static final String INTENT_KEY_TEMPID = "intent_key_tempid";
+    public static final String INTENT_KEY_FROM = "intent_key_from";
 
     private StPostMsgPresenter() {
     }
@@ -55,106 +50,9 @@ public class StPostMsgPresenter {
         return new StPostMsgPresenter(tag, context);
     }
 
-    /**
-     * 获取留言模板列表
-     */
-    public void obtainTemplateList(final String uid, String groupId, final boolean flag_exit_sdk,  final ObtainTemplateListDelegate delegate) {
-        if (TextUtils.isEmpty(uid) || mIsRunning) {
-            return;
-        }
-        mIsRunning = true;
-        mDelegate = delegate;
-        mApi.getWsTemplate(mCancelTag, uid, groupId, new StringResultCallBack<ArrayList<SobotPostMsgTemplate>>() {
-            @Override
-            public void onSuccess(ArrayList<SobotPostMsgTemplate> datas) {
-                if (!mIsActive) {
-                    mIsRunning = false;
-                    return;
-                }
-                if (datas != null && datas.size() > 0) {
-                    if (datas.size() == 1) {
-                        //只有一个 自动点选
-                        obtainTmpConfig(uid, datas.get(0).getTemplateId());
-                    } else {
-                        mIsRunning = false;
-                        Intent intent = new Intent(mContext, SobotPostMsgTmpListActivity.class);
-                        intent.putExtra("sobotPostMsgTemplateList", datas);
-                        intent.putExtra("uid", uid);
-                        intent.putExtra("flag_exit_sdk", flag_exit_sdk);
-                        mContext.startActivity(intent);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e, String des) {
-                processReqFailure(e, des);
-            }
-        });
-    }
-
-    /**
-     * 启动留言界面
-     *
-     * @param uid
-     * @param config 留言基础配置
-     */
-    public Intent newPostMsgIntent(String uid, SobotLeaveMsgConfig config) {
-
-        Intent intent = new Intent(mContext, SobotPostMsgActivity.class);
-        intent.putExtra(INTENT_KEY_UID, uid);
-        intent.putExtra(INTENT_KEY_CONFIG, config);
-
-        return intent;
-    }
-
     public interface ObtainTemplateListDelegate {
         void onSuccess(Intent intent);
 
-    }
-
-    /**
-     * 打开留言模板列表
-     *
-     * @param context
-     */
-    public void showTempListDialog(Activity context, ArrayList<SobotPostMsgTemplate> datas) {
-        mIsRunning = false;
-        if (context == null || datas == null) {
-            return;
-        }
-        Intent intent = new Intent(context, SobotPostMsgTmpListActivity.class);
-        intent.putExtra("sobotPostMsgTemplateList", datas);
-        context.startActivity(intent);
-    }
-
-    /**
-     * 获取留言模板的配置
-     *
-     * @param uid
-     * @param templateId
-     */
-    public void obtainTmpConfig(final String uid, final String templateId) {
-        mApi.getMsgTemplateConfig(mCancelTag, uid, templateId, new StringResultCallBack<SobotLeaveMsgConfig>() {
-            @Override
-            public void onSuccess(SobotLeaveMsgConfig data) {
-                if (!mIsActive) {
-                    mIsRunning = false;
-                    return;
-                }
-                if (data != null) {
-                    if (mDelegate != null) {
-                        mDelegate.onSuccess(newPostMsgIntent(uid, data));
-                    }
-                }
-                mIsRunning = false;
-            }
-
-            @Override
-            public void onFailure(Exception e, String des) {
-                processReqFailure(e, des);
-            }
-        });
     }
 
     /**

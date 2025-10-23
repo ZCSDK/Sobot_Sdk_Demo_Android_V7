@@ -2,15 +2,11 @@ package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -18,6 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
@@ -32,7 +29,6 @@ import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotEditTextLayout;
 import com.sobot.chat.widget.SobotFiveStarsLayout;
 import com.sobot.chat.widget.SobotTenRatingLayout;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.util.ArrayList;
@@ -42,7 +38,7 @@ import java.util.List;
  * 评价界面的显示
  * Created by jinxl on 2017/6/12.
  */
-public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity implements CompoundButton.OnCheckedChangeListener {
+public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity implements  View.OnClickListener{
     private LinearLayout coustom_pop_layout;
     private LinearLayout sobot_robot_relative;//评价 机器人布局
     private LinearLayout sobot_custom_relative;//评价人工布局
@@ -79,14 +75,19 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     private SobotOrderScoreModel satisfactionSetBase;
 
 
-
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_layout_evaluate;
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotTicketEvaluateActivity";
+    }
+
+    @Override
     protected void initView() {
+        super.initView();
         mEvaluate = (SobotUserTicketEvaluate) getIntent().getSerializableExtra("sobotUserTicketEvaluate");
         sobot_close_now = findViewById(R.id.sobot_close_now);
         sobot_close_now.setText(R.string.sobot_btn_submit_text);
@@ -95,7 +96,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         //统一显示为服务评价
         sobot_tv_evaluate_title.setText(R.string.sobot_please_evaluate_this_service);
         sobot_robot_center_title = (TextView) findViewById(R.id.sobot_robot_center_title);
-        sobot_robot_center_title.setText(R.string.sobot_question);
+        String sobot_question = getResources().getString(R.string.sobot_question);
+        sobot_robot_center_title.setText(String.format(sobot_question, "").trim());
         sobot_text_other_problem = (TextView) findViewById(R.id.sobot_text_other_problem);
         sobot_ratingBar_title = (TextView) findViewById(R.id.sobot_ratingBar_title);
         sobot_ratingBar_title.setText(R.string.sobot_great_satisfaction);
@@ -105,7 +107,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_ratingBar_split_view = findViewById(R.id.sobot_ratingBar_split_view);
         sobot_evaluate_cancel.setVisibility(View.GONE);
 
-        sobot_ratingBar =  findViewById(R.id.sobot_ratingBar);
+        sobot_ratingBar = findViewById(R.id.sobot_ratingBar);
         sobot_ten_root_ll = findViewById(R.id.sobot_ten_root_ll);
         sobot_ten_rating_ll = findViewById(R.id.sobot_ten_rating_ll);
         sobot_ten_very_dissatisfied = findViewById(R.id.sobot_ten_very_dissatisfied);
@@ -161,28 +163,28 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 if (score == -1) {
                     score = 5;
                 }
-                sobot_ratingBar.init(score,true,32);
+                sobot_ratingBar.init(score, true, 44);
             } else {
-                sobot_ten_rating_ll.init(score, true,20);
+                sobot_ten_rating_ll.init(score, true, 16);
             }
 
             //是否显示评价输入框
-            if(mEvaluate.getTxtFlag()==1){
+            if (mEvaluate.getTxtFlag() == 1) {
                 setl_submit_content.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 //关闭评价输入框
                 setl_submit_content.setVisibility(View.GONE);
             }
 
-            if (mEvaluate.getDefaultQuestionFlag()==1) {
+            if (mEvaluate.getDefaultQuestionFlag() == 1) {
                 //(1)-解决
                 sobot_btn_ok_robot.setChecked(true);
                 sobot_btn_no_robot.setChecked(false);
-            } else if (mEvaluate.getDefaultQuestionFlag()==0) {
+            } else if (mEvaluate.getDefaultQuestionFlag() == 0) {
                 //(0)-未解决
                 sobot_btn_ok_robot.setChecked(false);
                 sobot_btn_no_robot.setChecked(true);
-            }else{
+            } else {
                 sobot_btn_ok_robot.setChecked(false);
                 sobot_btn_no_robot.setChecked(false);
 
@@ -225,14 +227,27 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 sobot_ratingBar_split_view.setVisibility(View.GONE);
             }
             //是否是默认评价提示语
-            if(mEvaluate.getIsDefaultGuide()==0 && !TextUtils.isEmpty(mEvaluate.getGuideCopyWriting())){
+            if (mEvaluate.getIsDefaultGuide() == 0 && !TextUtils.isEmpty(mEvaluate.getGuideCopyWriting())) {
                 sobot_tv_evaluate_title.setText(mEvaluate.getGuideCopyWriting());
             }
 
             //是否是默认提交按钮
-            if(mEvaluate.getIsDefaultButton()==0 && !TextUtils.isEmpty(mEvaluate.getButtonDesc())){
+            if (mEvaluate.getIsDefaultButton() == 0 && !TextUtils.isEmpty(mEvaluate.getButtonDesc())) {
                 sobot_close_now.setText(mEvaluate.getButtonDesc());
             }
+            sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    Drawable db = ResourcesCompat.getDrawable( getResources(),R.drawable.sobot_bg_evaluate_input,null);
+                    if(hasFocus) {
+                        if (db != null) {
+                            setl_submit_content.setBackground(ThemeUtils.applyColorToDrawable(db, themeColor));
+                        }
+                    }else{
+                        setl_submit_content.setBackground(db);
+                    }
+                }
+            });
             setViewListener();
         }
     }
@@ -253,12 +268,12 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_ratingBar.setOnClickItemListener(new SobotFiveStarsLayout.OnClickItemListener() {
             @Override
             public void onClickItem(int selectIndex) {
-                int score = selectIndex+1;
+                int score = selectIndex + 1;
                 if (score > 5) {
                     score = 5;
                 }
-                if (score < 0 ) {
-                    score=0;
+                if (score < 0) {
+                    score = 0;
                 }
                 if (score > 0 && score <= 5) {
                     changeCommitButtonUi(true);
@@ -272,19 +287,21 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_close_now.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sobot_add_content.clearFocus();
                 if (!checkInput()) {
                     return;
                 }
+                sobot_close_now.setClickable(false);
                 //提交评价
                 int score = (int) Math.ceil(sobot_ratingBar.getSelectContent());
                 String labelTag = checkBoxIsChecked();
-                int defaultQuestionFlag=2;
+                int defaultQuestionFlag = 2;
                 if (sobot_btn_ok_robot.isChecked()) {
                     defaultQuestionFlag = 1;
                 } else if (sobot_btn_no_robot.isChecked()) {
                     defaultQuestionFlag = 0;
                 }
-                KeyboardUtil.hideKeyboard(sobot_add_content);
+                hideKeyboard();
                 Intent intent = new Intent();
                 intent.putExtra("score", score);
                 intent.putExtra("content", sobot_add_content.getText().toString());
@@ -307,6 +324,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
 
     }
+
     private void changeCommitButtonUi(boolean isCanClick) {
         if (changeThemeColor) {
             Drawable bg = sobot_close_now.getBackground();
@@ -335,7 +353,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             sobot_ratingBar_title.setText(satisfactionSetBase.getScoreExplain());
             sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_evaluate_ratingBar_des_tv));
 
-            if(mEvaluate.getTxtFlag()==1) {
+            if (mEvaluate.getTxtFlag() == 1) {
                 setl_submit_content.setVisibility(View.VISIBLE);
                 if (!TextUtils.isEmpty(satisfactionSetBase.getInputLanguage())) {
                     if (satisfactionSetBase.getIsInputMust() == 1) {
@@ -346,12 +364,12 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 } else {
                     sobot_add_content.setHint(String.format(getString(R.string.sobot_edittext_hint)));
                 }
-            }else{
+            } else {
                 //隐藏输入框
                 setl_submit_content.setVisibility(View.GONE);
             }
 
-            if (null!=satisfactionSetBase.getTags() && satisfactionSetBase.getTags().size()>0) {
+            if (null != satisfactionSetBase.getTags() && satisfactionSetBase.getTags().size() > 0) {
                 String tmpData[] = satisfactionSetBase.getTagNames();
                 setLableViewVisible(tmpData);
             } else {
@@ -362,17 +380,19 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             }
         }
     }
+
     private SobotOrderScoreModel getSatisFaction(int score, List<SobotOrderScoreModel> satisFactionList) {
         if (satisFactionList == null) {
             return null;
         }
         for (int i = 0; i < satisFactionList.size(); i++) {
-            if (satisFactionList.get(i).getScore()==score) {
+            if (satisFactionList.get(i).getScore() == score) {
                 return satisFactionList.get(i);
             }
         }
         return null;
     }
+
     //设置评价标签的显示逻辑
     private void setLableViewVisible(String tmpData[]) {
         if (tmpData == null) {
@@ -394,13 +414,14 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         createChildLableView(sobot_evaluate_lable_autoline, tmpData);
         checkLable(tmpData);
     }
+
     //检查标签是否选中（根据主动邀评传过来的选中标签判断）
     private void checkLable(String tmpData[]) {
         if (tmpData != null && tmpData.length > 0 && sobot_evaluate_lable_autoline != null) {
             for (int i = 0; i < tmpData.length; i++) {
                 CheckBox checkBox = (CheckBox) sobot_evaluate_lable_autoline.getChildAt(i);
                 if (checkBox != null) {
-                    if (mEvaluate!=null && !TextUtils.isEmpty(mEvaluate.getTag()) &&mEvaluate.getTag().contains(tmpData[i])) {
+                    if (mEvaluate != null && !TextUtils.isEmpty(mEvaluate.getTag()) && mEvaluate.getTag().contains(tmpData[i])) {
                         checkBox.setChecked(true);
                     } else {
                         checkBox.setChecked(false);
@@ -409,9 +430,10 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             }
         }
     }
+
     private boolean checkInput() {
         //如果开启了是否解决问题
-        if (mEvaluate != null && mEvaluate.getIsQuestionFlag() == 1 && mEvaluate.getIsQuestionMust()==1) {
+        if (mEvaluate != null && mEvaluate.getIsQuestionFlag() == 1 && mEvaluate.getIsQuestionMust() == 1) {
             //“问题是否解决”是否为必填选项： 0-非必填 1-必填
             if (!sobot_btn_ok_robot.isChecked() && !sobot_btn_no_robot.isChecked()) {
                 ToastUtil.showToast(this, getString(R.string.sobot_str_please_check_is_solve));//标签必选
@@ -419,25 +441,25 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             }
         }
         //评分是否未0
-        int score=-1;
+        int tmpScore = -1;
         if (ratingType == 0) {
-            score = (int) Math.ceil(sobot_ratingBar.getSelectContent());
+            tmpScore = (int) Math.ceil(sobot_ratingBar.getSelectContent());
         } else {
-            score = sobot_ten_rating_ll.getSelectContent();
+            tmpScore = sobot_ten_rating_ll.getSelectContent();
         }
-        if(score<0){
-            ToastUtil.showToast(this, getString(R.string.sobot_rating_score)+getString(R.string.sobot__is_null));//评分必选
+        if (tmpScore < 0) {
+            ToastUtil.showToast(this, getString(R.string.sobot_rating_score) + getString(R.string.sobot__is_null));//评分必选
             return false;
         }
         if (satisfactionSetBase != null) {
-            if (null!=satisfactionSetBase.getTags() && satisfactionSetBase.getTags().size()>0 && satisfactionSetBase.getIsTagMust()) {
+            if (null != satisfactionSetBase.getTags() && satisfactionSetBase.getTags().size() > 0 && satisfactionSetBase.getIsTagMust()) {
                 if (TextUtils.isEmpty(checkBoxIsChecked())) {
                     ToastUtil.showToast(this, getString(R.string.sobot_the_label_is_required));//标签必选
                     return false;
                 }
             }
 
-            if (mEvaluate.getTxtFlag()==1 && satisfactionSetBase.getIsInputMust()==1) {
+            if (mEvaluate.getTxtFlag() == 1 && satisfactionSetBase.getIsInputMust() == 1) {
                 String suggest = sobot_add_content.getText().toString();
                 if (TextUtils.isEmpty(suggest.trim())) {
                     ToastUtil.showToast(this, getString(R.string.sobot_suggestions_are_required));//建议必填
@@ -447,6 +469,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
         return true;
     }
+
     //检测选中的标签
     private String checkBoxIsChecked() {
         String str = "";
@@ -460,6 +483,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
         return str + "";
     }
+
     private void createChildLableView(SobotAntoLineLayout antoLineLayout, String tmpData[]) {
         if (antoLineLayout != null) {
             antoLineLayout.removeAllViews();
@@ -470,7 +494,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 //50 =antoLineLayout 左间距20+右间距20 +antoLineLayout 子控件行间距10
                 checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 50)) / 2);
                 checkBox.setText(tmpData[i]);
-                checkBox.setOnCheckedChangeListener(this);
+                checkBox.setOnClickListener(this);
                 antoLineLayout.addView(view);
                 checkBoxList.add(checkBox);
             }
@@ -478,30 +502,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        if (changeThemeColor) {
-            if (b) {
-                StateListDrawable stateListDrawable = (StateListDrawable) ContextCompat.getDrawable(this, R.drawable.sobot_btn_bg_lable_select);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    for (int i = 0; i < stateListDrawable.getStateCount(); i++) {
-                        Drawable drawable = stateListDrawable.getStateDrawable(i);
-                        if (drawable instanceof GradientDrawable) {
-                            // 修改边框颜色
-                            GradientDrawable shapeDrawable = (GradientDrawable) drawable;
-                            shapeDrawable.setStroke(2, themeColor); // 修改边框的宽度和颜色
-                            shapeDrawable.setColor(ThemeUtils.modifyAlpha(themeColor,10));
-                        }
-                    }
-                }
-                compoundButton.setTextColor(themeColor);
-                compoundButton.setBackground(stateListDrawable);
-
-            } else {
-                Drawable drawable = getResources().getDrawable(R.drawable.sobot_bg_cai_reason_lable_checkbox_bg);
-                compoundButton.setTextColor(getResources().getColor(R.color.sobot_color_text_first));
-                compoundButton.setBackground(drawable);
-            }
-        }
+    public void onClick(View v) {
+        sobot_add_content.clearFocus();
     }
 }

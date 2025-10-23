@@ -2,11 +2,13 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.WebViewActivity;
@@ -29,9 +31,17 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
     private TextView tv_lable;
     private TextView tv_des;
     private ZhiChiMessageBase mData;
+
     public ConsultMessageHolder(Context context, View convertView) {
         super(context, convertView);
         btn_sendBtn = convertView.findViewById(R.id.sobot_goods_sendBtn);
+        try {
+            Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_btn_bg_16, null);
+            if (drawable != null) {
+                btn_sendBtn.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mContext)));
+            }
+        } catch (Resources.NotFoundException e) {
+        }
         if (CommonUtils.checkSDKIsZh(mContext)) {
             btn_sendBtn.setText(R.string.sobot_send_cus_service);
         } else {

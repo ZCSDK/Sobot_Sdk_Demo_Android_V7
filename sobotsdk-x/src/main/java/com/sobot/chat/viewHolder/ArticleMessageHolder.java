@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
@@ -27,6 +28,7 @@ public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickL
     private TextView tv_title;
     private TextView tv_desc;
     private ArticleModel articleModel;
+    private RelativeLayout rl_name_des;
 
     public ArticleMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -38,6 +40,7 @@ public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickL
         answersList = (LinearLayout) convertView
                 .findViewById(R.id.sobot_answersList);
         stripe = (TextView) convertView.findViewById(R.id.sobot_stripe);
+        rl_name_des= convertView.findViewById(R.id.rl_name_des);
     }
 
     @Override

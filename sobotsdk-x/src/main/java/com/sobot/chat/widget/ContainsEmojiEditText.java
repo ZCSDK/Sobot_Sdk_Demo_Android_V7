@@ -37,11 +37,9 @@ import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.emoji.InputHelper;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +48,7 @@ import java.util.List;
  * 自动补全的editText
  */
 public class ContainsEmojiEditText extends AppCompatEditText implements View.OnFocusChangeListener {
-    private static final String LAYOUT_CONTENT_VIEW_LAYOUT_RES_NAME = "sobot_layout_auto_complete";
-    private static final String LAYOUT_AUTOCOMPELTE_ITEM = "sobot_item_auto_complete_menu";
+    private OnFocusChangeListener externalFocusListener;
     private static final String SOBOT_AUTO_COMPLETE_REQUEST_CANCEL_TAG = "SOBOT_AUTO_COMPLETE_REQUEST_CANCEL_TAG";
     private static final int MAX_AUTO_COMPLETE_NUM = 4;
     Handler handler = new Handler();
@@ -87,6 +84,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
 
     // 初始化edittext 控件
     private void initEditText() {
+        setOnFocusChangeListener(this);
         myEmojiWatcher = new MyEmojiWatcher();
         addTextChangedListener(myEmojiWatcher);
         boolean supportFlag = SharedPreferencesUtil.getBooleanData(getContext(), ZhiChiConstant.SOBOT_CONFIG_SUPPORT, false);
@@ -120,8 +118,6 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
 
         }
 
-        setOnFocusChangeListener(this);
-
         myWatcher = new MyWatcher();
         addTextChangedListener(myWatcher);
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {//横屏
@@ -129,12 +125,10 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {//完成
-                        KeyboardUtil.hideKeyboard(ContainsEmojiEditText.this);
                         doAfterTextChanged(v.getText().toString());
                         return true;
                     }
                     if (actionId == KeyEvent.ACTION_DOWN) {
-                        KeyboardUtil.hideKeyboard(ContainsEmojiEditText.this);
                         doAfterTextChanged(v.getText().toString());
                         return true;
                     }
@@ -161,7 +155,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
                 zhiChiApi.AiAnswerSuggest(getContext(), mUid, mRobotFlag, s, initMode.getCid(), initMode.getAiAgentCid(), new StringResultCallBack<ArrayList<RespInfoListBean>>() {
                     @Override
                     public void onSuccess(ArrayList<RespInfoListBean> list) {
-                        if (getText() != null && SobotStringUtils.isEmpty(getText().toString().trim())) {
+                        if (getText() != null && StringUtils.isEmpty(getText().toString().trim())) {
                             //输入框内容为空 就返回并且隐藏弹窗
                             dismissPop();
                             return;
@@ -180,7 +174,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
                     @Override
                     public void onSuccess(SobotRobotGuess result) {
                         try {
-                            if (getText() != null && SobotStringUtils.isEmpty(getText().toString().trim())) {
+                            if (getText() != null && StringUtils.isEmpty(getText().toString().trim())) {
                                 //输入框内容为空 就返回并且隐藏弹窗
                                 dismissPop();
                                 return;
@@ -216,6 +210,10 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         if (!hasFocus) {
             dismissPop();
         }
+        // 调用外部监听器
+        if (externalFocusListener != null) {
+            externalFocusListener.onFocusChange(v, hasFocus);
+        }
     }
 
     private class MyWatcher implements TextWatcher {
@@ -245,7 +243,6 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            s = InputHelper.displayEmoji(getContext(), s);
         }
     }
 
@@ -269,7 +266,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
             dismissPop();
             return;
         }
-
+        dismissPop();
         View contentView = getContentView();
         //处理popWindow 显示内容
         final ListView listView = handleListView(contentView, list);
@@ -426,4 +423,18 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         void onRobotGuessComplete(String question);
     }
 
+    // 提供专门的方法设置外部监听器
+    public void setExternalOnFocusChangeListener(OnFocusChangeListener l) {
+        this.externalFocusListener = l;
+    }
+
+    // 禁止外部直接使用setOnFocusChangeListener覆盖内部监听器
+    @Override
+    public void setOnFocusChangeListener(OnFocusChangeListener l) {
+        if (l == this) {
+            super.setOnFocusChangeListener(l);
+        } else {
+            setExternalOnFocusChangeListener(l);
+        }
+    }
 }

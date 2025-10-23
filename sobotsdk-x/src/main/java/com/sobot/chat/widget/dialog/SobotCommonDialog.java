@@ -18,7 +18,7 @@ import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.utils.ScreenUtils;
-import com.sobot.utils.SobotStringUtils;
+import com.sobot.chat.utils.StringUtils;
 
 /**
  * 通用提示操作弹窗
@@ -97,67 +97,33 @@ public class SobotCommonDialog extends Dialog {
         sobot_btn_ok_v = findViewById(R.id.sobot_btn_ok_v);
         tv_tip_content = findViewById(R.id.tv_tip_content);
 
-        if (SobotStringUtils.isNoEmpty(cancleBtnContent)) {
+        if (StringUtils.isNoEmpty(cancleBtnContent)) {
             sobot_btn_cancle_h.setText(cancleBtnContent);
             sobot_btn_cancle_v.setText(cancleBtnContent);
         }
-        if (SobotStringUtils.isNoEmpty(okBtnContent)) {
+        if (StringUtils.isNoEmpty(okBtnContent)) {
             sobot_btn_ok_v.setText(okBtnContent);
             sobot_btn_ok_h.setText(okBtnContent);
         }
-        if (SobotStringUtils.isNoEmpty(title)) {
+        if (StringUtils.isNoEmpty(title)) {
             tv_title.setVisibility(View.VISIBLE);
             tv_title.setText(title);
         } else {
             tv_title.setVisibility(View.GONE);
         }
-        if (SobotStringUtils.isNoEmpty(tipContent)) {
+        if (StringUtils.isNoEmpty(tipContent)) {
             tv_tip_content.setText(tipContent);
             tv_tip_content.setVisibility(View.VISIBLE);
         } else {
             tv_tip_content.setVisibility(View.GONE);
         }
-        sobot_btn_ok_h.post(new Runnable() {
-            // 在视图布局完成后执行的代码
-            @Override
-            public void run() {
-                int lineCount = sobot_btn_ok_h.getLineCount();
-                if (lineCount > 1) {
-                    ll_btn_h.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ll_btn_h.setVisibility(View.GONE);
-                        }
-                    });
-                    ll_btn_v.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ll_btn_v.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
-            }
-        });
-        sobot_btn_cancle_h.post(new Runnable() {
-            @Override
-            public void run() {
-                int lineCount = sobot_btn_cancle_h.getLineCount();
-                if (lineCount > 1) {
-                    ll_btn_h.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ll_btn_h.setVisibility(View.GONE);
-                        }
-                    });
-                    ll_btn_v.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ll_btn_v.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
-            }
-        });
+        if ((StringUtils.calculateTextLines(17, sobot_btn_ok_h.getText().toString(), ScreenUtils.dip2px(getContext(), (float) (270 - 8) / 2), getContext()) > 1) || (StringUtils.calculateTextLines(16, sobot_btn_cancle_h.getText().toString(), ScreenUtils.dip2px(getContext(), (float) (270 - 8) / 2), getContext()) > 1)) {
+            ll_btn_h.setVisibility(View.GONE);
+            ll_btn_v.setVisibility(View.VISIBLE);
+        } else {
+            ll_btn_h.setVisibility(View.VISIBLE);
+            ll_btn_v.setVisibility(View.GONE);
+        }
         sobot_btn_cancle_h.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

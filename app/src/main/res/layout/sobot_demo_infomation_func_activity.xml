@@ -3,7 +3,6 @@
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sobot_white"
     android:orientation="vertical">
 
     <include
@@ -23,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:background="@color/sobot_common_gray2"
+        android:background="@color/sobot_textview_text_color_second"
         android:padding="6dp"
         android:text="参考文档"
         android:textSize="14sp" />

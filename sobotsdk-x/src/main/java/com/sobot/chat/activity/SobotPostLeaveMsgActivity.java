@@ -20,7 +20,6 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -64,6 +63,11 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
         return R.layout.sobot_activity_post_leave_msg;
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotPostLeaveMsgActivity";
+    }
+
     protected void initBundleData(Bundle savedInstanceState) {
         if (getIntent() != null) {
             mUid = getIntent().getStringExtra(EXTRA_MSG_UID);
@@ -72,7 +76,7 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
 
     @Override
     protected void initView() {
-        showLeftMenu(  true);
+        showLeftMenu(true);
         setTitle(R.string.sobot_leavemsg_title);
         sobot_tv_post_msg = (TextView) findViewById(R.id.sobot_tv_post_msg);
         sobot_post_et_content = (EditText) findViewById(R.id.sobot_post_et_content);
@@ -82,11 +86,11 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
-        sobot_tv_leaveExplain= (TextView) findViewById(R.id.sobot_tv_leaveExplain);
-        if(ThemeUtils.isChangedThemeColor(this)){
-            Drawable bg= getResources().getDrawable(R.drawable.sobot_bg_theme_color_4dp);
-            if(bg!=null){
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable( bg,ThemeUtils.getThemeColor(this)));
+        sobot_tv_leaveExplain = (TextView) findViewById(R.id.sobot_tv_leaveExplain);
+        if (ThemeUtils.isChangedThemeColor(this)) {
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
+            if (bg != null) {
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
         }
     }
@@ -114,10 +118,10 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
                 if (offlineLeaveMsgModel != null) {
                     sobot_tv_post_msg.setText(TextUtils.isEmpty(offlineLeaveMsgModel.getMsgLeaveTxt()) ? "" : Html.fromHtml(offlineLeaveMsgModel.getMsgLeaveTxt()));
                     sobot_post_et_content.setHint(TextUtils.isEmpty(offlineLeaveMsgModel.getMsgLeaveContentTxt()) ? "" : offlineLeaveMsgModel.getMsgLeaveContentTxt());
-                    if (!TextUtils.isEmpty(offlineLeaveMsgModel.getLeaveExplain())){
+                    if (!TextUtils.isEmpty(offlineLeaveMsgModel.getLeaveExplain())) {
                         sobot_tv_leaveExplain.setVisibility(View.VISIBLE);
                         sobot_tv_leaveExplain.setText(offlineLeaveMsgModel.getLeaveExplain());
-                    }else{
+                    } else {
                         sobot_tv_leaveExplain.setVisibility(View.GONE);
                     }
                 }
@@ -138,10 +142,16 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
                 ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_problem_description) + getResources().getString(R.string.sobot__is_null));
                 return;
             }
-            KeyboardUtil.hideKeyboard(sobot_post_et_content);
-            zhiChiApi.leaveMsg(SobotPostLeaveMsgActivity.class, mUid, skillGroupId,content,"0", new StringResultCallBack<BaseCode>() {
+            hideKeyboard();
+            sobot_btn_submit.setAlpha(0.5f);
+            sobot_btn_submit.setEnabled(false);
+            sobot_btn_submit.setClickable(false);
+            zhiChiApi.leaveMsg(SobotPostLeaveMsgActivity.class, mUid, skillGroupId, content, "0", new StringResultCallBack<BaseCode>() {
                 @Override
                 public void onSuccess(BaseCode baseCode) {
+                    sobot_btn_submit.setAlpha(1f);
+                    sobot_btn_submit.setEnabled(true);
+                    sobot_btn_submit.setClickable(true);
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_MSG_LEAVE_CONTENT, content);
                     setResult(EXTRA_MSG_LEAVE_REQUEST_CODE, intent);
@@ -150,6 +160,9 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
 
                 @Override
                 public void onFailure(Exception e, String des) {
+                    sobot_btn_submit.setAlpha(1f);
+                    sobot_btn_submit.setEnabled(true);
+                    sobot_btn_submit.setClickable(true);
                     ToastUtil.showToast(getApplicationContext(), des);
                 }
             });

@@ -27,6 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
@@ -87,14 +90,12 @@ import com.sobot.chat.utils.Util;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,14 +122,18 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
 
     //当前客户端模式
     protected int current_client_model = ZhiChiConstant.client_model_robot;
+    //当前客户端模式(异步接待-聊天状态)
+    protected int current_client_model_assignment = ZhiChiConstant.client_model_robot;
     //客服在线状态
     protected CustomerState customerState = CustomerState.Offline;
     protected ZhiChiInitModeBase initModel;/*初始化成功服务器返回的实体对象*/
     protected Information info;
 
     protected String currentUserName = "";
-    private String adminFace = "";
-    private String adminName = "";
+    private String toolbarFace = "";//导航条头像（客服或者公司logo）
+    private String toolbarTitle = "";//导航条标题（客服昵称或者公司名字）
+    private String customerServiceName = "";//导航条客服昵称(机器人或者人工座席昵称)（企业接待时 座席昵称+描述）
+    protected int type = -1;//当前模式的类型
 
     protected boolean isAboveZero = false;//是否咨询过（给机器人或这客服发过消息）
     protected int remindRobotMessageTimes = 0;//机器人的提醒次数
@@ -181,6 +186,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     public int quick_menu_service = 2;
     public int quick_menu_robot = 1;
     public int quick_menu_all = 0;
+    //当前现实的快捷菜单的类型
+    public int current_quick_menu_type = 0;
 
     public LinearLayout ll_appoint;//聊天界面底部  引用布局 不忍不显示
     public TextView tv_appoint_temp_content;//聊天界面底部布局 引用显示内容
@@ -197,16 +204,38 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     public String robotWelcomeMsgId = "";//欢迎语 或者非置顶通告的消息id,用户第一次拉取历史数据（有值）滚动到该位置
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mAppContext = getContext().getApplicationContext();
-//        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-//            // 支持显示到刘海区域
-//            NotchScreenManager.getInstance().setDisplayInNotch(getActivity());
-//            // 设置Activity全屏
-//            getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        }
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initApplicationContext();
     }
+
+    private void initApplicationContext() {
+        if (mAppContext == null) {
+            if (getContext() != null) {
+                mAppContext = getContext().getApplicationContext();
+            } else if (getActivity() != null) {
+                mAppContext = getActivity().getApplicationContext();
+            } else if (getSobotActivity() != null) {
+                mAppContext = getSobotActivity().getApplicationContext();
+            }
+        }
+    }
+
+    //确保在任何需要使用 mAppContext 的地方都不会出现空指针异常
+    protected Context getSobotApplicationContext() {
+        if (mAppContext == null) {
+            initApplicationContext();
+        }
+        return mAppContext;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // 确保 mAppContext 已经初始化
+        getSobotApplicationContext();
+    }
+
 
     public void setMsgHandler(SobotMsgHandler msgHandler) {
         this.msgHandler = msgHandler;
@@ -222,16 +251,17 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                         for (Rect rect : notchScreenInfo.notchRects) {
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 90 ? 90 : rect.right) + 14;
-                                layoutParams.leftMargin = (rect.right > 90 ? 90 : rect.right) + 14;
+                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 14;
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 14;
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 90 ? 90 : rect.right) + 14;
-                                layoutParams.leftMargin = (rect.right > 90 ? 90 : rect.right) + 14;
+                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 14;
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 14;
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding((rect.right > 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right > 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                LogUtils.d("rect.right==" + rect.right);
+                                view.setPadding((rect.right < 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right < 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -240,10 +270,38 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
 
         }
     }
+
+    public void displayInNotchOnlyLeft(final View view) {
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
+            // 获取刘海屏信息
+            NotchScreenManager.getInstance().getNotchInfo(getActivity(), new INotchScreen.NotchScreenCallback() {
+                @Override
+                public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
+                    if (notchScreenInfo.hasNotch) {
+                        for (Rect rect : notchScreenInfo.notchRects) {
+                            if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
+                                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 14;
+                                view.setLayoutParams(layoutParams);
+                            } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
+                                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 14;
+                                view.setLayoutParams(layoutParams);
+                            } else {
+                                view.setPadding((rect.right < 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+    }
+
     public void displayInNotchRight(final View view) {
         ScreenUtils.getNavigationBarHeight(getSobotActivity());
         int height = 90;
-        if(getSobotActivity()!=null && ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+        if (getSobotActivity() != null && ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
             height = ScreenUtils.getNavigationBarHeight(getSobotActivity()) + 30;
         }
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
@@ -263,7 +321,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                 layoutParams.rightMargin = (rect.right > 90 ? finalHeight : rect.right) + 14;
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding( view.getPaddingLeft(), view.getPaddingTop(), (rect.right > 90 ? finalHeight : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), (rect.right > 90 ? finalHeight : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -276,12 +334,15 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     @Override
     public void onResume() {
         super.onResume();
-        if (initModel != null && customerState == CustomerState.Online && current_client_model == ZhiChiConstant
-                .client_model_customService) {
-            restartInputListener();
-            CommonUtils.sendLocalBroadcast(mAppContext, new Intent(Const.SOBOT_CHAT_CHECK_CONNCHANNEL));
+        Context appContext = getSobotApplicationContext();
+        if (appContext != null) {
+            if (getInitModel() != null && customerState == CustomerState.Online && current_client_model == ZhiChiConstant
+                    .client_model_customService) {
+                restartInputListener();
+                CommonUtils.sendLocalBroadcast(appContext, new Intent(Const.SOBOT_CHAT_CHECK_CONNCHANNEL));
+            }
+            NotificationUtils.cancleAllNotification(appContext);
         }
-        NotificationUtils.cancleAllNotification(mAppContext);
 
         if (_sensorManager != null) {
             _sensorManager.registerListener(this, mProximiny, SensorManager.SENSOR_DELAY_NORMAL);
@@ -312,7 +373,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             return;
         }
         if (current_client_model == ZhiChiConstant.client_model_customService) {
-            if (initModel.isCustomOutTimeFlag()) {
+            if (getInitModel().isCustomOutTimeFlag()) {
                 stopUserInfoTimeTask();
                 userInfoTimeTask = true;
                 timerUserInfo = new Timer();
@@ -381,8 +442,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             return;
         }
         if (current_client_model == ZhiChiConstant.client_model_customService) {
-            if (initModel.isServiceOutTimeFlag()) {
-                if (initModel.isServiceOutCountRule() && serviceOutTimeTipCount >= 1) {
+            if (getInitModel().isServiceOutTimeFlag()) {
+                if (getInitModel().isServiceOutCountRule() && serviceOutTimeTipCount >= 1) {
                     //开启 客服超时推送规则，只显示一次 时并且已经提醒过一次 屏蔽之后的操作
                     stopCustomTimeTask();
                     return;
@@ -453,13 +514,11 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         }
         messageAdapter.updateVoiceStatusById(myMessage.getId(),
                 myMessage.getSendSuccessState(), myMessage.getAnswer().getDuration(), myMessage.getAnswer().getVoiceText(), myMessage.getAnswer().getState(), myMessage.getMessage(), myMessage.getReadStatus());
-        messageAdapter.notifyDataSetChanged();
     }
 
     protected void cancelUiVoiceMessage(SobotMsgAdapter messageAdapter, Message msg) {
         ZhiChiMessageBase myMessage = (ZhiChiMessageBase) msg.obj;
         messageAdapter.cancelVoiceUiById(myMessage.getId());
-        messageAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -470,7 +529,6 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     protected void updateUiMessage(SobotMsgAdapter messageAdapter, ZhiChiMessageBase zhichiMessage) {
         messageAdapter.addData(zhichiMessage);
-        messageAdapter.notifyDataSetChanged();
         //滑动到最后一条
     }
 
@@ -482,7 +540,6 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     protected void updateUiMessageBefore(SobotMsgAdapter messageAdapter, ZhiChiMessageBase zhichiMessage) {
         messageAdapter.addDataBefore(zhichiMessage);
-        messageAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -502,27 +559,43 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             }
         }
         messageAdapter.updateMsgInfoById(id, status, progressBar, readStatus);
-        messageAdapter.notifyDataSetChanged();
     }
 
     // ##################### 更新界面的ui ###############################
 
-    protected String getAdminFace() {
-        return this.adminFace;
+    protected String getToolbarFace() {
+        return this.toolbarFace;
     }
 
-    protected void setAdminFace(String str) {
-        LogUtils.i("客服头像地址是" + str);
-        this.adminFace = str;
+    protected void setToolbarFace(String str) {
+        LogUtils.d("设置导航条标题头像是 " + str);
+        this.toolbarFace = str;
     }
 
-    protected String getAdminName() {
-        return this.adminName;
+    protected String getToolbarTitle() {
+        return this.toolbarTitle;
     }
 
-    protected void setAdminName(String str) {
-        LogUtils.i("客服名字是" + str);
-        this.adminName = str;
+    protected void setToolbarTitle(String str) {
+        LogUtils.d("设置导航条标题是 " + str);
+        this.toolbarTitle = str;
+    }
+
+    public String getCustomerServiceName() {
+        return customerServiceName;
+    }
+
+    public void setCustomerServiceName(String customerServiceName) {
+        LogUtils.d("设置导航条客服昵称是 " + customerServiceName);
+        this.customerServiceName = customerServiceName;
+    }
+
+    public boolean getIsDefaultFace() {
+        if (ChatUtils.isDefaultFace(getToolbarFace())) {
+            LogUtils.i("是默认客服头像");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -534,12 +607,35 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     protected void sendMessageWithLogic(String msgId, String context,
                                         ZhiChiInitModeBase initModel, final Handler handler, int current_client_model, int questionFlag, String question, Map<String, Object> customerParams) {
         if (ZhiChiConstant.client_model_robot == current_client_model) { // 客户和机械人进行聊天
-            sendHttpRobotMessage(msgId, context, initModel.getPartnerid(),
-                    initModel.getCid(), "", handler, questionFlag, question, info.getLocale(), "", customerParams);
-            LogUtils.i("机器人模式");
+            if (ZhiChiConstant.client_model_customService_assignment == current_client_model_assignment) {
+                if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only) {
+                    LogUtils.d("异步接待 转人工进入待分配池， 仅人工模式下 发送消息");
+                    //异步接待 转人工进入待分配池， 仅人工模式下 发送消息
+                    zhiChiApi.sendMsgWhenQueue(getInitModel().getReadFlag(), context, getInitModel().getPartnerid(), getInitModel().getCid(), "0", new StringResultCallBack<CommonModelBase>() {
+                        @Override
+                        public void onSuccess(CommonModelBase commonModelBase) {
+                            clearAppointUI();
+                            sendTextMessageToHandler(msgId, null, "", handler, 1, UPDATE_TEXT, 0, "");
+                        }
+
+                        @Override
+                        public void onFailure(Exception e, String s) {
+
+                        }
+                    });
+                } else {
+                    sendHttpRobotMessage(msgId, context, getInitModel().getPartnerid(),
+                            getInitModel().getCid(), "", handler, questionFlag, question, info.getLocale(), "", customerParams);
+                    LogUtils.i("异步接待  非 仅人工模式下 发送消息");
+                }
+            } else {
+                sendHttpRobotMessage(msgId, context, getInitModel().getPartnerid(),
+                        getInitModel().getCid(), "", handler, questionFlag, question, info.getLocale(), "", customerParams);
+                LogUtils.i("机器人模式");
+            }
         } else if (ZhiChiConstant.client_model_customService == current_client_model) {
-            sendHttpCustomServiceMessage(context, initModel.getPartnerid(),
-                    initModel.getCid(), handler, msgId);
+            sendHttpCustomServiceMessage(context, getInitModel().getPartnerid(),
+                    getInitModel().getCid(), handler, msgId);
             LogUtils.i("客服模式");
         }
     }
@@ -593,7 +689,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(getContext(),
                 ZhiChiConstant.sobot_last_current_initModel);
         if (initMode != null && initMode.isAiAgent()) {
-            if (SobotStringUtils.isNoEmpty(question)) {
+            if (StringUtils.isNoEmpty(question)) {
                 params.put("question", question);
             } else {
                 params.put("question", requestText);
@@ -609,8 +705,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             params.put("msgType", msgType);
             params.put("cid", cid);
             params.put("uid", uid);
-            params.put("aiAgentCid", initModel.getAiAgentCid());
-            params.put("robotId", initModel.getRobotid());
+            params.put("aiAgentCid", getInitModel().getAiAgentCid());
+            params.put("robotId", getInitModel().getRobotid());
             params.put("questionFlag", questionFlag + "");
             params.put("msgId", msgId);
             if (customerParams != null && !customerParams.isEmpty()) {
@@ -622,7 +718,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             boolean b = handler.sendMessage(message);
             LogUtils.d("显示带有三个点得空气泡消息===" + b);
             sendTextMessageToHandler(msgId, null, handler, 1, UPDATE_TEXT);
-            zhiChiApi.AiRobotAsk(getSobotActivity(), params, questionFlag, fromEnum, msgId, requestText, "", cid, initModel.getRobotid() + "", uid, initModel.getAiAgentCid(), new SobotEventListener() {
+            zhiChiApi.AiRobotAsk(getSobotActivity(), params, questionFlag, fromEnum, msgId, requestText, "", cid, getInitModel().getRobotid() + "", uid, getInitModel().getAiAgentCid(), new SobotEventListener() {
                         @Override
                         public void sendSuccess() {
                             super.sendSuccess();
@@ -640,18 +736,19 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
 
                         @Override
                         public void receiveMsg(ZhiChiMessageBase msg, String endMsgId) {
+                            clearAppointUI();
                             super.receiveMsg(msg, endMsgId);
                             sendTextMessageToHandler(msgId, null, handler, 1, UPDATE_TEXT);
                             //收到消息
                             if (msg != null) {
                                 //显示消息
                                 isAboveZero = true;
-                                if (SobotStringUtils.isNoEmpty(endMsgId) && endMsgId.contains("aiagent")) {
+                                if (StringUtils.isNoEmpty(endMsgId) && endMsgId.contains("aiagent")) {
                                     msg.setId("aiagent" + msgId);
                                 }
-                                msg.setSenderName(initModel.getRobotName());
-                                msg.setSender(initModel.getRobotName());
-                                msg.setSenderFace(initModel.getRobotLogo());
+                                msg.setSenderName(getInitModel().getRobotName());
+                                msg.setSender(getInitModel().getRobotName());
+                                msg.setSenderFace(getInitModel().getRobotLogo());
                                 msg.setSenderType(ZhiChiConstant.message_sender_type_robot);
                                 if (!"0".equals(msg.getSendStatus())) {
                                     //开始返回有内容的数据
@@ -671,12 +768,12 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                         aiPollingDelay = msg.getDelay();
                                         getPollingHandler().postDelayed(aiPollingRun, msg.getDelay() * 1000L);
                                     }
-                                    if(msg.getRobotAnswerMessageType()!=null && msg.getRobotAnswerMessageType().contains("ERROR")){
+                                    if (msg.getRobotAnswerMessageType() != null && msg.getRobotAnswerMessageType().contains("ERROR")) {
                                         //异常处理
-                                        if (msg.getRobotAnswerMessageType().equals("SESSION_ERROR_ADMIN")){
+                                        if (msg.getRobotAnswerMessageType().equals("SESSION_ERROR_ADMIN")) {
                                             //会话已在客服上
                                             connectCustomerService(null);
-                                        }else{
+                                        } else {
                                             //会话状态异常,结束会话
                                             if (handler != null) {
                                                 handler.post(new Runnable() {
@@ -684,7 +781,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                                     @Override
                                                     public void run() {
                                                         updateMsgToHandler(msgId, handler, ZhiChiConstant.MSG_SEND_STATUS_ERROR);
-                                                        customerServiceOffline(initModel, 5);
+                                                        customerServiceOffline(getInitModel(), 5);
                                                     }
                                                 });
                                             }
@@ -715,7 +812,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             if (customerParams != null && !customerParams.isEmpty()) {
                 params.putAll(customerParams);
             }
-            zhiChiApi.chatSendMsgToRoot(initModel.getAdminReadFlag(), 40, initModel.getRobotid() + "", requestText, questionFlag, question, uid, cid, msgId, params,
+            zhiChiApi.chatSendMsgToRoot(getInitModel().getAdminReadFlag(), 40, getInitModel().getRobotid() + "", requestText, questionFlag, question, uid, cid, msgId, params,
                     new StringResultCallBack<ZhiChiMessageBase>() {
                         @Override
                         public void onSuccess(ZhiChiMessageBase simpleMessage) {
@@ -742,7 +839,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             simpleMessage.setReadStatus(1);
             unReadMsgIds.put(simpleMessage.getMsgId(), simpleMessage);
         }
-        if (initModel != null && initModel.getMsgAppointFlag() == 1 && simpleMessage.getAnswer() != null && StringUtils.isNoEmpty(simpleMessage.getAnswer().getMessage())) {
+        if (getInitModel() != null && getInitModel().getMsgAppointFlag() == 1 && simpleMessage.getAnswer() != null && StringUtils.isNoEmpty(simpleMessage.getAnswer().getMessage())) {
             //引用开启
             simpleMessage.setMessage(simpleMessage.getAnswer().getMessage());
         }
@@ -755,7 +852,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             if (messageAdapter != null) {
                 ZhiChiMessageBase messageBase = messageAdapter.getMsgInfoByMsgId(msgId);
                 if (messageBase != null && messageBase.getAnswer() != null) {
-                    sendContent = SobotStringUtils.checkStringIsNull(messageBase.getAnswer().getMsg());
+                    sendContent = StringUtils.checkStringIsNull(messageBase.getAnswer().getMsg());
                 }
                 messageAdapter.removeByMsgId(msgId);
             }
@@ -763,16 +860,15 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             ZhiChiMessageBase messageBase = new ZhiChiMessageBase();
             messageBase.setId(getMsgId());
             messageBase.setMsgId(getMsgId());
-            messageBase.setT(Calendar.getInstance().getTime().getTime() + "");
+            messageBase.setT(System.currentTimeMillis() + "");
             messageBase.setSenderType(ZhiChiConstant.message_sender_type_sensitive_authorize);
             messageBase.setSentisive(simpleMessage.getSentisive());
-            messageBase.setSentisiveExplain(SobotStringUtils.checkStringIsNull(simpleMessage.getSentisiveExplain()));
+            messageBase.setSentisiveExplain(StringUtils.checkStringIsNull(simpleMessage.getSentisiveExplain()));
             ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
             reply.setMsg(sendContent);
             messageBase.setAnswer(reply);
             messageBase.setShowFaceAndNickname(false);
             messageAdapter.justAddData(messageBase);
-            messageAdapter.notifyDataSetChanged();
         } else {
             String id = System.currentTimeMillis() + "";
             if (StringUtils.isNoEmpty(simpleMessage.getMsgId())) {
@@ -781,22 +877,24 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             if (simpleMessage.getUstatus() == ZhiChiConstant.result_fail_code) {
                 sendTextMessageToHandler(msgId, null, handler, 1, UPDATE_TEXT);
                 //机器人超时下线
-                customerServiceOffline(initModel, 4);
+                customerServiceOffline(getInitModel(), 4);
             } else if (simpleMessage.getUstatus() == 1) {
                 // 发送失败
                 sendTextMessageToHandler(msgId, null, handler, 0, UPDATE_TEXT);
                 LogUtils.i("应该是人工状态给机器人发消息拦截,连接通道，修改当前模式为人工模式");
                 ZCSobotApi.checkIMConnected(getSobotActivity(), info.getPartnerid());
                 current_client_model = ZhiChiConstant.client_model_customService;
+                current_client_model_assignment = ZhiChiConstant.client_model_customService;
             } else {
                 clearAppointUI();
                 // 机械人的回答语
                 sendTextMessageToHandler(msgId, null, simpleMessage.getDesensitizationWord(), handler, 1, UPDATE_TEXT, 0, "");
                 isAboveZero = true;
                 simpleMessage.setId(id);
-                simpleMessage.setSenderName(initModel.getRobotName());
-                simpleMessage.setSender(initModel.getRobotName());
-                simpleMessage.setSenderFace(initModel.getRobotLogo());
+                simpleMessage.setSenderName(getInitModel().getRobotName());
+                simpleMessage.setSender(getInitModel().getRobotName());
+                simpleMessage.setSenderFace(getInitModel().getRobotLogo());
+                simpleMessage.setT(System.currentTimeMillis() + "");
                 simpleMessage.setSenderType(ZhiChiConstant.message_sender_type_robot);
                 Message message = handler.obtainMessage();
                 message.what = ZhiChiConstant.hander_robot_message;
@@ -813,7 +911,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             appointMessageStr = SobotGsonUtil.beanToJson(appointMessage);
         }
 
-        zhiChiApi.sendMsgToCoutom(initModel.getReadFlag(), content, appointMessageStr, mid, uid, cid, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.sendMsgToCoutom(getInitModel().getReadFlag(), content, appointMessageStr, mid, uid, cid, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase commonModelBase) {
                 if (!isActive()) {
@@ -847,36 +945,41 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     } else {
                         LogUtils.i2Local("开启轮询", "SobotTCPServer 在运行");
                         // SobotTCPServer存在，通过广播方式告知要切换轮询
-                        CommonUtils.sendLocalBroadcast(mAppContext, new Intent(Const.SOBOT_CHAT_CHECK_SWITCHFLAG));
+                        CommonUtils.sendLocalBroadcast(getSobotApplicationContext(), new Intent(Const.SOBOT_CHAT_CHECK_SWITCHFLAG));
                     }
                 } else {
                     if (!CommonUtils.isServiceWork(getSobotActivity(), "com.sobot.chat.core.channel.SobotTCPServer")) {
 //                        LogUtils.i("----人工状态 SobotTCPServer 被杀死了");
                         zhiChiApi.reconnectChannel();
                     } else {
-                        CommonUtils.sendLocalBroadcast(mAppContext, new Intent(Const.SOBOT_CHAT_CHECK_CONNCHANNEL));
+                        CommonUtils.sendLocalBroadcast(getSobotApplicationContext(), new Intent(Const.SOBOT_CHAT_CHECK_CONNCHANNEL));
                     }
                 }
                 if (commonModelBase.getSentisive() == 1) {
                     isAboveZero = true;
+                    if (messageAdapter != null) {
+                        ZhiChiMessageBase messageBase = messageAdapter.getMsgInfoByMsgId(mid);
+                        if (messageBase != null) {
+                            messageAdapter.removeByMsgId(mid);
+                        }
+                    }
                     //敏感词授权消息
                     ZhiChiMessageBase messageBase = new ZhiChiMessageBase();
                     messageBase.setId(getMsgId());
                     messageBase.setMsgId(getMsgId());
-                    messageBase.setT(Calendar.getInstance().getTime().getTime() + "");
+                    messageBase.setT(System.currentTimeMillis() + "");
                     messageBase.setSenderType(ZhiChiConstant.message_sender_type_sensitive_authorize);
                     messageBase.setSentisive(commonModelBase.getSentisive());
-                    messageBase.setSentisiveExplain(SobotStringUtils.checkStringIsNull(commonModelBase.getSentisiveExplain()));
+                    messageBase.setSentisiveExplain(StringUtils.checkStringIsNull(commonModelBase.getSentisiveExplain()));
                     ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
                     reply.setMsg(content);
                     messageBase.setAnswer(reply);
                     messageBase.setShowFaceAndNickname(false);
                     messageAdapter.justAddData(messageBase);
-                    messageAdapter.notifyDataSetChanged();
                 } else {
                     if (ZhiChiConstant.client_sendmsg_to_custom_fali.equals(commonModelBase.getStatus())) {
                         sendTextMessageToHandler(mid, null, handler, 0, UPDATE_TEXT);
-                        customerServiceOffline(initModel, 1);
+                        customerServiceOffline(getInitModel(), 1);
                     } else if (ZhiChiConstant.client_sendmsg_to_custom_success.equals(commonModelBase.getStatus())) {
                         clearAppointUI();
                         if (!TextUtils.isEmpty(mid)) {
@@ -910,7 +1013,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     protected void sendHttpCardMsg(final String uid,
                                    String cid, final Handler handler, final String msgId, final ConsultingContent consultingContent) {
-        zhiChiApi.sendCardMsg(initModel.getReadFlag(), consultingContent, uid, cid, msgId, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.sendCardMsg(getInitModel().getReadFlag(), consultingContent, uid, cid, msgId, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase commonModelBase) {
                 if (!isActive()) {
@@ -918,7 +1021,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 }
                 if (ZhiChiConstant.client_sendmsg_to_custom_fali.equals(commonModelBase.getStatus())) {
 //                    sendTextMessageToHandler(mid, null, handler, 0, UPDATE_TEXT);
-                    customerServiceOffline(initModel, 1);
+                    customerServiceOffline(getInitModel(), 1);
                 } else if (ZhiChiConstant.client_sendmsg_to_custom_success.equals(commonModelBase.getStatus())) {
                     if (!TextUtils.isEmpty(msgId)) {
                         isAboveZero = true;
@@ -935,8 +1038,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                         ZhiChiReplyAnswer answer = new ZhiChiReplyAnswer();
                         answer.setMsgType(ZhiChiConstant.message_type_card);
                         myMessage.setAnswer(answer);
-                        myMessage.setT(Calendar.getInstance().getTime().getTime() + "");
-                        if (initModel != null && initModel.getMsgAppointFlag() == 1) {
+                        myMessage.setT(System.currentTimeMillis() + "");
+                        if (getInitModel() != null && getInitModel().getMsgAppointFlag() == 1) {
                             //引用开启
                             ZhiChiMessageMsgModel messageMsgModel = new ZhiChiMessageMsgModel();
                             messageMsgModel.setMsgType(5);
@@ -983,14 +1086,14 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      * @param myMessage
      */
     protected void sendMsgToCustomService(final Handler handler, String msgContent, String msgType, String msgId, final ZhiChiMessageBase myMessage) {
-        if (initModel == null) {
+        if (getInitModel() == null) {
             return;
         }
-        zhiChiApi.sendMsgToCustomService(initModel.getReadFlag(), msgContent, msgType, initModel.getPartnerid(), initModel.getCid(), msgId, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.sendMsgToCustomService(getInitModel().getReadFlag(), msgContent, msgType, getInitModel().getPartnerid(), getInitModel().getCid(), msgId, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase commonModelBase) {
                 if (ZhiChiConstant.client_sendmsg_to_custom_fali.equals(commonModelBase.getStatus())) {
-                    customerServiceOffline(initModel, 1);
+                    customerServiceOffline(getInitModel(), 1);
                 } else if (ZhiChiConstant.client_sendmsg_to_custom_success.equals(commonModelBase.getStatus())) {
                     // 当发送成功的时候更新ui界面
                     if (myMessage != null) {
@@ -1020,7 +1123,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     protected void sendHttpOrderCardMsg(final String uid,
                                         String cid, final Handler handler, final String mid, final OrderCardContentModel orderCardContent) {
-        zhiChiApi.sendOrderCardMsg(initModel.getReadFlag(), orderCardContent, uid, cid, mid, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.sendOrderCardMsg(getInitModel().getReadFlag(), orderCardContent, uid, cid, mid, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase commonModelBase) {
                 if (!isActive()) {
@@ -1028,7 +1131,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 }
                 if (ZhiChiConstant.client_sendmsg_to_custom_fali.equals(commonModelBase.getStatus())) {
 //                    sendTextMessageToHandler(mid, null, handler, 0, UPDATE_TEXT);
-                    customerServiceOffline(initModel, 1);
+                    customerServiceOffline(getInitModel(), 1);
                 } else if (ZhiChiConstant.client_sendmsg_to_custom_success.equals(commonModelBase.getStatus())) {
                     if (!TextUtils.isEmpty(mid)) {
                         isAboveZero = true;
@@ -1047,7 +1150,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                         if (isOpenUnread) {
                             myMessage.setReadStatus(1);
                         }
-                        myMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+                        myMessage.setT(System.currentTimeMillis() + "");
                         Message handMyMessage = handler.obtainMessage();
                         handMyMessage.what = ZhiChiConstant.hander_send_msg;
                         handMyMessage.obj = myMessage;
@@ -1074,15 +1177,15 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             // 发送文件
             int readFlag;
             if (current_client_model == ZhiChiConstant.client_model_customService) {
-                readFlag = initModel.getReadFlag();
+                readFlag = getInitModel().getReadFlag();
             } else {
-                readFlag = initModel.getAdminReadFlag();
+                readFlag = getInitModel().getAdminReadFlag();
             }
             LogUtils.i(selectedFile.toString());
             String fileName = selectedFile.getName().toLowerCase();
             if (fileName.endsWith(".gif") || fileName.endsWith(".jpg") || fileName.endsWith(".png")) {
-                ChatUtils.sendPicLimitBySize(isOpenUnread && current_client_model == ZhiChiConstant.client_model_customService ? 1 : 0, selectedFile.getAbsolutePath(), initModel.getCid(),
-                        initModel.getPartnerid(), handler, getSobotActivity(), messageAdapter, isCamera, current_client_model, initModel, info);
+                ChatUtils.sendPicLimitBySize(isOpenUnread && current_client_model == ZhiChiConstant.client_model_customService ? 1 : 0, selectedFile.getAbsolutePath(), getInitModel().getCid(),
+                        getInitModel().getPartnerid(), handler, getSobotActivity(), messageAdapter, isCamera, current_client_model, getInitModel(), info);
             } else {
                 if (selectedFile.length() > 50 * 1024 * 1024) {
                     ToastUtil.showToast(getContext(), getResources().getString(R.string.sobot_file_upload_failed));
@@ -1094,7 +1197,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 }
                 String tmpMsgId = getMsgId();
                 LogUtils.i("tmpMsgId:" + tmpMsgId);
-                zhiChiApi.addUploadFileTask(readFlag, false, tmpMsgId, initModel.getPartnerid(), initModel.getCid(), selectedFile.getAbsolutePath(), null, current_client_model);
+                zhiChiApi.addUploadFileTask(readFlag, false, tmpMsgId, getInitModel().getPartnerid(), getInitModel().getCid(), selectedFile.getAbsolutePath(), null, current_client_model);
                 updateUiMessage(messageAdapter, ChatUtils.getUploadFileModel(getContext(), readFlag, tmpMsgId, selectedFile, info));
                 isAboveZero = true;
             }
@@ -1102,13 +1205,13 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     }
 
     protected void sendLocation(String msgId, SobotLocationModel data, final Handler handler, boolean isNewMsg) {
-        if (!isActive() || initModel == null
+        if (!isActive() || getInitModel() == null
                 || current_client_model != ZhiChiConstant.client_model_customService) {
             return;
         }
         if (isNewMsg) {
             msgId = getMsgId();
-            sendNewMsgToHandler(ChatUtils.getLocationModel(initModel.getReadFlag(), msgId, data, info, initModel), handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
+            sendNewMsgToHandler(ChatUtils.getLocationModel(getInitModel().getReadFlag(), msgId, data, info, getInitModel()), handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
         } else {
             if (TextUtils.isEmpty(msgId)) {
                 return;
@@ -1116,7 +1219,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             updateMsgToHandler(msgId, handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
         }
         final String finalMsgId = msgId;
-        zhiChiApi.sendLocation(initModel.getReadFlag(), SobotChatBaseFragment.this, data, initModel.getPartnerid(), initModel.getCid(), finalMsgId, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.sendLocation(getInitModel().getReadFlag(), SobotChatBaseFragment.this, data, getInitModel().getPartnerid(), getInitModel().getCid(), finalMsgId, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase commonModelBase) {
                 if (!isActive()) {
@@ -1124,7 +1227,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 }
                 if (ZhiChiConstant.client_sendmsg_to_custom_fali.equals(commonModelBase.getStatus())) {
                     updateMsgToHandler(finalMsgId, handler, ZhiChiConstant.MSG_SEND_STATUS_ERROR);
-                    customerServiceOffline(initModel, 1);
+                    customerServiceOffline(getInitModel(), 1);
                 } else if (ZhiChiConstant.client_sendmsg_to_custom_success.equals(commonModelBase.getStatus())) {
                     if (!TextUtils.isEmpty(finalMsgId)) {
                         isAboveZero = true;
@@ -1145,7 +1248,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     }
 
     protected void sendMuitidiaLeaveMsg(String msgId, String data, final Handler handler, boolean isNewMsg) {
-        if (!isActive() || initModel == null) {
+        if (!isActive() || getInitModel() == null) {
             return;
         }
         if (isNewMsg) {
@@ -1158,7 +1261,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             updateMsgToHandler(msgId, handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
         }
         final String finalMsgId = msgId;
-        zhiChiApi.insertSysMsg(SobotChatBaseFragment.this, initModel.getCid(), initModel.getPartnerid(), data.replace("\n", "<br/>"), "多轮对话工单提交确认提示", new StringResultCallBack<BaseCode>() {
+        zhiChiApi.insertSysMsg(SobotChatBaseFragment.this, getInitModel().getCid(), getInitModel().getPartnerid(), data.replace("\n", "<br/>"), "多轮对话工单提交确认提示", new StringResultCallBack<BaseCode>() {
             @Override
             public void onSuccess(BaseCode baseCode) {
                 if (!isActive()) {
@@ -1199,11 +1302,11 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         }
         int readFlag;
         if (current_client_model == ZhiChiConstant.client_model_customService) {
-            readFlag = initModel.getReadFlag();
+            readFlag = getInitModel().getReadFlag();
         } else {
-            readFlag = initModel.getAdminReadFlag();
+            readFlag = getInitModel().getAdminReadFlag();
         }
-        zhiChiApi.addUploadFileTask(readFlag, true, tmpMsgId, initModel.getPartnerid(), initModel.getCid(), filePath, snapshotPath, current_client_model);
+        zhiChiApi.addUploadFileTask(readFlag, true, tmpMsgId, getInitModel().getPartnerid(), getInitModel().getCid(), filePath, snapshotPath, current_client_model);
         updateUiMessage(messageAdapter, ChatUtils.getUploadVideoModel(getContext(), readFlag, tmpMsgId, new File(filePath), snapshotPath, info));
         isAboveZero = true;
     }
@@ -1267,7 +1370,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         myMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
 
         myMessage.setSendSuccessState(isSendStatus);
-        if (initModel != null && initModel.getMsgAppointFlag() == 1) {
+        if (getInitModel() != null && getInitModel().getMsgAppointFlag() == 1) {
             //引用开启
             ZhiChiMessageMsgModel messageMsgModel = new ZhiChiMessageMsgModel();
             messageMsgModel.setMsgType(0);
@@ -1280,7 +1383,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         } else {
             reply.setMsgType(ZhiChiConstant.message_type_text);
         }
-        myMessage.setT(Calendar.getInstance().getTime().getTime() + "");
+        myMessage.setT(System.currentTimeMillis() + "");
         myMessage.setSentisive(sentisive);
         myMessage.setSentisiveExplain(sentisiveExplain);
         Message handMyMessage = handler.obtainMessage();
@@ -1356,15 +1459,18 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     protected void sendVoice(final String voiceMsgId, final String voiceTimeLongStr,
                              String cid, String uid, final String filePath, final Handler handler) {
-        if (current_client_model == ZhiChiConstant.client_model_robot) {
-            if (initModel.isAiAgent()) {
+        if (current_client_model == ZhiChiConstant.client_model_robot || current_client_model_assignment == ZhiChiConstant.client_model_customService_assignment) {
+            if (getInitModel().isAiAgent()) {
                 //大模型机器人发送语音消息
-                if (SobotStringUtils.isNoEmpty(filePath) && messageAdapter != null) {
-                    zhiChiApi.sendFile(initModel.getReadFlag(), voiceMsgId, cid, uid, filePath, voiceTimeLongStr, current_client_model,
+                if (StringUtils.isNoEmpty(filePath) && messageAdapter != null) {
+                    zhiChiApi.sendFile(getInitModel().getReadFlag(), voiceMsgId, cid, uid, filePath, voiceTimeLongStr, current_client_model,
                             new ResultCallBack<ZhiChiMessage>() {
                                 @Override
                                 public void onSuccess(ZhiChiMessage zhiChiMessage) {
                                     if (!isActive()) {
+                                        return;
+                                    }
+                                    if (zhiChiMessage == null) {
                                         return;
                                     }
                                     LogUtils.i("发送给大模型机器人语音---sobot---" + zhiChiMessage.getMsg());
@@ -1373,10 +1479,14 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                     isAboveZero = true;
                                     restartMyTimeTask(handler);
                                     sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 1, UPDATE_VOICE, handler);
-                                    //如果当前模式是机器人模式，就把上传的语音的url 发给机器人，只显示问答的结果
-                                    sendHttpRobotMessage("2", voiceMsgId, filePath, initModel.getPartnerid(),
-                                            initModel.getCid(), "", handler, 1, "", info.getLocale(), "", null);
-
+                                    if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only && null != zhiChiMessage.getData()) {
+                                        LogUtils.d("大模型 异步接待 转人工进入待分配池， 仅人工模式 发送语音消息");
+                                        sendByAssigment(filePath, "2");
+                                    } else {
+                                        //如果当前模式是机器人模式，就把上传的语音的url 发给机器人，只显示问答的结果
+                                        sendHttpRobotMessage("2", voiceMsgId, filePath, getInitModel().getPartnerid(),
+                                                getInitModel().getCid(), "", handler, 1, "", info.getLocale(), "", null);
+                                    }
                                 }
 
                                 @Override
@@ -1399,61 +1509,123 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
                 }
             } else {
-                zhiChiApi.sendVoiceToRobot(filePath, voiceMsgId, uid, cid, initModel.getRobotid() + "", voiceTimeLongStr, "msgType", new ResultCallBack<ZhiChiMessage>() {
-                    @Override
-                    public void onSuccess(ZhiChiMessage zhiChiMessage) {
-                        if (!isActive()) {
-                            return;
-                        }
-                        LogUtils.i("发送给机器人语音---sobot---" + zhiChiMessage.getMsg());
-                        // 语音发送成功
-                        String id = System.currentTimeMillis() + "";
-                        isAboveZero = true;
-                        restartMyTimeTask(handler);
-                        if (!TextUtils.isEmpty(zhiChiMessage.getMsg())) {
-                            sendTextMessageToHandler(voiceMsgId, zhiChiMessage.getMsg(), handler, 1, UPDATE_TEXT_VOICE);//语音通过服务器转为文字，发送给页面
-                        } else {
-                            sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 1, UPDATE_VOICE, handler);
-                        }
+                if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only) {
+                    LogUtils.d("在线机器人 异步接待 转人工进入待分配池， 仅人工模式 上传语音消息");
+                    zhiChiApi.sendFile(getInitModel().getReadFlag(), voiceMsgId, cid, uid, filePath, voiceTimeLongStr, current_client_model,
+                            new ResultCallBack<ZhiChiMessage>() {
+                                @Override
+                                public void onSuccess(ZhiChiMessage zhiChiMessage) {
+                                    if (!isActive()) {
+                                        return;
+                                    }
+                                    if (zhiChiMessage == null) {
+                                        return;
+                                    }
+                                    // 语音发送成功
+                                    isAboveZero = true;
+                                    restartMyTimeTask(handler);
+                                    if (ZhiChiConstant.result_success_code == Integer
+                                            .parseInt(zhiChiMessage.getCode())) {
+                                        if (1 == Integer
+                                                .parseInt(zhiChiMessage.getData().getStatus())) {
+                                            String voiceText = "";
+                                            int changeState = -1;
+                                            if (null != zhiChiMessage.getData().getSdkMsg() && null != zhiChiMessage.getData().getSdkMsg().getAnswer()) {
+                                                voiceText = zhiChiMessage.getData().getSdkMsg().getAnswer().getVoiceText();
+                                                changeState = zhiChiMessage.getData().getSdkMsg().getAnswer().getState();
+                                            }
+                                            if (null != zhiChiMessage.getData()) {
+                                                LogUtils.d("在线机器人 异步接待 转人工进入待分配池， 仅人工模式 发送语音消息");
+                                                sendByAssigment(zhiChiMessage.getData().getUrl(), "2");
+                                            }
 
-                        ZhiChiMessageBase simpleMessage = zhiChiMessage.getData();
-                        if (simpleMessage.getUstatus() == ZhiChiConstant.result_fail_code) {
-                            //机器人超时下线
-                            customerServiceOffline(initModel, 4);
-                        } else {
+                                            sendVoiceMessageSuccessToHandler(voiceMsgId, filePath, voiceTimeLongStr, 1, UPDATE_VOICE, voiceText, changeState, handler, zhiChiMessage.getData().getMessage());
+                                        } else {
+                                            sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
+                                            if (!TextUtils.isEmpty(zhiChiMessage.getMsg())) {
+                                                ToastUtil.showToast(getSobotActivity(), zhiChiMessage.getMsg());
+                                            }
+                                        }
+                                    } else {
+                                        sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
+                                        if (!TextUtils.isEmpty(zhiChiMessage.getMsg())) {
+                                            ToastUtil.showToast(getSobotActivity(), zhiChiMessage.getMsg());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Exception e, String des) {
+                                    if (!isActive()) {
+                                        return;
+                                    }
+                                    LogUtils.i("发送语音error:" + des + "exception:" + e.toString());
+                                    sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
+                                }
+
+                                @Override
+                                public void onLoading(long total, long current,
+                                                      boolean isUploading) {
+
+                                }
+                            });
+                } else {
+                    zhiChiApi.sendVoiceToRobot(filePath, voiceMsgId, uid, cid, getInitModel().getRobotid() + "", voiceTimeLongStr, "msgType", new ResultCallBack<ZhiChiMessage>() {
+                        @Override
+                        public void onSuccess(ZhiChiMessage zhiChiMessage) {
+                            if (!isActive()) {
+                                return;
+                            }
+                            LogUtils.i("发送给机器人语音---sobot---" + zhiChiMessage.getMsg());
+                            // 语音发送成功
+                            String id = System.currentTimeMillis() + "";
                             isAboveZero = true;
-                            simpleMessage.setId(id);
-                            simpleMessage.setMsgId(id);
-                            simpleMessage.setSenderName(initModel.getRobotName());
-                            simpleMessage.setSender(initModel.getRobotName());
-                            simpleMessage.setSenderFace(initModel.getRobotLogo());
-                            simpleMessage.setSenderType(ZhiChiConstant.message_sender_type_robot);
-                            Message message = handler.obtainMessage();
-                            message.what = ZhiChiConstant.hander_robot_message;
-                            message.obj = simpleMessage;
-                            handler.sendMessage(message);
+                            restartMyTimeTask(handler);
+                            if (!TextUtils.isEmpty(zhiChiMessage.getMsg())) {
+                                sendTextMessageToHandler(voiceMsgId, zhiChiMessage.getMsg(), handler, 1, UPDATE_TEXT_VOICE);//语音通过服务器转为文字，发送给页面
+                            } else {
+                                sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 1, UPDATE_VOICE, handler);
+                            }
+
+                            ZhiChiMessageBase simpleMessage = zhiChiMessage.getData();
+                            if (simpleMessage.getUstatus() == ZhiChiConstant.result_fail_code) {
+                                //机器人超时下线
+                                customerServiceOffline(getInitModel(), 4);
+                            } else {
+                                isAboveZero = true;
+                                simpleMessage.setId(id);
+                                simpleMessage.setMsgId(id);
+                                simpleMessage.setSenderName(getInitModel().getRobotName());
+                                simpleMessage.setSender(getInitModel().getRobotName());
+                                simpleMessage.setSenderFace(getInitModel().getRobotLogo());
+                                simpleMessage.setSenderType(ZhiChiConstant.message_sender_type_robot);
+                                Message message = handler.obtainMessage();
+                                message.what = ZhiChiConstant.hander_robot_message;
+                                message.obj = simpleMessage;
+                                handler.sendMessage(message);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Exception e, String des) {
-                        if (!isActive()) {
-                            return;
+                        @Override
+                        public void onFailure(Exception e, String des) {
+                            if (!isActive()) {
+                                return;
+                            }
+                            LogUtils.i("发送语音error:" + des + "exception:" + e.toString());
+                            sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
                         }
-                        LogUtils.i("发送语音error:" + des + "exception:" + e.toString());
-                        sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 0, UPDATE_VOICE, handler);
-                    }
 
-                    @Override
-                    public void onLoading(long total, long current,
-                                          boolean isUploading) {
+                        @Override
+                        public void onLoading(long total, long current,
+                                              boolean isUploading) {
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         } else if (current_client_model == ZhiChiConstant.client_model_customService) {
             LogUtils.i("发送给人工语音---sobot---" + filePath);
-            zhiChiApi.sendFile(initModel.getReadFlag(), voiceMsgId, cid, uid, filePath, voiceTimeLongStr, current_client_model,
+            zhiChiApi.sendFile(getInitModel().getReadFlag(), voiceMsgId, cid, uid, filePath, voiceTimeLongStr, current_client_model,
                     new ResultCallBack<ZhiChiMessage>() {
                         @Override
                         public void onSuccess(ZhiChiMessage zhiChiMessage) {
@@ -1508,6 +1680,27 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     }
 
     /**
+     * 异步接待 进入待分配池后 仅人工 发送消息
+     *
+     * @param content 发送内容
+     * @param type    发送类型 0：文本 1：图片 2：语音 3：视频 4：文件
+     */
+    public void sendByAssigment(String content, String type) {
+        if (current_client_model_assignment == ZhiChiConstant.client_model_customService_assignment && getInitModel() != null) {
+            zhiChiApi.sendMsgWhenQueue(getInitModel().getReadFlag(), content, getInitModel().getPartnerid(), getInitModel().getCid(), type + "", new StringResultCallBack<CommonModelBase>() {
+                @Override
+                public void onSuccess(CommonModelBase commonModelBase) {
+                }
+
+                @Override
+                public void onFailure(Exception e, String s) {
+
+                }
+            });
+        }
+    }
+
+    /**
      * @param voiceMsgId       语音暂时产生唯一标识符
      * @param voiceUrl         语音的地址
      * @param voiceTimeLongStr 语音的时长
@@ -1518,14 +1711,18 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     protected void sendVoiceMessageToHandler(String voiceMsgId, String voiceUrl,
                                              String voiceTimeLongStr, int isSendSuccess, int state,
                                              final Handler handler) {
-
         ZhiChiMessageBase zhichiMessage = new ZhiChiMessageBase();
-        ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
-        reply.setMsg(voiceUrl);
-        reply.setDuration(voiceTimeLongStr);
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
-        zhichiMessage.setAnswer(reply);
-        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_send_voice);
+        ZhiChiReplyAnswer answer = new ZhiChiReplyAnswer();
+        answer.setMsg(voiceUrl);
+        answer.setDuration(voiceTimeLongStr);
+        answer.setMsgType(ZhiChiConstant.message_type_voice);
+        zhichiMessage.setT(System.currentTimeMillis() + "");
+        zhichiMessage.setAnswer(answer);
+        if (info != null) {
+            zhichiMessage.setSenderName(info.getUser_nick());
+            zhichiMessage.setSenderFace(info.getFace());
+        }
+        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
         zhichiMessage.setId(voiceMsgId);
         zhichiMessage.setMsgId(voiceMsgId);
         zhichiMessage.setSendSuccessState(isSendSuccess);
@@ -1537,7 +1734,6 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         } else if (state == SEND_VOICE) {
             message.what = ZhiChiConstant.hander_send_msg;
         }
-
         message.obj = zhichiMessage;
         handler.sendMessage(message);
     }
@@ -1553,20 +1749,24 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     protected void sendVoiceMessageSuccessToHandler(String voiceMsgId, String voiceUrl,
                                                     String voiceTimeLongStr, int isSendSuccess, int state, String voiceText, int changeState,
                                                     final Handler handler, String messageStr) {
-
         ZhiChiMessageBase zhichiMessage = new ZhiChiMessageBase();
-        ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
-        reply.setMsg(voiceUrl);
-        reply.setDuration(voiceTimeLongStr);
-        reply.setVoiceText(voiceText);
-        reply.setState(changeState);
-        zhichiMessage.setT(Calendar.getInstance().getTime().getTime() + "");
-        zhichiMessage.setAnswer(reply);
-        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_send_voice);
+        ZhiChiReplyAnswer answer = new ZhiChiReplyAnswer();
+        answer.setMsg(voiceUrl);
+        answer.setDuration(voiceTimeLongStr);
+        answer.setVoiceText(voiceText);
+        answer.setState(changeState);
+        answer.setMsgType(ZhiChiConstant.message_type_voice);
+        zhichiMessage.setAnswer(answer);
+        zhichiMessage.setSenderType(ZhiChiConstant.message_sender_type_customer);
+        if (info != null) {
+            zhichiMessage.setSenderName(info.getUser_nick());
+            zhichiMessage.setSenderFace(info.getFace());
+        }
+        zhichiMessage.setT(System.currentTimeMillis() + "");
         zhichiMessage.setId(voiceMsgId);
         zhichiMessage.setMsgId(voiceMsgId);
         zhichiMessage.setSendSuccessState(isSendSuccess);
-        if (initModel != null && initModel.getMsgAppointFlag() == 1) {
+        if (getInitModel() != null && getInitModel().getMsgAppointFlag() == 1) {
             //引用开启
             if (StringUtils.isNoEmpty(messageStr)) {
                 zhichiMessage.setMessage(messageStr);
@@ -1580,7 +1780,6 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         } else if (state == SEND_VOICE) {
             message.what = ZhiChiConstant.hander_send_msg;
         }
-
         message.obj = zhichiMessage;
         handler.sendMessage(message);
     }
@@ -1608,7 +1807,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                             lastInputStr = content;
                             isSendInput = true;
                             //发送接口
-                            zhiChiApi.input(initModel.getPartnerid(), content, new StringResultCallBack<CommonModel>() {
+                            zhiChiApi.input(getInitModel().getPartnerid(), content, new StringResultCallBack<CommonModel>() {
                                 @Override
                                 public void onSuccess(CommonModel result) {
                                     isSendInput = false;
@@ -1627,7 +1826,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             }
         };
         // 500ms进行定时任务
-        inputtingListener.schedule(inputTimerTask, 0, initModel.getInputTime() * 1000);
+        inputtingListener.schedule(inputTimerTask, 0, getInitModel().getInputTime() * 1000);
     }
 
     protected void stopInputListener() {
@@ -1813,7 +2012,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      * @return
      */
     protected boolean isUserBlack() {
-        if (initModel != null && "1".equals(initModel.getIsblack())) {
+        if (getInitModel() != null && "1".equals(getInitModel().getIsblack())) {
             return true;
         }
         return false;
@@ -1823,7 +2022,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      * 重置内存中保存的数据
      */
     protected void clearCache() {
-        SobotMsgManager.getInstance(mAppContext).clearAllConfig();
+        SobotMsgManager.getInstance(getSobotApplicationContext()).clearAllConfig();
     }
 
     /**
@@ -1841,7 +2040,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         }
         isHasRequestQueryFrom = true;
         isQueryFroming = true;
-        zhiChiApi.queryFormConfig(SobotChatBaseFragment.this, initModel.getPartnerid(), new StringResultCallBack<SobotQueryFormModel>() {
+        zhiChiApi.queryFormConfig(SobotChatBaseFragment.this, getInitModel().getPartnerid(), new StringResultCallBack<SobotQueryFormModel>() {
             @Override
             public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
                 isQueryFroming = false;
@@ -1850,10 +2049,10 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 }
                 if (sobotQueryFormModel.isOpenFlag() && !isCloseInquiryFrom && sobotQueryFormModel.getField() != null && sobotQueryFormModel.getField().size() > 0) {
                     // 打开询前表单
-                    Intent intent = new Intent(mAppContext, SobotQueryFromActivity.class);
+                    Intent intent = new Intent(getSobotApplicationContext(), SobotQueryFromActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_FIELD, sobotQueryFormModel);
-                    bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_UID, initModel.getPartnerid());
+                    bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_UID, getInitModel().getPartnerid());
                     bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
                     intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA, bundle);
                     startActivityForResult(intent, ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM);
@@ -1868,7 +2067,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 if (!isActive()) {
                     return;
                 }
-                ToastUtil.showToast(mAppContext, des);
+                ToastUtil.showToast(getSobotApplicationContext(), des);
             }
 
         });
@@ -1876,19 +2075,19 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
 
     public void remindRobotMessage(final Handler handler, final ZhiChiInitModeBase initModel, final Information info) {
         //true代表结束会话，重新显示机器人提示语
-        if (initModel.getAdminReadFlag() == 1) {
+        if (getInitModel().getAdminReadFlag() == 1) {
             isOpenUnread = true;
         } else {
             isOpenUnread = false;
         }
-        boolean flag = SharedPreferencesUtil.getBooleanData(mAppContext, ZhiChiConstant.SOBOT_IS_EXIT, false);
-        if (initModel == null) {
+        boolean flag = SharedPreferencesUtil.getBooleanData(getSobotApplicationContext(), ZhiChiConstant.SOBOT_IS_EXIT, false);
+        if (getInitModel() == null) {
             return;
         }
         // 修改提醒的信息
         remindRobotMessageTimes = remindRobotMessageTimes + 1;
         if (remindRobotMessageTimes == 1) {
-            if ((initModel.getUstatus() == ZhiChiConstant.ustatus_robot) && !flag) {
+            if ((getInitModel().getUstatus() == ZhiChiConstant.ustatus_robot) && !flag) {
                 processNewTicketMsg(handler);
                 return;
             }
@@ -1896,34 +2095,30 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
             ZhiChiMessageBase robot = new ZhiChiMessageBase();
             ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
 
-            if (initModel.isRobotHelloWordFlag()) {
-                String robotHolloWord = ZCSobotApi.getCurrentInfoSetting(mAppContext) != null ? ZCSobotApi.getCurrentInfoSetting(mAppContext).getRobot_hello_word() : "";
-                if (!TextUtils.isEmpty(robotHolloWord) || !TextUtils.isEmpty(initModel.getRobotHelloWord())) {
-                    if (!TextUtils.isEmpty(robotHolloWord)) {
-                        reply.setMsg(robotHolloWord);
-                    } else {
-                        if (TextUtils.isEmpty(initModel.getRobotHelloWord())) {
-                            //如果提示语为空，直接返回，不然会显示错误数据
-                            return;
-                        }
-                        String msgHint = initModel.getRobotHelloWord().replace("\n", "<br/>");
-                        if (msgHint.startsWith("<br/>")) {
-                            msgHint = msgHint.substring(5, msgHint.length());
-                        }
-
-                        if (msgHint.endsWith("<br/>")) {
-                            msgHint = msgHint.substring(0, msgHint.length() - 5);
-                        }
-                        reply.setMsg(msgHint);
+            if (getInitModel().isRobotHelloWordFlag()) {
+                if (!TextUtils.isEmpty(getInitModel().getRobotHelloWord())) {
+                    if (TextUtils.isEmpty(getInitModel().getRobotHelloWord())) {
+                        //如果提示语为空，直接返回，不然会显示错误数据
+                        return;
                     }
+                    String msgHint = getInitModel().getRobotHelloWord().replace("\n", "<br/>");
+                    if (msgHint.startsWith("<br/>")) {
+                        msgHint = msgHint.substring(5, msgHint.length());
+                    }
+
+                    if (msgHint.endsWith("<br/>")) {
+                        msgHint = msgHint.substring(0, msgHint.length() - 5);
+                    }
+                    reply.setMsg(msgHint);
                     reply.setMsgType(ZhiChiConstant.message_type_text);
                     robot.setAnswer(reply);
-                    robot.setSenderFace(initModel.getRobotLogo());
-                    robot.setSender(initModel.getRobotName());
+                    robot.setSenderFace(getInitModel().getRobotLogo());
+                    robot.setSender(getInitModel().getRobotName());
                     robot.setSenderType(ZhiChiConstant.message_sender_type_robot_welcome_msg);
-                    robot.setSenderName(initModel.getRobotName());
+                    robot.setSenderName(getInitModel().getRobotName());
+                    robot.setT(System.currentTimeMillis() + "");
                     robot.setMsgId(getMsgId());
-                    if (SobotStringUtils.isEmpty(robotWelcomeMsgId)) {
+                    if (StringUtils.isEmpty(robotWelcomeMsgId)) {
                         robotWelcomeMsgId = robot.getMsgId();
                     }
                     Message message = handler.obtainMessage();
@@ -1935,9 +2130,9 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
 
 
             //获取机器人带引导与的欢迎语
-//            if (1 == initModel.getGuideFlag() && (initModel.getSessionPhaseAndFaqIdRespVos() == null || (initModel.getSessionPhaseAndFaqIdRespVos() != null && initModel.getSessionPhaseAndFaqIdRespVos().size() == 0))) {
+//            if (1 == getInitModel().getGuideFlag() && (getInitModel().getSessionPhaseAndFaqIdRespVos() == null || (getInitModel().getSessionPhaseAndFaqIdRespVos() != null && getInitModel().getSessionPhaseAndFaqIdRespVos().size() == 0))) {
             //v1常见问题
-                /*zhiChiApi.robotGuide(SobotChatBaseFragment.this, initModel.getPartnerid(), initModel.getRobotid(), info.getFaqId(), new
+                /*zhiChiApi.robotGuide(SobotChatBaseFragment.this, getInitModel().getPartnerid(), getInitModel().getRobotid(), info.getFaqId(), new
                         StringResultCallBack<ZhiChiMessageBase>() {
                             @Override
                             public void onSuccess(ZhiChiMessageBase robot) {
@@ -1945,8 +2140,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                                     return;
                                 }
                                 if (current_client_model == ZhiChiConstant.client_model_robot) {
-                                    robot.setSenderFace(initModel.getRobotLogo());
-                                    robot.setSenderName(initModel.getRobotName());
+                                    robot.setSenderFace(getInitModel().getRobotLogo());
+                                    robot.setSenderName(getInitModel().getRobotName());
                                     robot.setSenderType(ZhiChiConstant.message_sender_type_robot_guide );
                                     Message message = handler.obtainMessage();
                                     message.what = ZhiChiConstant.hander_robot_message;
@@ -1989,7 +2184,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         //如果配置了商品卡片
         if (cardContent != null) {
             //查询是否可以发送
-            zhiChiApi.checkCardSendRepeat(getSobotActivity(), initModel.getCid(), cardContent.getCardId(), new StringResultCallBack() {
+            zhiChiApi.checkCardSendRepeat(getSobotActivity(), getInitModel().getCid(), cardContent.getCardId(), new StringResultCallBack() {
                 @Override
                 public void onSuccess(Object o) {
                     createCustomCardContent(handler, info.getCustomCard());
@@ -2014,7 +2209,7 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                 if (current_client_model == ZhiChiConstant.client_model_customService) {
                     //发送给人工
                     String msgId = getMsgId() + "";
-                    ZhiChiMessageBase messageBase = ChatUtils.getCustomerCard(initModel.getReadFlag(), msgId, cardContent, info, initModel);
+                    ZhiChiMessageBase messageBase = ChatUtils.getCustomerCard(getInitModel().getReadFlag(), msgId, cardContent, info, getInitModel());
                     if (messageBase != null) {
                         sendNewMsgToHandler(messageBase, handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
                         sendMsgToCustomService(handler, SobotGsonUtil.beanToJson(cardContent), "28", msgId, messageBase);
@@ -2035,27 +2230,52 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     if (TextUtils.isEmpty(customCardQuestion)) {
                         customCardQuestion = SobotGsonUtil.beanToJson(cardContent);
                     }
-                    ZhiChiMessageBase messageBase = ChatUtils.getCustomerCard(initModel.getAdminReadFlag(), msgId, cardContent, info, initModel);
+                    ZhiChiMessageBase messageBase = ChatUtils.getCustomerCard(getInitModel().getAdminReadFlag(), msgId, cardContent, info, getInitModel());
                     if (messageBase != null) {
                         sendNewMsgToHandler(messageBase, handler, ZhiChiConstant.MSG_SEND_STATUS_LOADING);
-                        sendHttpRobotMessage("28", messageBase.getMsgId(), SobotGsonUtil.beanToJson(cardContent), initModel.getPartnerid(),
-                                initModel.getCid(), "", handler, 0, customCardQuestion, info.getLocale(), "", null);
+                        sendHttpRobotMessage("28", messageBase.getMsgId(), SobotGsonUtil.beanToJson(cardContent), getInitModel().getPartnerid(),
+                                getInitModel().getCid(), "", handler, 0, customCardQuestion, info.getLocale(), "", null);
                     }
                 }
             } else {
+                int type = 0;//显示的item类型：11 横屏多个商品，22 竖屏单个商品卡片
+                //平铺：0, "平铺" 1, "列表"
+                if (cardContent.getCardStyle() == 0) {
+                    // 0, "订单卡片",1, "商品卡片"
+                    if (cardContent.getCardType() == 1 && cardContent.getCustomCards() != null) {
+                        type = 11;//多个商品
+                    }
+                } else {
+                    boolean isOnly = true;
+                    if (null != cardContent.getCustomCards() && cardContent.getCustomCards().size() > 1) {
+                        isOnly = false;
+                    }
+                    if (null != cardContent.getCustomField() && cardContent.getCustomField().size() > 0) {
+                        isOnly = false;
+                    }
+                    //按钮显示
+                    if (cardContent.getCardMenus() != null && cardContent.getCardMenus().size() > 0) {
+                        isOnly = false;
+                    }
+                    // 0, "订单卡片",1, "商品卡片"
+                    if (cardContent.getCardType() == 1 && isOnly) {
+                        type = 22;//单个商品卡片
+                    }
+                }
+                cardContent.setType(type);
                 //以系统身份发送卡片给”用户“，在左边
-                zhiChiApi.insertCardInfoToSessionRecord(getSobotActivity(), initModel.getCid(), initModel.getPartnerid(), initModel.getCompanyId(), cardContent, new StringResultCallBack() {
+                zhiChiApi.insertCardInfoToSessionRecord(getSobotActivity(), getInitModel().getCid(), getInitModel().getPartnerid(), getInitModel().getCompanyId(), cardContent, new StringResultCallBack() {
                     @Override
                     public void onSuccess(Object o) {
                         ZhiChiMessageBase messageBase = new ZhiChiMessageBase();
                         messageBase.setMsgId(getMsgId());
                         //在机器人阶段用机器人头像、昵称，在人工阶段用客服的头像、昵称。
                         if (current_client_model == ZhiChiConstant.client_model_customService) {
-                            messageBase.setSenderFace(getAdminFace());
-                            messageBase.setSenderName(getAdminName());
+                            messageBase.setSenderFace(getToolbarFace());
+                            messageBase.setSenderName(getToolbarTitle());
                         } else {
-                            messageBase.setSenderFace(initModel.getRobotLogo());
-                            messageBase.setSenderName(initModel.getRobotName());
+                            messageBase.setSenderFace(getInitModel().getRobotLogo());
+                            messageBase.setSenderName(getInitModel().getRobotName());
                         }
                         messageBase.setT(System.currentTimeMillis() + "");
                         messageBase.setSenderType(ZhiChiConstant.message_sender_type_system);
@@ -2068,8 +2288,6 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     }
                 });
             }
-
-
         }
     }
 
@@ -2077,20 +2295,19 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      * 获取用户是否有新留言回复
      */
     protected void processNewTicketMsg(final Handler handler) {
-        if (initModel.getMsgFlag() == ZhiChiConstant.sobot_msg_flag_open
-                && !TextUtils.isEmpty(initModel.getCustomerId())) {
+        if (getInitModel().getMsgFlag() == ZhiChiConstant.sobot_msg_flag_open
+                && !TextUtils.isEmpty(getInitModel().getCustomerId())) {
             isRemindTicketInfo = true;
             //留言开关打开并且 customerId不为空时获取最新的工单信息
-            zhiChiApi.checkUserTicketInfo(SobotChatBaseFragment.this, initModel.getPartnerid(), initModel.getCompanyId(), initModel.getCustomerId(), new StringResultCallBack<SobotUserTicketInfoFlag>() {
+            zhiChiApi.checkUserTicketInfo(SobotChatBaseFragment.this, getInitModel().getPartnerid(), getInitModel().getCompanyId(), getInitModel().getCustomerId(), new StringResultCallBack<SobotUserTicketInfoFlag>() {
                 @Override
                 public void onSuccess(SobotUserTicketInfoFlag data) {
                     if (data.isExistFlag()) {
                         ZhiChiMessageBase base = new ZhiChiMessageBase();
-
+                        base.setT(System.currentTimeMillis() + "");
                         base.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
-
                         ZhiChiReplyAnswer reply1 = new ZhiChiReplyAnswer();
-                        reply1.setRemindType(ZhiChiConstant.sobot_remind_type_simple_tip);
+                        reply1.setRemindType(ZhiChiConstant.sobot_have_new_leavemsg);
                         reply1.setMsg("<font color='#ffacb5c4'>" + getResources().getString(R.string.sobot_new_ticket_info) + " </font>" + " <a href='sobot:SobotTicketInfo'  target='_blank' >" + getResources().getString(R.string.sobot_new_ticket_info_update) + "</a> ");
                         base.setAnswer(reply1);
                         Message message = handler.obtainMessage();
@@ -2136,8 +2353,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      * 查询常见问题条件
      */
     public void sobotHotIssue(final Handler handler, int type) {
-        if (initModel.getSessionPhaseAndFaqIdRespVos() == null) return;
-        List<SobotSessionPhaseMode> sessionPhaseModeList = initModel.getSessionPhaseAndFaqIdRespVos();
+        if (getInitModel().getSessionPhaseAndFaqIdRespVos() == null) return;
+        List<SobotSessionPhaseMode> sessionPhaseModeList = getInitModel().getSessionPhaseAndFaqIdRespVos();
         if (type == ZhiChiConstant.type_robot_only) {
             boolean reqested = false;
             //仅机器人
@@ -2190,25 +2407,27 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
      */
     private void requeIssue(final Handler handler, SobotSessionPhaseMode sessionPhaseMode) {
         //热门问题
-        zhiChiApi.getCusFaqDetailResult(SobotChatBaseFragment.this, initModel.getPartnerid(), initModel.getCid(), initModel.getCompanyId(), sessionPhaseMode.getCusFaqId(), sessionPhaseMode.getSessionPhase(), new StringResultCallBack<SobotFaqDetailModel>() {
+        zhiChiApi.getCusFaqDetailResult(SobotChatBaseFragment.this, getInitModel().getPartnerid(), getInitModel().getCid(), getInitModel().getCompanyId(), sessionPhaseMode.getCusFaqId(), sessionPhaseMode.getSessionPhase(), new StringResultCallBack<SobotFaqDetailModel>() {
             @Override
             public void onSuccess(SobotFaqDetailModel bean) {
-                showIssue.put(initModel.getCid(), "show");
-                //展示类型:1-问题列表,2-分组加问题列表,3-业务加分组加问题列表
-                if (showIssue.containsKey(initModel.getCid())) {
-                    //一个会话只能显示一次，删除之前显示的，重新显示新的
-                    messageAdapter.removeByMsgId(initModel.getCid() + "_issue");
+                if (bean != null) {
+                    showIssue.put(getInitModel().getCid(), "show");
+                    //展示类型:1-问题列表,2-分组加问题列表,3-业务加分组加问题列表
+                    if (showIssue.containsKey(getInitModel().getCid())) {
+                        //一个会话只能显示一次，删除之前显示的，重新显示新的
+                        messageAdapter.removeByMsgId(getInitModel().getCid() + "_issue");
+                    }
+                    ZhiChiMessageBase base = new ZhiChiMessageBase();
+                    base.setT(System.currentTimeMillis() + "");
+                    base.setFaqDetailModel(bean);
+                    base.setAction(ZhiChiConstant.action_sensitive_hot_issue);
+                    base.setId(getInitModel().getCid() + "_issue");//固定id，用于删除
+                    base.setMsgId(getMsgId());
+                    Message handMyMessage = handler.obtainMessage();
+                    handMyMessage.what = ZhiChiConstant.hander_add_message_no_goto_last;
+                    handMyMessage.obj = base;
+                    handler.sendMessage(handMyMessage);
                 }
-                ZhiChiMessageBase base = new ZhiChiMessageBase();
-                base.setT(Calendar.getInstance().getTime().getTime() + "");
-                base.setFaqDetailModel(bean);
-                base.setAction(ZhiChiConstant.action_sensitive_hot_issue);
-                base.setId(initModel.getCid() + "_issue");//固定id，用于删除
-                base.setMsgId(getMsgId());
-                Message handMyMessage = handler.obtainMessage();
-                handMyMessage.what = ZhiChiConstant.hander_add_message_no_goto_last;
-                handMyMessage.obj = base;
-                handler.sendMessage(handMyMessage);
             }
 
             @Override
@@ -2222,14 +2441,14 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         if (info.getMargs() == null || info.getMargs().size() == 0) {
             return;
         }
-        zhiChiApi.questionRecommend(SobotChatBaseFragment.this, initModel.getPartnerid(), info.getMargs(), new StringResultCallBack<SobotQuestionRecommend>() {
+        zhiChiApi.questionRecommend(SobotChatBaseFragment.this, getInitModel().getPartnerid(), info.getMargs(), new StringResultCallBack<SobotQuestionRecommend>() {
             @Override
             public void onSuccess(SobotQuestionRecommend data) {
                 if (!isActive()) {
                     return;
                 }
                 if (data != null && current_client_model == ZhiChiConstant.client_model_robot) {
-                    ZhiChiMessageBase robot = ChatUtils.getQuestionRecommendData(initModel, data);
+                    ZhiChiMessageBase robot = ChatUtils.getQuestionRecommendData(getInitModel(), data);
                     Message message = handler.obtainMessage();
                     message.what = ZhiChiConstant.hander_robot_message;
                     message.obj = robot;
@@ -2458,9 +2677,9 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     getPollingHandler().removeCallbacks(aiPollingRun);
                 } else {
                     //显示消息
-                    msg.setSenderName(initModel.getRobotName());
-                    msg.setSender(initModel.getRobotName());
-                    msg.setSenderFace(initModel.getRobotLogo());
+                    msg.setSenderName(getInitModel().getRobotName());
+                    msg.setSender(getInitModel().getRobotName());
+                    msg.setSenderFace(getInitModel().getRobotLogo());
                     msg.setSenderType(ZhiChiConstant.message_sender_type_robot);
                     if (msgHandler != null) {
                         msgHandler.showMsg(msg);
@@ -2559,8 +2778,8 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
     //用户发送接口生成msgId传给接口
     public String getMsgId() {
         String msgId = "";
-        if (initModel != null) {
-            msgId = initModel.getCid();
+        if (getInitModel() != null) {
+            msgId = getInitModel().getCid();
         }
         msgId = msgId + System.currentTimeMillis();
         return msgId;
@@ -2574,6 +2793,39 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
         }
         if (tv_appoint_temp_content != null) {
             tv_appoint_temp_content.setText("");
+        }
+    }
+
+    /**
+     * 获取会话初始化返回的ZhiChiInitModeBase对象
+     *
+     * @return
+     */
+    public ZhiChiInitModeBase getInitModel() {
+        if (initModel == null) {
+            if (getSobotActivity() != null) {
+                initModel = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(getSobotActivity(),
+                        ZhiChiConstant.sobot_last_current_initModel);
+            }
+        }
+        if (initModel == null) {
+            initModel = new ZhiChiInitModeBase();
+        }
+        return initModel;
+    }
+
+    /**
+     * 更新会话初始化返回的ZhiChiInitModeBase对象
+     *
+     * @return
+     */
+    public void updateInitModel() {
+        if (initModel != null && mAppContext != null) {
+            try {
+                SharedPreferencesUtil.saveObject(mAppContext,
+                        ZhiChiConstant.sobot_last_current_initModel, initModel);
+            } catch (Exception e) {
+            }
         }
     }
 }

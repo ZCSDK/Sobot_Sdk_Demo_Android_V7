@@ -1,19 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/sobot_color_bg_first"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/sobot_layout_titlebar"
-        layout="@layout/sobot_layout_common_titlebar"
-        android:visibility="visible" />
-
-    <FrameLayout
-        android:id="@+id/sobot_contentFrame"
+    <LinearLayout
+        android:id="@+id/ll_loading"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:gravity="center">
+        <!--    加载中-->
+        <com.sobot.chat.widget.LoadingView.SobotLoadingView
+            android:id="@+id/iv_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            app:backgroundColor="@color/sobot_color_loading_bg"
+            app:progressColor="@color/sobot_color"
+            app:strokeWidth="2dp" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/tl_titlebar"
+            layout="@layout/sobot_layout_common_titlebar"
+            android:visibility="visible" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/sobot_dialog_line"/>
+
+        <!--    内容-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <!--列表-->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/sobot_listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:minHeight="536dp" />
+            <TextView
+                android:id="@+id/sobot_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:text="@string/sobot_no_content"
+                android:textColor="@color/sobot_color_text_first" />
+
+            <TextView
+                android:id="@+id/sobot_new_ticket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="26dp"
+                android:background="@drawable/sobot_bg_theme_color_20dp"
+                android:drawableStart="@drawable/sobot_ticket_add"
+                android:drawablePadding="8dp"
+                android:paddingStart="30dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="30dp"
+                android:paddingBottom="10dp"
+                android:text="@string/sobot_str_bottom_message"
+                android:textColor="@color/sobot_color_white"
+                android:textSize="@dimen/sobot_text_font_14"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

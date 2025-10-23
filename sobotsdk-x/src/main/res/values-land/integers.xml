@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="sobot_emotiocon_line">2</integer>
-    <integer name="sobot_emotiocon_row">9</integer>
+    <!--加号里 功能菜单区域 每页几行-->
     <integer name="sobot_plus_menu_line">1</integer>
+    <!--加号里 功能菜单区域 每行几列-->
     <integer name="sobot_plus_menu_row">6</integer>
+    <!--加号里边表情区域 一行显示几个表情-->
+    <integer name="sobot_emoji_span_count">14</integer>
+    <!--加号里边功能按钮区域 一行显示几个表情-->
+    <integer name="sobot_function_span_count">6</integer>
 </resources>

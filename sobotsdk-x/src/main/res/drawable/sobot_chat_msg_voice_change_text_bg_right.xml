@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天界面右侧消息转文字气泡背景样式-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/sobot_chat_left_bgColor" />
+    <corners
+        android:bottomLeftRadius="@dimen/sobot_msg_big_corner_radius"
+        android:bottomRightRadius="@dimen/sobot_msg_big_corner_radius"
+        android:topLeftRadius="@dimen/sobot_msg_big_corner_radius"
+        android:topRightRadius="@dimen/sobot_msg_corner_radius" />
+</shape>

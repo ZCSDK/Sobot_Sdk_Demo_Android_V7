@@ -11,8 +11,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -26,7 +26,7 @@ import com.sobot.chat.utils.ScreenUtils;
 public class SobotSelectPicDialog extends Dialog {
 
     private View mView;
-    private Button btn_take_photo, btn_pick_photo, btn_pick_vedio, btn_cancel;
+    private TextView btn_take_photo, btn_pick_photo, btn_pick_vedio, btn_cancel;
     private LinearLayout coustom_pop_layout;
     private View.OnClickListener itemsOnClick;
     private Context context;
@@ -82,13 +82,13 @@ public class SobotSelectPicDialog extends Dialog {
     }
 
     private void initView() {
-        btn_take_photo = (Button) findViewById(R.id.btn_take_photo);
+        btn_take_photo = findViewById(R.id.btn_take_photo);
         btn_take_photo.setText(R.string.sobot_attach_take_pic);
-        btn_pick_photo = (Button) findViewById(R.id.btn_pick_photo);
+        btn_pick_photo =findViewById(R.id.btn_pick_photo);
         btn_pick_photo.setText(R.string.sobot_choice_form_picture);
-        btn_pick_vedio = (Button) findViewById(R.id.btn_pick_vedio);
+        btn_pick_vedio =findViewById(R.id.btn_pick_vedio);
         btn_pick_vedio.setText(R.string.sobot_choice_form_vedio);
-        btn_cancel = (Button) findViewById(R.id.btn_cancel);
+        btn_cancel = findViewById(R.id.btn_cancel);
         btn_cancel.setText(R.string.sobot_btn_cancle);
         coustom_pop_layout = (LinearLayout) findViewById(R.id.pop_layout);
 

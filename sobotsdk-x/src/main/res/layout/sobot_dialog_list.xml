@@ -1,6 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sobot_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
@@ -12,46 +11,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/sobot_dialog_title_bg"
         app:sobot_mhv_HeightRatio="0.8">
 
-        <LinearLayout
+        <include layout="@layout/sobot_dialog_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <!-- 标题 -->
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sobot_dialog_margin"
-                android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp"
-                android:textColor="@color/sobot_color_text_first"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:layout_height="wrap_content"/>
 
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sobot_line_height_dp"
-            android:background="@color/sobot_color_line_divider" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/sobot_color_bg_first"
             android:overScrollMode="never"
-            android:paddingTop="7dp"
-            android:minHeight="200dp"
-            android:paddingBottom="16dp" />
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="@dimen/sobot_dialog_margin"
+            android:paddingStart="@dimen/sobot_dialog_margin"
+             />
 
         <TextView
             android:id="@+id/tv_nodata"
@@ -59,7 +37,6 @@
             android:layout_height="wrap_content"
             android:paddingTop="60dp"
             android:paddingBottom="117dp"
-            android:background="@color/sobot_color_bg_first"
             android:gravity="center"
             android:text="@string/sobot_no_data_string"
             android:textColor="@color/sobot_color_text_third"

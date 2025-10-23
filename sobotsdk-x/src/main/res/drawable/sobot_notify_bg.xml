@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--非置顶通告 卡片背景-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/sobot_announcement_bgcolor" />
-    <corners android:radius="4dp" />
+    <solid android:color="@color/sobot_announcement_msg_bgcolor" />
+    <corners android:radius="12dp" />
 </shape>

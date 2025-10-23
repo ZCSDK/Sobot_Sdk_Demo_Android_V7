@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--搜索-->
+    <LinearLayout
+        android:id="@+id/ll_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sobot_dialog_margin"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="@dimen/sobot_dialog_margin"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/sobot_search_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:hint="@string/sobot_please_input"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:lines="1"
+            android:paddingStart="12dp"
+            android:paddingTop="9dp"
+            android:paddingEnd="2dp"
+            android:paddingBottom="9dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textColorHint="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <ImageView
+            android:id="@+id/sobot_iv_clear"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="3dp"
+            android:padding="9dp"
+            android:src="@drawable/sobot_cur_input_clear"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/sobot_iv_search"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="3dp"
+            android:padding="9dp"
+            android:src="@drawable/sobot_cur_search" />
+    </LinearLayout>
+
+</LinearLayout>

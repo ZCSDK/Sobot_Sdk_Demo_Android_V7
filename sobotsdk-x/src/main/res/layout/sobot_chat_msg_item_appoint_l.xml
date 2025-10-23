@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +37,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -55,27 +55,27 @@
                     <View
                         android:layout_width="2dp"
                         android:layout_height="match_parent"
-                        android:background="@color/sobot_chat_left_line" />
+                        android:background="@color/sobot_chat_appoint_left_line" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tv_appoint_type"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/sobot_left_appoint_msg_type_color"
-                            android:textSize="@dimen/sobot_text_font_13" />
+                            android:layout_marginStart="8dp"
+                            android:textColor="@color/sobot_left_appoint_msg_text_color"
+                            android:textSize="@dimen/sobot_text_font_12" />
 
                         <LinearLayout
                             android:id="@+id/sobot_rich_ll"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="2dp">
+                            android:layout_marginStart="3dp"
+                            android:orientation="vertical">
 
                         </LinearLayout>
                     </LinearLayout>
@@ -98,7 +98,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
                 <!-- 关联问题 提示语 -->
                 <TextView

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">콘텐츠 뷰를 찾을 수 없습니다. XML 레이아웃 파일에 추가하는 것을 잊으셨나요?</string>
+    <string name="sobot_srl_header_pulling">당겨서 새로고침</string>
+    <string name="sobot_srl_header_refreshing">새로고침 중...</string>
+    <string name="sobot_srl_header_loading">하단 로딩 완료 대기 중...</string>
+    <string name="sobot_srl_header_release">놓아서 즉시 새로고침</string>
+    <string name="sobot_srl_header_finish">새로고침 완료</string>
+    <string name="sobot_srl_header_failed">새로고침 실패</string>
+    <string name="sobot_srl_header_update">마지막 업데이트 %s</string>
+    <string name="sobot_srl_header_secondary">놓아서 2층으로 이동</string>
+    <string name="sobot_srl_footer_pulling">올려서 더 불러오기</string>
+    <string name="sobot_srl_footer_release">놓아서 즉시 로딩</string>
+    <string name="sobot_srl_footer_loading">로딩 중...</string>
+    <string name="sobot_srl_footer_refreshing">헤더 새로고침 완료 대기 중...</string>
+    <string name="sobot_srl_footer_finish">로딩 완료</string>
+    <string name="sobot_srl_footer_failed">로딩 실패</string>
+    <string name="sobot_srl_footer_nothing">더 이상 데이터가 없습니다</string>
+    <string name="sobot_no_data_string">데이터 없음</string>
+    <string name="sobot_no_net_string">네트워크 연결이 없습니다. 네트워크를 확인해주세요...</string>
+    <string name="sobot_error_click_reload_string">로딩 실패, 클릭하여 재시도~~</string>
+    <string name="sobot_loading_string">로딩 중...</string>
+</resources>

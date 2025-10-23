@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">No se encontró la vista de contenido. ¿Olvidó agregarla en el archivo de diseño XML?</string>
+    <string name="sobot_srl_header_pulling">Desliza hacia abajo para actualizar</string>
+    <string name="sobot_srl_header_refreshing">Actualizando...</string>
+    <string name="sobot_srl_header_loading">Esperando a que se complete la carga inferior...</string>
+    <string name="sobot_srl_header_release">Suelta para actualizar inmediatamente</string>
+    <string name="sobot_srl_header_finish">Actualización completada</string>
+    <string name="sobot_srl_header_failed">Error en la actualización</string>
+    <string name="sobot_srl_header_update">Última actualización %s</string>
+    <string name="sobot_srl_header_secondary">Suelta para entrar al segundo piso</string>
+    <string name="sobot_srl_footer_pulling">Desliza hacia arriba para cargar más</string>
+    <string name="sobot_srl_footer_release">Suelta para cargar inmediatamente</string>
+    <string name="sobot_srl_footer_loading">Cargando...</string>
+    <string name="sobot_srl_footer_refreshing">Esperando a que se complete la actualización del encabezado...</string>
+    <string name="sobot_srl_footer_finish">Carga completada</string>
+    <string name="sobot_srl_footer_failed">Error en la carga</string>
+    <string name="sobot_srl_footer_nothing">No hay más datos</string>
+    <string name="sobot_no_data_string">No hay datos disponibles</string>
+    <string name="sobot_no_net_string">Sin conexión a internet, por favor revise su red...</string>
+    <string name="sobot_error_click_reload_string">Error en la carga, haz clic para reintentar~~</string>
+    <string name="sobot_loading_string">Cargando...</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Представление контента не найдено. Вы забыли добавить его в файл макета XML?</string>
+    <string name="sobot_srl_header_pulling">Потяните вниз для обновления</string>
+    <string name="sobot_srl_header_refreshing">Обновление...</string>
+    <string name="sobot_srl_header_loading">Ожидание завершения нижней загрузки...</string>
+    <string name="sobot_srl_header_release">Отпустите для немедленного обновления</string>
+    <string name="sobot_srl_header_finish">Обновление завершено</string>
+    <string name="sobot_srl_header_failed">Ошибка обновления</string>
+    <string name="sobot_srl_header_update">Последнее обновление %s</string>
+    <string name="sobot_srl_header_secondary">Отпустите, чтобы перейти на второй этаж</string>
+    <string name="sobot_srl_footer_pulling">Потяните вверх для загрузки еще</string>
+    <string name="sobot_srl_footer_release">Отпустите для немедленной загрузки</string>
+    <string name="sobot_srl_footer_loading">Загрузка...</string>
+    <string name="sobot_srl_footer_refreshing">Ожидание завершения обновления заголовка...</string>
+    <string name="sobot_srl_footer_finish">Загрузка завершена</string>
+    <string name="sobot_srl_footer_failed">Ошибка загрузки</string>
+    <string name="sobot_srl_footer_nothing">Больше нет данных</string>
+    <string name="sobot_no_data_string">Нет данных</string>
+    <string name="sobot_no_net_string">Нет сетевого подключения, проверьте свою сеть...</string>
+    <string name="sobot_error_click_reload_string">Ошибка загрузки, нажмите для повтора~~</string>
+    <string name="sobot_loading_string">Загрузка...</string>
+</resources>

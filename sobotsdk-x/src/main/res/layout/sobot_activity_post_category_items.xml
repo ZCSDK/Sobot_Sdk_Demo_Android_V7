@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/sobot_msg_margin_edge"
-    android:paddingEnd="@dimen/sobot_msg_margin_edge"
+    android:paddingStart="@dimen/sobot_dialog_margin"
+    android:paddingEnd="@dimen/sobot_dialog_margin"
     android:background="@color/sobot_color_bg_first"
     android:gravity="center_vertical"
     android:orientation="horizontal">
@@ -15,18 +15,18 @@
         android:layout_weight="1"
         android:background="@null"
         android:gravity="center_vertical"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:textColor="@color/sobot_color_text_first"
         android:textSize="@dimen/sobot_text_font_14" />
 
     <ImageView
         android:id="@+id/work_order_category_ishave"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
         android:layout_marginStart="9dp"
         android:contentDescription="@null"
-        android:src="@drawable/sobot_cur_selected"
+        android:src="@drawable/sobot_icon_item_selected"
         android:visibility="visible"/>
 
 </LinearLayout>

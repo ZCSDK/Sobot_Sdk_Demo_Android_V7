@@ -29,7 +29,6 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.toast.CustomToast;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.chat.widget.zxing.Result;
 import com.sobot.chat.widget.zxing.util.CodeUtils;
@@ -183,7 +182,6 @@ public class SelectPicPopupWindow extends PopupWindow {
                 }
                 res.updateConfiguration(conf, dm);
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }

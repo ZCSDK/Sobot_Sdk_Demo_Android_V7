@@ -3,19 +3,19 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="@dimen/sobot_layout_lable_margin_right"
-    android:background="@drawable/sobot_layout_lable_nomal"
+    android:background="@drawable/sobot_layout_lable_nomal_selector"
     android:gravity="center"
+    android:orientation="horizontal"
     android:paddingStart="12dp"
-    android:paddingTop="7dp"
+    android:paddingTop="6dp"
     android:paddingEnd="12dp"
-    android:paddingBottom="7dp">
+    android:paddingBottom="6dp">
 
     <ImageView
         android:id="@+id/sobot_lable_icon"
-        android:layout_width="18dp"
+        android:layout_width="14dp"
         android:layout_height="14dp"
-        android:paddingStart="0dp"
-        android:paddingEnd="4dp"
+        android:layout_marginEnd="8dp"
         android:scaleType="fitXY"
         android:visibility="gone" />
 
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+        android:paddingBottom="2dp"
         android:singleLine="true"
         android:textColor="@color/sobot_lable_text_color"
         android:textSize="@dimen/sobot_text_font_12" />

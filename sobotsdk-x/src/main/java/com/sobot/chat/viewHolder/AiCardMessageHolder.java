@@ -21,9 +21,9 @@ import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotOption;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
         customCard = message.getCustomCard();
         if (customCard != null) {
             if (mTitle != null) {
-                if (SobotStringUtils.isNoEmpty(customCard.getCardGuide())) {
+                if (StringUtils.isNoEmpty(customCard.getCardGuide())) {
                     mTitle.setText(customCard.getCardGuide());
                     mTitle.setVisibility(View.VISIBLE);
                 } else {

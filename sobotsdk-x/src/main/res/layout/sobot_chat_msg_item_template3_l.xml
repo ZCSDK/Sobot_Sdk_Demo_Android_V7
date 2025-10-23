@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +38,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -45,11 +46,14 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:paddingStart="11dp"
+                android:minWidth="@dimen/sobot_msg_min_width"
+                android:orientation="vertical"
+                app:sobot_max_width="@dimen/sobot_msg_max_width">
 
                 <!-- 机械人的消息内容 -->
                 <TextView
-                    android:id="@+id/sobot_template3_msg"
+                    android:id="@+id/tv_template_tip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
@@ -57,11 +61,17 @@
                     android:textSize="@dimen/sobot_text_font_14"
                     android:visibility="visible" />
 
-                <com.sobot.chat.widget.horizontalgridpage.HorizontalGridPage
-                    android:id="@+id/pageView"
+                <com.sobot.chat.widget.robottemplate.RobotTemplate3ViewPager
+                    android:id="@+id/pv_template_third"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="2dp" />
+
+                <include
+                    layout="@layout/sobot_pre_next_layout"
+                    android:visibility="gone" />
+
                 <!-- 关联问题 提示语 -->
                 <TextView
                     android:id="@+id/sobot_stripe"

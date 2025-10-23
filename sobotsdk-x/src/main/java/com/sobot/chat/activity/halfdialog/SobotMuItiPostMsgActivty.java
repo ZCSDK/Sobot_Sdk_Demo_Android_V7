@@ -72,11 +72,8 @@ import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.chat.widget.toast.CustomToast;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,14 +90,14 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     private EditText sobot_post_email, sobot_et_content, sobot_post_phone, sobot_post_title;
     private TextView sobot_tv_post_msg, sobot_post_email_lable, sobot_post_phone_lable, sobot_post_lable, sobot_post_title_lable, sobot_post_question_type, sobot_post_question_lable, sobot_tv_problem_description, tv_problem_description_required;
     private TextView sobot_btn_submit;
-    private LinearLayout  sobot_post_customer_field, sobot_ll_content_img, ll_problem_description_title;
-    private RelativeLayout  sobot_post_question_ll;
-    private LinearLayout sobot_post_title_rl,sobot_post_email_rl,sobot_post_phone_rl;
+    private LinearLayout sobot_post_customer_field, sobot_ll_content_img, ll_problem_description_title;
+    private RelativeLayout sobot_post_question_ll;
+    private LinearLayout sobot_post_title_rl, sobot_post_email_rl, sobot_post_phone_rl;
     private LinearLayout sobot_ll_edit_phone;//编辑的手机号
     private TextView sobot_tv_phone_code;//手机区号
 
     private LinearLayout ll_upload_file;//上传附件
-    private TextView sobot_btn_file,sobot_file_hite;//上传按钮
+    private TextView sobot_btn_file, sobot_file_hite;//上传按钮
     private ArrayList<SobotFileModel> pic_list = new ArrayList<>();
     private SobotUploadFileAdapter adapter;
     private RecyclerView sobot_reply_msg_pic;
@@ -164,13 +161,19 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotMuItiPostMsgActivty";
+    }
+
+    @Override
     protected void initView() {
+        super.initView();
         ll_upload_file = findViewById(R.id.ll_upload_file);
         sobot_btn_file = findViewById(R.id.sobot_btn_file);
         sobot_file_hite = findViewById(R.id.sobot_file_hite);
         sobot_btn_file.setOnClickListener(this);
         String hideTxt = getResources().getString(R.string.sobot_ticket_update_file_hite);
-        sobot_file_hite.setText(String.format(hideTxt, "15","50M"));
+        sobot_file_hite.setText(String.format(hideTxt, "15", "50M"));
         sobot_reply_msg_pic = findViewById(R.id.sobot_reply_msg_pic);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
@@ -266,7 +269,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             ll_problem_description_title.setVisibility(View.GONE);
             sobot_et_content.setVisibility(View.GONE);
         }
-        sobot_btn_submit =  findViewById(R.id.sobot_btn_submit);
+        sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
         if (ThemeUtils.isChangedThemeColor(this)) {
@@ -287,9 +290,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     sobot_post_email.setFocusable(true);
                     sobot_post_email.setFocusableInTouchMode(true);
                     sobot_post_email.requestFocus();
-                    KeyboardUtil.showKeyboard(sobot_post_email);
-
-
+                    showSoftKeyboard();
                 }
             });
         } else {
@@ -307,8 +308,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     sobot_post_phone.setFocusable(true);
                     sobot_post_phone.setFocusableInTouchMode(true);
                     sobot_post_phone.requestFocus();
-                    KeyboardUtil.showKeyboard(sobot_post_phone);
-
+                    showSoftKeyboard();
                 }
             });
         } else {
@@ -326,8 +326,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     sobot_post_title.setFocusable(true);
                     sobot_post_title.setFocusableInTouchMode(true);
                     sobot_post_title.requestFocus();
-                    KeyboardUtil.showKeyboard(sobot_post_title);
-
+                    showSoftKeyboard();
                 }
             });
         } else {
@@ -382,7 +381,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 if (result != null) {
                     if (result.getField() != null && result.getField().size() != 0) {
                         mFields = result.getField();
-                        StCusFieldPresenter.addWorkOrderCusFields(getSobotBaseActivity(), SobotMuItiPostMsgActivty.this.getSobotBaseActivity(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivty.this);
+                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseActivity(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivty.this);
                     }
                 }
             }
@@ -487,7 +486,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
         if (mConfig.isTelShowFlag()) {
             if (mConfig.isTelFlag()) {
-                if (SobotStringUtils.isEmpty(phoneCode)) {
+                if (StringUtils.isEmpty(phoneCode)) {
                     showHint(getContext().getResources().getString(R.string.sobot_phone_code_hint));
                     return;
                 }
@@ -498,7 +497,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 userPhone = phoneCode + sobot_post_phone.getText().toString();
             } else {
                 String phoneStr = sobot_post_phone.getText().toString().trim();
-                if (SobotStringUtils.isNoEmpty(phoneCode) && SobotStringUtils.isEmpty(phoneStr)) {
+                if (StringUtils.isNoEmpty(phoneCode) && StringUtils.isEmpty(phoneStr)) {
                     showHint(getContext().getResources().getString(R.string.sobot_phone_hint));
                     return;
                 }
@@ -535,11 +534,11 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 intent.putExtra("bundle", bundle);
                 startActivityForResult(intent, ZhiChiConstant.work_order_list_display_type_category);
             }
-        }else if(view == sobot_btn_file){
-            if(pic_list.size()>=15){
+        } else if (view == sobot_btn_file) {
+            if (pic_list.size() >= 15) {
                 //图片上限15张
                 ToastUtil.showToast(this, getResources().getString(R.string.sobot_ticket_update_file_max_hite));
-            }else {
+            } else {
                 menuWindow = new SobotSelectPicDialog(this, itemsOnClick);
                 menuWindow.show();
             }
@@ -627,7 +626,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                         if (getSobotBaseActivity() == null) {
                             return;
                         }
-                        KeyboardUtil.hideKeyboard(getSobotBaseActivity().getCurrentFocus());
+                        hideKeyboard();
                         Intent intent = new Intent();
                         intent.setAction(ZhiChiConstants.SOBOT_CHAT_MUITILEAVEMSG_TO_CHATLIST);
                         Bundle bundle = new Bundle();
@@ -699,7 +698,6 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
             @Override
             public void previewMp4(SobotFileModel fileModel) {
-//                KeyboardUtil.hideKeyboard(sobotReplyEdit);
                 File file = new File(fileModel.getFileUrl());
                 SobotCacheFile cacheFile = new SobotCacheFile();
                 cacheFile.setFileName(file.getName());
@@ -787,7 +785,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         sobot_post_msg_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                KeyboardUtil.hideKeyboard(sobot_post_msg_layout);
+                hideKeyboard();
             }
         });
     }
@@ -824,8 +822,8 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                         SobotFileModel item = new SobotFileModel();
                         item.setFileUrl(zhiChiMessage.getData().getUrl());
                         item.setFileLocalPath(filePath);
-                        String fileName = filePath.substring(filePath.lastIndexOf("/")+1);
-                        String fileType = fileName.substring(fileName.lastIndexOf(".")+1);
+                        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+                        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
                         item.setFileName(fileName);
                         item.setFileType(fileType);
                         addPicView(item);
@@ -850,13 +848,15 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
         }
     };
+
     public void addPicView(SobotFileModel item) {
-        if(sobot_reply_msg_pic.getVisibility()==View.GONE){
+        if (sobot_reply_msg_pic.getVisibility() == View.GONE) {
             sobot_reply_msg_pic.setVisibility(View.VISIBLE);
         }
         pic_list.add(item);
         adapter.notifyDataSetChanged();
     }
+
     public String getFileStr() {
         String tmpStr = "";
         if (!mConfig.isEnclosureShowFlag()) {

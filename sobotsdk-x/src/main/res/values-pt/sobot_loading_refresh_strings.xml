@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Visualização de conteúdo não encontrada. Você esqueceu de adicioná-la no arquivo de layout XML?</string>
+    <string name="sobot_srl_header_pulling">Puxe para baixo para atualizar</string>
+    <string name="sobot_srl_header_refreshing">Atualizando...</string>
+    <string name="sobot_srl_header_loading">Aguardando conclusão do carregamento inferior...</string>
+    <string name="sobot_srl_header_release">Solte para atualizar imediatamente</string>
+    <string name="sobot_srl_header_finish">Atualização concluída</string>
+    <string name="sobot_srl_header_failed">Falha na atualização</string>
+    <string name="sobot_srl_header_update">Última atualização %s</string>
+    <string name="sobot_srl_header_secondary">Solte para entrar no segundo andar</string>
+    <string name="sobot_srl_footer_pulling">Puxe para cima para carregar mais</string>
+    <string name="sobot_srl_footer_release">Solte para carregar imediatamente</string>
+    <string name="sobot_srl_footer_loading">Carregando...</string>
+    <string name="sobot_srl_footer_refreshing">Aguardando conclusão da atualização do cabeçalho...</string>
+    <string name="sobot_srl_footer_finish">Carregamento concluído</string>
+    <string name="sobot_srl_footer_failed">Falha no carregamento</string>
+    <string name="sobot_srl_footer_nothing">Não há mais dados</string>
+    <string name="sobot_no_data_string">Nenhum dado disponível</string>
+    <string name="sobot_no_net_string">Sem conexão de rede, por favor verifique sua rede...</string>
+    <string name="sobot_error_click_reload_string">Falha no carregamento, clique para tentar novamente~~</string>
+    <string name="sobot_loading_string">Carregando...</string>
+</resources>

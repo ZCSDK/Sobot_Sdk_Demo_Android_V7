@@ -1,12 +1,10 @@
 package com.sobot.chat.activity;
 
-import static com.sobot.widget.ui.SobotBaseConstant.REQUEST_CODE_MAKEPICTUREFROMCAMERA;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,9 +20,9 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.base.SobotBaseHelpCenterActivity;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.model.HelpConfigModel;
@@ -36,15 +34,12 @@ import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.statusbar.StatusBarUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
-import com.sobot.widget.ui.utils.SobotWidgetUtils;
 
 /**
  * 帮助中心问题详情
@@ -55,7 +50,8 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     private StDocModel mDoc;
     private WebView mWebView;
     private LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
-    private TextView tv_sobot_layout_online_service, tv_sobot_layout_online_service_v;
+    private LinearLayout ll_sobot_layout_online_service, ll_sobot_layout_online_service_v;
+    private LinearLayout ll_sobot_layout_online_tel, ll_sobot_layout_online_tel_v;
     private TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v;
     private View view_split_online_tel;
 
@@ -79,6 +75,11 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotProblemDetailActivity";
+    }
+
+    @Override
     protected void initBundleData(Bundle savedInstanceState) {
         super.initBundleData(savedInstanceState);
         Intent intent = getIntent();
@@ -96,25 +97,27 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         ll_bottom = findViewById(R.id.ll_bottom);
         ll_bottom_h = findViewById(R.id.ll_bottom_h);
         ll_bottom_v = findViewById(R.id.ll_bottom_v);
-        tv_sobot_layout_online_service = findViewById(R.id.tv_sobot_layout_online_service);
-        tv_sobot_layout_online_service_v = findViewById(R.id.tv_sobot_layout_online_service_v);
+        ll_sobot_layout_online_service = findViewById(R.id.ll_sobot_layout_online_service);
+        ll_sobot_layout_online_service_v = findViewById(R.id.ll_sobot_layout_online_service_v);
+        ll_sobot_layout_online_tel = findViewById(R.id.ll_sobot_layout_online_tel);
+        ll_sobot_layout_online_tel_v = findViewById(R.id.ll_sobot_layout_online_tel_v);
         tv_sobot_layout_online_tel = findViewById(R.id.tv_sobot_layout_online_tel);
         tv_sobot_layout_online_tel_v = findViewById(R.id.tv_sobot_layout_online_tel_v);
         view_split_online_tel = findViewById(R.id.view_split_online_tel);
         mProblemTitle = findViewById(R.id.sobot_text_problem_title);
         mWebView = (WebView) findViewById(R.id.sobot_webView);
-        tv_sobot_layout_online_service.setText(R.string.sobot_help_center_online_service);
-        tv_sobot_layout_online_service.setOnClickListener(this);
-        tv_sobot_layout_online_tel.setOnClickListener(this);
-        tv_sobot_layout_online_service_v.setOnClickListener(this);
-        tv_sobot_layout_online_tel_v.setOnClickListener(this);
+        ll_sobot_layout_online_service.setOnClickListener(this);
+        ll_sobot_layout_online_tel.setOnClickListener(this);
+        ll_sobot_layout_online_service_v.setOnClickListener(this);
+        ll_sobot_layout_online_tel_v.setOnClickListener(this);
         initWebView();
         displayInNotch(mWebView);
         displayInNotch(ll_bottom);
         displayInNotch(mProblemTitle);
         configModel = (HelpConfigModel) getIntent().getSerializableExtra("configModel");
         if (configModel != null) {
-            setToobar(configModel);
+            setToolBarDefBg();
+            setBottomBtnUi(configModel);
         }
     }
 
@@ -172,73 +175,39 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     }
 
     //设置导航条颜色
-    private void setToobar(HelpConfigModel configModel) {
+    private void setBottomBtnUi(HelpConfigModel configModel) {
         this.configModel = configModel;
         if (configModel != null) {
-            SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", configModel);
-            if (mInfo != null && SobotStringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && SobotStringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
+             if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
                 tel = mInfo.getHelpCenterTel();
                 tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
-                tv_sobot_layout_online_tel.setVisibility(View.VISIBLE);
+                ll_sobot_layout_online_tel.setVisibility(View.VISIBLE);
                 tv_sobot_layout_online_tel_v.setText(mInfo.getHelpCenterTelTitle());
                 view_split_online_tel.setVisibility(View.VISIBLE);
-                tv_sobot_layout_online_tel.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        int lineCount = tv_sobot_layout_online_tel.getLineCount();
-                        if (lineCount > 1) {
-                            ll_bottom_h.setVisibility(View.GONE);
-                            ll_bottom_v.setVisibility(View.VISIBLE);
-                        } else {
-                            ll_bottom_h.setVisibility(View.VISIBLE);
-                            ll_bottom_v.setVisibility(View.GONE);
-                        }
-                    }
-                }, 100);
+                if (StringUtils.calculateTextLines(14, configModel.getHotlineName(), ScreenUtils.getScreenWidth(getSobotBaseActivity()) / 2 - ScreenUtils.dip2px(getSobotBaseActivity(), 16 + 4 + 20 + 14 + 8), getSobotBaseActivity()) < 2) {
+                    ll_bottom_h.setVisibility(View.VISIBLE);
+                    ll_bottom_v.setVisibility(View.GONE);
+                } else {
+                    ll_bottom_h.setVisibility(View.GONE);
+                    ll_bottom_v.setVisibility(View.VISIBLE);
+                }
             } else {
                 if (!TextUtils.isEmpty(configModel.getHotlineName()) && !TextUtils.isEmpty(configModel.getHotlineTel())) {
                     tel = configModel.getHotlineTel();
                     tv_sobot_layout_online_tel.setText(configModel.getHotlineName());
                     tv_sobot_layout_online_tel_v.setText(configModel.getHotlineName());
-                    tv_sobot_layout_online_tel.setVisibility(View.VISIBLE);
+                    ll_sobot_layout_online_tel.setVisibility(View.VISIBLE);
                     view_split_online_tel.setVisibility(View.VISIBLE);
-                    tv_sobot_layout_online_tel.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            int lineCount = tv_sobot_layout_online_tel.getLineCount();
-                            if (lineCount > 1) {
-                                ll_bottom_h.setVisibility(View.GONE);
-                                ll_bottom_v.setVisibility(View.VISIBLE);
-                            } else {
-                                ll_bottom_h.setVisibility(View.VISIBLE);
-                                ll_bottom_v.setVisibility(View.GONE);
-                            }
-                        }
-                    }, 100);
-                } else {
-                    tv_sobot_layout_online_tel.setVisibility(View.GONE);
-                    view_split_online_tel.setVisibility(View.GONE);
-                }
-            }
-            //服务端返回的导航条背景颜色
-            if (!TextUtils.isEmpty(configModel.getTopBarColor())) {
-                String topBarColor[] = configModel.getTopBarColor().split(",");
-                if (topBarColor.length > 1) {
-                    int[] colors = new int[topBarColor.length];
-                    for (int i = 0; i < topBarColor.length; i++) {
-                        colors[i] = Color.parseColor(topBarColor[i]);
-                    }
-                    GradientDrawable gradientDrawable = new GradientDrawable();
-                    gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                    gradientDrawable.setColors(colors); //添加颜色组
-                    gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-                    gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-                    getToolBar().setBackground(gradientDrawable);
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+                    if (StringUtils.calculateTextLines(14, configModel.getHotlineName(), ScreenUtils.getScreenWidth(getSobotBaseActivity()) / 2 - ScreenUtils.dip2px(getSobotBaseActivity(), 16 + 4 + 20 + 14 + 8), getSobotBaseActivity()) < 2) {
+                        ll_bottom_h.setVisibility(View.VISIBLE);
+                        ll_bottom_v.setVisibility(View.GONE);
                     } else {
-                        StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
+                        ll_bottom_h.setVisibility(View.GONE);
+                        ll_bottom_v.setVisibility(View.VISIBLE);
                     }
+                } else {
+                    ll_sobot_layout_online_tel.setVisibility(View.GONE);
+                    view_split_online_tel.setVisibility(View.GONE);
                 }
             }
         }
@@ -382,7 +351,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             @Override
             public void onPermissionSuccessListener() {
                 if (isCameraCanUse()) {
-                    cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+                    cameraFile = openCamera(getSobotBaseActivity());
                 }
             }
 
@@ -400,7 +369,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             return;
         }
         if (isCameraCanUse()) {
-            cameraFile = SobotWidgetUtils.openCamera(getSobotBaseActivity());
+            cameraFile = openCamera(getSobotBaseActivity());
         }
     }
 
@@ -430,7 +399,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_ALBUM || requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+        if (requestCode == REQUEST_CODE_ALBUM || requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
             if (uploadMessageAboveL == null) {
                 return;
             }
@@ -447,9 +416,9 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                     if (data != null) {
                         imageUri = data.getData();
                     }
-                } else if (requestCode == REQUEST_CODE_MAKEPICTUREFROMCAMERA) {
+                } else if (requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
                     if (cameraFile != null && cameraFile.exists()) {
-                        imageUri = SobotWidgetUtils.getUri(getSobotBaseActivity(), cameraFile);
+                        imageUri = ChatUtils.getUri(getSobotBaseActivity(), cameraFile);
                     }
                 }
                 if (imageUri != null) {
@@ -515,16 +484,16 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     @Override
     public void onClick(View v) {
 
-        if (v == tv_sobot_layout_online_service || v == tv_sobot_layout_online_service_v) {
+        if (v == ll_sobot_layout_online_service || v == ll_sobot_layout_online_service_v) {
             if (SobotOption.openChatListener != null) {
                 boolean isIntercept = SobotOption.openChatListener.onOpenChatClick(getSobotBaseActivity(), mInfo);
                 if (isIntercept) {
                     return;
                 }
             }
-            ZCSobotApi.openZCChat(getApplicationContext(), mInfo);
+            ZCSobotApi.openZCChat(getSobotBaseActivity(), mInfo);
         }
-        if (v == tv_sobot_layout_online_tel || v == tv_sobot_layout_online_tel_v) {
+        if (v == ll_sobot_layout_online_tel || v == ll_sobot_layout_online_tel_v) {
             if (tel != null && !TextUtils.isEmpty(tel)) {
                 if (SobotOption.functionClickListener != null) {
                     SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_PhoneCustomerService);

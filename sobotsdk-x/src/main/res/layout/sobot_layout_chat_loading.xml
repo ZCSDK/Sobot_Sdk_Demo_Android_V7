@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/sobot_color_bg_first">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/sobot_image_view"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_centerInParent="true"
-            android:indeterminateBehavior="repeat"
-            android:indeterminateDrawable="@drawable/sobot_progressbar_loading" />
+        <com.sobot.chat.widget.LoadingView.SobotLoadingView
+            android:id="@+id/iv_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:backgroundColor="@color/sobot_color_loading_bg"
+            app:progressColor="@color/sobot_color"
+            android:visibility="gone"
+            app:strokeWidth="2dp" />
 
         <!-- 显示加载文字的动画 -->
 
@@ -22,52 +26,61 @@
             android:id="@+id/sobot_txt_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sobot_image_view"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/sobot_textReConnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/sobot_image_view"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="15dp"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:text="@string/sobot_try_again"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="16sp"
-            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/sobot_icon_nonet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/sobot_textReConnect"
-            android:layout_centerHorizontal="true"
             android:contentDescription="@null"
-            android:src="@drawable/sobot_icon_nonet"
+            android:src="@drawable/sobot_icon_timeout"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sobot_textReConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="15dp"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:text="@string/sobot_str_timeout"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_20"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sobot_textReConnect_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="15dp"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:text="@string/sobot_str_timeout_reloading"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14"
             android:visibility="gone" />
 
         <Button
             android:id="@+id/sobot_btn_reconnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/sobot_textReConnect"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/sobot_button_style"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:minWidth="240dp"
             android:paddingStart="15dp"
+            android:paddingTop="9dp"
             android:paddingEnd="15dp"
+            android:paddingBottom="9dp"
             android:text="@string/sobot_reunicon"
             android:textAllCaps="false"
             android:textColor="@color/sobot_color_text_first"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="gone" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </FrameLayout>

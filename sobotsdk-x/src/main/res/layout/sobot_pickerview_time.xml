@@ -12,30 +12,13 @@
         android:orientation="vertical"
         app:sobot_mhv_HeightRatio="0.8">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sobot_dialog_title_bg">
-
-            <TextView
-                android:id="@+id/sobot_tvTitle"
-                style="@style/sobot_dialog_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
+        <include layout="@layout/sobot_dialog_title"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/sobot_color_bg_first"
             android:orientation="vertical">
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/sobot_line_height_dp"
-                android:background="@color/sobot_color_line_divider" />
 
             <LinearLayout
                 android:id="@+id/timepicker"

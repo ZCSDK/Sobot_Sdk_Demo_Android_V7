@@ -91,6 +91,7 @@ public class SobotChooseCityActivity extends SobotDialogBaseActivity {
 
     @Override
     public void initView() {
+        super.initView();
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         mListView = (ListView) findViewById(R.id.sobot_activity_cusfield_listview);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -113,6 +114,11 @@ public class SobotChooseCityActivity extends SobotDialogBaseActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotChooseCityActivity";
     }
 
     @Override

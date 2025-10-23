@@ -2,5 +2,5 @@
 <!--右侧引用消息透明背景样式-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@color/sobot_chat_appoint_right_transparent_bg" />
-    <corners android:radius="2dp" />
+    <corners android:radius="4dp" />
 </shape>

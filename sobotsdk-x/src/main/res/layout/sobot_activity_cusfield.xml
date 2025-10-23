@@ -13,32 +13,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/sobot_dialog_title_bg"
         app:sobot_mhv_HeightRatio="0.8">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                style="@style/sobot_dialog_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
+        <include layout="@layout/sobot_dialog_title"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/sobot_color_bg_first"
+            android:minHeight="536dp"
             android:orientation="vertical">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/sobot_line_height_dp"
-                android:background="@color/sobot_color_line_divider" />
 
             <LinearLayout
                 android:id="@+id/sobot_ll_search"
@@ -54,14 +38,6 @@
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 android:visibility="visible">
-
-                <ImageView
-                    android:id="@+id/sobot_iv_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:src="@drawable/sobot_cur_search" />
-
                 <EditText
                     android:id="@+id/sobot_et_search"
                     android:layout_width="match_parent"
@@ -72,6 +48,8 @@
                     android:hint="@string/sobot_please_input"
                     android:paddingTop="7dp"
                     android:paddingBottom="7dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:lines="1"
                     android:imeOptions="actionSearch"
                     android:inputType="text"
@@ -86,12 +64,19 @@
                     android:padding="10dp"
                     android:src="@drawable/sobot_cur_input_clear"
                     android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/sobot_iv_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/sobot_cur_search" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="200dp">
+                android:layout_weight="1"
+                >
 
                 <ListView
                     android:id="@+id/sobot_activity_cusfield_listview"
@@ -100,11 +85,12 @@
                     android:cacheColorHint="@android:color/transparent"
                     android:divider="@color/sobot_color_line_divider"
                     android:dividerHeight="0dp"
-                    android:minHeight="536dp"
+
                     android:fadingEdge="none"
                     android:listSelector="@android:color/transparent"
                     android:overScrollMode="never"
                     android:scrollbarSize="10dp"
+                    android:background="@color/sobot_dialog_bg_color"
                     android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style" />
             </LinearLayout>
 

@@ -14,7 +14,6 @@ import com.sobot.chat.camera.listener.StCameraListener;
 import com.sobot.chat.camera.listener.StClickListener;
 import com.sobot.chat.camera.listener.StErrorListener;
 import com.sobot.chat.camera.util.FileUtil;
-import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.utils.SobotPathManager;
 
 /**
@@ -68,6 +67,11 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
      */
     public static int getActionType(Intent intent) {
         return intent.getIntExtra(EXTRA_ACTION_TYPE, 0);
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotCameraActivity";
     }
 
     @Override
@@ -138,7 +142,7 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
 
             @Override
             public boolean checkAutoPremission() {
-                return isHasPermission(2,2);
+                return isHasPermission(2, 2);
             }
 
             @Override

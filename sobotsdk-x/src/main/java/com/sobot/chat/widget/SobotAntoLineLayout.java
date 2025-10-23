@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,58 +114,113 @@ public class SobotAntoLineLayout extends ViewGroup {
         setMeasuredDimension(totalWidth, totalHeight);
     }
 
+    // 添加RTL判断方法
+    private boolean isRtl() {
+        return CommonUtils.checkSDKIsAr(getContext());
+    }
+
+    // 修改 layoutWrapContent 方法以支持RTL
+    private void layoutWrapContent() {
+        int index = 0;
+        int curHeight = 0;
+        boolean isRtl = isRtl();
+        int layoutWidth = getMeasuredWidth();
+
+        for (int i = 0; i < childOfLine.size(); i++) {
+            int childCount = childOfLine.get(i);
+            int maxHeight = 0;
+            int lineWidth = 0;
+            int target = index + childCount;
+
+            // RTL模式下先计算起始位置
+            if (isRtl) {
+                for (int j = index; j < target; j++) {
+                    View item = getChildAt(j);
+                    if (item.getVisibility() == VISIBLE) {
+                        lineWidth += item.getMeasuredWidth() + mHorizontalGap;
+                    }
+                }
+                lineWidth -= mHorizontalGap; // 减去最后一个gap
+            }
+
+            for (; index < target; index++) {
+                View item = getChildAt(index);
+                if (item.getVisibility() == VISIBLE) {
+                    maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
+                    if (isRtl) {
+                        // RTL模式：从右向左布局
+                        int left = layoutWidth - lineWidth;
+                        int right = left + item.getMeasuredWidth();
+                        item.layout(left, curHeight, right, curHeight + item.getMeasuredHeight());
+                        lineWidth -= (item.getMeasuredWidth() + mHorizontalGap);
+                    } else {
+                        // LTR模式：从左向右布局
+                        item.layout(lineWidth, curHeight, lineWidth + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
+                        lineWidth += item.getMeasuredWidth() + mHorizontalGap;
+                    }
+                }
+            }
+            curHeight += maxHeight + mVerticalGap;
+        }
+    }
+
+    // 修改 layoutModeFillParent 方法以支持RTL
     private void layoutModeFillParent() {
         int index = 0;
         int width = getMeasuredWidth();
         int curHeight = 0;
+        boolean isRtl = isRtl();
+
         for (int i = 0; i < childOfLine.size(); i++) {
             int childCount = childOfLine.get(i);
             int maxHeight = 0;
             int lineWidth = 0;
+
+            // 计算原始行宽
             for (int j = 0; j < childCount; j++) {
-                lineWidth += getChildAt(j + index).getMeasuredWidth();
+                View child = getChildAt(j + index);
+                if (child.getVisibility() != GONE) {
+                    lineWidth += child.getMeasuredWidth();
+                }
             }
+
             int padding = (width - lineWidth - mHorizontalGap * (childCount - 1)) / childCount / 2;
-            lineWidth = 0;
             int target = index + childCount;
+            int currentX = isRtl ? width : 0;
+
+            // RTL模式下计算起始位置
+            if (isRtl) {
+                currentX = width;
+                for (int j = index; j < target; j++) {
+                    View item = getChildAt(j);
+                    if (item.getVisibility() != GONE) {
+                        currentX -= (item.getMeasuredWidth() + mHorizontalGap);
+                    }
+                }
+                currentX += mHorizontalGap;
+            }
+
             for (; index < target; index++) {
                 View item = getChildAt(index);
                 if (item.getVisibility() == VISIBLE) {
-                    //如果子控件隐藏了就不绘制了
                     maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
-                    item.setPadding(padding, item.getPaddingTop(),
-                            padding, item.getPaddingBottom());
+                    item.setPadding(padding, item.getPaddingTop(), padding, item.getPaddingBottom());
                     item.measure(MeasureSpec.makeMeasureSpec(item.getMeasuredWidth() + padding * 2, MeasureSpec.EXACTLY),
                             MeasureSpec.makeMeasureSpec(item.getMeasuredHeight(), MeasureSpec.EXACTLY));
-                    item.layout(lineWidth, curHeight, lineWidth + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
-                    lineWidth += item.getMeasuredWidth() + mHorizontalGap;
+
+                    if (isRtl) {
+                        int left = currentX - item.getMeasuredWidth();
+                        item.layout(left, curHeight, currentX, curHeight + item.getMeasuredHeight());
+                        currentX -= (item.getMeasuredWidth() + mHorizontalGap);
+                    } else {
+                        item.layout(currentX, curHeight, currentX + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
+                        currentX += item.getMeasuredWidth() + mHorizontalGap;
+                    }
                 }
             }
             curHeight += maxHeight + mVerticalGap;
         }
     }
-
-    private void layoutWrapContent() {
-        int index = 0;
-        int curHeight = 0;
-        for (int i = 0; i < childOfLine.size(); i++) {
-            int childCount = childOfLine.get(i);
-            int maxHeight = 0;
-            int lineWidth = 0;
-            int target = index + childCount;
-            for (; index < target; index++) {
-                View item = getChildAt(index);
-                if (item.getVisibility() == VISIBLE) {
-                    //如果子控件隐藏了就不绘制了
-                    maxHeight = Math.max(maxHeight, item.getMeasuredHeight());
-                    item.layout(lineWidth, curHeight, lineWidth + item.getMeasuredWidth(), curHeight + item.getMeasuredHeight());
-                    lineWidth += item.getMeasuredWidth() + mHorizontalGap;
-                }
-            }
-            curHeight += maxHeight + mVerticalGap;
-        }
-    }
-
     @Override
     public void addView(View child) {
         super.addView(child);

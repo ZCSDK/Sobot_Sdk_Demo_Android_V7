@@ -11,7 +11,6 @@ import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.api.model.ZhiChiPushMessage;
 import com.sobot.chat.utils.ZhiChiConstant;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public abstract class SobotMsgCenterReceiver extends BroadcastReceiver {
                     for (int i = 0; i < datas.size(); i++) {
                         SobotMsgCenterModel sobotMsgCenterModel = datas.get(i);
                         if (sobotMsgCenterModel.getInfo() != null && pushMessage.getAppId().equals(sobotMsgCenterModel.getInfo().getApp_key())) {
-                            sobotMsgCenterModel.setLastDateTime(Calendar.getInstance().getTime().getTime() + "");
+                            sobotMsgCenterModel.setLastDateTime(System.currentTimeMillis() + "");
                             if (pushMessage.getAnswer() != null) {
                                 sobotMsgCenterModel.setLastMsg(pushMessage.getAnswer().getMsg());
                             }

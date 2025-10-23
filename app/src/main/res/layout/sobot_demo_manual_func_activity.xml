@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.1 技能组id"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定技能组id,指定后，转人工不会再弹技能组选项]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -45,8 +45,8 @@
                 android:enabled="true"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -54,13 +54,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.2 客服id"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定客服]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -82,8 +82,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -91,13 +91,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.2 指定客服类型"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定客服转接类型(0:可转入其他客服，1:必须转入指定客服)]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -120,8 +120,8 @@
                 android:padding="6dp"
                 android:scrollbars="none"
                 android:text="0"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -129,13 +129,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.3.1 用户自定义字段"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:具体配置参考文档4.2.3部分,输入json格式数据]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -158,8 +158,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -167,12 +167,12 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.3.2 用户自定义资料"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -181,7 +181,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:具体配置参考文档4.2.3部分,输入json格式数据]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -195,8 +195,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -204,14 +204,14 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.4 接入成功后自动发送对象"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -220,7 +220,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:接入成功后自动发送一条消息，0:不发,1:给机器人发送,2给人工发送,3:机器人和人工都发]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -234,8 +234,8 @@
                 android:inputType="number"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
 
@@ -244,13 +244,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.4 接入成功后自动发送内容"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -259,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:文本信息之外的类型直接输入文件在存储卡上的路径]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -273,8 +273,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -282,13 +282,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.4 接入成功后自动发送内容类型"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -297,7 +297,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:0:文本,1:图片,12:文件,23:视频]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -311,8 +311,8 @@
                 android:inputType="number"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -320,12 +320,12 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.4 接入成功后自动发送次数"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -334,7 +334,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:默认 1 只发一次 ；0 每次进入页面都自动发送,默认只发一次]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -349,8 +349,8 @@
                 android:padding="6dp"
                 android:text="0"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -358,13 +358,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.5 指定客户排队优先接入"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -373,7 +373,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明: 1:优先接入  0:默认值，正常排队]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -388,8 +388,8 @@
                 android:padding="6dp"
                 android:scrollbars="none"
                 android:text="0"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -397,13 +397,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.6 服务总结自定义字段"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -412,7 +412,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:pc设置自定义字段,添加格式json如下:{'your keyId':'your value'}，具体配置可参考文档4.2.6]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -426,8 +426,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -435,13 +435,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.7 多轮会话自定义字段"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -450,7 +450,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:在使用多轮会话功能时,每一个接口我们都会传入 uid 和 mulitParams 两个固定的自定义参数,格式为json,例如{'key1':'val1'}]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -464,8 +464,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -473,7 +473,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_2_8"
@@ -489,7 +489,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="4.2.8 商品卡片"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -525,7 +525,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_2_9"
@@ -541,7 +541,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="4.2.9 订单卡片"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -577,7 +577,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_2_11"
@@ -593,7 +593,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="4.2.11 客户身份是否VIP"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -629,13 +629,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.11 指定用户的vip等级"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -644,7 +644,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:pc设置-自定义字段-VIP等级]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -658,8 +658,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
 
@@ -668,13 +668,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.2.12 用户标签"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -683,7 +683,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:pc设置-自定义字段-客户字段],多个标签之间用,分割"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -697,8 +697,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
 
@@ -707,383 +707,14 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42131"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏评价功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42131"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏'+'评价按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp" />
-
-            </RelativeLayout>
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42132"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏留言功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42132"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏机器人和人工聊天模式下，'+'中的留言按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42137"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 只隐藏人工聊天模式的留言功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42137"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:只隐藏在人工聊天模式'+'中的留言按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_marginEnd="10dp"
-                    android:layout_alignParentEnd="true" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42133"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏图片功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42133"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏'+'图片按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp" />
-
-            </RelativeLayout>
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42134"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏视频功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42134"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏'+'视频按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42135"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏拍摄功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42135"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏'+'拍摄按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp" />
-
-            </RelativeLayout>
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
-
-            <RelativeLayout
-                android:id="@+id/sobot_rl_4_2_13_6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/sobot_text42136"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="4.2.13 隐藏文件功能"
-                    android:textColor="@color/sobot_common_gray1"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="25dp" />
-
-                <TextView
-                    style="@style/TxtTitle_Des"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/sobot_text42136"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginRight="25dp"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:text="[说明:隐藏'+'文件按钮]"
-                    android:layout_marginEnd="25dp" />
-
-                <ImageView
-                    android:id="@+id/sobot_image_4_2_13_6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/sobot_demo_icon_close"
-                    android:contentDescription="@null"
-                    android:visibility="visible"
-                    android:layout_marginEnd="10dp"
-                    android:layout_alignParentEnd="true" />
-
-            </RelativeLayout>
-
-
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
 
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/sobot_common_gray2"
+                android:background="@color/sobot_textview_text_color_second"
                 android:padding="6dp"
                 android:text="参考文档"
                 android:textSize="14sp" />

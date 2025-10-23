@@ -18,19 +18,10 @@ public class MarkConfig {
     public static final int LEAVE_COMPLETE_CAN_REPLY = 0b10;
 
     /**
-     * 横屏下刘海屏和水滴屏是否显示 默认 false 不显示
+     * 横屏下刘海屏和水滴屏是否显示 默认 false 显示
      */
-    public static final int DISPLAY_INNOTCH = 0b100;
+    public static final int DISPLAY_INNOTCH = 0b10;
 
-    /**
-     * 是否自动适配时区，默认不适配，使用北京时区
-     */
-    public static final int AUTO_MATCH_TIMEZONE = 0b1000;
-
-    /**
-     * 是否在申请权限前弹出权限用途提示框,默认不弹
-     */
-    public static final int SHOW_PERMISSION_TIPS_POP = 0b10000;
 
     /**
      * 获取开关位

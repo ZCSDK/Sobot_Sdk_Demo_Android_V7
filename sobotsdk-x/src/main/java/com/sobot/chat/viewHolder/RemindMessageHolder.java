@@ -8,6 +8,8 @@ import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -35,6 +37,10 @@ public class RemindMessageHolder extends MsgHolderBase {
     private SobotRCImageView sobot_msg_tip_face_iv;
     private TextView sobot_msg_tip_nike_name_tv;
     private TextView sobot_msg_accept_tip_tv;
+    //有边框的边框
+    private LinearLayout ll_notice;
+    private TextView sobot_center_Remind_note3;
+    private ImageView iv_notice_left,iv_notice_right;
 
     public RemindMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -57,6 +63,10 @@ public class RemindMessageHolder extends MsgHolderBase {
                 .findViewById(R.id.sobot_msg_tip_nike_name_tv);
         sobot_msg_accept_tip_tv = convertView
                 .findViewById(R.id.sobot_msg_accept_tip_tv);
+        ll_notice = convertView.findViewById(R.id.ll_notice);
+        sobot_center_Remind_note3 = convertView.findViewById(R.id.sobot_center_Remind_note3);
+        iv_notice_left = convertView.findViewById(R.id.iv_notice_left);
+        iv_notice_right = convertView.findViewById(R.id.iv_notice_right);
     }
 
     @Override
@@ -67,6 +77,7 @@ public class RemindMessageHolder extends MsgHolderBase {
                 rl_not_read.setVisibility(View.GONE);
                 center_Remind_Info2.setVisibility(View.GONE);
                 center_Remind_Info.setVisibility(View.GONE);
+                ll_notice.setVisibility(View.GONE);
                 center_Remind_Info1.setVisibility(View.VISIBLE);
                 center_Remind_Info1.setText(message.getAnswer().getMsg());
             } else if (message.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_below_unread) {
@@ -74,34 +85,49 @@ public class RemindMessageHolder extends MsgHolderBase {
                 center_Remind_Info.setVisibility(View.GONE);
                 center_Remind_Info1.setVisibility(View.GONE);
                 center_Remind_Info2.setVisibility(View.GONE);
+                ll_notice.setVisibility(View.GONE);
             } else if (message.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_simple_tip) {
                 rl_not_read.setVisibility(View.GONE);
+                ll_notice.setVisibility(View.GONE);
                 center_Remind_Info.setVisibility(View.GONE);
                 center_Remind_Info1.setVisibility(View.GONE);
                 center_Remind_Info2.setVisibility(View.VISIBLE);
                 HtmlTools.getInstance(context).setRichText(center_Remind_Info2, message
                         .getAnswer().getMsg(), getRemindLinkTextColor());
-
+            } else if (message.getAnswer().getRemindType() == ZhiChiConstant.sobot_have_new_leavemsg) {
+                rl_not_read.setVisibility(View.GONE);
+                center_Remind_Info.setVisibility(View.GONE);
+                center_Remind_Info1.setVisibility(View.GONE);
+                center_Remind_Info2.setVisibility(View.GONE);
+                ll_notice.setVisibility(View.VISIBLE);
+                iv_notice_left.setVisibility(View.VISIBLE);
+                HtmlTools.getInstance(context).setRichText(sobot_center_Remind_note3, message
+                        .getAnswer().getMsg(), getRemindLinkTextColor());
             } else {
                 rl_not_read.setVisibility(View.GONE);
                 center_Remind_Info2.setVisibility(View.GONE);
                 center_Remind_Info.setVisibility(View.VISIBLE);
                 center_Remind_Info1.setVisibility(View.GONE);
+                ll_notice.setVisibility(View.GONE);
                 int remindType = message.getAnswer().getRemindType();
                 if (ZhiChiConstant.action_remind_info_post_msg.equals(message.getAction())) {
                     if (remindType == ZhiChiConstant.sobot_remind_type_customer_offline) {
                         //暂无客服在线   和 暂时无法转接人工客服
                         if (message.isShake()) {
-                            center_Remind_Info.setAnimation(shakeAnimation(5));
+                            sobot_center_Remind_note3.setAnimation(shakeAnimation(5));
                         }
-                        setRemindPostMsg(context, center_Remind_Info, message, false);
+                        center_Remind_Info.setVisibility(View.GONE);
+                        ll_notice.setVisibility(View.VISIBLE);
+                        setRemindPostMsg(context, sobot_center_Remind_note3, message, false);
                     }
                     if (remindType == ZhiChiConstant.sobot_remind_type_unable_to_customer) {
                         //暂无客服在线   和 暂时无法转接人工客服
                         if (message.isShake()) {
-                            center_Remind_Info.setAnimation(shakeAnimation(5));
+                            sobot_center_Remind_note3.setAnimation(shakeAnimation(5));
                         }
-                        setRemindPostMsg(context, center_Remind_Info, message, true);
+                        center_Remind_Info.setVisibility(View.GONE);
+                        ll_notice.setVisibility(View.VISIBLE);
+                        setRemindPostMsg(context, sobot_center_Remind_note3, message, true);
                     }
                 } else if (ZhiChiConstant.action_remind_info_paidui.equals(message.getAction())) {
                     if (remindType == ZhiChiConstant.sobot_remind_type_paidui_status) {
@@ -151,9 +177,10 @@ public class RemindMessageHolder extends MsgHolderBase {
         } else if (ZhiChiConstant.action_remind_info_zhuanrengong.equals(message.getAction())) {
             rl_not_read.setVisibility(View.GONE);
             center_Remind_Info2.setVisibility(View.GONE);
-            center_Remind_Info.setVisibility(View.VISIBLE);
+            ll_notice.setVisibility(View.VISIBLE);
+            center_Remind_Info.setVisibility(View.GONE);
             center_Remind_Info1.setVisibility(View.GONE);
-            setRemindToCustom(context, center_Remind_Info);
+            setRemindToCustom(context, sobot_center_Remind_note3);
         } else if (ZhiChiConstant.action_sensitive_auth_agree.equals(message.getAction())) {
             rl_not_read.setVisibility(View.GONE);
             center_Remind_Info2.setVisibility(View.GONE);

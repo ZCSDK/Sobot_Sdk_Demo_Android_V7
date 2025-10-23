@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">コンテンツビューが見つかりません。XMLレイアウトファイルに追加し忘れましたか？</string>
+    <string name="sobot_srl_header_pulling">プルダウンして更新</string>
+    <string name="sobot_srl_header_refreshing">更新中...</string>
+    <string name="sobot_srl_header_loading">下部の読み込み完了を待っています...</string>
+    <string name="sobot_srl_header_release">リリースして即時更新</string>
+    <string name="sobot_srl_header_finish">更新完了</string>
+    <string name="sobot_srl_header_failed">更新失敗</string>
+    <string name="sobot_srl_header_update">最終更新 %s</string>
+    <string name="sobot_srl_header_secondary">リリースして2階へ</string>
+    <string name="sobot_srl_footer_pulling">プルアップしてさらに読み込む</string>
+    <string name="sobot_srl_footer_release">リリースして即時読み込み</string>
+    <string name="sobot_srl_footer_loading">読み込み中...</string>
+    <string name="sobot_srl_footer_refreshing">ヘッダー更新完了を待っています...</string>
+    <string name="sobot_srl_footer_finish">読み込み完了</string>
+    <string name="sobot_srl_footer_failed">読み込み失敗</string>
+    <string name="sobot_srl_footer_nothing">データがありません</string>
+    <string name="sobot_no_data_string">データがありません</string>
+    <string name="sobot_no_net_string">ネットワーク接続がありません。ネットワークを確認してください...</string>
+    <string name="sobot_error_click_reload_string">読み込み失敗、クリックして再試行~~</string>
+    <string name="sobot_loading_string">読み込み中...</string>
+</resources>

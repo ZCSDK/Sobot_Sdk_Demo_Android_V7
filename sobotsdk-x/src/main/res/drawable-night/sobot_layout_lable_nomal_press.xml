@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--快捷菜单 按钮 按压背景色 夜间模式-->
+    <!--最底下的一层-->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sobot_lable_nomal_bg_color" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sobot_lable_nomal_bg_press_color" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>

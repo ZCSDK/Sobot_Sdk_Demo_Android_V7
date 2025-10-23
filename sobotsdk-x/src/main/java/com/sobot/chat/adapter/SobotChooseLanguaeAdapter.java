@@ -16,9 +16,9 @@ import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotlanguaeModel;
 import com.sobot.chat.utils.FastClickUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -63,9 +63,9 @@ public class SobotChooseLanguaeAdapter extends RecyclerView.Adapter {
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if (model != null) {
             String data = model.getName();
-            if(SobotStringUtils.isNoEmpty(data)){
+            if(StringUtils.isNoEmpty(data)){
                 SpannableString spannableString = new SpannableString(data);
-                if(SobotStringUtils.isNoEmpty(searchText)) {
+                if(StringUtils.isNoEmpty(searchText)) {
                     if (data.toLowerCase().contains(searchText.toLowerCase())|| data.contains(searchText.toLowerCase()) ) {
                         int index = data.toLowerCase().indexOf(searchText);
                         if(index<0){

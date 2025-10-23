@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="@color/sobot_color_chat_bottom_del_emoji_start_bg"
+        android:centerColor="@color/sobot_color_bg_first"
+        android:endColor="@color/sobot_color_bg_first"
+        android:angle="270"
+        android:type="linear" />
+</shape>

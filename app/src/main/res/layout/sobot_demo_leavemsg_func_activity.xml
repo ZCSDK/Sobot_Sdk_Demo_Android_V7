@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="留言自定义扩展字段-leaveCusFieldMap"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明: 直接进入留言自定义字段, 数组，可以以传递多个]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -48,8 +48,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -57,14 +57,14 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="技能组id-leaveMsgGroupId"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定留言技能组]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <View
@@ -81,7 +81,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <EditText
                 android:id="@+id/sobot_et_leaveMsgGroupId"
@@ -94,8 +94,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
 
@@ -103,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="留言模版id-leaveTemplateId"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定留言模版id,只用于直接进入留言界面功能]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -127,8 +127,8 @@
                 android:padding="6dp"
                 android:scrollbars="none"
                 android:text="7800560a37784ce1be064915c8389d28"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <TextView
@@ -136,11 +136,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:background="@color/sobot_common_gray1"
+                android:background="@color/sobot_textview_text_color"
                 android:gravity="center"
                 android:padding="8dp"
                 android:text="点击跳转到指定留言模版id的留言界面；如果不指定模版id,跳转到默认留言界面"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <View
@@ -148,7 +148,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_3_5"
@@ -165,7 +165,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="是否显示回复按钮"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp" />
 
                 <TextView
@@ -201,7 +201,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_3_7"
@@ -218,7 +218,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="留言完成主动提醒"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp" />
 
                 <TextView
@@ -255,13 +255,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/sobot_common_gray2"
+                android:background="@color/sobot_textview_text_color_second"
                 android:padding="6dp"
                 android:text="参考文档"
                 android:textSize="14sp" />

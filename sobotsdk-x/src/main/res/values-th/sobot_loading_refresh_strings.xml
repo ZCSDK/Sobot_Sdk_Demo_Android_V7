@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">ไม่พบมุมมองเนื้อหา คุณลืมเพิ่มในไฟล์เค้าโครง XML หรือไม่?</string>
+    <string name="sobot_srl_header_pulling">ดึงลงเพื่อรีเฟรช</string>
+    <string name="sobot_srl_header_refreshing">กำลังรีเฟรช...</string>
+    <string name="sobot_srl_header_loading">กำลังรอการโหลดด้านล่างให้เสร็จสิ้น...</string>
+    <string name="sobot_srl_header_release">ปล่อยเพื่อรีเฟรชทันที</string>
+    <string name="sobot_srl_header_finish">รีเฟรชเสร็จแล้ว</string>
+    <string name="sobot_srl_header_failed">รีเฟรชล้มเหลว</string>
+    <string name="sobot_srl_header_update">อัปเดตล่าสุด %s</string>
+    <string name="sobot_srl_header_secondary">ปล่อยเพื่อเข้าสู่ชั้นสอง</string>
+    <string name="sobot_srl_footer_pulling">ดึงขึ้นเพื่อโหลดเพิ่มเติม</string>
+    <string name="sobot_srl_footer_release">ปล่อยเพื่อโหลดทันที</string>
+    <string name="sobot_srl_footer_loading">กำลังโหลด...</string>
+    <string name="sobot_srl_footer_refreshing">กำลังรอการรีเฟรชส่วนหัวให้เสร็จสิ้น...</string>
+    <string name="sobot_srl_footer_finish">โหลดเสร็จแล้ว</string>
+    <string name="sobot_srl_footer_failed">โหลดล้มเหลว</string>
+    <string name="sobot_srl_footer_nothing">ไม่มีข้อมูลเพิ่มเติม</string>
+    <string name="sobot_no_data_string">ไม่มีข้อมูล</string>
+    <string name="sobot_no_net_string">ไม่มีการเชื่อมต่อเครือข่าย โปรดตรวจสอบเครือข่ายของคุณ...</string>
+    <string name="sobot_error_click_reload_string">โหลดล้มเหลว คลิกเพื่อลองใหม่~~</string>
+    <string name="sobot_loading_string">กำลังโหลด...</string>
+</resources>

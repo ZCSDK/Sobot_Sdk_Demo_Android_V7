@@ -34,7 +34,6 @@ import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.toast.CustomToast;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -42,6 +41,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 留言详情
+ */
 public class SobotTicketDetailActivity extends SobotChatBaseActivity implements View.OnClickListener {
     public static final String INTENT_KEY_UID = "intent_key_uid";
     public static final String INTENT_KEY_COMPANYID = "intent_key_companyid";
@@ -57,10 +59,11 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     private List<Object> mList = new ArrayList<>();
     private SobotTicketDetailAdapter mAdapter;
     private RecyclerView recyclerView;
-
-    private TextView sobot_evaluate_tv, v_sobot_evaluate_tv;
-    private TextView sobot_reply_tv, v_sobot_reply_tv;
-    private LinearLayout h_bottom_btns, v_bottom_btns;
+    private LinearLayout sobot_ticket_bottom_ll;//仅回复
+    private LinearLayout sobot_ticket_success_bottom_ll;//工单完成，有评价
+    private LinearLayout  v_bottom_btns,sobot_evaluate_v,sobot_reply_v;
+    private LinearLayout h_bottom_btns,sobot_evaluate_h,sobot_reply_h;
+    private TextView sobot_evaluate_tv,sobot_reply_tv;
 
     private SobotUserTicketEvaluate mEvaluate;
 
@@ -103,6 +106,11 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotTicketDetailActivity";
+    }
+
+    @Override
     protected void initView() {
         showLeftMenu(true);
         getLeftMenu().setOnClickListener(new View.OnClickListener() {
@@ -110,7 +118,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
             public void onClick(View v) {
                 List ticketIds = (List) SharedPreferencesUtil.getObject(SobotTicketDetailActivity.this, "showBackEvaluateTicketIds");
                 //已完成留言详情界面：返回时是否弹出服务评价窗口(只会第一次返回弹，下次返回不会再弹)
-                if (information != null && information.isShowLeaveDetailBackEvaluate() && sobot_evaluate_tv.getVisibility() == View.VISIBLE) {
+                if (information != null && information.isShowLeaveDetailBackEvaluate() && sobot_ticket_success_bottom_ll.getVisibility() == View.VISIBLE) {
                     if (ticketIds != null && ticketIds.contains(mTicketInfo.getTicketId())) {
                         finish();
                     } else {
@@ -133,20 +141,26 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         recyclerView.setLayoutManager(layoutManager);
-        sobot_evaluate_tv = (TextView) findViewById(R.id.sobot_evaluate_tv);
-        sobot_reply_tv = (TextView) findViewById(R.id.sobot_reply_tv);
+
+        sobot_ticket_success_bottom_ll = findViewById(R.id.sobot_ticket_success_bottom_ll);
+        sobot_ticket_bottom_ll = findViewById(R.id.sobot_ticket_bottom_ll);
+        sobot_ticket_bottom_ll.setOnClickListener(this);
 
         h_bottom_btns = findViewById(R.id.h_bottom_btns);
-        v_bottom_btns = findViewById(R.id.v_bottom_btns);
-        v_sobot_evaluate_tv = (TextView) findViewById(R.id.v_sobot_evaluate_tv);
-        v_sobot_reply_tv = (TextView) findViewById(R.id.v_sobot_reply_tv);
+        sobot_reply_h = findViewById(R.id.sobot_reply_h);
+        sobot_evaluate_h = findViewById(R.id.sobot_evaluate_h);
 
-        v_sobot_reply_tv.setOnClickListener(this);
-        v_sobot_evaluate_tv.setOnClickListener(this);
-        sobot_reply_tv.setOnClickListener(this);
-        sobot_evaluate_tv.setOnClickListener(this);
-        updateUIByThemeColor(sobot_evaluate_tv);
-        updateUIByThemeColor(v_sobot_evaluate_tv);
+        sobot_evaluate_tv = findViewById(R.id.sobot_evaluate_tv);
+        sobot_reply_tv = findViewById(R.id.sobot_reply_tv);
+        sobot_reply_h.setOnClickListener(this);
+        sobot_evaluate_h.setOnClickListener(this);
+
+        v_bottom_btns = findViewById(R.id.v_bottom_btns);
+        sobot_evaluate_v = findViewById(R.id.sobot_evaluate_v);
+        sobot_reply_v = findViewById(R.id.sobot_reply_v);
+        sobot_reply_v.setOnClickListener(this);
+        sobot_evaluate_v.setOnClickListener(this);
+
         mAdapter = new SobotTicketDetailAdapter(SobotTicketDetailActivity.this, mList);
         recyclerView.setAdapter(mAdapter);
 
@@ -156,12 +170,15 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     protected void initData() {
         information = (Information) SharedPreferencesUtil.getObject(SobotTicketDetailActivity.this, "sobot_last_current_info");
 
-        sobot_evaluate_tv.setVisibility(View.GONE);
-        sobot_reply_tv.setVisibility(View.GONE);
+        h_bottom_btns.setVisibility(View.GONE);
+        v_bottom_btns.setVisibility(View.GONE);
+
+        sobot_ticket_bottom_ll.setVisibility(View.GONE);
+        sobot_ticket_success_bottom_ll.setVisibility(View.GONE);
         if (mTicketInfo == null) {
             return;
         }
-        if (statusList == null||statusList.size()==0) {
+        if (statusList == null || statusList.size() == 0) {
             String companyId = SharedPreferencesUtil.getStringData(this,
                     ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
             String languageCode = SharedPreferencesUtil.getStringData(this, ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
@@ -169,9 +186,9 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                 @Override
                 public void onSuccess(List<SobotTicketStatus> sobotTicketStatuses) {
                     ChatUtils.setStatusList(sobotTicketStatuses);
-                    if(statusList == null){
-                        statusList=new ArrayList<>();
-                    }else{
+                    if (statusList == null) {
+                        statusList = new ArrayList<>();
+                    } else {
                         statusList.clear();
                     }
                     statusList.addAll(sobotTicketStatuses);
@@ -207,15 +224,17 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                     mTicketInfo.setTicketStatus(datas.getTicketStatus());
                     mTicketInfo.setFileList(datas.getTicketFileList());
                     mList.add(mTicketInfo);
+
                     if (datas.getReplyList() != null && datas.getReplyList().size() > 0) {
                         mList.addAll(datas.getReplyList());
                     } else {
                         mList.add(true);
                     }
+
+                    int type = 0;
                     if (datas.getIsOpen() == 1) {
                         if (datas.getIsEvalution() == 1) {
                             //已评价
-                            sobot_evaluate_tv.setVisibility(View.GONE);
                             mEvaluate.setRemark(datas.getRemark());
                             mEvaluate.setScore(datas.getScore());
                             mEvaluate.setTag(datas.getTag());
@@ -224,55 +243,13 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                             mEvaluate.setOpen(datas.getIsOpen() == 1);
                             mList.add(mEvaluate);
                         } else {
-                            sobot_evaluate_tv.setVisibility(View.VISIBLE);
+                            type = 1;
                         }
-                    } else {
-                        sobot_evaluate_tv.setVisibility(View.GONE);
                     }
-
-
                     if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LEAVE_COMPLETE_CAN_REPLY) && mTicketInfo.getFlag() == 3) {
-                        sobot_reply_tv.setVisibility(View.GONE);
-                    } else {
-                        sobot_reply_tv.setVisibility(View.VISIBLE);
-                        if (sobot_evaluate_tv.getVisibility() == View.VISIBLE) {
-                            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_ticket_info);
-                            sobot_reply_tv.setBackground(bg);
-                            sobot_reply_tv.setTextColor(getResources().getColor(R.color.sobot_color_text_first));
-                            sobot_evaluate_tv.post(new Runnable() {
-                                // 在视图布局完成后执行的代码
-                                @Override
-                                public void run() {
-                                    Layout layout = sobot_evaluate_tv.getLayout();
-                                    if (layout != null) {
-                                        int lineCount = layout.getLineCount();
-                                        LogUtils.d("=======1====lineCount==" + lineCount);
-                                        if (lineCount > 1) {
-                                            v_bottom_btns.setVisibility(View.VISIBLE);
-                                            h_bottom_btns.setVisibility(View.GONE);
-                                        }
-                                    }
-                                }
-                            });
-                            sobot_reply_tv.post(new Runnable() {
-                                // 在视图布局完成后执行的代码
-                                @Override
-                                public void run() {
-                                    Layout layout = sobot_reply_tv.getLayout();
-                                    if (layout != null) {
-                                        int lineCount = layout.getLineCount();
-                                        LogUtils.d("=======2====lineCount==" + lineCount);
-                                        if (lineCount > 1) {
-                                            v_bottom_btns.setVisibility(View.VISIBLE);
-                                            h_bottom_btns.setVisibility(View.GONE);
-                                        }
-                                    }
-                                }
-                            });
-                        } else {
-                            updateUIByThemeColor(sobot_reply_tv);
-                        }
+                        type = 1;
                     }
+                    showBottom(type);
                 } else {
                     mList.add(true);
                 }
@@ -286,12 +263,50 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
         });
     }
 
+    /**
+     * 底部显示的类型
+     * @param type 0 只有回复，1 完成有评价回复,2 隐藏
+     */
+    private void showBottom(int type) {
+        if (type == 0) {
+            sobot_ticket_success_bottom_ll.setVisibility(View.GONE);
+            sobot_ticket_bottom_ll.setVisibility(View.VISIBLE);
+        } else if (type == 1) {
+            sobot_ticket_success_bottom_ll.setVisibility(View.VISIBLE);
+            sobot_ticket_bottom_ll.setVisibility(View.GONE);
+            v_bottom_btns.setVisibility(View.GONE);
+            h_bottom_btns.setVisibility(View.VISIBLE);
+            sobot_evaluate_tv.post(new Runnable() {
+                    // 在视图布局完成后执行的代码
+                    @Override
+                    public void run() {
+                        Layout layout = sobot_evaluate_tv.getLayout();
+                        if (layout != null) {
+                            int lineCount = layout.getLineCount();
+                            LogUtils.d("=======1====lineCount==" + lineCount);
+                            if (lineCount > 1) {
+                                v_bottom_btns.setVisibility(View.VISIBLE);
+                                h_bottom_btns.setVisibility(View.GONE);
+                            }else{
+                                v_bottom_btns.setVisibility(View.GONE);
+                                h_bottom_btns.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                });
+
+        } else {
+            sobot_ticket_success_bottom_ll.setVisibility(View.GONE);
+            sobot_ticket_bottom_ll.setVisibility(View.GONE);
+        }
+    }
+
     public void submitEvaluate(final int score, final String remark, final String labelTag, final int defaultQuestionFlag) {
         zhiChiApi.addTicketSatisfactionScoreInfo(SobotTicketDetailActivity.this, mUid, mCompanyId, mTicketInfo.getTicketId(), score, remark, labelTag, defaultQuestionFlag, new StringResultCallBack<String>() {
             @Override
             public void onSuccess(String result) {
                 ToastUtil.showCustomToast(SobotTicketDetailActivity.this, getResources().getString(R.string.sobot_leavemsg_success_tip), R.drawable.sobot_icon_success);
-                sobot_evaluate_tv.setVisibility(View.GONE);
+                showBottom(0);//只显示回复
                 SobotUserTicketEvaluate evaluate = null;
                 if (mEvaluate != null) {
                     evaluate = mEvaluate;
@@ -329,7 +344,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
 
     @Override
     public void onClick(View v) {
-        if (v == sobot_reply_tv || v == v_sobot_reply_tv) {
+        if (v == sobot_reply_h || v == sobot_reply_v ||v==sobot_ticket_bottom_ll) {
             //回复
             Intent intent = new Intent(SobotTicketDetailActivity.this, SobotReplyActivity.class);
             intent.putExtra("uid", mUid);
@@ -338,7 +353,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
             intent.putExtra("picTempList", (Serializable) picTempList);
             intent.putExtra("replyTempContent", replyTempContent);
             startActivityForResult(intent, REQUEST_REPLY_CODE);
-        } else if (v == sobot_evaluate_tv || v == v_sobot_evaluate_tv) {
+        } else if (v == sobot_evaluate_h || v == sobot_evaluate_v) {
             if (mEvaluate != null) {
                 Intent intent = new Intent(SobotTicketDetailActivity.this, SobotTicketEvaluateActivity.class);
                 intent.putExtra("sobotUserTicketEvaluate", mEvaluate);
@@ -353,7 +368,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
         //已完成留言详情界面：返回时是否弹出服务评价窗口(只会第一次返回弹，下次返回不会再弹)
         List ticketIds = (List) SharedPreferencesUtil.getObject(SobotTicketDetailActivity.this, "showBackEvaluateTicketIds");
         //已完成留言详情界面：返回时是否弹出服务评价窗口(只会第一次返回弹，下次返回不会再弹)
-        if (information != null && information.isShowLeaveDetailBackEvaluate() && sobot_evaluate_tv.getVisibility() == View.VISIBLE) {
+        if (information != null && information.isShowLeaveDetailBackEvaluate() && sobot_ticket_success_bottom_ll.getVisibility() == View.VISIBLE) {
             if (ticketIds != null && ticketIds.contains(mTicketInfo.getTicketId())) {
             } else {
                 if (ticketIds == null) {
@@ -398,7 +413,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                 zhiChiApi.addTicketSatisfactionScoreInfo(SobotTicketDetailActivity.this, mUid, mCompanyId, mTicketInfo.getTicketId(), score, remark, labelTag, defaultQuestionFlag, new StringResultCallBack<String>() {
                     @Override
                     public void onSuccess(String result) {
-                        sobot_evaluate_tv.setVisibility(View.GONE);
+                        showBottom(0);//只显示回复按钮
                         if (mEvaluate != null) {
                             SobotUserTicketEvaluate evaluate = mEvaluate;
                             evaluate.setScore(score);

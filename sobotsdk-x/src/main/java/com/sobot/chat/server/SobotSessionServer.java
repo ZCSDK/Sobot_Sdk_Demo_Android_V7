@@ -14,10 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.sobot.chat.R;
-import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.apiUtils.ZhiChiConstants;
 import com.sobot.chat.api.enumtype.CustomerState;
 import com.sobot.chat.api.enumtype.SobotChatStatusMode;
+import com.sobot.chat.api.model.ChatMessageRichListModel;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
@@ -41,7 +41,6 @@ import com.sobot.chat.utils.ZhiChiConstant;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -172,16 +171,15 @@ public class SobotSessionServer extends Service {
         }
         // 接受下推的消息
         ZhiChiMessageBase base = new ZhiChiMessageBase();
-        base.setT(Calendar.getInstance().getTime().getTime() + "");
+        base.setT(System.currentTimeMillis() + "");
         base.setSenderName(pushMessage.getAname());
         config = SobotMsgManager.getInstance(getApplication()).getConfig(pushMessage.getAppId());
         if (ZhiChiConstant.push_message_createChat == pushMessage.getType()) {
             if (config.getInitModel() != null) {
-                config.adminFace = pushMessage.getAface();
+                config.toolbarFace = pushMessage.getAface();
                 int type = Integer.parseInt(config.getInitModel().getType());
                 ZhiChiInitModeBase initModel = config.getInitModel();
                 if (initModel != null) {
-                    initModel.setAdminHelloWord(!TextUtils.isEmpty(pushMessage.getAdminHelloWord()) ? pushMessage.getAdminHelloWord() : initModel.getAdminHelloWord());
                     initModel.setServiceEndPushMsg(!TextUtils.isEmpty(pushMessage.getServiceEndPushMsg()) ? pushMessage.getServiceEndPushMsg() : initModel.getServiceEndPushMsg());
                     initModel.setAdminTipTime(!TextUtils.isEmpty(pushMessage.getServiceOutTime()) ? pushMessage.getServiceOutTime() : initModel.getAdminTipTime());
                     initModel.setAdminTipWord(!TextUtils.isEmpty(pushMessage.getServiceOutDoc()) ? pushMessage.getServiceOutDoc() : initModel.getAdminTipWord());
@@ -249,13 +247,13 @@ public class SobotSessionServer extends Service {
         } else if (ZhiChiConstant.push_message_receverSystemMessage == pushMessage
                 .getType()) {// 接收到系统消息
             if (config.getInitModel() != null) {
-                base.setT(Calendar.getInstance().getTime().getTime() + "");
+                base.setT(System.currentTimeMillis() + "");
                 base.setMsgId(pushMessage.getMsgId());
                 String aface = "";
                 String aname = "";
                 try {
-                     aface = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aFace, "");
-                     aname = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aName, "");
+                    aface = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aFace, "");
+                    aname = SharedPreferencesUtil.getStringData(getApplicationContext(), ZhiChiConstant.sobot_last_current_aName, "");
                 } catch (Exception e) {
                 }
                 //两种超时 如果消息中没有头像和昵称 赋值转人工的客服的头像和昵称
@@ -323,8 +321,8 @@ public class SobotSessionServer extends Service {
             if (config.getInitModel() != null) {
                 LogUtils.i("用户被转接--->" + pushMessage.getName());
                 //替换标题
-                config.activityTitle = pushMessage.getName(); // 设置后台推送消息的对象
-                config.adminFace = pushMessage.getFace();
+                config.toolbarTitle = pushMessage.getName(); // 设置后台推送消息的对象
+                config.toolbarFace = pushMessage.getFace();
                 config.currentUserName = pushMessage.getName();
                 if (isNeedShowMessage(pushMessage.getAppId())) {
                     showNotification(ResourceUtils.getResString(context, "sobot_service_accept_start") + " " + pushMessage.getName() + " " + ResourceUtils.getResString(context, "sobot_service_accept_end"), pushMessage, false);
@@ -419,10 +417,10 @@ public class SobotSessionServer extends Service {
 
             if (type == ZhiChiConstant.type_custom_only) {
                 //显示标题
-                config.activityTitle = getResources().getString(R.string.sobot_in_line);
+                config.toolbarTitle = getResources().getString(R.string.sobot_in_line);
                 config.bottomViewtype = ZhiChiConstant.bottomViewtype_onlycustomer_paidui;
             } else {
-                config.activityTitle = initModel != null ? initModel.getRobotName() : "";
+                config.toolbarTitle = initModel != null ? initModel.getRobotName() : "";
                 config.bottomViewtype = ZhiChiConstant.bottomViewtype_paidui;
             }
         }
@@ -461,17 +459,24 @@ public class SobotSessionServer extends Service {
         }
         sendBroadcast(pushMessage, ResourceUtils.getResString(context, "sobot_service_accept_start") + " " + name + " " + ResourceUtils.getResString(context, "sobot_service_accept_end"), false);
 
-        //显示人工欢迎语
+        //显示人工欢迎语 富文本
         if (initModel.isAdminHelloWordFlag()) {
-            String adminHolloWord = ZCSobotApi.getCurrentInfoSetting(getApplicationContext()) != null ? ZCSobotApi.getCurrentInfoSetting(getApplicationContext()).getAdmin_hello_word() : "";
-            if (!TextUtils.isEmpty(adminHolloWord)) {
-                config.addMessage(ChatUtils.getServiceHelloTip(name, face, adminHolloWord));
+            if (initModel.getAdminHelloWordCountRule() == 2) {
+                //仅首次线上，isNew=1时有效
+                if (initModel.getIsNew() == 1) {
+                    //显示人工欢迎语 富文本
+                    showAdminHello(pushMessage.getAdminHelloWordRichMessage(), pushMessage.getAdminHelloWord(), name, face);
+                }
             } else {
-                config.addMessage(ChatUtils.getServiceHelloTip(name, face, initModel.getAdminHelloWord()));
+                if (!(initModel.getAdminHelloWordCountRule() == 1 && initModel.getUstatus() == ZhiChiConstant.ustatus_online)) {
+                    //客户之前在线 并且 客服欢迎语规则只显示一次的开关打开 就不显示此次欢迎语
+                    //显示人工欢迎语
+                    showAdminHello(pushMessage.getAdminHelloWordRichMessage(), pushMessage.getAdminHelloWord(), name, face);
+                }
             }
         }
         //显示标题
-        config.activityTitle = name;
+        config.toolbarTitle = name;
         //设置底部键盘
         config.bottomViewtype = ZhiChiConstant.bottomViewtype_customer;
 
@@ -482,6 +487,23 @@ public class SobotSessionServer extends Service {
 
         // 把机器人回答中的转人工按钮都隐藏掉
         config.hideItemTransferBtn();
+    }
+
+    //显示人工欢迎语
+    private void showAdminHello(List<ChatMessageRichListModel> richListModels, String adminHelloWordStr, String name, String face) {
+        if (richListModels != null && !richListModels.isEmpty()) {
+            ZhiChiMessageBase adminHelloWordMsg = ChatUtils.getRichListMsg("", richListModels, name, face);
+            if (adminHelloWordMsg != null) {
+                config.addMessage(adminHelloWordMsg);
+            }
+        } else {
+            if (StringUtils.isNoEmpty(adminHelloWordStr)) {
+                ZhiChiMessageBase adminHelloWordMsg = ChatUtils.getServiceHelloTip(name, face, adminHelloWordStr);
+                if (adminHelloWordMsg != null) {
+                    config.addMessage(adminHelloWordMsg);
+                }
+            }
+        }
     }
 
     @Override
@@ -502,7 +524,7 @@ public class SobotSessionServer extends Service {
     public void sendBroadcast(ZhiChiPushMessage pushMessage, String content, boolean isAddUnreadNum) {
         int localUnreadNum;
         if (isAddUnreadNum) {
-            localUnreadNum = SobotMsgManager.getInstance(getApplicationContext()).addUnreadCount(pushMessage, Calendar.getInstance().getTime().getTime() + "", currentUid);
+            localUnreadNum = SobotMsgManager.getInstance(getApplicationContext()).addUnreadCount(pushMessage, System.currentTimeMillis() + "", currentUid);
         } else {
             localUnreadNum = SobotMsgManager.getInstance(getApplicationContext()).getUnreadCount(pushMessage.getAppId(), false, currentUid);
         }

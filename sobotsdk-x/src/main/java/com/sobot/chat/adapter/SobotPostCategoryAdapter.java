@@ -22,9 +22,9 @@ import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.api.model.SobotTypeModel;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,9 +67,9 @@ public class SobotPostCategoryAdapter extends SobotBaseAdapter<SobotTypeModel> {
             myViewHolder = (ViewHolder) convertView.getTag();
         }
         String data = list.get(position).getTypeName();
-        if (SobotStringUtils.isNoEmpty(data)) {
+        if (StringUtils.isNoEmpty(data)) {
             SpannableString spannableString = new SpannableString(data);
-            if (SobotStringUtils.isNoEmpty(searchText)) {
+            if (StringUtils.isNoEmpty(searchText)) {
                 if (data.toLowerCase().contains(searchText.toLowerCase())) {
                     int index = data.indexOf(searchText.toLowerCase());
                     if (index >= 0) {
@@ -92,7 +92,7 @@ public class SobotPostCategoryAdapter extends SobotBaseAdapter<SobotTypeModel> {
             myViewHolder.categoryIshave.setVisibility(View.VISIBLE);
             if (ThemeUtils.isChangedThemeColor(context)) {
                 int themeColor = ThemeUtils.getThemeColor(context);
-                Drawable bg = context.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                 if (bg != null) {
                     myViewHolder.categoryIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                 }

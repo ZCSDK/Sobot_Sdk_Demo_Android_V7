@@ -3,7 +3,7 @@
     android:id="@+id/sobot_rl_file_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/sobot_bg_normal"
+    android:background="@drawable/sobot_link_card_bg_normal"
     android:paddingStart="12dp"
     android:paddingTop="14dp"
     android:paddingEnd="12dp"

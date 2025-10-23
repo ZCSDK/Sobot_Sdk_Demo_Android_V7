@@ -2,42 +2,66 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/sobot_btn_chat_room_long_left"
-    android:gravity="center"
-    android:orientation="horizontal">
+    android:background="@drawable/sobot_pop_copy_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingTop="9dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="15dp">
 
-    <TextView
-        android:id="@+id/sobot_tv_copy_txt"
+    <LinearLayout
+        android:id="@+id/ll_click_appoint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="20dp"
-        android:text="@string/sobot_ctrl_copy"
-        android:textColor="@color/sobot_color_white"
-        android:textSize="@dimen/sobot_text_font_12" />
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/sobon_icon_appoint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:text="@string/sobot_str_appoint"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
 
     <View
         android:id="@+id/view_split"
         android:layout_width="@dimen/sobot_line_height_dp"
-        android:layout_height="10dp"
+        android:layout_height="12dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="4dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:background="@color/sobot_color_line_divider" />
 
-    <TextView
-        android:id="@+id/sobot_tv_appoint_txt"
+    <LinearLayout
+        android:id="@+id/ll_click_copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="20dp"
-        android:text="@string/sobot_str_appoint"
-        android:textColor="@color/sobot_color_white"
-        android:textSize="@dimen/sobot_text_font_12" />
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/sobon_icon_copy" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="center"
+            android:text="@string/sobot_ctrl_copy"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
 
 </LinearLayout>

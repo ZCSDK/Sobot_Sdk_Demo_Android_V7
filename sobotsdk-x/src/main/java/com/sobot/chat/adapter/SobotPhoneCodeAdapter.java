@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotPhoneCode;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
         if (viewType == STYLE_TITLE_TEXT) {
             itemView = LayoutInflater.from(mContext).inflate(R.layout.sobot_item_phone_code_t, parent, false);
         } else {
-            itemView = LayoutInflater.from(mContext).inflate(R.layout.sobot_activity_cusfield_listview_items, parent, false);
+            itemView = LayoutInflater.from(mContext).inflate(R.layout.sobot_item_cusfield_listview, parent, false);
         }
         return new MyViewHolder(itemView);
     }
@@ -68,11 +68,11 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
         final SobotPhoneCode checkin = list.get(i);
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if (checkin != null) {
-            if (SobotStringUtils.isNoEmpty(checkin.getPhone_code())) {
+            if (StringUtils.isNoEmpty(checkin.getPhone_code())) {
                 String data = checkin.getPhone_code();
-                if (SobotStringUtils.isNoEmpty(data)) {
+                if (StringUtils.isNoEmpty(data)) {
                     SpannableString spannableString = new SpannableString(data);
-                    if (SobotStringUtils.isNoEmpty(searchText)) {
+                    if (StringUtils.isNoEmpty(searchText)) {
                         if (data.toLowerCase().contains(searchText.toLowerCase())) {
                             int index = data.toLowerCase().indexOf(searchText.toLowerCase());
                             if (index >= 0) {
@@ -88,7 +88,7 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
                     vh.iv_img.setVisibility(View.VISIBLE);
                     if (ThemeUtils.isChangedThemeColor(mContext)) {
                         int themeColor = ThemeUtils.getThemeColor(mContext);
-                        Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                        Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                         if (bg != null) {
                             vh.iv_img.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                         }
@@ -115,7 +115,7 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (SobotStringUtils.isEmpty(list.get(position).getPhone_code())) {
+        if (StringUtils.isEmpty(list.get(position).getPhone_code())) {
             return STYLE_TITLE_TEXT;
         } else {
             return 0;

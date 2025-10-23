@@ -147,6 +147,9 @@ public class ScreenUtils {
      * @return 返回屏幕高度
      */
     public static int getScreenHeight(Activity activity) {
+        if (activity == null) {
+            return 1920;
+        }
         try {
             DisplayMetrics dm = new DisplayMetrics();
             activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -155,6 +158,25 @@ public class ScreenUtils {
             return 1920;
         }
     }
+
+    /**
+     * 通过Context获取屏幕宽度
+     *
+     * @param context 上下文对象
+     * @return 屏幕宽度（像素）
+     */
+    public static int getScreenWidth(Context context) {
+        if (context == null) {
+            return 1080;
+        }
+        try {
+            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+            return displayMetrics.widthPixels;
+        } catch (Exception e) {
+            return 1080;
+        }
+    }
+
 
     /**
      * 将px值转换为sp值，保证文字大小不变
@@ -242,12 +264,13 @@ public class ScreenUtils {
 
     /**
      * 虚拟导航栏高度
+     *
      * @param context
      * @return
      */
     public static int getNavigationBarHeight(Context context) {
         Resources resources = context.getResources();
-        int resourceId = resources.getIdentifier( "navigation_bar_height_landscape", "dimen", "android");
+        int resourceId = resources.getIdentifier("navigation_bar_height_landscape", "dimen", "android");
         if (resourceId > 0) {
             int hight = resources.getDimensionPixelSize(resourceId);
             return hight;

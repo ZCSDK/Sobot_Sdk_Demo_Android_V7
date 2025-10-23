@@ -62,16 +62,15 @@ public class SobotTenRatingLayout extends LinearLayout {
         if(null == line1){
             line1 = new LinearLayout(getContext());
             line1.setOrientation(LinearLayout.HORIZONTAL);
-            FrameLayout.LayoutParams layoutParams=new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-            line1.setLayoutParams(layoutParams);
+            line1.setGravity(Gravity.CENTER_HORIZONTAL);
             addView(line1);
             FrameLayout.LayoutParams layoutParams2=new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
             layoutParams2.gravity = Gravity.CENTER_HORIZONTAL;
             line2 = new LinearLayout(getContext());
             line2.setOrientation(LinearLayout.HORIZONTAL);
-            layoutParams2.topMargin = ScreenUtils.dip2px(getContext(),10);
+            layoutParams2.topMargin = ScreenUtils.dip2px(getContext(),16);
             line2.setLayoutParams(layoutParams2);
+            line2.setGravity(Gravity.CENTER_HORIZONTAL);
             addView(line2);
         }
 
@@ -81,13 +80,13 @@ public class SobotTenRatingLayout extends LinearLayout {
             TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
             textView.setText(i + "");
             if (i != 5) {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.setMarginEnd(ScreenUtils.dip2px(getContext(), spaceWidth));
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                        ScreenUtils.dip2px(getContext(), 30));
+                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
             } else {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.setMarginEnd(0);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                        ScreenUtils.dip2px(getContext(), 30));
+                lp.rightMargin = 0;
             }
             textView.setLayoutParams(lp);
             if (i == defScore) {
@@ -116,13 +115,13 @@ public class SobotTenRatingLayout extends LinearLayout {
             TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
             textView.setText(i + "");
             if (i != 10) {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.setMarginEnd (ScreenUtils.dip2px(getContext(), spaceWidth));
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                        ScreenUtils.dip2px(getContext(), 30));
+                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
             } else {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 32),
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                lp.setMarginEnd (0);
+                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                        ScreenUtils.dip2px(getContext(), 30));
+                lp.rightMargin = 0;
             }
             textView.setLayoutParams(lp);
             if (i == defScore) {

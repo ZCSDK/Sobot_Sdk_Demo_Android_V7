@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--下拉刷新  背景颜色-->
+    <color name="sobot_refresh_bg_color">#FFFFFF</color>
+
+    <!--下拉刷新  标题文字颜色-->
+    <color name="sobot_refresh_text_color">#ACB5C4</color>
+    <!--下拉刷新  更新时间文字颜色-->
+    <color name="sobot_refresh_text2_color">#ACB5C4</color>
+
+    <!--下拉刷新  箭头控件颜色 -->
+    <color name="sobot_refresh_arrow_color">#ACB5C4</color>
+    <!--下拉刷新  加载中 旋转控件颜色-->
+    <color name="sobot_refresh_progress_color">#ACB5C4</color>
+
+    <!--下拉刷新  头部 箭头控件颜色 -->
+    <color name="sobot_refresh_header_arrow_color">@color/sobot_refresh_arrow_color</color>
+    <!--下拉刷新  头部 加载中 旋转控件颜色-->
+    <color name="sobot_refresh_header_progress_color">@color/sobot_refresh_progress_color</color>
+
+    <!--下拉刷新 尾部 箭头控件颜色 -->
+    <color name="sobot_refresh_footer_arrow_color">@color/sobot_refresh_arrow_color</color>
+    <!--下拉刷新 尾部 加载中 旋转控件颜色-->
+    <color name="sobot_refresh_footer_progress_color">@color/sobot_refresh_progress_color</color>
+
+    <!--加载布局控件文字颜色-->
+    <color name="sobot_loading_layout_text_color">#8B98AD</color>
+</resources>

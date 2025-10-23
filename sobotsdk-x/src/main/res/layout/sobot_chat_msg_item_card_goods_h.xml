@@ -3,36 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/sobot_real_ll_content"
-        android:layout_width="match_parent"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/sobot_bg_line_4"
+        android:background="@drawable/sobot_bg_line_12"
         android:orientation="vertical">
 
         <com.sobot.chat.widget.image.SobotRCImageView
             android:id="@+id/sobot_goods_pic"
             android:layout_width="match_parent"
-            android:layout_height="188dp"
+            android:layout_height="176dp"
             android:scaleType="centerCrop"
             android:src="@drawable/sobot_icon_consulting_default_pic"
             android:visibility="visible"
             app:sobot_round_corner_bottom_left="0dp"
             app:sobot_round_corner_bottom_right="0dp"
-            app:sobot_round_corner_top_left="4dp"
-            app:sobot_round_corner_top_right="4dp" />
+            app:sobot_round_corner_top_left="12dp"
+            app:sobot_round_corner_top_right="12dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="12dp">
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/sobot_goods_title"
@@ -40,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:paddingTop="12dp"
                 android:textColor="@color/sobot_goods_title_text_color"
                 android:textSize="@dimen/sobot_text_font_14"
                 android:textStyle="bold" />
@@ -51,9 +46,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:ellipsize="end"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:maxLines="2"
                 android:textColor="@color/sobot_card_goods_desc"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:textSize="@dimen/sobot_text_font_12" />
 
             <TextView
@@ -63,7 +58,7 @@
                 android:layout_gravity="start"
                 android:layout_marginTop="12dp"
                 android:textColor="@color/sobot_card_goods_price"
-                android:textSize="@dimen/sobot_text_font_18" />
+                android:textSize="@dimen/sobot_text_font_14" />
 
             <TextView
                 android:id="@+id/sobot_goods_num"
@@ -78,49 +73,60 @@
             <TextView
                 android:id="@+id/sobot_goods_btn"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/sobot_evaluate_commit_selector"
+                android:background="@drawable/sobot_btn_bg_28"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lines="1"
                 android:paddingStart="12dp"
+                android:paddingTop="8dp"
                 android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
                 android:textColor="@color/sobot_color_white"
                 android:textSize="@dimen/sobot_text_font_14"
-                android:visibility="gone" />
+                android:text="是的是的发送"
+                android:visibility="visible" />
 
             <TextView
                 android:id="@+id/sobot_goods_btn2"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/sobot_btn_bg_white_4"
+                android:background="@drawable/sobot_btn_bg_line_28"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lines="1"
                 android:paddingStart="12dp"
+                android:paddingTop="8dp"
                 android:paddingEnd="12dp"
-                android:textColor="@drawable/sobot_text_color_selector_custom_card"
+                android:paddingBottom="8dp"
+                android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_14"
                 android:visibility="gone" />
 
             <TextView
                 android:id="@+id/sobot_goods_btn3"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/sobot_btn_bg_white_4"
+                android:background="@drawable/sobot_btn_bg_line_28"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lines="1"
                 android:paddingStart="12dp"
+                android:paddingTop="8dp"
                 android:paddingEnd="12dp"
-                android:textColor="@drawable/sobot_text_color_selector_custom_card"
+                android:paddingBottom="8dp"
+                android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_14"
                 android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/v_line_bottom"
+        android:layout_width="16dp"
+        android:layout_height="1dp" />
 </LinearLayout>

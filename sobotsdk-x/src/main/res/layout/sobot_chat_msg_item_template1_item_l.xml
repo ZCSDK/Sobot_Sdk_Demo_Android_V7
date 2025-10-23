@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sobot_template1_item_"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/sobot_oval_white_bg"
-        android:padding="@dimen/sobot_msg_frame_msgtype_spacing">
+        android:background="@drawable/sobot_help_center_item_bg"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/sobot_template1_item_title"
@@ -17,25 +24,27 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:maxLines="1"
             android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14" />
+            android:textSize="@dimen/sobot_text_font_12" />
 
 
         <com.sobot.chat.widget.image.SobotProgressImageView
             android:id="@+id/sobot_template1_item_thumbnail"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_below="@id/sobot_template1_item_title"
-            android:layout_marginTop="11dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:visibility="visible"
-            app:image_height="60dp"
-            app:image_width="60dp"
-            app:sobot_round_corner_bottom_left="4dp"
-            app:sobot_round_corner_bottom_right="4dp"
-            app:sobot_round_corner_top_left="4dp"
-            app:sobot_round_corner_top_right="4dp" />
+            app:image_height="64dp"
+            app:image_width="64dp"
+            app:sobot_round_corner_bottom_left="8dp"
+            app:sobot_round_corner_bottom_right="8dp"
+            app:sobot_round_corner_top_left="8dp"
+            app:sobot_round_corner_top_right="8dp" />
 
 
         <TextView
@@ -45,8 +54,10 @@
             android:layout_below="@id/sobot_template1_item_title"
             android:layout_alignTop="@id/sobot_template1_item_thumbnail"
             android:layout_toEndOf="@id/sobot_template1_item_thumbnail"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:maxLines="2"
+            android:minLines="2"
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_12" />
 
@@ -55,10 +66,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_template1_item_summary"
-            android:layout_alignBottom="@id/sobot_template1_item_thumbnail"
             android:layout_marginTop="4dp"
             android:layout_toEndOf="@id/sobot_template1_item_thumbnail"
-            android:gravity="bottom"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
@@ -67,10 +77,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="4"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
                 android:ellipsize="end"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:lines="1"
-                android:textColor="@color/sobot_color"
+                android:textColor="@color/sobot_common_hese"
                 android:textSize="@dimen/sobot_text_font_14" />
 
             <TextView
@@ -79,8 +90,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
                 android:ellipsize="end"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
                 android:gravity="end|center_vertical"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:lines="1"
                 android:textColor="@color/sobot_color_text_third"
                 android:textSize="@dimen/sobot_text_font_12"

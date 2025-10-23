@@ -7,88 +7,41 @@
     android:layout_below="@id/sobot_msg_ll"
     android:layout_marginTop="8dp"
     android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
-    android:layout_toEndOf="@+id/sobot_msg_face_iv"
+    android:layout_alignStart="@+id/sobot_msg_face_iv"
     android:orientation="horizontal"
     android:visibility="gone"
     app:sobot_fillMode="1"
     app:sobot_horizontalGap="8dp"
     app:sobot_verticalGap="8dp">
 
-    <LinearLayout
-        android:id="@+id/sobot_ll_bottom_likeBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/sobot_chat_dingcai_bottom_def"
+    <ImageView
+        android:id="@+id/sobot_iv_bottom_likeBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="7dp"
-        android:visibility="gone">
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaluate_btn_zan_selector"
+        android:visibility="gone" />
 
-        <ImageView
-            android:id="@+id/sobot_iv_bottom_likeBtn"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/sobot_evaluate_btn_zan_selector" />
-
-        <TextView
-            android:id="@+id/sobot_tv_bottom_likeBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:gravity="center_vertical"
-            android:includeFontPadding="false"
-            android:text="@string/sobot_ding"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_12" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/sobot_ll_bottom_dislikeBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/sobot_chat_dingcai_bottom_def"
+    <ImageView
+        android:id="@+id/sobot_iv_bottom_dislikeBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
         android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="7dp"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/sobot_iv_bottom_dislikeBtn"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
-
-        <TextView
-            android:id="@+id/sobot_tv_bottom_dislikeBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:includeFontPadding="false"
-            android:text="@string/sobot_cai"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_12" />
-    </LinearLayout>
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
 
     <LinearLayout
         android:id="@+id/sobot_ll_transferBtn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:background="@drawable/sobot_chat_msg_transfer_hollow_bg"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingStart="12dp"
-        android:paddingTop="7dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="7dp"
+        android:paddingEnd="16dp"
         android:visibility="gone">
 
         <ImageView

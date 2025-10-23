@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sobot.chat.widget.SobotMaxSizeLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_msg_content_ll"
+    style="@style/sobot_msg_appoint_hollow_bg_style"
+    android:minWidth="240dp"
+    android:orientation="vertical"
+    app:sobot_max_width="@dimen/sobot_msg_max_width">
+
+    <RelativeLayout
+        android:id="@+id/rl_name_des"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iv_see_all"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/sobot_icon_right_arrow" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/iv_see_all"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title"
+            android:layout_marginTop="8dp"
+            android:layout_toStartOf="@id/iv_see_all"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:maxLines="2"
+            android:textColor="@color/sobot_color_text_second"
+            android:textSize="@dimen/sobot_text_font_14" />
+    </RelativeLayout>
+
+</com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+
+

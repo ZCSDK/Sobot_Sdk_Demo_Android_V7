@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -26,17 +28,15 @@
         <!-- 昵称 -->
         <TextView
             android:id="@+id/sobot_msg_nike_name_tv"
-            style="@style/sobot_chatting_right_nickname"
+            style="@style/sobot_chatting_nickname"
             android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:visibility="gone" />
-
 
         <LinearLayout
             android:id="@+id/sobot_msg_ll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -50,12 +50,12 @@
 
                 <ProgressBar
                     android:id="@+id/progressbar_loading"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="34dp"
+                    android:layout_height="14dp"
                     android:layout_centerInParent="true"
                     android:indeterminateBehavior="repeat"
-                    android:visibility="gone"
-                    android:indeterminateDrawable="@drawable/sobot_progressbar_loading" />
+                    android:indeterminateDrawable="@drawable/sobot_aiagent_msg_loading"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/sobot_msgStripe"
@@ -134,18 +134,17 @@
                         android:id="@+id/sobot_tv_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/sobot_icon_switch"
                         android:drawablePadding="4dp"
                         android:gravity="center"
                         android:includeFontPadding="false"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                         android:textColor="@color/sobot_color_link"
-                        android:textSize="@dimen/sobot_text_font_12" />
+                        android:textSize="@dimen/sobot_text_font_12"
+                        app:drawableStartCompat="@drawable/sobot_icon_switch" />
                 </LinearLayout>
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
             <include layout="@layout/sobot_layout_chat_left_msg_right_empty" />
-
         </LinearLayout>
 
         <include layout="@layout/sobot_layout_chat_left_msg_bottom" />

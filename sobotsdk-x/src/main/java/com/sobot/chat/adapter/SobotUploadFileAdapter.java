@@ -28,6 +28,7 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
     private ArrayList<SobotFileModel> arrayList;
     private Listener clickListener;
     private boolean isEdit = false;
+    private boolean isReply = false;
 
     public SobotUploadFileAdapter(Context context, ArrayList<SobotFileModel> arrayList, boolean isEdit, Listener clickListener) {
         this.context = context;
@@ -35,12 +36,24 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
         this.clickListener = clickListener;
         this.isEdit = isEdit;
     }
+    public SobotUploadFileAdapter(Context context, ArrayList<SobotFileModel> arrayList, boolean isEdit,boolean isReply, Listener clickListener) {
+        this.context = context;
+        this.arrayList = arrayList;
+        this.clickListener = clickListener;
+        this.isEdit = isEdit;
+        this.isReply = isReply;
+    }
 
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.sobot_item_upload_file, viewGroup, false);
+        View view;
+        if(isReply){
+            view = LayoutInflater.from(context).inflate(R.layout.sobot_item_upload_file_small, viewGroup, false);
+        }else {
+            view = LayoutInflater.from(context).inflate(R.layout.sobot_item_upload_file, viewGroup, false);
+        }
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }

@@ -9,25 +9,28 @@
         android:id="@+id/sobot_ly_root"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal|top"
+        android:gravity="center"
         android:orientation="vertical">
+
 
         <com.sobot.chat.widget.image.SobotProgressImageView
             android:id="@+id/sobot_plus_menu_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            app:image_width="32dp"
-            app:image_height="32dp"
-            android:scaleType="centerCrop" />
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/sobot_plus_menu_bg"
+            android:padding="13dp"
+            android:scaleType="centerCrop"
+            app:image_height="30dp"
+            app:image_width="30dp" />
 
         <TextView
             android:id="@+id/sobot_plus_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="4dp"
             android:gravity="center_horizontal"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:minLines="2"
             android:textColor="@color/sobot_color_bottom_btn_wz_color"
             android:textSize="@dimen/sobot_text_font_12" />
     </LinearLayout>

@@ -54,7 +54,13 @@ public class SobotPostCategoryActivity extends SobotDialogBaseActivity {
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotPostCategoryActivity";
+    }
+
+    @Override
     protected void initView() {
+        super.initView();
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         listView = (ListView) findViewById(R.id.sobot_activity_post_category_listview);
         sobot_ll_search = findViewById(R.id.sobot_ll_search);

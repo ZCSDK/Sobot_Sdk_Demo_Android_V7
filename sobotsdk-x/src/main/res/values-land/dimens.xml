@@ -3,5 +3,10 @@
     <dimen name="sobot_min_panel_height">60dp</dimen>
     <dimen name="sobot_max_panel_height">120dp</dimen>
     <dimen name="sobot_min_keyboard_height">160dp</dimen>
-    <dimen name="sobot_item_emoticon_size_default">32dp</dimen>
+
+
+    <!--加号里边表情区域 高度-->
+    <dimen name="sobot_emoji_panel_height">140dp</dimen>
+    <!--表情 宽高度-->
+    <dimen name="sobot_item_emoticon_size_default">28dp</dimen>
 </resources>

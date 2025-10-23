@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">لم يتم العثور على عرض المحتوى. هل نسيت إضافته في ملف تخطيط XML؟</string>
+    <string name="sobot_srl_header_pulling">اسحب للأسفل للتحديث</string>
+    <string name="sobot_srl_header_refreshing">جاري التحديث...</string>
+    <string name="sobot_srl_header_loading">بانتظار اكتمال التحميل السفلي...</string>
+    <string name="sobot_srl_header_release">أفلت للتحديث الفوري</string>
+    <string name="sobot_srl_header_finish">اكتمال التحديث</string>
+    <string name="sobot_srl_header_failed">فشل التحديث</string>
+    <string name="sobot_srl_header_update">آخر تحديث %s</string>
+    <string name="sobot_srl_header_secondary">أفلت للدخول إلى الطابق الثاني</string>
+    <string name="sobot_srl_footer_pulling">اسحب للأعلى لتحميل المزيد</string>
+    <string name="sobot_srl_footer_release">أفلت للتحميل الفوري</string>
+    <string name="sobot_srl_footer_loading">جاري التحميل...</string>
+    <string name="sobot_srl_footer_refreshing">بانتظار اكتمال تحديث الرأس...</string>
+    <string name="sobot_srl_footer_finish">اكتمال التحميل</string>
+    <string name="sobot_srl_footer_failed">فشل التحميل</string>
+    <string name="sobot_srl_footer_nothing">لا توجد بيانات إضافية</string>
+    <string name="sobot_no_data_string">لا توجد بيانات</string>
+    <string name="sobot_no_net_string">لا يوجد اتصال بالشبكة، يرجى التحقق من شبكتك...</string>
+    <string name="sobot_error_click_reload_string">فشل التحميل، انقر لإعادة المحاولة~~</string>
+    <string name="sobot_loading_string">جاري التحميل...</string>
+</resources>

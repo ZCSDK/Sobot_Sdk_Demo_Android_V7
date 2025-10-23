@@ -1,7 +1,6 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.HttpUtils.FileCallBack;
 import com.sobot.chat.widget.LinkMovementClickMethod;
-import com.sobot.chat.widget.emoji.InputHelper;
 import com.sobot.chat.widget.html.SobotCustomTagHandler;
 import com.sobot.chat.widget.rich.EmailSpan;
 import com.sobot.chat.widget.rich.MyURLSpan;
@@ -191,7 +189,6 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
-        content = content.trim();
         while (!TextUtils.isEmpty(content) && content.length() > 5 && "<br/>".equals(content.substring(0, 5))) {
             content = content.substring(5, content.length());
         }
@@ -201,8 +198,6 @@ public class HtmlTools {
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
         widget.setFocusable(false);
         Spanned span = formatRichTextWithPic(widget, content.replace("&", "&amp;").replace("\n", "<br/>"), color);
-        // 显示表情
-        span = InputHelper.displayEmoji(context.getApplicationContext(), span);
         // 显示链接
         parseLinkText(context, widget, span, color, showBottomLine);
     }
@@ -218,7 +213,6 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
-        content = content.trim();
         if (content.contains("&nbsp;")) {
             content = content.replaceAll("&nbsp;", " ");
         }
@@ -231,17 +225,16 @@ public class HtmlTools {
         if (content.startsWith("<br/>") && content.length() >= 5) {
             content = content.substring(5);// 去掉开头的<br/>
         }
-        if (content.contains("&")) {
-            content = Html.fromHtml(content).toString();//转义符还原
+        if (content.startsWith("&")) {
+            content = Html.fromHtml(content).toString();// 去掉开头的<br/>
         }
 
         while (content.length() > 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
             content = content.substring(0, content.length() - 5);// 去掉结尾的<br/>
         }
+
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
         Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), color);
-        // 显示表情
-        span = InputHelper.displayEmoji(context.getApplicationContext(), span);
         // 显示链接
         parseLinkText(context, widget, span, color, false);
     }
@@ -291,8 +284,6 @@ public class HtmlTools {
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
         Spanned span = formatRichTextWithPic(widget,content.replace("&", "&amp;").replace("\n", "<br/>"), color);
-        // 显示表情
-        span = InputHelper.displayEmoji(context.getApplicationContext(), span);
         // 显示链接
         parseLinkText(context, widget, span, color, false);
     }
@@ -306,40 +297,7 @@ public class HtmlTools {
      * @return
      */
     public Spanned formatRichTextWithPic(final TextView textView, final String htmlContent, final int color) {
-        return Html.fromHtml(("<span>"+htmlContent+"</span>").replace("span", "sobotspan"), new Html.ImageGetter() {
-            @Override
-            public Drawable getDrawable(String source) {
-                if (!TextUtils.isEmpty(source)) {
-                    textImagePath = CommonUtils.getSDCardRootPath(context);
-                    Drawable drawable = null;
-                    String fileString = textImagePath
-                            + String.valueOf(source.hashCode());
-                    if (new File(fileString).exists()) {
-                        LogUtils.i(" 网络下载 文本中的图片信息  " + fileString + "  eixts");
-                        // 获取本地文件返回Drawable
-                        drawable = Drawable.createFromPath(fileString);
-                        if (drawable != null) {
-                            // 设置图片边界
-                            LogUtils.i(" 图文并茂中 图片的 大小 width： "
-                                    + drawable.getIntrinsicWidth() + "--height:"
-                                    + drawable.getIntrinsicWidth());
-                            drawable.setBounds(0, 0, drawable.getIntrinsicWidth() * 4,
-                                    drawable.getIntrinsicHeight() * 4);
-                        }
-                        return drawable;
-                    } else {
-                        LogUtils.i(fileString + " Do not eixts");
-                        if (source.startsWith("https://") || source.startsWith("http://")) {
-                            loadPic(textView, source, htmlContent, fileString, color);
-                            return drawable;
-                        } else
-                            return null;
-                    }
-                }
-                return null;
-            }
-
-        }, new SobotCustomTagHandler(context, textView.getTextColors()));
+        return Html.fromHtml(("<span>"+htmlContent+"</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors()));
     }
 
     /**

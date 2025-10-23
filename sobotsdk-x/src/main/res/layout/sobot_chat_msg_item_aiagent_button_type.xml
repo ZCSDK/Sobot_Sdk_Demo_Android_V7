@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +37,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -64,42 +64,39 @@
                     android:layout_marginBottom="2dp" />
 
                 <LinearLayout
-                    android:id="@+id/ll_sobot_template2_item_page"
+                    android:id="@+id/ll_pre_next_page"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
                     android:orientation="horizontal"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp">
 
-                    <TextView
-                        android:id="@+id/sobot_template2_item_previous_page"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableEnd="@drawable/sobot_no_pre_page"
-                        android:drawablePadding="4dp"
-                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:text="@string/sobot_previous_page"
-                        android:textColor="@color/sobot_color_text_third"
-                        android:textSize="@dimen/sobot_text_font_12" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0.6dp"
-                        android:layout_weight="1" />
+                    <ImageView
+                        android:id="@+id/iv_previous_page"
+                        android:layout_width="76dp"
+                        android:layout_height="16dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
+                        android:src="@drawable/sobot_pre_page" />
 
                     <TextView
-                        android:id="@+id/sobot_template2_item_last_page"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tv_cus_page_count"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:drawableEnd="@drawable/sobot_last_page"
-                        android:drawablePadding="4dp"
+                        android:layout_gravity="center"
                         android:gravity="center"
-                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:text="@string/sobot_last_page"
-                        android:textColor="@color/sobot_color_text_second"
-                        android:textSize="@dimen/sobot_text_font_12"
+                        android:textColor="@color/sobot_color_text_third"
+                        android:textSize="@dimen/sobot_text_font_14" />
+
+                    <ImageView
+                        android:id="@+id/iv_next_page"
+                        android:layout_width="76dp"
+                        android:layout_height="16dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
+                        android:src="@drawable/sobot_last_page"
                         android:visibility="visible" />
                 </LinearLayout>
 

@@ -3,12 +3,8 @@ package com.sobot.chat.activity.halfdialog;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -18,16 +14,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
@@ -44,6 +42,7 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotAntoLineLayout;
@@ -52,7 +51,6 @@ import com.sobot.chat.widget.SobotFiveStarsLayout;
 import com.sobot.chat.widget.SobotTenRatingLayout;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +59,7 @@ import java.util.List;
  * 大模型机器人评价界面的显示 ，没有邀评
  * Created by gqf on 2025/3/12.
  */
-public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements CompoundButton.OnCheckedChangeListener {
+public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements View.OnClickListener {
     private final String CANCEL_TAG = "SobotAIEvaluateActivity";
     private int score;//默认 选中几颗星 从前面界面传过来
     private int isSolve = -1;//是否解决问题 0:已解决，1：未解决，-1：都不选
@@ -107,12 +105,17 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
 
     private SobotAntoLineLayout sobot_evaluate_lable_autoline;//评价 标签 自动换行 最多可以有六个
     private SobotEditTextLayout setl_submit_content;//评价框
+    //=======二级评价===start==
     private LinearLayout ll_2_type;//二级评价
-    private RadioGroup sobot_seconde_type;//二级评价
-    private RadioButton sobot_btn_satisfied;//二级评价  满意
-    private RadioButton sobot_btn_dissatisfied;//二级评价  不满意
+    private LinearLayout sobot_btn_satisfied;//二级评价  满意
+    private LinearLayout sobot_btn_dissatisfied;//二级评价  不满意
+    private ImageView iv_satisfied,iv_dissatisfied;
+    private TextView tv_satisfied,tv_dissatisfied;
+    //==========二级评价===end======
     private int themeColor;
     private int maxWidth;
+
+    private String sobot_question;//%s 是否解决了您的问题？
 
     private List<CheckBox> checkBoxList = new ArrayList<>();
 
@@ -125,9 +128,13 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
     protected int getContentViewResId() {
         return R.layout.sobot_layout_evaluate;
     }
-
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG="SobotAIEvaluateActivity";
+    }
     @Override
     protected void initView() {
+        super.initView();
         checkLables = new ArrayList<>();
         information = (Information) SharedPreferencesUtil.getObject(getContext(), "sobot_last_current_info");
         this.score = getIntent().getIntExtra("score", 5);
@@ -149,7 +156,8 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         //统一显示为服务评价
         sobot_tv_evaluate_title.setText(R.string.sobot_please_evaluate_this_service);
         sobot_robot_center_title = (TextView) findViewById(R.id.sobot_robot_center_title);
-        sobot_robot_center_title.setText(R.string.sobot_question);
+        sobot_question = getResources().getString(R.string.sobot_question);
+        sobot_robot_center_title.setText(String.format(sobot_question, "").trim());
         sobot_text_other_problem = (TextView) findViewById(R.id.sobot_text_other_problem);
         sobot_ratingBar_title = (TextView) findViewById(R.id.sobot_ratingBar_title);
         sobot_tv_evaluate_title_hint = (TextView) findViewById(R.id.sobot_tv_evaluate_title_hint);
@@ -157,9 +165,14 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         sobot_evaluate_cancel.setText(R.string.sobot_temporarily_not_evaluation);
         sobot_ratingBar_split_view = findViewById(R.id.sobot_ratingBar_split_view);
         ll_2_type = findViewById(R.id.ll_2_type);
-        sobot_seconde_type = findViewById(R.id.sobot_seconde_type);
+        iv_satisfied = findViewById(R.id.iv_satisfied);
+        iv_dissatisfied = findViewById(R.id.iv_dissatisfied);
+        tv_satisfied = findViewById(R.id.tv_satisfied);
+        tv_dissatisfied = findViewById(R.id.tv_dissatisfied);
         sobot_btn_satisfied = findViewById(R.id.sobot_btn_satisfied);
         sobot_btn_dissatisfied = findViewById(R.id.sobot_btn_dissatisfied);
+        sobot_btn_satisfied.setOnClickListener(this);
+        sobot_btn_dissatisfied.setOnClickListener(this);
         if (information != null && information.isCanBackWithNotEvaluation()) {
             sobot_evaluate_cancel.setVisibility(View.VISIBLE);
         } else {
@@ -179,9 +192,6 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         sobot_add_content.setHint(R.string.sobot_edittext_hint);
         sobot_btn_ok_robot = (RadioButton) findViewById(R.id.sobot_btn_ok_robot);
         sobot_btn_no_robot = (RadioButton) findViewById(R.id.sobot_btn_no_robot);
-        sobot_btn_ok_robot.setText(R.string.sobot_evaluate_yes);
-        sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
-//        doTwoViewWidthConsistent(sobot_btn_ok_robot,getResources().getString(R.string.sobot_evaluate_yes),sobot_btn_no_robot,getResources().getString(R.string.sobot_evaluate_no));
         sobot_robot_relative = (LinearLayout) findViewById(R.id.sobot_robot_relative);
         sobot_custom_relative = (LinearLayout) findViewById(R.id.sobot_custom_relative);
         sobot_hide_layout = (LinearLayout) findViewById(R.id.sobot_hide_layout);
@@ -193,7 +203,19 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
             getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
         maxWidth = (ScreenUtils.getScreenWidth(this) - ScreenUtils.dip2px(this, 40)) / 2;
-
+        sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Drawable db = ResourcesCompat.getDrawable( getResources(),R.drawable.sobot_bg_evaluate_input,null);
+                if(hasFocus) {
+                    if (db != null) {
+                        setl_submit_content.setBackground(ThemeUtils.applyColorToDrawable(db, themeColor));
+                    }
+                }else{
+                    setl_submit_content.setBackground(db);
+                }
+            }
+        });
     }
 
     private void changeCommitButtonUi(boolean isCanClick) {
@@ -287,16 +309,30 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                         if (score == -1) {
                             score = 5;
                         }
-                        sobot_ratingBar.init(score, true, 32);
+                        sobot_ratingBar.init(score, true, 44);
                     } else if (ratingType == 1) {
-                        sobot_ten_rating_ll.init(score, true, 20);
+                        sobot_ten_rating_ll.init(score, true, 16);
                     } else if (ratingType == 2) {
                         if (score == 5) {
                             //默认满意
-                            sobot_btn_satisfied.setChecked(true);
+                            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 53);
+                            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
+                            iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
+                            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);;
+                            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+                            tv_satisfied.setTextColor(getResources().getColor(R.color.sobot_common_hese));
+                            tv_dissatisfied.setTextColor(getResources().getColor(R.color.sobot_color_text_second));
                         } else if (score == 1) {
                             //默认不满意
-                            sobot_btn_dissatisfied.setChecked(true);
+                            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);;
+                            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 53);
+                            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
+                            iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
+                            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+                            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                            tv_satisfied.setTextColor(getResources().getColor(R.color.sobot_color_text_second));
+                            tv_dissatisfied.setTextColor(getResources().getColor(R.color.sobot_common_hese));
                         }
                     }
 
@@ -407,11 +443,19 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                     if (satisfactionSet.getIsDefaultButton() == 0 && !TextUtils.isEmpty(satisfactionSet.getButtonDesc())) {
                         sobot_close_now.setText(satisfactionSet.getButtonDesc());
                     }
+                }else{
+                    //没有模板
+                    LogUtils.d("=====大模型评价==没有模板====");
+                    finish();
                 }
             }
 
             @Override
             public void onFailure(Exception e, String des) {
+                if(null!=des) {
+                    LogUtils.d(des);
+                    finish();
+                }
             }
 
         });
@@ -466,21 +510,51 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                 }
             });
         }
-        sobot_seconde_type.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//        sobot_seconde_type.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup radioGroup, int id) {
+//                int score = 0;
+//                if (id == R.id.sobot_btn_satisfied) {
+//                    score = 5;
+//                    sobot_btn_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+//                    sobot_btn_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+//                } else if (id == R.id.sobot_btn_dissatisfied) {
+//                    sobot_btn_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+//                    sobot_btn_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+//                    score = 1;
+//                }
+//                changeCommitButtonUi(true);
+//                setCustomLayoutViewVisible(score, satisFactionList);
+//            }
+//        });
+        sobot_readiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int id) {
-                int score = 0;
-                if (id == R.id.sobot_btn_satisfied) {
-                    score = 5;
-                    sobot_btn_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                    sobot_btn_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-                } else if (id == R.id.sobot_btn_dissatisfied) {
-                    sobot_btn_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-                    sobot_btn_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                    score = 1;
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                sobot_add_content.clearFocus();
+                if (checkedId == R.id.sobot_btn_ok_robot) {
+                    // 获取系统默认的加粗字体
+                    sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
+                    sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
+                } else if (checkedId == R.id.sobot_btn_no_robot) {
+                    sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
+                    sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
                 }
-                changeCommitButtonUi(true);
-                setCustomLayoutViewVisible(score, satisFactionList);
+//                if (current_model == ZhiChiConstant.client_model_robot && initModel != null) {
+//                    if (checkedId == R.id.sobot_btn_ok_robot) {
+//                        sobot_hide_layout.setVisibility(View.GONE);
+//                        sobot_ratingBar_split_view.setVisibility(View.GONE);
+//                    } else if (checkedId == R.id.sobot_btn_no_robot) {
+//                        sobot_ratingBar_split_view.setVisibility(View.VISIBLE);
+//                        sobot_hide_layout.setVisibility(View.VISIBLE);
+//                        String tmpData[] = convertStrToArray(initModel.getRobotCommentTitle());
+//                        if (tmpData != null && tmpData.length > 0) {
+//                            setLableViewVisible(tmpData);
+//                        } else {
+//                            sobot_hide_layout.setVisibility(View.GONE);
+//                            sobot_ratingBar_split_view.setVisibility(View.GONE);
+//                        }
+//                    }
+//                }
             }
         });
     }
@@ -499,7 +573,7 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
             sobot_tv_evaluate_title_hint.setVisibility(View.GONE);
         }
 
-        sobot_robot_center_title.setText(customName + " " + getString(R.string.sobot_question));
+        sobot_robot_center_title.setText(String.format(sobot_question,customName));
         sobot_robot_relative.setVisibility(View.GONE);
         sobot_custom_relative.setVisibility(View.VISIBLE);
     }
@@ -586,7 +660,7 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
 //                }
                 checkBox.setText(tmpData.get(i).getLabelName());
                 checkBox.setTag(tmpData.get(i).getLabelId());
-                checkBox.setOnCheckedChangeListener(this);
+                checkBox.setOnClickListener(this);
                 antoLineLayout.addView(view);
                 checkBoxList.add(checkBox);
             }
@@ -634,24 +708,22 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
 
     private SobotCommentParam getCommentParam() {
         SobotCommentParam param = new SobotCommentParam();
-        int score = 0;
+        int tmpScore = 0;
         if (ratingType == 0) {
             param.setScoreFlag(0);//5星
-            score = (int) Math.ceil(sobot_ratingBar.getSelectContent());
+            tmpScore = (int) Math.ceil(sobot_ratingBar.getSelectContent());
         } else if (ratingType == 1) {
             param.setScoreFlag(1);//10分
-            score = sobot_ten_rating_ll.getSelectContent();
+            tmpScore = sobot_ten_rating_ll.getSelectContent();
         } else if (ratingType == 2) {
             param.setScoreFlag(2);//二级
-            if (sobot_btn_satisfied.isChecked()) {
-                score = 5;
-            } else if (sobot_btn_dissatisfied.isChecked()) {
-                score = 1;
-            }
+            tmpScore = score;
         }
-        param.setScore(score + "");//评分
-        param.setScoreExplain((satisfactionSetBase!=null && SobotStringUtils.isNoEmpty(satisfactionSetBase.getScoreExplain()))?satisfactionSetBase.getScoreExplain():"");//星级说明
-        param.setScoreExplainLan((satisfactionSetBase!=null && SobotStringUtils.isNoEmpty(satisfactionSetBase.getScoreExplainLan()))?satisfactionSetBase.getScoreExplainLan():"");
+        String problem = checkBoxIsChecked();
+        param.setProblem(problem);
+        param.setScore(tmpScore + "");//评分
+        param.setScoreExplain((satisfactionSetBase!=null && StringUtils.isNoEmpty(satisfactionSetBase.getScoreExplain()))?satisfactionSetBase.getScoreExplain():"");//星级说明
+        param.setScoreExplainLan((satisfactionSetBase!=null && StringUtils.isNoEmpty(satisfactionSetBase.getScoreExplainLan()))?satisfactionSetBase.getScoreExplainLan():"");
         param.setLabelIds(checkLables);//标签Id集合 ["ID1","ID2"]
         String suggest = sobot_add_content.getText().toString();
         param.setSuggest(suggest);//备注
@@ -686,29 +758,25 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
             }
         }
         //评分是否未0
-        int score = -1;
+        int tmpScore = -1;
         if (ratingType == 0) {
-            score = (int) Math.ceil(sobot_ratingBar.getSelectContent());
+            tmpScore = (int) Math.ceil(sobot_ratingBar.getSelectContent());
             //五星评价分不能传0
-            if (score < 1) {
+            if (tmpScore < 1) {
                 ToastUtil.showToast(SobotAIEvaluateActivity.this, getString(R.string.sobot_rating_score) + getString(R.string.sobot__is_null));//评分必选
                 return false;
             }
         } else if (ratingType == 1) {
-            score = sobot_ten_rating_ll.getSelectContent();
+            tmpScore = sobot_ten_rating_ll.getSelectContent();
             //10分的评价分值可以传0，但不能不选
-            if (score < 0) {
+            if (tmpScore < 0) {
                 ToastUtil.showToast(SobotAIEvaluateActivity.this, getString(R.string.sobot_rating_score) + getString(R.string.sobot__is_null));//评分必选
                 return false;
             }
         } else if (ratingType == 2) {
-            if (sobot_btn_satisfied.isChecked()) {
-                score = 5;
-            } else if (sobot_btn_dissatisfied.isChecked()) {
-                score = 1;
-            }
+            tmpScore = score;
             //10分的评价分值可以传0，但不能不选
-            if (score < 0) {
+            if (tmpScore < 0) {
                 ToastUtil.showToast(SobotAIEvaluateActivity.this, getString(R.string.sobot_rating_score) + getString(R.string.sobot__is_null));//评分必选
                 return false;
             }
@@ -866,72 +934,31 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         return SobotAIEvaluateActivity.this;
     }
 
-
     @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        if (b) {
-            StateListDrawable stateListDrawable = (StateListDrawable) ContextCompat.getDrawable(this, R.drawable.sobot_btn_bg_lable_select);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                for (int i = 0; i < stateListDrawable.getStateCount(); i++) {
-                    Drawable drawable = stateListDrawable.getStateDrawable(i);
-                    if (drawable instanceof GradientDrawable) {
-                        // 修改边框颜色
-                        GradientDrawable shapeDrawable = (GradientDrawable) drawable;
-                        shapeDrawable.setStroke(2, themeColor); // 修改边框的宽度和颜色
-                        shapeDrawable.setColor(ThemeUtils.modifyAlpha(themeColor, 10));
-                    }
-                }
-            }
-            compoundButton.setTextColor(themeColor);
-            compoundButton.setBackground(stateListDrawable);
-            if (compoundButton.getTag() != null) {
-                String tagModel = (String) compoundButton.getTag();
-                if (!checkLables.contains(tagModel)) {
-                    checkLables.add(tagModel);
-                }
-            }
-        } else {
-            Drawable drawable = getResources().getDrawable(R.drawable.sobot_bg_cai_reason_lable_checkbox_bg);
-            compoundButton.setTextColor(getResources().getColor(R.color.sobot_color_text_first));
-            compoundButton.setBackground(drawable);
-
-            if (compoundButton.getTag() != null) {
-                String tagModel = (String) compoundButton.getTag();
-                if (checkLables.contains(tagModel)) {
-                    checkLables.remove(tagModel);
-                }
-            }
+    public void onClick(View v) {
+        sobot_add_content.clearFocus();
+        if (v.getId() == R.id.sobot_btn_satisfied) {
+            score = 5;
+            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 53);
+            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
+            iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
+            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);;
+            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+            tv_satisfied.setTextColor(getResources().getColor(R.color.sobot_common_hese));
+            tv_dissatisfied.setTextColor(getResources().getColor(R.color.sobot_color_text_second));
+            changeCommitButtonUi(true);
+        } else if (v.getId() == R.id.sobot_btn_dissatisfied) {
+            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);;
+            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 53);
+            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
+            iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
+            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            tv_satisfied.setTextColor(getResources().getColor(R.color.sobot_color_text_second));
+            tv_dissatisfied.setTextColor(getResources().getColor(R.color.sobot_common_hese));
+            score = 1;
+            changeCommitButtonUi(true);
         }
     }
-
-    public void doTwoViewWidthConsistent(RadioButton ll1, String text1, RadioButton ll2, String text2) {
-        if (ll1 == null || ll2 == null || SobotStringUtils.isEmpty(text1) || SobotStringUtils.isEmpty(text1)) {
-            return;
-        }
-        // 创建Paint对象
-        Paint paint = new Paint();
-        // 设置Paint的文字大小与TextView相同
-        paint.setTextSize(ll1.getTextSize());
-        // 测量两段文字的宽度
-        float width1 = paint.measureText(text1);
-        float width2 = paint.measureText(text2);
-        if (width1 == width2) {
-            return;
-        }
-        // 设置最大宽度为两段文字中的最大值
-        float maxWidth = Math.max(width1, width2);
-        // 设置TextView的宽度为最大宽度
-        ll1.setWidth((int) maxWidth);
-        ll2.setWidth((int) maxWidth);
-//            if (width1 > width2) {
-//                ll2.setPadding(ScreenUtils.dip2px(mContext, 12) + (int) (width1 - width2) / 2, ScreenUtils.dip2px(mContext, 7), ScreenUtils.dip2px(mContext, 12) + (int) (width1 - width2) / 2, ScreenUtils.dip2px(mContext, 7));
-//            } else {
-//                ll1.setPadding(ScreenUtils.dip2px(mContext, 12) + (int) (width2 - width1) / 2, ScreenUtils.dip2px(mContext, 7), ScreenUtils.dip2px(mContext, 12) + (int) (width2 - width1) / 2, ScreenUtils.dip2px(mContext, 7));
-//            }
-//        // 设置文字
-//        ll1.setText(text1);
-//        ll2.setText(text2);
-    }
-
 }

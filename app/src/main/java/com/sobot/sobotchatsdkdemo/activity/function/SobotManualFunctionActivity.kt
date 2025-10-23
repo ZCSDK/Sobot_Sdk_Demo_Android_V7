@@ -44,33 +44,12 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
     private var sobot_rl_4_2_8: RelativeLayout? = null
     private var sobot_rl_4_2_9: RelativeLayout? = null
     private var sobot_rl_4_2_11: RelativeLayout? = null
-    private var sobot_rl_4_2_13_1: RelativeLayout? = null
-    private var sobot_rl_4_2_13_2: RelativeLayout? = null
-    private var sobot_rl_4_2_13_3: RelativeLayout? = null
-    private var sobot_rl_4_2_13_4: RelativeLayout? = null
-    private var sobot_rl_4_2_13_5: RelativeLayout? = null
-    private var sobot_rl_4_2_13_6: RelativeLayout? = null
-    private var sobot_rl_4_2_13_7: RelativeLayout? = null
     private var sobotImage428: ImageView? = null
     private var sobotImage429: ImageView? = null
     private var sobotImage4211: ImageView? = null
-    private var sobotImage42131: ImageView? = null
-    private var sobotImage42132: ImageView? = null
-    private var sobotImage42133: ImageView? = null
-    private var sobotImage42134: ImageView? = null
-    private var sobotImage42135: ImageView? = null
-    private var sobotImage42136: ImageView? = null
-    private var sobotImage42137: ImageView? = null
     private var status428 = false
     private var status429 = false
     private var status4211 = false
-    private var status42131 = false
-    private var status42132 = false
-    private var status42133 = false
-    private var status42134 = false
-    private var status42135 = false
-    private var status42136 = false
-    private var status42137 = false
     private var tv_manual_fun_4_2_1: TextView? = null
     private var tv_manual_fun_4_2_2: TextView? = null
     private var tv_manual_fun_4_2_8: TextView? = null
@@ -106,27 +85,6 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
         sobot_rl_4_2_11 = findViewById<View>(R.id.sobot_rl_4_2_11) as RelativeLayout
         sobot_rl_4_2_11!!.setOnClickListener(this)
         sobotImage4211 = findViewById<View>(R.id.sobot_image_4_2_11) as ImageView
-        sobot_rl_4_2_13_1 = findViewById<View>(R.id.sobot_rl_4_2_13_1) as RelativeLayout
-        sobot_rl_4_2_13_1!!.setOnClickListener(this)
-        sobotImage42131 = findViewById<View>(R.id.sobot_image_4_2_13_1) as ImageView
-        sobot_rl_4_2_13_2 = findViewById<View>(R.id.sobot_rl_4_2_13_2) as RelativeLayout
-        sobot_rl_4_2_13_2!!.setOnClickListener(this)
-        sobotImage42132 = findViewById<View>(R.id.sobot_image_4_2_13_2) as ImageView
-        sobot_rl_4_2_13_3 = findViewById<View>(R.id.sobot_rl_4_2_13_3) as RelativeLayout
-        sobot_rl_4_2_13_3!!.setOnClickListener(this)
-        sobotImage42133 = findViewById<View>(R.id.sobot_image_4_2_13_3) as ImageView
-        sobot_rl_4_2_13_4 = findViewById<View>(R.id.sobot_rl_4_2_13_4) as RelativeLayout
-        sobot_rl_4_2_13_4!!.setOnClickListener(this)
-        sobotImage42134 = findViewById<View>(R.id.sobot_image_4_2_13_4) as ImageView
-        sobot_rl_4_2_13_5 = findViewById<View>(R.id.sobot_rl_4_2_13_5) as RelativeLayout
-        sobot_rl_4_2_13_5!!.setOnClickListener(this)
-        sobotImage42135 = findViewById<View>(R.id.sobot_image_4_2_13_5) as ImageView
-        sobot_rl_4_2_13_6 = findViewById<View>(R.id.sobot_rl_4_2_13_6) as RelativeLayout
-        sobot_rl_4_2_13_6!!.setOnClickListener(this)
-        sobotImage42136 = findViewById<View>(R.id.sobot_image_4_2_13_6) as ImageView
-        sobot_rl_4_2_13_7 = findViewById<View>(R.id.sobot_rl_4_2_13_7) as RelativeLayout
-        sobot_rl_4_2_13_7!!.setOnClickListener(this)
-        sobotImage42137 = findViewById<View>(R.id.sobot_image_4_2_13_7) as ImageView
         sobot_et_groupid = findViewById(R.id.sobot_et_groupid)
         sobot_et_choose_adminid = findViewById(R.id.sobot_et_choose_adminid)
         sobot_et_tranReceptionistFlag = findViewById(R.id.sobot_et_tranReceptionistFlag)
@@ -161,20 +119,6 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
             }
             sobot_et_vip_level!!.setText(if (TextUtils.isEmpty(information!!.vip_level)) "" else information!!.vip_level)
             sobot_et_user_label!!.setText(if (TextUtils.isEmpty(information!!.user_label)) "" else information!!.user_label)
-            status42131 = information!!.isHideMenuSatisfaction
-            setImageShowStatus(status42131, sobotImage42131)
-            status42132 = information!!.isHideMenuLeave
-            setImageShowStatus(status42132, sobotImage42132)
-            status42133 = information!!.isHideMenuPicture
-            setImageShowStatus(status42133, sobotImage42133)
-            status42134 = information!!.isHideMenuVedio
-            setImageShowStatus(status42134, sobotImage42134)
-            status42135 = information!!.isHideMenuCamera
-            setImageShowStatus(status42135, sobotImage42135)
-            status42136 = information!!.isHideMenuFile
-            setImageShowStatus(status42136, sobotImage42136)
-            status42137 = information!!.isHideMenuManualLeave
-            setImageShowStatus(status42137, sobotImage42137)
         }
         if (otherModel != null) {
             status428 = otherModel!!.isUserConsultingContentDemo
@@ -368,13 +312,6 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
                     information!!.vip_level = vip_level
                     val user_label = sobot_et_user_label!!.text.toString().trim { it <= ' ' }
                     information!!.user_label = user_label
-                    information!!.isHideMenuSatisfaction = status42131
-                    information!!.isHideMenuLeave = status42132
-                    information!!.isHideMenuPicture = status42133
-                    information!!.isHideMenuVedio = status42134
-                    information!!.isHideMenuCamera = status42135
-                    information!!.isHideMenuFile = status42136
-                    information!!.isHideMenuManualLeave = status42137
                     saveObject(this, "sobot_demo_infomation", information!!)
                 }
                 ToastUtil.showToast(context, "已保存")
@@ -399,34 +336,6 @@ class SobotManualFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
             R.id.sobot_rl_4_2_11 -> {
                 status4211 = !status4211
                 setImageShowStatus(status4211, sobotImage4211)
-            }
-            R.id.sobot_rl_4_2_13_1 -> {
-                status42131 = !status42131
-                setImageShowStatus(status42131, sobotImage42131)
-            }
-            R.id.sobot_rl_4_2_13_2 -> {
-                status42132 = !status42132
-                setImageShowStatus(status42132, sobotImage42132)
-            }
-            R.id.sobot_rl_4_2_13_3 -> {
-                status42133 = !status42133
-                setImageShowStatus(status42133, sobotImage42133)
-            }
-            R.id.sobot_rl_4_2_13_4 -> {
-                status42134 = !status42134
-                setImageShowStatus(status42134, sobotImage42134)
-            }
-            R.id.sobot_rl_4_2_13_5 -> {
-                status42135 = !status42135
-                setImageShowStatus(status42135, sobotImage42135)
-            }
-            R.id.sobot_rl_4_2_13_6 -> {
-                status42136 = !status42136
-                setImageShowStatus(status42136, sobotImage42136)
-            }
-            R.id.sobot_rl_4_2_13_7 -> {
-                status42137 = !status42137
-                setImageShowStatus(status42137, sobotImage42137)
             }
         }
     }

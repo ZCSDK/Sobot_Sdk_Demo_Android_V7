@@ -10,9 +10,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
-import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.apiUtils.GsonUtil;
 import com.sobot.chat.api.model.ChatMessageRichListModel;
 import com.sobot.chat.api.model.FaqDocRespVo;
@@ -28,6 +26,7 @@ import com.sobot.chat.api.model.customcard.SobotChatCustomMenu;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.VersionUtils;
@@ -42,7 +41,9 @@ import com.sobot.chat.viewHolder.CardMessageHolder;
 import com.sobot.chat.viewHolder.ChangeLanguaeMessageHolder;
 import com.sobot.chat.viewHolder.ConsultMessageHolder;
 import com.sobot.chat.viewHolder.CusEvaluateMessageHolder;
+import com.sobot.chat.viewHolder.CustomCardHorizontalMessageHolder;
 import com.sobot.chat.viewHolder.CustomCardMessageHolder;
+import com.sobot.chat.viewHolder.CustomCardVerticalMessageHolder;
 import com.sobot.chat.viewHolder.FileMessageHolder;
 import com.sobot.chat.viewHolder.HotIssueMessageHolder;
 import com.sobot.chat.viewHolder.ImageMessageHolder;
@@ -65,6 +66,7 @@ import com.sobot.chat.viewHolder.RobotTemplateMessageHolder4;
 import com.sobot.chat.viewHolder.RobotTemplateMessageHolder5;
 import com.sobot.chat.viewHolder.RobotTemplateMessageHolder6;
 import com.sobot.chat.viewHolder.SensitiveAuthorizeHolder;
+import com.sobot.chat.viewHolder.SkillGroupMessageHolder;
 import com.sobot.chat.viewHolder.SobotChatMsgItemSDKHistoryR;
 import com.sobot.chat.viewHolder.SobotMuitiLeavemsgMessageHolder;
 import com.sobot.chat.viewHolder.SystemMessageHolder;
@@ -72,13 +74,11 @@ import com.sobot.chat.viewHolder.TextMessageHolder;
 import com.sobot.chat.viewHolder.VideoMessageHolder;
 import com.sobot.chat.viewHolder.VoiceMessageHolder;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
-import com.sobot.utils.SobotDensityUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 
 public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
@@ -129,7 +129,10 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             R.layout.sobot_chat_msg_item_ai_card_l,//43大模型卡片
             R.layout.sobot_chat_msg_item_ai_card_r,//44大模型卡片
             R.layout.sobot_chat_msg_item_aiagent_button_type,//45大模型机器人 按钮消息
-            R.layout.sobot_chat_msg_item_cai_reason_card//46大模型机器人 点踩 原因卡片
+            R.layout.sobot_chat_msg_item_cai_reason_card,//46大模型机器人 点踩 原因卡片
+            R.layout.sobot_chat_msg_item_skill_group,//47 转人工--技能组
+            R.layout.sobot_chat_msg_item_consult,//48 自定义卡片 列表 单个商品
+            R.layout.sobot_chat_msg_item_custom_cards//49 自定义卡片 横向 多个商品
     };
 
     /**
@@ -340,6 +343,18 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
      * 大模型机器人点踩 原因卡片
      */
     public static final int MSG_TYPE_AI_ROBOT_CAI = 46;
+    /**
+     * 转人工--技能组
+     */
+    public static final int MSG_TYPE_SKILL_GROUP = 47;
+    /**
+     * 自定义卡片 列表 单个商品
+     */
+    public static final int MSG_TYPE_CUSTOM_CARD_VERTICAL_SPECIAL = 48;
+    /**
+     * 自定义卡片 横向 多个商品
+     */
+    public static final int MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL = 49;
     private SobotMsgCallBack mMsgCallBack;
     private List<ZhiChiMessageBase> list;//数据源
     private Context context;
@@ -382,6 +397,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 return MSG_TYPE_ILLEGAL;
             } else if (message.isRetractedMsg()) {
                 return MSG_TYPE_RETRACTED_MSG;
+            } else if (message.getSkillGroups() != null && !message.getSkillGroups().isEmpty()) {
+                return MSG_TYPE_SKILL_GROUP;
             }
             int senderType = message.getSenderType();
             if (senderType == -1) {
@@ -399,7 +416,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 if (message.getAnswer() != null) {
                     if (ZhiChiConstant.message_type_text == message.getAnswer().getMsgType()) {
                         if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
-                            if (SobotStringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())) {
+                            if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())) {
                                 //大模型文本消息
                                 return MSG_TYPE_TXT_L;
                             } else {
@@ -556,22 +573,23 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                     return MSG_TYPE_ILLEGAL;
                 }
             } else if (ZhiChiConstant.message_sender_type_system == senderType && null != message.getCustomCard()) {
-                if (message.getCustomCard().getCardForm() == 1) {
-                    //大模型卡片
-                    return MSG_TYPE_AI_CARD_L;
+//                类型：11 横屏多个商品，22 竖屏单个商品卡片
+                if (message.getCustomCard().getType() == 11) {
+                    return MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL;
+                } else if (message.getCustomCard().getType() == 22) {
+                    return MSG_TYPE_CUSTOM_CARD_VERTICAL_SPECIAL;
                 } else {
-                    //自定义卡片
-                    return MSG_TYPE_CUSTOMER_CARD_L;
+                    if (message.getCustomCard().getCardForm() == 1) {
+                        //大模型卡片
+                        return MSG_TYPE_AI_CARD_L;
+                    } else {
+                        //自定义卡片
+                        return MSG_TYPE_CUSTOMER_CARD_L;
+                    }
                 }
             } else if (ZhiChiConstant.message_sender_type_remide_info == senderType) {
                 //提醒的消息
                 return MSG_TYPE_TIP;
-            } else if (ZhiChiConstant.message_sender_type_customer_sendImage == senderType) {
-                // 与我的图片消息
-                return MSG_TYPE_IMG_R;
-            } else if (ZhiChiConstant.message_sender_type_send_voice == senderType) {
-                // 发送语音消息
-                return MSG_TYPE_AUDIO_R;
             } else if (ZhiChiConstant.message_sender_type_consult_info == senderType) {
                 return MSG_TYPE_CONSULT;
             } else if (ZhiChiConstant.message_sender_type_robot_guide == senderType) {
@@ -647,10 +665,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 msgLists.add(base);
             }
         }
-
         setDefaultCid(msgLists);
         long previousMsgTime = 0;
-        int previousMsgSenderName = -1;
+        int previousMsgSenderType = -1;
         int unReadIndex = 0;
         for (int i = 0; i < msgLists.size(); i++) {
             ZhiChiMessageBase base = msgLists.get(i);
@@ -658,24 +675,30 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             if (previousMsgTime != 0 &&
                     !TextUtils.isEmpty(base.getT())
                     && ((Long.parseLong(base.getT()) - previousMsgTime) < (1000 * 60))
-                    && previousMsgSenderName == base.getSenderType()) {
+                    && previousMsgSenderType == base.getSenderType()) {
                 base.setShowFaceAndNickname(false);
+                if (i != 0) {
+                    //修改上一条消息的字段
+                    //下一条消息是否显示头像昵称，如果不显示头像昵称，则和一条消息的间距需要调小，两条消息的圆角弧度都需要调整
+                    ZhiChiMessageBase preMsg = msgLists.get(i - 1);
+                    preMsg.setNextIsShowFaceAndNickname(false);
+                }
             } else {
                 base.setShowFaceAndNickname(true);
             }
             if (base.getT() != null) {
                 try {
                     previousMsgTime = Long.parseLong(base.getT());
-                } catch (Exception e) {
+                } catch (Exception ignored) {
 
                 }
             }
-            previousMsgSenderName = base.getSenderType();
+            previousMsgSenderType = base.getSenderType();
             //判断未读消息的位置
             if (ZhiChiConstant.message_sender_type_remide_info == base.getSenderType() && base.getAnswer() != null && base.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_below_unread) {
                 unReadIndex = i;
             }
-            if (SobotStringUtils.isNoEmpty(base.getServant()) && "aiagent".equals(base.getServant())
+            if (StringUtils.isNoEmpty(base.getServant()) && "aiagent".equals(base.getServant())
                     && base.getAnswer() != null && base.getAnswer().getMsgType() == ZhiChiConstant.message_type_text && base.getSenderType() == ZhiChiConstant.message_sender_type_robot) {
                 //如果是aiagent 答案
                 doMarkDownData(base.getAnswer().getMsg(), base.getAnswer());
@@ -757,7 +780,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         setDefaultCid(lastCid, message);
         if (!TextUtils.isEmpty(message.getMultiGuideStrip())) {
             ZhiChiMessageBase base = new ZhiChiMessageBase();
-            base.setT(Calendar.getInstance().getTime().getTime() + "");
+            base.setT(System.currentTimeMillis() + "");
             base.setSenderName(TextUtils.isEmpty(message.getSenderName()) ? "" : message.getSenderName());
             base.setSenderFace(TextUtils.isEmpty(message.getSenderFace()) ? "" : message.getSenderFace());
             ZhiChiReplyAnswer reply = new ZhiChiReplyAnswer();
@@ -805,7 +828,6 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         try {
             if (!list.isEmpty() && (list.get(list.size() - 1) != null) && !TextUtils.isEmpty(list.get(list.size() - 1).getT())) {
                 long previousMsgTime = Long.parseLong(list.get(list.size() - 1).getT());
-                String previousMsgSenderName = list.get(list.size() - 1).getSenderName();
                 int previousMsgSenderType = list.get(list.size() - 1).getSenderType();
                 if (ZhiChiConstant.message_sender_type_system == message.getSenderType() || ZhiChiConstant.message_sender_type_ai_tobot_cai_card == message.getSenderType()) {
                     //系统消息 点踩原因卡片 都不显示头像昵称
@@ -815,15 +837,20 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                     if (previousMsgTime != 0 &&
                             !TextUtils.isEmpty(message.getT())
                             && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60))
-                            && !TextUtils.isEmpty(previousMsgSenderName)
-                            && previousMsgSenderName.equals(message.getSenderName()) && previousMsgSenderType == message.getSenderType()) {
+                            && previousMsgSenderType == message.getSenderType()) {
                         message.setShowFaceAndNickname(false);
+                        ZhiChiMessageBase preMsg = list.get(list.size() - 1);
+                        if (preMsg != null) {
+                            //修改上一条消息的字段
+                            //下一条消息是否显示头像昵称，如果不显示头像昵称，则和一条消息的间距需要调小，两条消息的圆角弧度都需要调整
+                            preMsg.setNextIsShowFaceAndNickname(false);
+                        }
                     } else {
                         message.setShowFaceAndNickname(true);
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         list.add(message);
         notifyDataSetChanged();
@@ -842,13 +869,13 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
      */
     private void removeByAction(ZhiChiMessageBase message, String when, String element, boolean
             isShake) {
-        if (list != null && message != null && SobotStringUtils.isNoEmpty(element) && message.getAction() != null && message.getAction().equals(when)) {
+        if (list != null && message != null && StringUtils.isNoEmpty(element) && message.getAction() != null && message.getAction().equals(when)) {
             //倒叙判断，然后删
             ListIterator<ZhiChiMessageBase> iterator = list.listIterator(list.size());
             while (iterator.hasPrevious()) {
                 ZhiChiMessageBase messageBase = iterator.previous();
                 int posttion = iterator.previousIndex();
-                if (SobotStringUtils.isNoEmpty(messageBase.getAction()) && element.equals(messageBase.getAction())) {
+                if (StringUtils.isNoEmpty(messageBase.getAction()) && element.equals(messageBase.getAction())) {
                     iterator.remove();
                     notifyItemRemoved(posttion);
                     message.setShake(isShake);
@@ -868,7 +895,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             while (iterator.hasPrevious()) {
                 ZhiChiMessageBase messageBase = iterator.previous();
                 int posttion = iterator.previousIndex();
-                if (SobotStringUtils.isNoEmpty(messageBase.getServant()) && "aiagent".equals(messageBase.getServant())) {
+                if (StringUtils.isNoEmpty(messageBase.getServant()) && "aiagent".equals(messageBase.getServant())) {
                     if (messageBase.getSenderType() == ZhiChiConstant.message_sender_type_ai_tobot_cai_card) {
                         //删除未提交的点踩原因卡片消息
                         iterator.remove();
@@ -1021,23 +1048,24 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         if (data == null) {
             return;
         }
-        ZhiChiMessageBase info = getMsgInfo(id);
-        if (info != null) {
+        ZhiChiMessageBase msgInfo = getMsgInfo(id);
+        msgInfo.setAiAgentReceiveMsgEnd(isEnd);
+        if (msgInfo != null) {
             if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
                 //SENSITIVE_WORD 是敏感词，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
             } else {
                 if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && data.getRobotAnswerMessageType().equals("MESSAGE")) {
                     //拼接消息
-                    String oldDate = info.getContent();
+                    String oldDate = msgInfo.getContent();
                     String newDate = "";
                     if (!isEnd) {
                         //如果是结尾就不再追加message内容，因为最后一条实际是倒数第二条message内容
                         newDate = data.getContent();
                     }
                     String content = oldDate + newDate;
-                    info.setContent(content);
-                    ZhiChiReplyAnswer answer = info.getAnswer();
+                    msgInfo.setContent(content);
+                    ZhiChiReplyAnswer answer = msgInfo.getAnswer();
                     if (answer != null) {
                         doMarkDownData(content, answer);
                         if (!isEnd && answer.getRichList() != null) {
@@ -1048,9 +1076,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                             answer.getRichList().add(richListModel);
                         }
                         answer.setMsg(content);
-                        info.setAnswer(answer);
+                        msgInfo.setAnswer(answer);
                     }
-                    info.setRevaluateState(data.getRevaluateState());
+                    msgInfo.setRevaluateState(data.getRevaluateState());
                     if (isEnd && (answer == null || answer.getRichList() == null || answer.getRichList().isEmpty())) {
                         //空消息 直接删除
                         removeByMsgId(id);
@@ -1082,7 +1110,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             List<ChatMessageRichListModel> richList = new ArrayList<>();
             for (int i = 0; i < temp.length; i++) {
                 ChatMessageRichListModel model = new ChatMessageRichListModel();
-                if (SobotStringUtils.isNoEmpty(temp[0])) {
+                if (StringUtils.isNoEmpty(temp[0])) {
                     if (temp[i].startsWith("http")) {
                         //图片
                         model.setMsg(temp[i]);
@@ -1192,7 +1220,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     //通过msgid 找消息对象
     private ZhiChiMessageBase getMsgInfo(String id) {
-        if (SobotStringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(id)) {
             return null;
         }
         if (list != null) {
@@ -1322,6 +1350,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 break;
             case MSG_TYPE_MULTI_ROUND_R:
                 holder = new SobotChatMsgItemSDKHistoryR(context, convertView);
+                holder.setRight(true);
                 break;
             case MSG_TYPE_ROBOT_QUESTION_RECOMMEND:
                 holder = new RobotQRMessageHolder(context, convertView);
@@ -1442,6 +1471,15 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             case MSG_TYPE_ROBOT_AIAGENT_BUTTON:
                 holder = new RobotAiagentButtonMessageHolder(context, convertView);
                 break;
+            case MSG_TYPE_SKILL_GROUP:
+                holder = new SkillGroupMessageHolder(context, convertView);
+                break;
+            case MSG_TYPE_CUSTOM_CARD_VERTICAL_SPECIAL:
+                holder = new CustomCardVerticalMessageHolder(context, convertView);
+                break;
+            case MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL:
+                holder = new CustomCardHorizontalMessageHolder(context, convertView);
+                break;
             default: {
                 holder = new TextMessageHolder(context, convertView);
                 break;
@@ -1479,7 +1517,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             return;
         }
         ZhiChiMessageBase message = list.get(position);
-
+        if (message == null) {
+            return;
+        }
         //时间提醒
         if (baseHolder.reminde_time_Text == null) {
             return;
@@ -1488,41 +1528,55 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         baseHolder.reminde_time_Text.setTextColor(context.getResources()
                 .getColor(R.color.sobot_color_remind_text));
         String time = "";
+        String lastCid = SharedPreferencesUtil.getStringData(context, "lastCid", "");
 
         if (position == 0) {
             ZhiChiReplyAnswer answer = message.getAnswer();
-            if (answer != null && answer.getRemindType() == ZhiChiConstant.sobot_remind_type_nomore) {
-                baseHolder.reminde_time_Text.setVisibility(View.GONE);
+            if (message.getSenderType() == ZhiChiConstant.message_sender_type_notice || (answer != null && answer.getRemindType() == ZhiChiConstant.sobot_remind_type_nomore)) {
+                //非置顶通告 顶部高度
+                baseHolder.reminde_time_Text.setVisibility(View.VISIBLE);
+                baseHolder.reminde_time_Text.setText("");
                 baseHolder.reminde_time_Text.setPadding(0, 0, 0, 0);
             } else {
-                time = getTimeStr(message, position);
+                time = getTimeStr(message);
                 baseHolder.reminde_time_Text.setText(time);
                 baseHolder.reminde_time_Text.setVisibility(View.VISIBLE);
-                baseHolder.reminde_time_Text.setPadding(0, 0, 0, SobotDensityUtil.dp2px(context, 20));
+                baseHolder.reminde_time_Text.setPadding(0, ScreenUtils.dip2px(context, 20), 0, ScreenUtils.dip2px(context, 20));
             }
         } else {
-            if (message.getCid() != null && !message.getCid().equals(list.get(position - 1).getCid())) {
-                time = getTimeStr(message, position);
-                baseHolder.reminde_time_Text.setVisibility(View.VISIBLE);
-                baseHolder.reminde_time_Text.setPadding(0, 0, 0, SobotDensityUtil.dp2px(context, 20));
-                baseHolder.reminde_time_Text.setText(time);
-            } else {
+            if (message.getCid() != null && message.getCid().equals(lastCid)) {
                 baseHolder.reminde_time_Text.setVisibility(View.GONE);
+            } else {
+                if (message.getCid() != null && !message.getCid().equals(list.get(position - 1).getCid())) {
+                    time = getTimeStr(message);
+                    baseHolder.reminde_time_Text.setVisibility(View.VISIBLE);
+                    baseHolder.reminde_time_Text.setPadding(0, 0, 0, ScreenUtils.dip2px(context, 20));
+                    baseHolder.reminde_time_Text.setText(time);
+                } else {
+                    baseHolder.reminde_time_Text.setVisibility(View.GONE);
+                }
             }
         }
+
     }
 
-    private String getTimeStr(ZhiChiMessageBase tempModel, int position) {
-        String stringData = SharedPreferencesUtil.getStringData(context, "lastCid", "");
-        tempModel.setTs(TextUtils.isEmpty(tempModel.getTs()) ? (DateUtil.getCurrentDateTime()) : tempModel.getTs());
+    private String getTimeStr(ZhiChiMessageBase tempModel) {
+        if (tempModel == null || context == null) {
+            return "";
+        }
+        String tempT = TextUtils.isEmpty(tempModel.getT()) ? (System.currentTimeMillis() + "") : tempModel.getT();
         String time = "";
-        String dataTime = DateUtil.stringToFormatString(tempModel.getTs() + "", "yyyy-MM-dd", ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE));
-        String nowTime = DateUtil.getCurrentDate();
-        if (tempModel.getCid() != null && tempModel.getCid().equals(stringData) && nowTime.equals(dataTime)) {
-            time = DateUtil.formatDateTime(tempModel.getTs(), true, "", ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE));
+        String formatString = "HH:mm";
+        Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
+        if (DateUtil.isToday(tempT)) {
+            time = DateUtil.longStrToDateStr(tempT, formatString, locale);
         } else {
-            time = DateUtil.stringToFormatString(list.get(position).getTs() +
-                    "", "MM-dd HH:mm", ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE));
+            if (DateUtil.isThisYear(tempT)) {
+                formatString = DateUtil.getDateTimePatternByLanguage(locale, false);
+            } else {
+                formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+            }
+            time = DateUtil.longStrToDateStr(tempT, formatString, locale);
         }
         return time;
     }
@@ -1593,6 +1647,23 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
     }
 
     /**
+     * 转人工成功后---删除技能组消息
+     */
+    public void removeSkillGroup() {
+        try {
+            List<ZhiChiMessageBase> listData = getDatas();
+            for (int i = listData.size() - 1; i >= 0; i--) {
+                if (listData.get(i).getSkillGroups() != null && !listData.get(i).getSkillGroups().isEmpty()) {
+                    listData.remove(i);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.i("error : removeSemanticsKeyWordTranferItem()");
+        }
+    }
+
+    /**
      * 评价成功后 删除评价
      */
     public void removeEvaluateData() {
@@ -1618,7 +1689,12 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
         void sendMessageToRobot(ZhiChiMessageBase base, int type, int questionFlag, String docId, String multiRoundMsg);
 
-        void doClickTransferBtn(ZhiChiMessageBase base);
+        /**
+         * 消息底部转人工按钮事件
+         *
+         * @param base
+         */
+        void doClickTransfer(ZhiChiMessageBase base);
 
         void hidePanelAndKeyboard();
 

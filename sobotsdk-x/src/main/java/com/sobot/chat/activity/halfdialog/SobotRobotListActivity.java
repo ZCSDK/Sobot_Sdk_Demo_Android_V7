@@ -2,6 +2,7 @@ package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,7 +37,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
 
     private SobotRobotListAdapter mListAdapter;
     private List<SobotRobot> sobotRobotList;
-
+    private ImageView iv_closes;//关闭
 
     @Override
     protected int getContentViewResId() {
@@ -45,12 +46,20 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
 
     @Override
     protected void initView() {
+        super.initView();
         sobotRobotList = new ArrayList<>();
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         tv_nodata = (TextView) findViewById(R.id.tv_nodata);
         sobot_tv_title.setText(R.string.sobot_switch_robot_title);
         rv_list = findViewById(R.id.rv_list);
+        iv_closes = findViewById(R.id.iv_closes);
+        iv_closes.setOnClickListener(this);
         rv_list.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotRobotListActivity";
     }
 
     @Override
@@ -61,7 +70,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
             @Override
             public void onItemClick(SobotRobot item) {
                 if (item.getRobotFlag() != mRobotFlag) {
-                    //选择机器人 发送广播
+                    //选择留言模版成功 发送广播
                     Intent intent = new Intent();
                     intent.putExtra("sobotRobot", item);
                     CommonUtils.sendLocalBroadcast(getContext(), intent);
@@ -93,10 +102,6 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
                         sobotRobotList.clear();
                         sobotRobotList.addAll(sobotRobots);
                         mListAdapter.notifyDataSetChanged();
-                        tv_nodata.setVisibility(View.GONE);
-                        if (rv_list.getVisibility() == View.GONE) {
-                            rv_list.setVisibility(View.VISIBLE);
-                        }
                     } else {
                         tv_nodata.setVisibility(View.VISIBLE);
                         rv_list.setVisibility(View.GONE);
@@ -124,9 +129,6 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
                         sobotRobotList.clear();
                         sobotRobotList.addAll(sobotRobots);
                         mListAdapter.notifyDataSetChanged();
-                        if (rv_list.getVisibility() == View.GONE) {
-                            rv_list.setVisibility(View.VISIBLE);
-                        }
                     } else {
                         tv_nodata.setVisibility(View.VISIBLE);
                         rv_list.setVisibility(View.GONE);
@@ -145,6 +147,9 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
 
     @Override
     public void onClick(View v) {
+        if (iv_closes == v) {
+            finish();
+        }
     }
 
 

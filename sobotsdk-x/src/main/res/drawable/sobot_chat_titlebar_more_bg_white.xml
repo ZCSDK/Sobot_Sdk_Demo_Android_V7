@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天页导航栏右侧 更多 透明背景色-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="10dp" />
+    <solid android:color="@color/sobot_color_title_bar_more_bg_white" />
+</shape>

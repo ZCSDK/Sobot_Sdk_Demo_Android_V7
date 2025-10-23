@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +37,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -45,12 +45,16 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp">
 
                 <TextView
                     android:id="@+id/sobot_template4_temp_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:textColor="@color/sobot_left_msg_text_color"
                     android:textSize="@dimen/sobot_text_font_14" />
@@ -59,7 +63,9 @@
                     android:id="@+id/sobot_template4_thumbnail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginTop="11dp"
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
                     android:visibility="gone"
                     app:sobot_round_corner="4dp" />
 
@@ -67,7 +73,9 @@
                     android:id="@+id/sobot_template4_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
                     android:ellipsize="end"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:maxLines="1"
@@ -78,18 +86,20 @@
                     android:id="@+id/sobot_template4_summary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
                     android:ellipsize="end"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:maxLines="2"
                     android:textColor="@color/sobot_left_msg_text_color_des"
-                    android:textSize="@dimen/sobot_text_font_14" />
+                    android:textSize="@dimen/sobot_text_font_12" />
 
                 <View
                     android:id="@+id/sobot_template3_line"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/sobot_line_height_dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="16dp"
                     android:background="@color/sobot_color_line_divider"
                     android:visibility="visible" />
 
@@ -98,7 +108,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginTop="13dp"
+                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
                     android:gravity="center"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:paddingStart="16dp"

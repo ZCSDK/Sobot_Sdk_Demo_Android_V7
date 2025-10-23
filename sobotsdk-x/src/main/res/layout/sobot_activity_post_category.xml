@@ -13,33 +13,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/sobot_dialog_title_bg"
         app:sobot_mhv_HeightRatio="0.8">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                style="@style/sobot_dialog_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+        <include layout="@layout/sobot_dialog_title"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/sobot_color_bg_first"
             android:orientation="vertical">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/sobot_line_height_dp"
-                android:background="@color/sobot_color_line_divider" />
-
             <LinearLayout
                 android:id="@+id/sobot_ll_search"
                 android:layout_width="match_parent"
@@ -54,13 +36,6 @@
                 android:paddingEnd="2dp"
                 android:visibility="visible">
 
-                <ImageView
-                    android:id="@+id/sobot_iv_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:src="@drawable/sobot_cur_search" />
-
                 <EditText
                     android:id="@+id/sobot_et_search"
                     android:layout_width="match_parent"
@@ -74,6 +49,8 @@
                     android:lines="1"
                     android:paddingTop="7dp"
                     android:paddingBottom="7dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:textColor="@color/sobot_color_text_first"
                     android:textColorHint="@color/sobot_color_text_third"
                     android:textSize="@dimen/sobot_text_font_14" />
@@ -85,6 +62,12 @@
                     android:padding="10dp"
                     android:src="@drawable/sobot_cur_input_clear"
                     android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/sobot_iv_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/sobot_cur_search" />
             </LinearLayout>
 
             <View
@@ -97,8 +80,8 @@
                 android:id="@+id/sobot_level"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="@dimen/sobot_dialog_margin"
+                android:layout_marginEnd="@dimen/sobot_dialog_margin"
                 android:visibility="visible">
 
                 <LinearLayout
@@ -120,7 +103,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="150dp"
+                android:minHeight="550dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp">
 
@@ -128,7 +111,6 @@
                     android:id="@+id/sobot_activity_post_category_listview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_white"
                     android:cacheColorHint="@android:color/transparent"
                     android:divider="@android:color/transparent"
                     android:dividerHeight="0dp"
@@ -140,10 +122,6 @@
                     android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style" />
             </LinearLayout>
 
-            <View
-                android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
         </LinearLayout>
 
 

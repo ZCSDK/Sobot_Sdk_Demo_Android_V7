@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.1.1 机器人id"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定机器人编号]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -46,8 +46,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -55,13 +55,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.1.1 机器人别名"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:指定机器人别名]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -83,8 +83,8 @@
                 android:inputType="textMultiLine"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -92,13 +92,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.1.2 接待模式"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -106,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:默认跟随服务端配置，如果本地配置,本地优先;默认-1不指定；1仅机器人;2仅人工;3机器人优先;4人工优先]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -120,8 +120,8 @@
                 android:inputType="number"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -129,13 +129,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.1.4 设置转人工溢出"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -143,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:可参考文档配置]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
 
@@ -152,7 +152,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_1_5_1"
@@ -168,7 +168,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="4.1.5 是否隐藏留言"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -202,7 +202,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="          是否隐藏服务评价"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -226,13 +226,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="4.1.6 指定机器人引导语"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -240,7 +240,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:不同的场景可以设置不同的机器人引导语]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -254,8 +254,8 @@
                 android:inputType="number"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -263,12 +263,12 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/sobot_common_gray2"
+                android:background="@color/sobot_textview_text_color_second"
                 android:padding="6dp"
                 android:text="参考文档"
                 android:textSize="14sp" />

@@ -1,25 +1,21 @@
 package com.sobot.chat.adapter;
 
-import static com.sobot.chat.utils.DateUtil.DATE_TIME_FORMAT;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.MarkConfig;
@@ -41,15 +37,16 @@ import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotFiveStarsSmallLayout;
-import com.sobot.chat.widget.StExpandableTextView;
+import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 留言记录适配器
@@ -164,7 +161,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                 break;
             }
             case MSG_TYPE_NO_DATA: {
-                View convertView = LayoutInflater.from(mActivity).inflate(R.layout.sobot_ticket_detail_no_data_item,  viewGroup, false);
+                View convertView = LayoutInflater.from(mActivity).inflate(R.layout.sobot_ticket_detail_no_data_item, viewGroup, false);
                 holder = new NoDataViewHolder(convertView);
                 break;
             }
@@ -181,22 +178,21 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         if (getItemViewType(position) == MSG_TYPE_NO_DATA) {
             NoDataViewHolder vh = (NoDataViewHolder) viewHolder;
             displayInNotch(mActivity, vh.sobot_ll_root, 0);
-        }else if (getItemViewType(position) == MSG_TYPE_HEAD) {
+        } else if (getItemViewType(position) == MSG_TYPE_HEAD) {
             HeadViewHolder vh = (HeadViewHolder) viewHolder;
             displayInNotch(mActivity, vh.tv_time, 0);
-            displayInNotch(mActivity, vh.tv_exp, 0);
-            Drawable drawable = mActivity.getResources().getDrawable(R.drawable.sobot_chat_msg_bg_right);
-            vh.textView.setTextColor(ThemeUtils.getThemeColor(mActivity));
-            vh.v_top.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mActivity)));
             if (list.get(position) instanceof SobotUserTicketInfo) {
                 final SobotUserTicketInfo data = (SobotUserTicketInfo) list.get(position);
+                if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
+                    vh.tv_ticket_title.setText(data.getTicketTitle());
+                }
                 if (data != null && !TextUtils.isEmpty(data.getContent())) {
                     String tempStr = data.getContent().replaceAll("<br/>", "").replace("<p></p>", "")
                             .replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
-                    if(tempStr.contains("<img")) {
+                    if (tempStr.contains("<img")) {
                         tempStr = tempStr.replaceAll("<img[^>]*>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ");
                     }
-                    vh.tv_exp.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(tempStr));
+                    vh.tv_ticket_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(tempStr));
                 }
 
                 SobotTicketStatus status = getStatus(data.getTicketStatus());
@@ -220,11 +216,17 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                         vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
                     }
                 }
-                if(null != data.getTimeStr()) {
-                    vh.tv_time.setText(DateUtil.stringToFormatString(data.getTimeStr(), DATE_TIME_FORMAT, ZCSobotApi.getSwitchMarkStatus(MarkConfig.AUTO_MATCH_TIMEZONE)));
+                if (null != data.getTimeStr()) {
+                    Locale locale = (Locale) SharedPreferencesUtil.getObject(mActivity, ZhiChiConstant.SOBOT_LANGUAGE);
+                    String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+                    vh.tv_time.setText(DateUtil.longStrToDateStr(data.getTime(), formatString, locale));
                 }
-                vh.tv_exp.setHaveFile(data.getFileList() != null && data.getFileList().size() > 0);
-                vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(),false,listener));
+                if(null!=data.getFileList() && !data.getFileList().isEmpty()){
+                    vh.recyclerView.setVisibility(View.VISIBLE);
+                    vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(), false, listener));
+                }else{
+                    vh.recyclerView.setVisibility(View.GONE);
+                }
             }
         } else if (getItemViewType(position) == MSG_TYPE_EVALUATE) {
             EvaluateViewHolder vh = (EvaluateViewHolder) viewHolder;
@@ -302,35 +304,22 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
         } else {
             DetailViewHolder vh = (DetailViewHolder) viewHolder;
-//            displayInNotch(mActivity, vh.sobot_ll_root, ScreenUtils.dip2px(mActivity, 20));
-            int color;
-            if (position == 1) {
-                vh.sobot_top_line_view.setBackgroundColor(Color.parseColor("#00000000"));
-                vh.sobot_tv_icon2.setBackgroundResource(R.drawable.sobot_icon_point_old);
-            } else {
-                vh.sobot_tv_icon2.setBackgroundResource(R.drawable.sobot_icon_point_old);
-                vh.sobot_top_line_view.setBackgroundColor(ContextCompat.getColor(mActivity, R.color.sobot_ticket_deal_line_grey));
-            }
-
 
             if (list.get(position) instanceof StUserDealTicketReplyInfo) {
                 final StUserDealTicketReplyInfo reply = (StUserDealTicketReplyInfo) list.get(position);
                 if (reply.getStartType() == 0) {
                     //客服
-                    vh.sobot_tv_status.setVisibility(View.VISIBLE);
-                    vh.sobot_tv_status.setText(R.string.sobot_ticket_service_reply);
+                    vh.sobot_tv_name.setText("客服");
+//                    vh.iv_head.setIma
+
                     if (TextUtils.isEmpty(reply.getReplyContent())) {
-                        vh.sobot_tv_content_ll.setBackground(null);
                         vh.sobot_tv_content_detail.setVisibility(View.GONE);
                         vh.sobot_tv_content_detail.setOnClickListener(null);
-                        vh.sobot_tv_content_detail_split.setVisibility(View.GONE);
                         vh.sobot_tv_content.setPadding(0, 0, 0, 0);
                     } else {
                         //如果回复里包含图片（img标签），如果有，显示查看详情，并且跳转到WebViewActivity展示
                         if (StringUtils.getImgSrc(reply.getReplyContent()).size() > 0) {
-                            vh.sobot_tv_content_ll.setBackgroundResource(R.drawable.sobot_round_ticket);
                             vh.sobot_tv_content_detail.setVisibility(View.VISIBLE);
-                            vh.sobot_tv_content_detail_split.setVisibility(View.VISIBLE);
                             vh.sobot_tv_content.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10));
                             vh.sobot_tv_content_detail.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11));
                             vh.sobot_tv_content_detail.setOnClickListener(new View.OnClickListener() {
@@ -342,10 +331,8 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                                 }
                             });
                         } else {
-                            vh.sobot_tv_content_ll.setBackgroundDrawable(null);
                             vh.sobot_tv_content_detail.setVisibility(View.GONE);
                             vh.sobot_tv_content_detail.setOnClickListener(null);
-                            vh.sobot_tv_content_detail_split.setVisibility(View.GONE);
                             vh.sobot_tv_content.setPadding(0, 0, 0, 0);
                         }
                         HtmlTools.getInstance(mActivity).setRichText(vh.sobot_tv_content, reply.getReplyContent().replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] "), getLinkTextColor());
@@ -354,30 +341,29 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
                 } else {
                     //客户
-                    vh.sobot_tv_content_ll.setBackgroundDrawable(null);
+                    vh.sobot_tv_name.setText("客户");
                     vh.sobot_tv_content_detail.setVisibility(View.GONE);
                     vh.sobot_tv_content_detail.setOnClickListener(null);
-                    vh.sobot_tv_content_detail_split.setVisibility(View.GONE);
                     vh.sobot_tv_content.setPadding(0, 0, 0, 0);
-                    vh.sobot_tv_status.setVisibility(View.VISIBLE);
-                    vh.sobot_tv_status.setText(R.string.sobot_ticket_me_reply);
                     vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : Html.fromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
                 }
-                if(reply.getReplyTime()>0) {
-                    vh.sobot_tv_time.setText(DateUtil.toDate(reply.getReplyTime(), DateUtil.DATE_FORMAT));
+                Locale locale = (Locale) SharedPreferencesUtil.getObject(mActivity, ZhiChiConstant.SOBOT_LANGUAGE);
+                String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
+                vh.sobot_tv_time.setText(DateUtil.longStrToDateStr(reply.getReplyTime() + "", formatString, locale));
+                if(null!=reply.getFileList() && !reply.getFileList().isEmpty()){
+                    vh.recyclerView.setVisibility(View.VISIBLE);
+                    vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
+                }else{
+                    vh.recyclerView.setVisibility(View.GONE);
                 }
-                vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
-
-
 //            } else if(item instanceof StUserDealTicketInfo){
-//                sobot_tv_status.setVisibility(View.GONE);
             }
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(position>=list.size()){
+        if (position >= list.size()) {
             return MSG_TYPE_NO_DATA;
         }
         Object data = list.get(position);
@@ -400,39 +386,25 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
 
     class HeadViewHolder extends RecyclerView.ViewHolder {
-        private StExpandableTextView tv_exp;
-        private TextView textView;
 
         private TextView tv_time;
         private TextView tv_ticket_status;
+        private TextView tv_ticket_title;
+        private TextView tv_ticket_content;
         private RecyclerView recyclerView;
-        private View v_top;
 
         HeadViewHolder(View view) {
             super(view);
-            tv_exp = (StExpandableTextView) view.findViewById(R.id.sobot_content_fl);
-            v_top = view.findViewById(R.id.v_top);
-            textView = tv_exp.getTextBtn();
-            tv_exp.setOnExpandStateChangeListener(new StExpandableTextView.OnExpandStateChangeListener() {
-                @Override
-                public void onExpandStateChanged(TextView text, boolean isExpanded) {
-                    if (isExpanded) {//展开
-                        textView.setText(R.string.sobot_notice_collapse);
-                    } else {
-                        textView.setText(R.string.sobot_notice_expand_all);
-                    }
-                }
-            });
-            textView.setText(R.string.sobot_notice_expand_all);
             tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
-            ViewGroup otherGroup = tv_exp.getmOtherView();
-            if (otherGroup != null) {
-                recyclerView = (RecyclerView) otherGroup.findViewById(R.id.sobot_attachment_file_layout);
-                LinearLayoutManager layoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
-                // 设置RecyclerView的LayoutManager
-                recyclerView.setLayoutManager(layoutManager);
-            }
+            recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
             tv_ticket_status = (TextView) view.findViewById(R.id.sobot_tv_ticket_status);
+            tv_ticket_title = (TextView) view.findViewById(R.id.tv_title);
+            tv_ticket_content = (TextView) view.findViewById(R.id.tv_context);
+            GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
+            // 设置RecyclerView的LayoutManager
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8),false));
+
 
         }
     }
@@ -440,46 +412,39 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
     class DetailViewHolder extends RecyclerView.ViewHolder {
         private TextView sobot_tv_time;
-        private TextView sobot_tv_icon2;
-        private TextView sobot_tv_status;
+        private TextView sobot_tv_name;
         private TextView sobot_tv_content;
         private TextView sobot_tv_content_detail;
-        private View sobot_tv_content_detail_split;
-        private LinearLayout sobot_ll_container;
-        private LinearLayout sobot_tv_content_ll;
-        private View sobot_top_line_view;
-        //        private LinearLayout sobot_ll_root;
+        private ImageView iv_head;
         private RecyclerView recyclerView;
 
         DetailViewHolder(View view) {
             super(view);
-//            sobot_ll_root = (LinearLayout) view.findViewById(R.id.sobot_ll_root);
-            sobot_tv_icon2 = (TextView) view.findViewById(R.id.sobot_tv_icon2);
-            sobot_tv_status = (TextView) view.findViewById(R.id.sobot_tv_status);
+            iv_head = view.findViewById(R.id.iv_head);
+            sobot_tv_name = (TextView) view.findViewById(R.id.sobot_tv_name);
             sobot_tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
-            sobot_tv_content_ll = (LinearLayout) view.findViewById(R.id.sobot_tv_content_ll);
             sobot_tv_content = (TextView) view.findViewById(R.id.sobot_tv_content);
-            sobot_tv_content_detail_split = view.findViewById(R.id.sobot_tv_content_detail_split);
             sobot_tv_content_detail = (TextView) view.findViewById(R.id.sobot_tv_content_detail);
             sobot_tv_content_detail.setText(R.string.sobot_see_detail);
-            sobot_ll_container = (LinearLayout) view.findViewById(R.id.sobot_ll_container);
-            sobot_top_line_view = view.findViewById(R.id.sobot_top_line_view);
             recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
+            GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
             recyclerView.setLayoutManager(layoutManager);
+            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8),false));
         }
     }
 
 
     class NoDataViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout sobot_ll_root;
-        NoDataViewHolder(View view){
+
+        NoDataViewHolder(View view) {
             super(view);
             sobot_ll_root = view.findViewById(R.id.sobot_ll_root);
 
         }
     }
+
     class EvaluateViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout sobot_ll_score;
         private TextView sobot_tv_remark;

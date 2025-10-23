@@ -1,7 +1,6 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
@@ -16,15 +15,17 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotAiRobotRealuateConfigInfo;
 import com.sobot.chat.api.model.SobotAiRobotRealuateInfo;
 import com.sobot.chat.api.model.SobotAiRobotRealuateTag;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotAntoLineLayout;
-import com.sobot.utils.SobotDensityUtil;
 
 import java.util.List;
 
@@ -36,7 +37,6 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
     private EditText ed_describe;
     private TextView sobot_submit;//提交
     private TextView tipMsgTV;//提示内容
-    private View v_top;
 
     private FrameLayout sobot_cai_action;
 
@@ -51,7 +51,6 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
     public AiRobotCaiReasonMessageHolder(Context context, View convertView) {
         super(context, convertView);
         tipMsgTV = convertView.findViewById(R.id.sobot_msg);
-        v_top = convertView.findViewById(R.id.v_top);
         sobot_cai_action = convertView.findViewById(R.id.sobot_cai_action);
         sobot_evaluate_lable_autoline = convertView.findViewById(R.id.sobot_evaluate_lable_autoline);
         sobot_submit = convertView.findViewById(R.id.sobot_submit);
@@ -59,29 +58,6 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
         changeThemeColor = ThemeUtils.isChangedThemeColor(context);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(context);
-        }
-        if (!TextUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
-            String themeColor[] = initMode.getVisitorScheme().getRebotTheme().split(",");
-            if (themeColor.length > 1) {
-                if (mContext.getResources().getColor(R.color.sobot_gradient_start) != Color.parseColor(themeColor[0]) || mContext.getResources().getColor(R.color.sobot_gradient_end) != Color.parseColor(themeColor[1])) {
-                    int[] colors = new int[themeColor.length];
-                    for (int i = 0; i < themeColor.length; i++) {
-                        colors[i] = Color.parseColor(themeColor[i]);
-                    }
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius_second));
-                    if (v_top != null) {
-                        v_top.setBackground(aDrawable);
-                    }
-                } else {
-                    int[] colors = new int[]{mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_start), mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_end)};
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius_second));
-                    if (v_top != null) {
-                        v_top.setBackground(aDrawable);
-                    }
-                }
-            }
         }
         ed_describe.setOnTouchListener(this);
     }
@@ -132,7 +108,12 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
         }
         //提交按钮
         if (changeThemeColor) {
-            sobot_submit.setTextColor(themeColor);
+            sobot_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
+            Drawable drawable =
+                    ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_btn_bg_28, null);
+            if (drawable != null) {
+                sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mContext)));
+            }
         }
         if (TextUtils.isEmpty(sobotRealuateInfo.getRealuateDetail()) && sobotRealuateInfo.getRealuateTag() == null) {
             sobot_submit.setAlpha(0.5f);
@@ -223,7 +204,7 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
                 compoundButton.setBackground(checkboxDrawable);
                 compoundButton.setTextColor(themeColor);
             } else {
-                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_bg_cai_reason_lable_checkbox_bg);
+                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_lable_def);
                 compoundButton.setBackground(drawable);
                 compoundButton.setTextColor(mContext.getResources().getColor(R.color.sobot_chat_lable_checkbox_text_color));
             }
@@ -248,7 +229,7 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
         drawable.setShape(GradientDrawable.RECTANGLE);
         drawable.setColor(ThemeUtils.addAlphaToColor(color, 0x1A));// 设置形状的填充颜色 10 透明度
         if (mContext != null) {
-            drawable.setCornerRadius(SobotDensityUtil.dp2px(mContext, 4)); // 设置圆角半径
+            drawable.setCornerRadius(ScreenUtils.dip2px(mContext, 4)); // 设置圆角半径
             drawable.setStroke(2, color);
         } else {
             drawable.setCornerRadius(8); // 设置圆角半径

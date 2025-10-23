@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_real_ll_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/sobot_msg_margin_edge"
+    android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+    style="@style/sobot_card_msg_top_bottom_style"
+    android:orientation="vertical">
+    <!--            横向 滑动卡片-->
+    <com.sobot.chat.widget.SobotMaxSizeLinearLayout
+        android:id="@+id/sobot_v_h"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <!--商品列表-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_goods_list_h"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+             />
+    </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+
+</LinearLayout>

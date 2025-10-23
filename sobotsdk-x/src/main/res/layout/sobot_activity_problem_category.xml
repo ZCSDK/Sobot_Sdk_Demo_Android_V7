@@ -3,7 +3,7 @@
     android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sobot_color_bg_second"
+    android:background="@color/sobot_color_bg_first"
     android:orientation="vertical">
 
     <include layout="@layout/sobot_layout_common_titlebar" />
@@ -15,9 +15,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/sobot_color_line_divider"
-        android:dividerHeight="0.6dp"
+        android:dividerHeight="1dp"
         android:listSelector="@android:color/transparent"
+        android:paddingStart="@dimen/sobot_Left_right_margin_edge"
+        android:paddingEnd="@dimen/sobot_Left_right_margin_edge"
         android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style"
+        android:scrollbars="none"
         android:visibility="gone" />
 
     <TextView

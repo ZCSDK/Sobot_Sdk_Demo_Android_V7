@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -16,27 +17,35 @@
             android:id="@+id/sobot_msg_face_iv"
             style="@style/sobot_chatting_left_face_style"
             android:visibility="gone" />
+
         <!-- 昵称 -->
         <TextView
             android:id="@+id/sobot_msg_nike_name_tv"
             style="@style/sobot_chatting_nickname"
             android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:visibility="gone" />
-        <!--消息内容 -->
-        <com.sobot.chat.widget.SobotMaxSizeLinearLayout
-            android:id="@+id/sobot_msg_content_ll"
-            style="@style/sobot_msg_left_content_ll_bg_style"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
-            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/sobot_msg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/sobot_left_msg_text_color"
-                android:textSize="@dimen/sobot_text_font_14" />
+        <LinearLayout
+            android:id="@+id/sobot_msg_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/sobot_msg_nike_name_tv"
+            android:orientation="horizontal">
+            <!--消息内容 -->
+            <com.sobot.chat.widget.SobotMaxSizeLinearLayout
+                android:id="@+id/sobot_msg_content_ll"
+                style="@style/sobot_msg_left_content_ll_bg_style"
+                android:orientation="vertical">
 
-        </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+                <TextView
+                    android:id="@+id/sobot_msg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/sobot_left_msg_text_color"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+            </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 
     <com.sobot.chat.widget.SobotMaxSizeFrameLayout
@@ -44,24 +53,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        app:sobot_max_width="500dp"
         android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge">
-
-        <View
-            android:id="@+id/v_top"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_gravity="top"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/sobot_chat_msg_bg_right" />
+        android:paddingEnd="@dimen/sobot_msg_margin_edge"
+        app:sobot_max_width="500dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:background="@drawable/sobot_card_background_shadow"
+            android:background="@drawable/sobot_chat_msg_hollow_bg_left"
             android:orientation="vertical"
             android:paddingTop="20dp">
 
@@ -73,7 +73,7 @@
                 android:layout_marginEnd="20dp"
                 app:sobot_fillMode="1"
                 app:sobot_horizontalGap="8dp"
-                app:sobot_verticalGap="8dp" />
+                app:sobot_verticalGap="10dp" />
 
             <LinearLayout
                 android:id="@+id/ll_input"
@@ -94,9 +94,9 @@
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:maxLength="1000"
                     android:minHeight="80dp"
-                    android:paddingStart="10dp"
+                    android:paddingStart="12dp"
                     android:paddingTop="8dp"
-                    android:paddingEnd="10dp"
+                    android:paddingEnd="12dp"
                     android:paddingBottom="8dp"
                     android:scrollbars="vertical"
                     android:textColor="@color/sobot_color_text_first"
@@ -105,24 +105,20 @@
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.6dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:background="@color/sobot_color_line_divider_2" />
-
             <TextView
                 android:id="@+id/sobot_submit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/sobot_btn_bg_28"
                 android:gravity="center"
                 android:includeFontPadding="false"
-                android:padding="12dp"
-                android:layout_marginBottom="3dp"
+                android:padding="10dp"
                 android:text="@string/sobot_btn_submit_text"
-                android:textColor="@color/sobot_common_green"
+                android:textColor="@color/sobot_color_white"
                 android:textSize="@dimen/sobot_text_font_14"
                 android:visibility="visible" />
 

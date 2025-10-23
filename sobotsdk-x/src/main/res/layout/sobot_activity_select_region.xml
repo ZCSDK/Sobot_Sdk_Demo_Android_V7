@@ -11,82 +11,25 @@
     <com.sobot.chat.widget.SobotMHLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sobot_color_transparent"
+        android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
         app:sobot_mhv_HeightRatio="0.7">
         <!--标题-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center"
-            android:orientation="vertical">
+        <include layout="@layout/sobot_dialog_title" />
 
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                style="@style/sobot_dialog_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sobot_line_height_dp"
-            android:background="@color/sobot_color_line_divider" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/sobot_color_bg_first"
+            android:background="@color/sobot_dialog_bg_color"
             android:orientation="vertical">
             <!--搜索-->
-            <LinearLayout
-                android:id="@+id/ll_search"
+            <include layout="@layout/sobot_dialog_search" />
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sobot_msg_margin_edge"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/sobot_search_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="2dp"
-                android:paddingEnd="2dp"
-                android:visibility="visible">
-
-                <ImageView
-                    android:id="@+id/sobot_iv_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    android:src="@drawable/sobot_cur_search" />
-
-                <EditText
-                    android:id="@+id/et_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@null"
-                    android:gravity="center_vertical"
-                    android:hint="@string/sobot_please_input"
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:lines="1"
-                    android:paddingTop="7dp"
-                    android:paddingBottom="7dp"
-                    android:textColor="@color/sobot_color_text_first"
-                    android:textColorHint="@color/sobot_color_text_third"
-                    android:textSize="@dimen/sobot_text_font_14" />
-
-                <ImageView
-                    android:id="@+id/sobot_iv_clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:padding="10dp"
-                    android:src="@drawable/sobot_cur_input_clear"
-                    android:visibility="gone" />
-            </LinearLayout>
+                android:layout_height="0.6dp"
+                android:background="@color/sobot_dialog_line" />
 
             <LinearLayout
                 android:id="@+id/ll_search_data"
@@ -106,14 +49,13 @@
                     android:textColor="@color/sobot_color_text_third"
                     android:textSize="12sp" />
                 <!--下拉刷新,可翻页-->
-                <com.sobot.widget.refresh.layout.SobotRefreshLayout
+                <com.sobot.chat.widget.refresh.layout.SobotRefreshLayout
                     android:id="@+id/sobot_srl_workorder_search"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@color/sobot_color_bg_first">
+                    >
 
-                    <com.sobot.widget.loading.SobotLoadingLayout
+                    <com.sobot.chat.widget.loading.SobotLoadingLayout
                         android:id="@+id/sobot_loading_layout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -124,8 +66,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:minHeight="536dp" />
-                    </com.sobot.widget.loading.SobotLoadingLayout>
-                </com.sobot.widget.refresh.layout.SobotRefreshLayout>
+                    </com.sobot.chat.widget.loading.SobotLoadingLayout>
+                </com.sobot.chat.widget.refresh.layout.SobotRefreshLayout>
 
                 <TextView
                     android:id="@+id/tv_select_text"
@@ -163,14 +105,15 @@
                     android:layout_height="match_parent"
                     android:minHeight="536dp" />
             </LinearLayout>
+
             <TextView
                 android:id="@+id/btn_save"
                 style="@style/sobot_dialog_bottom_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/sobot_btn_submit"
-                android:background="@drawable/sobot_bg_theme_color_4dp" />
+                android:background="@drawable/sobot_bg_theme_color_4dp"
+                android:text="@string/sobot_btn_submit" />
         </LinearLayout>
 
     </com.sobot.chat.widget.SobotMHLinearLayout>

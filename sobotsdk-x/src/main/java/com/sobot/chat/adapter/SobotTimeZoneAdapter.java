@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotTimezone;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.sobot_activity_cusfield_listview_items, viewGroup, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.sobot_item_cusfield_listview, viewGroup, false);
         return  new MyViewHolder(v);
     }
 
@@ -60,9 +60,9 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if(checkin!=null){
             String data = checkin.getTimezoneValue();
-            if(SobotStringUtils.isNoEmpty(data)){
+            if(StringUtils.isNoEmpty(data)){
                 SpannableString spannableString = new SpannableString(data);
-                if(SobotStringUtils.isNoEmpty(searchText)) {
+                if(StringUtils.isNoEmpty(searchText)) {
                     if ( data.toLowerCase().contains(searchText.toLowerCase()) ) {
                         int index = data.toLowerCase().indexOf(searchText.toLowerCase());
                         if(index>=0) {
@@ -79,7 +79,7 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
                 vh.iv_img.setVisibility(View.VISIBLE);
                 if (ThemeUtils.isChangedThemeColor(mContext)) {
                     int themeColor = ThemeUtils.getThemeColor(mContext);
-                    Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_cur_selected);
+                    Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                     if (bg != null) {
                         vh.iv_img.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                     }

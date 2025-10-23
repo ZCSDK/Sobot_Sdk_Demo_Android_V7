@@ -3,6 +3,7 @@ package com.sobot.chat.viewHolder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -15,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.SobotFileDetailActivity;
@@ -31,6 +33,7 @@ import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotSectorProgressView;
@@ -38,7 +41,6 @@ import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,12 +81,19 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
     public void bindData(Context context, ZhiChiMessageBase message) {
         this.mContext = context;
         this.message = message;
-        if (message != null && SobotStringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant()) && progressbar_loading != null) {
+        if (message != null && StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant()) && progressbar_loading != null) {
             //如果是aiagent 答案
-            if (message.getAnswer() != null && message.getAnswer().getRichList() != null && !message.getAnswer().getRichList().isEmpty() && (SobotStringUtils.isNoEmpty(message.getAnswer().getRichList().get(0).getMsg()))) {
+            if (message.getAnswer() != null && message.getAnswer().getRichList() != null && !message.getAnswer().getRichList().isEmpty() && (StringUtils.isNoEmpty(message.getAnswer().getRichList().get(0).getMsg()))) {
                 progressbar_loading.setVisibility(View.GONE);
             } else {
                 progressbar_loading.setVisibility(View.VISIBLE);
+                if (sobot_msg_content_ll != null && mContext != null) {
+                    //四个角弧度一样
+                    Drawable bg = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_chat_msg_bg_left_second, null);
+                    if (bg != null) {
+                        sobot_msg_content_ll.setBackground(bg);
+                    }
+                }
             }
         } else {
             if (progressbar_loading != null) {
@@ -135,14 +144,14 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
         super.showRevaluateBtn();
         if (dingcaiIsShowRight()) {
             //有顶和踩时显示信息显示两行 64-12-12=40 总高度减去上下内间距
-            msg.setMinHeight(ScreenUtils.dip2px(mContext, 40));
+            msg.setMinHeight(ScreenUtils.dip2px(mContext, 44));
             //有顶和踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 64-12-12=40 总高度减去上下内间距
             if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
                 for (int i = 0; i < sobot_rich_ll.getChildCount(); i++) {
                     View view = sobot_rich_ll.getChildAt(i);
                     if (view instanceof TextView) {
                         TextView tv = (TextView) view;
-                        tv.setMinHeight(ScreenUtils.dip2px(mContext, 40));
+                        tv.setMinHeight(ScreenUtils.dip2px(mContext, 44));
                     }
                 }
             }
@@ -188,7 +197,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             if (richListModel.getType() == 0 && richListModel.getShowType() != 1) {
                                 ChatMessageRichListModel model = new ChatMessageRichListModel();
                                 model.setType(0);
-                                if (tempRichList.size() > 0) {
+                                if (!tempRichList.isEmpty()) {
                                     //如果上一个是文本,需要合并当前文本到上个文本后边
                                     ChatMessageRichListModel tempRichListModel = tempRichList.get(tempRichList.size() - 1);
                                     if (tempRichListModel != null && tempRichListModel.getType() == 0) {
@@ -216,7 +225,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             }
                         }
                     }
-                    if (tempRichList != null && tempRichList.size() > 0) {
+                    if (!tempRichList.isEmpty()) {
                         message.getAnswer().setRichList(tempRichList);
                     }
                 }
@@ -273,7 +282,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             if (richListModel.getShowType() == 1) {
                                 //超链接，并且是卡片形式才显示卡片
                                 final View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth-12, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth - 12, ViewGroup.LayoutParams.WRAP_CONTENT);
                                 layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, ScreenUtils.dip2px(mContext, 4));
                                 view.setLayoutParams(layoutParams);
                                 TextView tv_title = view.findViewById(R.id.tv_title);
@@ -358,21 +367,26 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             }
                             sobot_rich_ll.addView(textView);
                         }
-                    } else if (richListModel.getType() == 1 && HtmlTools.isHasPatterns(richListModel.getMsg())) {
-                        LinearLayout.LayoutParams mlayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        if (i != 0) {
-                            mlayoutParams.setMargins(0, ScreenUtils.dip2px(context, 10), 0, 0);
+                    } else if (richListModel.getType() == 1) {
+                        int imgHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())&&!message.isAiAgentReceiveMsgEnd()){
+                            //图片如果是大模型消息里，同时消息还在接收，图片高度固定
+                            imgHeight=500;
                         }
-                        ImageView imageView = new ImageView(mContext);
-                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                        imageView.setMaxWidth(msgMaxWidth);
-                        imageView.setAdjustViewBounds(true);
-                        imageView.setLayoutParams(mlayoutParams);
-                        SobotBitmapUtil.display(mContext, richListModel.getMsg(), imageView);
-                        imageView.setOnClickListener(new ImageClickLisenter(context, richListModel.getMsg(), isRight));
-                        sobot_rich_ll.addView(imageView);
+                        View imageView = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_rich_image_view, sobot_rich_ll, false);
+                        SobotProgressImageView image = imageView.findViewById(R.id.sobot_iv_picture);
+                        if (!TextUtils.isEmpty(richListModel.getMsg())) {
+                            image.setImageUrlWithScaleType(richListModel.getMsg(), ImageView.ScaleType.FIT_CENTER);
+                            image.setImageWidthAndHeight(msgMaxWidth, imgHeight);
+                        }
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgMaxWidth, imgHeight);
+                        if (i != 0) {
+                            layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
+                        }
+                        image.setOnClickListener(new ImageClickLisenter(context, richListModel.getMsg(), isRight));
+                        sobot_rich_ll.addView(imageView,layoutParams);
                         setLongClickListener(imageView);
-                    } else if (richListModel.getType() == 3 && HtmlTools.isHasPatterns(richListModel.getMsg())) {
+                    } else if (richListModel.getType() == 3) {
                         View videoView = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_rich_vedio_view, sobot_rich_ll, false);
                         SobotProgressImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
                         if (!TextUtils.isEmpty(richListModel.getVideoImgUrl())) {

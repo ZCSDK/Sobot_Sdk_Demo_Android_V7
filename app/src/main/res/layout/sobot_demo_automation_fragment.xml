@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="设置域名"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:不设置默认为https://api.sobot.com,腾讯云为https://www.soboten.com,其它根据自己服务配置域名]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -72,8 +72,8 @@
                 android:padding="6dp"
                 android:scrollbars="none"
                 android:text="https://www.soboten.com"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
             <View
@@ -81,13 +81,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="功能参数说明-json_data"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
 
             <TextView
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="[说明:请使用json格式填写想设置的属性]"
-                android:textColor="@color/sobot_common_gray1"
+                android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
 
             <EditText
@@ -110,8 +110,8 @@
                 android:lines="20"
                 android:padding="6dp"
                 android:scrollbars="none"
-                android:textColor="@color/sobot_common_gray1"
-                android:textColorHint="@color/sobot_common_gray3"
+                android:textColor="@color/sobot_textview_text_color"
+                android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
 
 

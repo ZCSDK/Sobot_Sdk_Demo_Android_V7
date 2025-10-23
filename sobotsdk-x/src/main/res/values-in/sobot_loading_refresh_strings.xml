@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Tampilan konten tidak ditemukan. Apakah Anda lupa menambahkannya di file layout XML?</string>
+    <string name="sobot_srl_header_pulling">Tarik ke bawah untuk menyegarkan</string>
+    <string name="sobot_srl_header_refreshing">Sedang menyegarkan...</string>
+    <string name="sobot_srl_header_loading">Menunggu pemuatan bagian bawah selesai...</string>
+    <string name="sobot_srl_header_release">Lepaskan untuk menyegarkan segera</string>
+    <string name="sobot_srl_header_finish">Penyegaran selesai</string>
+    <string name="sobot_srl_header_failed">Penyegaran gagal</string>
+    <string name="sobot_srl_header_update">Terakhir diperbarui %s</string>
+    <string name="sobot_srl_header_secondary">Lepaskan untuk masuk ke lantai dua</string>
+    <string name="sobot_srl_footer_pulling">Tarik ke atas untuk memuat lebih banyak</string>
+    <string name="sobot_srl_footer_release">Lepaskan untuk memuat segera</string>
+    <string name="sobot_srl_footer_loading">Sedang memuat...</string>
+    <string name="sobot_srl_footer_refreshing">Menunggu penyegaran header selesai...</string>
+    <string name="sobot_srl_footer_finish">Pemuatan selesai</string>
+    <string name="sobot_srl_footer_failed">Pemuatan gagal</string>
+    <string name="sobot_srl_footer_nothing">Tidak ada data lagi</string>
+    <string name="sobot_no_data_string">Tidak ada data</string>
+    <string name="sobot_no_net_string">Tidak ada koneksi jaringan, silakan periksa jaringan Anda...</string>
+    <string name="sobot_error_click_reload_string">Pemuatan gagal, klik untuk mencoba lagi~~</string>
+    <string name="sobot_loading_string">Sedang memuat...</string>
+</resources>

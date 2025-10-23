@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Content view not found. Did you forget to add it in the XML layout file?</string>
+    <string name="sobot_srl_header_pulling">Pull down to refresh</string>
+    <string name="sobot_srl_header_refreshing">Refreshing...</string>
+    <string name="sobot_srl_header_loading">Waiting for bottom loading to complete...</string>
+    <string name="sobot_srl_header_release">Release to refresh immediately</string>
+    <string name="sobot_srl_header_finish">Refresh completed</string>
+    <string name="sobot_srl_header_failed">Refresh failed</string>
+    <string name="sobot_srl_header_update">Last updated %s</string>
+    <string name="sobot_srl_header_secondary">Release to enter second floor</string>
+    <string name="sobot_srl_footer_pulling">Pull up to load more</string>
+    <string name="sobot_srl_footer_release">Release to load immediately</string>
+    <string name="sobot_srl_footer_loading">Loading...</string>
+    <string name="sobot_srl_footer_refreshing">Waiting for header refresh to complete...</string>
+    <string name="sobot_srl_footer_finish">Loading completed</string>
+    <string name="sobot_srl_footer_failed">Loading failed</string>
+    <string name="sobot_srl_footer_nothing">No more data</string>
+    <string name="sobot_no_data_string">No data available</string>
+    <string name="sobot_no_net_string">No network connection, please check your network...</string>
+    <string name="sobot_error_click_reload_string">Loading failed, click to retry~~</string>
+    <string name="sobot_loading_string">Loading...</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Geen inhoudsweergave gevonden. Bent u vergeten deze toe te voegen in het XML-layoutbestand?</string>
+    <string name="sobot_srl_header_pulling">Trek naar beneden om te vernieuwen</string>
+    <string name="sobot_srl_header_refreshing">Bezig met vernieuwen...</string>
+    <string name="sobot_srl_header_loading">Wachten tot het laden van de onderkant is voltooid...</string>
+    <string name="sobot_srl_header_release">Loslaten om direct te vernieuwen</string>
+    <string name="sobot_srl_header_finish">Vernieuwen voltooid</string>
+    <string name="sobot_srl_header_failed">Vernieuwen mislukt</string>
+    <string name="sobot_srl_header_update">Laatst bijgewerkt %s</string>
+    <string name="sobot_srl_header_secondary">Loslaten om naar de tweede verdieping te gaan</string>
+    <string name="sobot_srl_footer_pulling">Trek omhoog om meer te laden</string>
+    <string name="sobot_srl_footer_release">Loslaten om direct te laden</string>
+    <string name="sobot_srl_footer_loading">Bezig met laden...</string>
+    <string name="sobot_srl_footer_refreshing">Wachten tot het vernieuwen van de header is voltooid...</string>
+    <string name="sobot_srl_footer_finish">Laden voltooid</string>
+    <string name="sobot_srl_footer_failed">Laden mislukt</string>
+    <string name="sobot_srl_footer_nothing">Geen gegevens meer</string>
+    <string name="sobot_no_data_string">Geen gegevens beschikbaar</string>
+    <string name="sobot_no_net_string">Geen netwerkverbinding, controleer uw netwerk...</string>
+    <string name="sobot_error_click_reload_string">Laden mislukt, klik om opnieuw te proberen~~</string>
+    <string name="sobot_loading_string">Bezig met laden...</string>
+</resources>

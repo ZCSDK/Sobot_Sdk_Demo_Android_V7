@@ -12,11 +12,11 @@ import com.sobot.chat.ZCSobotApi
 import com.sobot.chat.activity.WebViewActivity
 import com.sobot.chat.api.model.Information
 import com.sobot.chat.utils.MD5Util
+import com.sobot.chat.utils.StringUtils
 import com.sobot.sobotchatsdkdemo.R
 import com.sobot.sobotchatsdkdemo.activity.SobotDemoBaseActivity
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getObject
 import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.getStringData
-import com.sobot.utils.SobotStringUtils
 
 class SobotStartSobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
@@ -73,7 +73,7 @@ class SobotStartSobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickLis
                         true
                     )
                 }
-                if(SobotStringUtils.isNoEmpty(information!!.sign)){
+                if(StringUtils.isNoEmpty(information!!.sign)){
                     information!!.sign = MD5Util.encode(information!!.app_key + information!!.partnerid + information!!.sign + System.currentTimeMillis())
                 }
                 ZCSobotApi.openZCChat(context, information)

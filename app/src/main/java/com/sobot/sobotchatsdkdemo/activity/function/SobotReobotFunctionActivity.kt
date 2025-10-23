@@ -21,12 +21,7 @@ import com.sobot.sobotchatsdkdemo.util.SobotSPUtil.saveObject
 
 class SobotReobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener {
     private var sobot_tv_left: RelativeLayout? = null
-    private var sobot_rl_4_1_5_1: RelativeLayout? = null
-    private var sobot_rl_4_1_5_2: RelativeLayout? = null
-    private var sobotImage4151: ImageView? = null
-    private var sobotImage4152: ImageView? = null
-    private var status4151 = false
-    private var status4152 = false
+
     private var tv_rebot_fun_4_1_1: TextView? = null
     private var tv_rebot_fun_4_1_2: TextView? = null
     private var tv_rebot_fun_4_1_4: TextView? = null
@@ -56,12 +51,6 @@ class SobotReobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
         sobot_et_rebot_alise = findViewById(R.id.sobot_et_rebot_alise)
         sobot_et_service_mode = findViewById(R.id.sobot_et_service_mode)
         sobot_et_rebot_faqid = findViewById(R.id.sobot_et_rebot_faqid)
-        sobot_rl_4_1_5_1 = findViewById<View>(R.id.sobot_rl_4_1_5_1) as RelativeLayout
-        sobot_rl_4_1_5_1!!.setOnClickListener(this)
-        sobotImage4151 = findViewById<View>(R.id.sobot_image_4_1_5_1) as ImageView
-        sobot_rl_4_1_5_2 = findViewById<View>(R.id.sobot_rl_4_1_5_2) as RelativeLayout
-        sobot_rl_4_1_5_2!!.setOnClickListener(this)
-        sobotImage4152 = findViewById<View>(R.id.sobot_image_4_1_5_2) as ImageView
         sobot_tv_save = findViewById(R.id.sobot_tv_save)
         sobot_tv_save!!.setVisibility(View.VISIBLE)
         sobot_tv_save!!.setOnClickListener(this)
@@ -70,8 +59,6 @@ class SobotReobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
             sobot_et_rebot_alise!!.setText(if (TextUtils.isEmpty(information!!.robot_alias)) "" else information!!.robot_alias)
             sobot_et_service_mode!!.setText(information!!.service_mode.toString() + "")
             sobot_et_rebot_faqid!!.setText(information!!.faqId.toString() + "")
-            setImageShowStatus4(information!!.isHideMenuLeave)
-            setImageShowStatus5(information!!.isHideMenuSatisfaction)
         }
         tv_rebot_fun_4_1_1 = findViewById(R.id.tv_rebot_fun_4_1_1)
         setOnClick(
@@ -119,8 +106,6 @@ class SobotReobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
                 information!!.robot_alias = rebotAlise
                 information!!.service_mode =
                     if (TextUtils.isEmpty(serviceMode)) -1 else serviceMode.toInt()
-                information!!.isHideMenuLeave = status4151
-                information!!.isHideMenuSatisfaction = status4152
                 if (!TextUtils.isEmpty(faqid)) {
                     information!!.faqId = faqid.toInt()
                 } else {
@@ -130,32 +115,6 @@ class SobotReobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickListene
             }
             ToastUtil.showToast(context, "已保存")
             finish()
-        } else if (v === sobot_rl_4_1_5_1) { //是否显示留言
-            status4151 = !status4151
-            setImageShowStatus4(status4151)
-        } else if (v === sobot_rl_4_1_5_2) { //是否显示服务评价
-            status4152 = !status4152
-            setImageShowStatus5(status4152)
-        }
-    }
-
-    private fun setImageShowStatus4(open: Boolean) {
-        if (open) {
-            status4151 = true
-            sobotImage4151!!.setBackgroundResource(R.drawable.sobot_demo_icon_open)
-        } else {
-            status4151 = false
-            sobotImage4151!!.setBackgroundResource(R.drawable.sobot_demo_icon_close)
-        }
-    }
-
-    private fun setImageShowStatus5(open: Boolean) {
-        if (open) {
-            status4152 = true
-            sobotImage4152!!.setBackgroundResource(R.drawable.sobot_demo_icon_open)
-        } else {
-            status4152 = false
-            sobotImage4152!!.setBackgroundResource(R.drawable.sobot_demo_icon_close)
         }
     }
 

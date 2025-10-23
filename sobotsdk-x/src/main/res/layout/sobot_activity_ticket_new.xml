@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sobot_white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/tl_titlebar"
+        layout="@layout/sobot_layout_common_titlebar"
+        android:visibility="visible" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/sobot_dialog_line" />
+    <!--    新建工单-->
+    <LinearLayout
+        android:id="@+id/sobot_ll_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/sobot_header_toolbar_bg"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:visibility="gone">
+
+        <ScrollView
+            android:id="@+id/sobot_sv_root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/sobot_post_msg_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sobot_tv_post_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:text="公告"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textSize="@dimen/sobot_text_font_12" />
+
+                <!--标题-->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_input"
+                    app:sobot_input_type="single_line" />
+                <!--分类-->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_choice"
+                    app:sobot_input_type="select" />
+                <!--自定义字段布局-->
+                <LinearLayout
+                    android:id="@+id/sobot_post_customer_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sobot_common_red"
+                    android:orientation="vertical" />
+                <!--描述-->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_input"
+                    app:sobot_input_type="many_lines" />
+                <!--上传图片-->
+                <LinearLayout
+                    android:id="@+id/ll_upload_file"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/sobot_btn_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:background="@drawable/sobot_dialog_bg_line_4"
+                        android:clickable="true"
+                        android:drawableStart="@drawable/sobot_upload_file"
+                        android:drawablePadding="2dp"
+                        android:focusable="true"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:paddingStart="12dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="12dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/sobot_ticket_update_file"
+                        android:textColor="@color/sobot_color_text_first"
+                        android:textSize="@dimen/sobot_text_font_14" />
+
+                    <TextView
+                        android:id="@+id/sobot_file_error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textColor="@color/sobot_dialog_input_error"
+                        android:textSize="@dimen/sobot_text_font_14"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sobot_file_hite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textColor="@color/sobot_color_text_third"
+                        android:textSize="@dimen/sobot_text_font_14" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/sobot_reply_msg_pic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="8dp"
+                        android:listSelector="@android:color/transparent" />
+
+                </LinearLayout>
+                <!--邮箱-->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_input"
+                    app:sobot_input_type="single_line"
+                    app:sobot_input_view_type="email" />
+                <!--电话-->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_input"
+                    app:sobot_input_type="phone"
+                    app:sobot_input_view_type="input_two" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/sobot_btn_submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/sobot_normal_btn_bg"
+            android:gravity="center"
+            android:padding="8dp"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!--完成-->
+    <LinearLayout
+        android:id="@+id/sobot_ll_completed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/sobot_white"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/sobot_iv_leaveMsg_create_success"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="146dp"
+                    android:background="@drawable/sobot_icon_completed" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:text="@string/sobot_leavemsg_success_tip"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success_des"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/sobot_leaveMsg_create_success_des_new"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_completed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/sobot_bg_theme_color_20dp"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:minWidth="144dp"
+                    android:paddingStart="30dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="30dp"
+                    android:paddingBottom="10dp"
+                    android:text="@string/sobot_leaveMsg_create_complete"
+                    android:textAllCaps="false"
+                    android:textColor="@color/sobot_color_white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_ticket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="120dp"
+                    android:drawableEnd="@drawable/sobot_icon_right_arrow"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:text="@string/sobot_leaveMsg_to_ticket"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</LinearLayout>

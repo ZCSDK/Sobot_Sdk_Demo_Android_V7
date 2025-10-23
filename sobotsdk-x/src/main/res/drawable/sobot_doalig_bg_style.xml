@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--主界面返回询问框样式-->
-    <solid android:color="@color/sobot_color_bg_first" />
+    <!--主界面返回 清空历史记录 弹窗样式-->
+    <solid android:color="@color/sobot_color_dialog_bg" />
     <corners android:radius="16dp" />
 </shape>

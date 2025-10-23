@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">İçerik görünümü bulunamadı. XML düzen dosyasına eklemeyi unuttunuz mu?</string>
+    <string name="sobot_srl_header_pulling">Yenilemek için aşağı çekin</string>
+    <string name="sobot_srl_header_refreshing">Yenileniyor...</string>
+    <string name="sobot_srl_header_loading">Alt yükleme tamamlanana kadar bekleniyor...</string>
+    <string name="sobot_srl_header_release">Hemen yenilemek için bırakın</string>
+    <string name="sobot_srl_header_finish">Yenileme tamamlandı</string>
+    <string name="sobot_srl_header_failed">Yenileme başarısız oldu</string>
+    <string name="sobot_srl_header_update">Son güncelleme %s</string>
+    <string name="sobot_srl_header_secondary">İkinci kata girmek için bırakın</string>
+    <string name="sobot_srl_footer_pulling">Daha fazla yüklemek için yukarı çekin</string>
+    <string name="sobot_srl_footer_release">Hemen yüklemek için bırakın</string>
+    <string name="sobot_srl_footer_loading">Yükleniyor...</string>
+    <string name="sobot_srl_footer_refreshing">Başlık yenilemesinin tamamlanması bekleniyor...</string>
+    <string name="sobot_srl_footer_finish">Yükleme tamamlandı</string>
+    <string name="sobot_srl_footer_failed">Yükleme başarısız oldu</string>
+    <string name="sobot_srl_footer_nothing">Daha fazla veri yok</string>
+    <string name="sobot_no_data_string">Veri yok</string>
+    <string name="sobot_no_net_string">Ağ bağlantısı yok, lütfen ağınızı kontrol edin...</string>
+    <string name="sobot_error_click_reload_string">Yükleme başarısız oldu, yeniden denemek için tıklayın~~</string>
+    <string name="sobot_loading_string">Yükleniyor...</string>
+</resources>

@@ -2,6 +2,8 @@ package com.sobot.chat.activity.base;
 
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -42,6 +45,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -50,7 +54,6 @@ import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotSelectPicAndVideoActivity;
 import com.sobot.chat.api.ZhiChiApi;
-import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.model.HelpConfigModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
@@ -63,13 +66,17 @@ import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.IOUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.SobotPathManager;
+import com.sobot.chat.utils.SobotSoftKeyboardUtils;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.statusbar.StatusBarUtil;
+import com.sobot.chat.widget.immersionbar.BarHide;
+import com.sobot.chat.widget.immersionbar.SobotImmersionBar;
 import com.sobot.chat.widget.toast.ToastUtil;
-import com.sobot.utils.SobotSharedPreferencesUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -86,89 +93,92 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     private int initMode;
     private View overlay;//权限用途提示蒙层
     private ViewGroup viewGroup;//根view content
-
+    //是否横屏
+    public boolean isLandscapeScreen = false;
+    public String REQUEST_TAG = "Sobot";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //修改国际化语言
-        changeAppLanguage();
-        super.onCreate(savedInstanceState);
-        if (getSobotBaseContext() != null && getDelegate() != null) {
-            //暗夜模式设置：默认跟随系统，可以根据设置切换
-            int local_night_mode = SharedPreferencesUtil.getIntData(getSobotBaseContext(), ZCSobotConstant.LOCAL_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-            if (local_night_mode != 0) {
-                getDelegate().setLocalNightMode(local_night_mode); //切换模式
-            }
-        }
-        initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-            if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
-            } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
-
-            }
-        }
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-            // 支持显示到刘海区域
-            NotchScreenManager.getInstance().setDisplayInNotch(this);
-            // 设置Activity全屏
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-
-        setContentView(getContentViewResId());
-        String host = SharedPreferencesUtil.getStringData(getSobotBaseContext(), ZhiChiConstant.SOBOT_SAVE_HOST_AFTER_INITSDK, SobotBaseUrl.getApi_Host());
-        if (!host.equals(SobotBaseUrl.getApi_Host())) {
-            SobotBaseUrl.setApi_Host(host);
-        }
-
         try {
-            View decorView = getWindow().getDecorView();
-            ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                    int bottomInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
-                    View rootView = findViewById(R.id.view_root);
-                    int targetSdkVersion = CommonUtils.getTargetSdkVersion(getSobotBaseActivity());
-                    if (rootView != null && Build.VERSION.SDK_INT >= 35 && targetSdkVersion >= 35) {
-                        //android 15 api 35 全屏沉侵式 底部避让
-                        rootView.setPadding(0, 0, 0, bottomInset);
-                    }
-                    LogUtils.d("状态栏高度: " + statusBarHeight);
-                    StatusBarUtil.SOBOT_STATUS_HIGHT = statusBarHeight;
-                    if (SobotApp.getApplicationContext() != null) {
-                        SobotSharedPreferencesUtil.getInstance(SobotApp.getApplicationContext()).put("SobotStatusBarHeight", statusBarHeight);
-                    }
-                    setUpToolBar();
-                    return insets;
+            if (getSobotBaseContext() != null && getDelegate() != null) {
+                //暗夜模式设置：默认跟随系统，可以根据设置切换
+                int local_night_mode = SharedPreferencesUtil.getIntData(getSobotBaseContext(), ZCSobotConstant.LOCAL_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                if (local_night_mode != 0) {
+                    getDelegate().setLocalNightMode(local_night_mode); //切换模式
                 }
-            });
-        } catch (Exception e) {
-            setUpToolBar();
-        }
-        setUpToolBar();
-        zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
-        MyApplication.getInstance().addActivity(this);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        View toolBar = findViewById(R.id.sobot_layout_titlebar);
-        if (toolBar != null) {
-            setUpToolBarLeftMenu();
+            }
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            //修改国际化语言
+            changeAppLanguage();
+            super.onCreate(savedInstanceState);
+            initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+                if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
+                } else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
+                }
+            }
 
-            setUpToolBarRightMenu();
-        }
-        try {
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                isLandscapeScreen = true;
+                // 支持显示到刘海区域
+                NotchScreenManager.getInstance().setDisplayInNotch(this);
+                // 设置Activity全屏
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+
+            setContentView(getContentViewResId());
+            String host = SharedPreferencesUtil.getStringData(getSobotBaseContext(), ZhiChiConstant.SOBOT_SAVE_HOST_AFTER_INITSDK, SobotBaseUrl.getApi_Host());
+            if (!host.equals(SobotBaseUrl.getApi_Host())) {
+                SobotBaseUrl.setApi_Host(host);
+            }
+            int targetSdkVersion = CommonUtils.getTargetSdkVersion(getSobotBaseActivity());
+            //Android 15 底部避让
+            if( Build.VERSION.SDK_INT >= 35 && targetSdkVersion>=35) {
+                try {
+                    View decorView = getWindow().getDecorView();
+                    ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
+                        @Override
+                        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                            int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+                            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+                            View rootView = findViewById(R.id.view_root);
+
+                            if (rootView != null) {
+                                //android 15 api 35 全屏沉侵式 底部避让
+                                rootView.setPadding(0, 0, 0, bottomInset);
+                            }
+                            LogUtils.d("底部状态栏高度:========" + bottomInset);
+                            return insets;
+                        }
+                    });
+                } catch (Exception e) {
+                }
+            }
+            zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
+            MyApplication.getInstance().addActivity(this);
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            View toolBar = findViewById(R.id.tl_titlebar);
+            //横屏时隐藏状态栏
+            if (toolBar != null) {
+                SobotImmersionBar.with(this).hideBar(isLandscapeScreen ? BarHide.FLAG_HIDE_STATUS_BAR : BarHide.FLAG_SHOW_BAR).titleBar(toolBar).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+            }
+            if (toolBar != null) {
+                setUpToolBar();
+                setUpToolBarLeftMenu();
+                setUpToolBarRightMenu();
+            }
             initBundleData(savedInstanceState);
             initView();
             initData();
+            //左上角返回按钮水滴屏适配
+            if (getLeftMenu() != null) {
+                displayInNotch(getLeftMenu());
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //左上角返回按钮水滴屏适配
-        if (getLeftMenu() != null) {
-            displayInNotch(getLeftMenu());
+//            e.printStackTrace();
+//            LogUtils.e(e.getMessage());
         }
     }
 
@@ -182,16 +192,16 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                         for (Rect rect : notchScreenInfo.notchRects) {
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 90 ? 90 : rect.right) + 44;
-                                layoutParams.leftMargin = (rect.right > 90 ? 90 : rect.right) + 44;
+                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 44;
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 44;
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 90 ? 90 : rect.right) + 44;
-                                layoutParams.leftMargin = (rect.right > 90 ? 90 : rect.right) + 44;
+                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 44;
+                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 44;
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding((rect.right > 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right > 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                view.setPadding((rect.right < 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right < 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -251,15 +261,15 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     }
 
     protected View getToolBar() {
-        return findViewById(R.id.sobot_layout_titlebar);
+        return findViewById(R.id.tl_titlebar);
     }
 
     protected ImageView getLeftMenu() {
         return findViewById(R.id.sobot_iv_left);
     }
 
-    protected ImageView getRightImagMenu() {
-        return findViewById(R.id.sobot_iv_right);
+    protected ImageView getRightImageMenu() {
+        return findViewById(R.id.iv_right);
     }
 
     protected TextView getRightMenu() {
@@ -320,7 +330,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        HttpUtils.getInstance().cancelTag(SobotChatBaseActivity.this);
+        HttpUtils.getInstance().cancelTag(REQUEST_TAG);
         MyApplication.getInstance().deleteActivity(this);
         super.onDestroy();
     }
@@ -369,6 +379,8 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     }
 
     protected abstract void initView();
+
+    protected abstract void setRequestTag();
 
     protected abstract void initData();
 
@@ -877,15 +889,6 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 是否是全屏
-     *
-     * @return
-     */
-    protected boolean isFullScreen() {
-        return (getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) == WindowManager.LayoutParams.FLAG_FULLSCREEN;
-    }
-
-    /**
      * 导航栏渐变逻辑
      * 先判断客户开发是否设置，如果设置了 直接使用；如果没有修改（和系统默认一样），就就绪判断后端接口返回的颜色；
      * 如果接口返回的也和系统一样，就不处理（默认渐变色）；如果不一样，直接按照接口的设置渐变色
@@ -901,18 +904,127 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             if (getToolBar() == null) {
                 return;
             }
-            if (initModel.getVisitorScheme() != null) {
-                //导航条显示1 开启 0 关闭
-                if (initModel.getVisitorScheme().getTopBarFlag() == 1) {
-                    getToolBar().setVisibility(View.VISIBLE);
-                } else {
-                    getToolBar().setVisibility(View.GONE);
-                }
-            }
+//            if (initModel.getVisitorScheme() != null) {
+//                //导航条显示1 开启 0 关闭
+//                if (initModel.getVisitorScheme().getTopBarFlag() == 1) {
+//                    getToolBar().setVisibility(View.VISIBLE);
+//                } else {
+//                    getToolBar().setVisibility(View.GONE);
+//                }
+//            }
             if (initModel.getVisitorScheme() != null) {
                 //服务端返回的导航条背景颜色
-                if (!TextUtils.isEmpty(initModel.getVisitorScheme().getTopBarColor())) {
-                    String topBarColor[] = initModel.getVisitorScheme().getTopBarColor().split(",");
+                if (initModel.getVisitorScheme().getTopBarBackStyle() == 0) {
+                    //导航条无颜色,修改导航栏昵称和描述的颜色
+                    if (getTitleView() != null) {
+                        updateTitleColor(R.color.sobot_color_text_first);
+                    }
+                    updateViewColor(getLeftMenu(), false, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
+                    SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(!isSystemNightMode()).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+                } else {
+                    if (!TextUtils.isEmpty(initModel.getVisitorScheme().getTopBarColor())) {
+                        String topBarColorStr = initModel.getVisitorScheme().getTopBarColor();
+                        if (!topBarColorStr.contains(",")) {
+                            //单色 需要变成两个一样
+                            topBarColorStr = topBarColorStr + "," + topBarColorStr;
+                        }
+                        String[] topBarColor = topBarColorStr.split(",");
+                        if (topBarColor.length > 1) {
+                            int[] colors = new int[topBarColor.length];
+                            for (int i = 0; i < topBarColor.length; i++) {
+                                colors[i] = Color.parseColor(topBarColor[i]);
+                            }
+                            GradientDrawable gradientDrawable = new GradientDrawable();
+                            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                            gradientDrawable.setColors(colors); //添加颜色组
+                            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
+                            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
+                            getToolBar().setBackground(gradientDrawable);
+                        }
+                        //导航条有颜色,取返回的文字颜色修改导航栏昵称和描述的颜色
+                        boolean isBlack = (ThemeUtils.getToolBarTextAndIconColorType(getSobotBaseActivity()) == 1);
+                        if (isBlack) {
+                            //黑色
+                            updateTitleColor(R.color.sobot_color_black);
+                            SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(true).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+                        } else {
+                            updateTitleColor(R.color.sobot_color_white);
+                            SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(false).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+                        }
+                        updateViewColor(getLeftMenu(), isBlack, -1);
+                    }
+                }
+            } else {
+                setToolBarDefBg();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    //修改导航条标题颜色
+    private void updateTitleColor(int sobot_color_white) {
+        if (getTitleView() != null) {
+            getTitleView().setTextColor(ContextCompat.getColor(getSobotBaseActivity(), sobot_color_white));
+        }
+    }
+
+
+    /**
+     * 修改图标颜色为黑色
+     *
+     * @param iv
+     * @param isBlack true 黑色; false 白色
+     * @param selCol  -1 = 不指定颜色  ; 其它=指定了，有指定优先用指定
+     */
+    private void updateViewColor(ImageView iv, boolean isBlack, int selCol) {
+        if (iv != null && iv.getDrawable() != null) {
+            Drawable backDrawable = iv.getDrawable();
+            if (selCol == -1) {
+                if (isBlack) {
+                    iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_black)));
+                } else {
+                    iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_white)));
+                }
+            } else {
+                iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, selCol));
+            }
+        }
+    }
+
+    /**
+     * 设置默认导航栏渐变色
+     */
+    public void setToolBarDefBg() {
+        try {
+            HelpConfigModel configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
+            if (getToolBar() == null) {
+                return;
+            }
+            if (configModel == null) {
+                return;
+            }
+            //导航条显示1 开启 0 关闭
+            if (configModel.getTopBarFlag() == 1) {
+                getToolBar().setVisibility(View.VISIBLE);
+            } else {
+                getToolBar().setVisibility(View.GONE);
+            }
+            //服务端返回的导航条背景颜色
+            if (configModel.getTopBarBackStyle() == 0) {
+                //导航条无颜色,修改导航栏昵称和描述的颜色
+                if (getTitleView() != null) {
+                    updateTitleColor(R.color.sobot_color_text_first);
+                }
+                updateViewColor(getLeftMenu(), false, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_text_first));
+                SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(!isSystemNightMode()).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+            } else {
+                if (!TextUtils.isEmpty(configModel.getTopBarColor())) {
+                    String topBarColorStr = configModel.getTopBarColor();
+                    if (!topBarColorStr.contains(",")) {
+                        //单色 需要变成两个一样
+                        topBarColorStr = topBarColorStr + "," + topBarColorStr;
+                    }
+                    String[] topBarColor = topBarColorStr.split(",");
                     if (topBarColor.length > 1) {
                         int[] colors = new int[topBarColor.length];
                         for (int i = 0; i < topBarColor.length; i++) {
@@ -924,52 +1036,98 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                         gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
                         gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
                         getToolBar().setBackground(gradientDrawable);
-                        GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-                        } else {
-                            StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
-                        }
                     }
+                    //导航条有颜色,取返回的文字颜色修改导航栏昵称和描述的颜色
+                    boolean isBlack = (ThemeUtils.getToolBarTextAndIconColorType(getSobotBaseActivity()) == 1);
+                    if (isBlack) {
+                        //黑色
+                        updateTitleColor(R.color.sobot_color_black);
+                        SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(true).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+                    } else {
+                        updateTitleColor(R.color.sobot_color_white);
+                        SobotImmersionBar.with(this).titleBar(getToolBar()).statusBarDarkFont(false).navigationBarDarkIcon(!isSystemNightMode()).fitsLayoutOverlapEnable(isLandscapeScreen ? false : true).init();
+                    }
+                    updateViewColor(getLeftMenu(), isBlack, -1);
                 }
-            } else {
-                setToolBarDefBg();
             }
         } catch (Exception e) {
         }
     }
 
+    //显示键盘
+    public void showSoftKeyboard() {
+        if (getSobotBaseActivity() != null)
+            SobotSoftKeyboardUtils.showSoftKeyboard(getSobotBaseActivity());
+    }
+
+    //隐藏键盘
+    public void hideKeyboard() {
+        if (getSobotBaseActivity() != null)
+            SobotSoftKeyboardUtils.hideKeyboard(getSobotBaseActivity());
+    }
+
     /**
-     * 设置默认导航栏渐变色
+     * 判断当前是否为夜间模式
+     *
+     * @return true: 夜间模式, false: 日间模式
      */
-    private void setToolBarDefBg() {
-        try {
-            HelpConfigModel configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
-            int[] colors = null;
-            if (configModel != null && StringUtils.isNoEmpty(configModel.getTopBarColor())) {
-                String topBarColor[] = configModel.getTopBarColor().split(",");
-                if (topBarColor.length > 1) {
-                    colors = new int[topBarColor.length];
-                    for (int i = 0; i < topBarColor.length; i++) {
-                        colors[i] = Color.parseColor(topBarColor[i]);
-                    }
-                } else {
-                    colors = new int[]{Color.parseColor(topBarColor[0])};
-                }
-            } else {
-                colors = new int[]{getResources().getColor(R.color.sobot_color_title_bar_left_bg), getResources().getColor(R.color.sobot_color_title_bar_bg)};
-            }
-            GradientDrawable gradientDrawable = new GradientDrawable();
-            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-            gradientDrawable.setColors(colors); //添加颜色组
-            gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-            gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-            getToolBar().setBackground(gradientDrawable);
-            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-            } else {
-                GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
-            }
-        } catch (Exception e) {
+    public boolean isSystemNightMode() {
+        if (getSobotBaseActivity() != null) {
+            int nightModeFlags = getSobotBaseActivity().getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
+            boolean isNightMode = (nightModeFlags == Configuration.UI_MODE_NIGHT_YES);
+            LogUtils.d(isNightMode ? "夜间模式" : "日间模式");
+            return isNightMode;
+        } else {
+            return false;
         }
+    }
+
+    /**
+     * activity打开相机
+     *
+     * @param act
+     * @return
+     */
+    public static File openCamera(Activity act) {
+        return openCamera(act, null);
+    }
+
+    /**
+     * Fragment打开相机
+     *
+     * @param act
+     * @param childFragment 打开相机的fragment
+     * @return
+     */
+    public static File openCamera(Activity act, Fragment childFragment) {
+        String path = SobotPathManager.getInstance().getPicDir() + System.currentTimeMillis() + ".jpg";
+        // 创建图片文件存放的位置
+        File cameraFile = new File(path);
+        IOUtils.createFolder(cameraFile.getParentFile());
+        Uri uri;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                ContentValues contentValues = new ContentValues(1);
+                contentValues.put(MediaStore.Images.Media.DATA, cameraFile.getAbsolutePath());
+                uri = act.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues);
+            } else {
+                uri = ChatUtils.getUri(act, cameraFile);
+            }
+
+        } else {
+            uri = Uri.fromFile(cameraFile);
+        }
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore
+                .EXTRA_OUTPUT, uri);
+//        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        if (childFragment != null) {
+            childFragment.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
+        } else {
+            act.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
+        }
+
+        return cameraFile;
     }
 }

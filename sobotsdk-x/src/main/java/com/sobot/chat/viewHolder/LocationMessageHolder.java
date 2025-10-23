@@ -1,10 +1,12 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.api.model.SobotLocationModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.SobotOption;
@@ -25,6 +27,9 @@ public class LocationMessageHolder extends MsgHolderBase implements View.OnClick
     private SobotLocationModel mLocationData;
 
     private int sobot_bg_default_map;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
 
     public LocationMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -59,17 +64,38 @@ public class LocationMessageHolder extends MsgHolderBase implements View.OnClick
             if (mMessage.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
                 msgStatus.setVisibility(View.GONE);
                 msgProgressBar.setVisibility(View.GONE);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
             } else if (mMessage.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_ERROR) {
                 msgStatus.setVisibility(View.VISIBLE);
                 msgProgressBar.setVisibility(View.GONE);
                 msgProgressBar.setClickable(true);
                 msgStatus.setOnClickListener(this);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
             } else if (mMessage.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_LOADING) {
-                msgStatus.setVisibility(View.GONE);
-                msgProgressBar.setVisibility(View.VISIBLE);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
+                loadingRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        msgStatus.setVisibility(View.GONE);
+                        msgProgressBar.setVisibility(View.VISIBLE);
+                    }
+                };
+                handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // 当状态变为成功或失败时，移除延迟任务
+            if (handler != null && loadingRunnable != null) {
+                handler.removeCallbacks(loadingRunnable);
+            }
         }
     }
 

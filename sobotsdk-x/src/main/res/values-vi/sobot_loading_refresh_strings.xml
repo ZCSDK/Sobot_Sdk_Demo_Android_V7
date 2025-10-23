@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Không tìm thấy nội dung. Bạn có quên thêm vào tệp xml layout không?</string>
+    <string name="sobot_srl_header_pulling">Kéo xuống để làm mới</string>
+    <string name="sobot_srl_header_refreshing">Đang làm mới...</string>
+    <string name="sobot_srl_header_loading">Chờ tải xong phần dưới...</string>
+    <string name="sobot_srl_header_release">Thả ra để làm mới ngay</string>
+    <string name="sobot_srl_header_finish">Làm mới xong</string>
+    <string name="sobot_srl_header_failed">Làm mới thất bại</string>
+    <string name="sobot_srl_header_update">Cập nhật lần cuối %s</string>
+    <string name="sobot_srl_header_secondary">Thả ra để vào tầng hai</string>
+    <string name="sobot_srl_footer_pulling">Kéo lên để tải thêm</string>
+    <string name="sobot_srl_footer_release">Thả ra để tải ngay</string>
+    <string name="sobot_srl_footer_loading">Đang tải...</string>
+    <string name="sobot_srl_footer_refreshing">Chờ làm mới header xong...</string>
+    <string name="sobot_srl_footer_finish">Tải xong</string>
+    <string name="sobot_srl_footer_failed">Tải thất bại</string>
+    <string name="sobot_srl_footer_nothing">Không còn dữ liệu</string>
+    <string name="sobot_no_data_string">Không có dữ liệu</string>
+    <string name="sobot_no_net_string">Không có kết nối mạng, vui lòng kiểm tra mạng...</string>
+    <string name="sobot_error_click_reload_string">Tải thất bại, nhấn để thử lại~~</string>
+    <string name="sobot_loading_string">Đang tải...</string>
+</resources>

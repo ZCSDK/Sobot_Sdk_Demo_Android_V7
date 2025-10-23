@@ -51,9 +51,14 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotFileDetailActivity";
+    }
+
+    @Override
     protected void initView() {
         setTitle(R.string.sobot_file_preview);
-        showLeftMenu(  true);
+        showLeftMenu(true);
         sobot_file_icon = (TextView) findViewById(R.id.sobot_file_icon);
         sobot_file_name = (TextView) findViewById(R.id.sobot_file_name);
         sobot_tv_file_size = (TextView) findViewById(R.id.sobot_tv_file_size);
@@ -95,10 +100,10 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
 
             }
         };
-        if(ThemeUtils.isChangedThemeColor(this)){
-            Drawable bg= getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
-            if(bg!=null){
-                sobot_btn_start.setBackground(ThemeUtils.applyColorToDrawable( bg,ThemeUtils.getThemeColor(this)));
+        if (ThemeUtils.isChangedThemeColor(this)) {
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
+            if (bg != null) {
+                sobot_btn_start.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
         }
     }

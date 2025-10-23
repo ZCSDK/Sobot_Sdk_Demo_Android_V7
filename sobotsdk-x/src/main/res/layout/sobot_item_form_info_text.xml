@@ -12,28 +12,28 @@
         android:layout_marginTop="12dp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
-        android:textColor="@color/sobot_color_text_second"
+        android:text="标题"
+        android:textColor="@color/sobot_color_text_first"
+        android:fontFamily=""
+        android:textStyle="bold"
+        android:includeFontPadding="false"
         android:textSize="@dimen/sobot_text_font_14" />
 
     <EditText
         android:id="@+id/work_order_customer_field_text_single"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@null"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
+        android:background="@drawable/sobot_bg_dialog_input"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
         android:layout_marginTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
         android:textColor="@color/sobot_color_text_first"
         android:textColorHint="@color/sobot_color_text_third"
+        android:includeFontPadding="false"
         android:hint="@string/sobot_please_input"
         android:textSize="@dimen/sobot_text_font_14" />
 
-
-    <View
-        android:id="@+id/work_order_customer_field_text_bootom_line"
-        android:layout_width="match_parent"
-        android:layout_height="0.6dp"
-        android:layout_marginTop="12dp"
-        android:background="@color/sobot_common_gray4" />
 
 </LinearLayout>

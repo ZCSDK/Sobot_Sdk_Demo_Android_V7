@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sobot.chat.widget.kpswitch.widget.KPSwitchRootLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/sobot_color_bg_first"
@@ -26,7 +26,7 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="8dp"
             android:contentDescription="@null"
-            android:scaleType="fitXY"
+            android:scaleType="fitCenter"
             android:src="@drawable/sobot_icon_send_fail" />
 
         <TextView
@@ -34,12 +34,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="false"
+            android:includeFontPadding="false"
             android:layout_toEndOf="@id/sobot_not_net_icon"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:textColor="@color/sobot_color_text_first"
+            android:textColor="@color/sobot_color_black"
             android:textSize="@dimen/sobot_text_font_14" />
     </RelativeLayout>
 
     <include layout="@layout/sobot_chat_main" />
 
-</com.sobot.chat.widget.kpswitch.widget.KPSwitchRootLinearLayout>
+</LinearLayout>

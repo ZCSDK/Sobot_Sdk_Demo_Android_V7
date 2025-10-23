@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天界面消息 空心边框气泡 背景样式-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--阴影  圆角 -->
+    <!--最底下的一层-->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#00000000" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!--1%透明度-->
+    <item
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#03000000" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+
+    <!--1%透明度-->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#05000000" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+
+    <!--3%透明度-->
+    <item
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#F0F0F0" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!--上一层设置距离下层的边距，显示出来下层的阴影-->
+    <item
+        android:bottom="4dp"
+        android:left="4dp"
+        android:right="4dp"
+        android:top="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sobot_color_bg_four" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+</layer-list>

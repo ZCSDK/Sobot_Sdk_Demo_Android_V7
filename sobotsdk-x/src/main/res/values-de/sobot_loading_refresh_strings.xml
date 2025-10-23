@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Keine Inhaltsansicht gefunden. Haben Sie vergessen, diese in der XML-Layout-Datei hinzuzufügen?</string>
+    <string name="sobot_srl_header_pulling">Zum Aktualisieren nach unten ziehen</string>
+    <string name="sobot_srl_header_refreshing">Wird aktualisiert...</string>
+    <string name="sobot_srl_header_loading">Warten auf Abschluss des unteren Ladevorgangs...</string>
+    <string name="sobot_srl_header_release">Loslassen, um sofort zu aktualisieren</string>
+    <string name="sobot_srl_header_finish">Aktualisierung abgeschlossen</string>
+    <string name="sobot_srl_header_failed">Aktualisierung fehlgeschlagen</string>
+    <string name="sobot_srl_header_update">Letzte Aktualisierung %s</string>
+    <string name="sobot_srl_header_secondary">Loslassen, um in den zweiten Stock zu gelangen</string>
+    <string name="sobot_srl_footer_pulling">Zum Laden mehrerer nach oben ziehen</string>
+    <string name="sobot_srl_footer_release">Loslassen, um sofort zu laden</string>
+    <string name="sobot_srl_footer_loading">Wird geladen...</string>
+    <string name="sobot_srl_footer_refreshing">Warten auf Abschluss der Kopfzeilen-Aktualisierung...</string>
+    <string name="sobot_srl_footer_finish">Laden abgeschlossen</string>
+    <string name="sobot_srl_footer_failed">Laden fehlgeschlagen</string>
+    <string name="sobot_srl_footer_nothing">Keine weiteren Daten verfügbar</string>
+    <string name="sobot_no_data_string">Keine Daten vorhanden</string>
+    <string name="sobot_no_net_string">Keine Netzwerkverbindung, bitte überprüfen Sie Ihr Netzwerk...</string>
+    <string name="sobot_error_click_reload_string">Laden fehlgeschlagen, klicken Sie zum Wiederholen~~</string>
+    <string name="sobot_loading_string">Wird geladen...</string>
+</resources>

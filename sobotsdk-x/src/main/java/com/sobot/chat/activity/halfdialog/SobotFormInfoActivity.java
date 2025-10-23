@@ -5,12 +5,9 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -29,10 +26,8 @@ import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.chat.widget.toast.ToastUtil;
+import com.sobot.chat.widget.SobotInputView;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotStringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,10 +38,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 新版询前表单
+ * 新版--询前表单
  */
 public class SobotFormInfoActivity extends SobotDialogBaseActivity implements View.OnClickListener {
     private LinearLayout coustom_pop_layout;
+    private TextView sobot_tv_title;
     private List<FormNodeInfo> allData;//数据
     private List<FormNodeInfo> datas;//数据
     private List<FormNodeRelInfo> relationshipList;//数据关系
@@ -64,9 +60,19 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     @Override
     public void onClick(View v) {
         if (v == btnSubmit) {
+            View view = getCurrentFocus();
+            if (view != null) {
+                // 失去焦点
+                view.clearFocus();
+            }
             //提交
             submit();
         }
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotFormInfoActivity";
     }
 
     @Override
@@ -91,7 +97,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         allData.add(formInfoModel.getFormNodeRespVos().get(i));
                     }
                 }
-                if (allData.size() > 0 && SobotStringUtils.isNoEmpty(allData.get(0).getTips())) {
+                if (allData.size() > 0 && StringUtils.isNoEmpty(allData.get(0).getTips())) {
                     tv_start_tip.setText(allData.get(0).getTips());
                     //第一个节点是开始
                     showStartData(allData.get(0).getId());
@@ -103,10 +109,10 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         zhiChiApi.queryFormConfig(this, uid, new StringResultCallBack<SobotQueryFormModel>() {
             @Override
             public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
-                if (sobotQueryFormModel != null && SobotStringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
+                if (sobotQueryFormModel != null && StringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
                     formExplain = sobotQueryFormModel.getFormSafety();
                 }
-                if (SobotStringUtils.isNoEmpty(formExplain)) {
+                if (StringUtils.isNoEmpty(formExplain)) {
                     tv_permission_tip.setVisibility(View.VISIBLE);
                     tv_permission_tip.setText(formExplain);
                 } else {
@@ -116,7 +122,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
             @Override
             public void onFailure(Exception e, String s) {
-                if (SobotStringUtils.isNoEmpty(formExplain)) {
+                if (StringUtils.isNoEmpty(formExplain)) {
                     tv_permission_tip.setVisibility(View.VISIBLE);
                     tv_permission_tip.setText(formExplain);
                 } else {
@@ -146,11 +152,14 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
     @Override
     protected void initView() {
+        super.initView();
         //根布局
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
         }
         sobot_scroll_v = findViewById(R.id.sobot_scroll_v);
+        sobot_tv_title = findViewById(R.id.sobot_tv_title);
+        sobot_tv_title.setText(R.string.sobot_from_title);
         ll_list = findViewById(R.id.ll_list);
         tv_start_tip = findViewById(R.id.tv_start_tip);
         tv_permission_tip = findViewById(R.id.tv_permission_tip);
@@ -278,6 +287,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
         Intent intent = new Intent(this, SobotFromSearchDialog.class);
         intent.putExtra("List", list);
+        intent.putExtra("type", nodeInfo.getFieldType());
         intent.putExtra("title", nodeInfo.getName());
         startActivityForResult(intent, 30005);
     }
@@ -287,19 +297,18 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 30005 && data != null) {
             final FormNodeInfo formNodeInfo = (FormNodeInfo) data.getSerializableExtra("select");
-            if (formNodeInfo != null && SobotStringUtils.isNoEmpty(formNodeInfo.getName())) {
+            if (formNodeInfo != null && StringUtils.isNoEmpty(formNodeInfo.getName())) {
 
                 new Handler().post(new Runnable() {
                     @Override
                     public void run() {
-                        View view = ll_list.findViewWithTag(selectNode.getId());
+                        SobotInputView view = ll_list.findViewWithTag(selectNode.getId());
                         //删除选项之后的view
                         delectList(selectNode.getId());
                         //找到下个节点的线
                         if (view != null) {
-                            TextView tv_value = view.findViewById(R.id.work_order_customer_field_text_single);
-                            tv_value.setText(formNodeInfo.getName());//
-                            tv_value.setTag(formNodeInfo);
+                            view.setInputValue(formNodeInfo.getName());//
+                            view.getTvTitle().setTag(formNodeInfo);
                         }
                         showSelectData("-1", formNodeInfo.getId());
 
@@ -313,33 +322,32 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         List<FormNodeInfo> submitData = new ArrayList<>();
         for (int i = 0; i < ll_list.getChildCount(); i++) {
             FormNodeInfo info = new FormNodeInfo();
-            View view = ll_list.getChildAt(i);
-            TextView lable = view.findViewById(R.id.work_order_customer_field_text_lable);
-            FormNodeInfo oldInfo = (FormNodeInfo) lable.getTag();
+            SobotInputView view = (SobotInputView) ll_list.getChildAt(i);
+            FormNodeInfo oldInfo = (FormNodeInfo) view.getTvTitle().getTag();
             info.setId(oldInfo.getId());
             info.setName(oldInfo.getName());
             info.setFieldId(oldInfo.getFieldId());
             info.setFieldName(oldInfo.getFieldName());
             info.setFieldType(oldInfo.getFieldType());
             info.setFieldFrom(oldInfo.getFieldFrom());
-            if (view.findViewById(R.id.work_order_customer_field_text_single) instanceof TextView) {
+            if (oldInfo.getFieldType() == 8) {
                 //选择
-                TextView tv = view.findViewById(R.id.work_order_customer_field_text_single);
-                FormNodeInfo value = (FormNodeInfo) tv.getTag();
+                info.setFieldValues(view.getSelectValue());
+                FormNodeInfo value = (FormNodeInfo) view.getTvTitle().getTag();
                 if (value != null) {
-                    info.setFieldValues(value.getName());
                     info.setFieldId(value.getId());
-                } else {
-                    String valueTxt = tv.getText().toString();
-                    info.setFieldValues(valueTxt);
                 }
+            } else {
+                info.setFieldValues(view.getSingleValue());
             }
             String value = info.getFieldValues();
-            if (SobotStringUtils.isNoEmpty(value)) {
+            String errorStr = "";
+            if (StringUtils.isNoEmpty(value)) {
                 submitData.add(info);
             } else {
                 //都是必填
-                ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
+                errorStr = oldInfo.getErrorTips();
+                view.showError(errorStr);
                 return;
             }
             if (oldInfo.getFieldFrom() == 12 && oldInfo.getFieldVariable() != null) {
@@ -360,9 +368,8 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 }
                 Pattern p = Pattern.compile(match);
                 Matcher m = p.matcher(info.getFieldValues());
-                if (SobotStringUtils.isNoEmpty(match) && !m.matches()) {
-                    ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                    return;
+                if (StringUtils.isNoEmpty(match) && !m.matches()) {
+                    errorStr = oldInfo.getErrorTips();
                 }
             } else if (oldInfo.getFieldFrom() == 22 && oldInfo.getFieldVariable() != null) {
 
@@ -374,30 +381,26 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 }
                 Pattern p = Pattern.compile(match);
                 Matcher m = p.matcher(info.getFieldValues());
-                if (SobotStringUtils.isNoEmpty(match) && !m.matches()) {
-                    ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                    return;
+                if (StringUtils.isNoEmpty(match) && !m.matches()) {
+                    errorStr = oldInfo.getErrorTips();
                 }
-            } else {
+            } else if (StringUtils.isNoEmpty(oldInfo.getLimitOptions())) {
                 //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式  9 请输入 3～16 位数字、英文符号, +
                 String LimitOptions = oldInfo.getLimitOptions();
                 String LimitChar = oldInfo.getLimitChar();
                 if (LimitOptions.contains("1")) {
                     if (value.contains(" ")) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("2")) {
                     if (value.contains(".")) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("3")) {
                     if (!StringUtils.isNumber(value) && value.length() <= 2) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("4")) {
@@ -406,8 +409,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     Matcher match = pattern.matcher(value);
                     boolean b = match.matches();
                     if (!b) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("5")) {
@@ -416,20 +418,17 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     Matcher match = pattern.matcher(value);
                     boolean b = match.matches();
                     if (!b) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("7")) {
                     if (!ScreenUtils.isEmail(value)) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("8")) {
                     if (!ScreenUtils.isMobileNO(value)) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (LimitOptions.contains("9")) {
@@ -438,14 +437,18 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     Matcher match = pattern.matcher(value);
                     boolean b = match.matches();
                     if (!b) {
-                        ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                        return;
+                        errorStr = oldInfo.getErrorTips();
                     }
                 }
                 if (!StringUtils.isEmpty(LimitChar) && value.length() > Integer.parseInt(LimitChar)) {
-                    ToastUtil.showToast(getContext(), oldInfo.getErrorTips());
-                    return;
+                    errorStr = oldInfo.getErrorTips();
                 }
+            }
+            if (StringUtils.isNoEmpty(errorStr)) {
+                view.showError(errorStr);
+                return;
+            } else {
+                view.hideError();
             }
         }
 
@@ -467,7 +470,52 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         });
     }
 
+    /**
+     * 新版UI
+     * @param tmpDatas
+     */
     private void addList(List<FormNodeInfo> tmpDatas) {
+        tv_nodata.setVisibility(View.GONE);
+        ll_list.setVisibility(View.VISIBLE);
+        for (int i = 0; i < tmpDatas.size(); i++) {
+            final FormNodeInfo nodeInfo = tmpDatas.get(i);
+            SobotInputView v = new SobotInputView(this);
+            v.setTag(nodeInfo.getId());
+            v.getTvTitle().setTag(nodeInfo);
+            v.setTitle(nodeInfo.getFieldName(), true);
+            if (StringUtils.isNoEmpty(nodeInfo.getTips())) {
+                v.setInputHint(nodeInfo.getTips());
+            }
+            if (nodeInfo.getFieldType() == 8) {
+                v.setInputType("select");
+                //单选
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        hideKeyboard();
+                        //显示对话框
+                        showDialog(nodeInfo);
+                    }
+                });
+            } else {
+                //输入框
+                v.setInputType("single_line");
+                //类型
+                if (nodeInfo.getLimitOptions().contains("5")) {
+                    v.setViweType("number");
+                }
+                if (nodeInfo.getLimitOptions().contains("7")) {
+                    v.setViweType("email");
+                }
+                if (nodeInfo.getLimitOptions().contains("8")) {
+                    v.setViweType("phone");
+                }
+            }
+            ll_list.addView(v);
+        }
+    }
+
+    /*private void addList(List<FormNodeInfo> tmpDatas) {
         tv_nodata.setVisibility(View.GONE);
         ll_list.setVisibility(View.VISIBLE);
         for (int i = 0; i < tmpDatas.size(); i++) {
@@ -478,19 +526,19 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        KeyboardUtil.hideKeyboard(SobotFormInfoActivity.this.getCurrentFocus());
+                        hideKeyboard();
                         //显示对话框
                         showDialog(nodeInfo);
                     }
                 });
                 TextView value = v.findViewById(R.id.work_order_customer_field_text_single);
-                if (SobotStringUtils.isNoEmpty(nodeInfo.getTips())) {
+                if (StringUtils.isNoEmpty(nodeInfo.getTips())) {
                     value.setHint(nodeInfo.getTips());
                 }
             } else {
                 v = LayoutInflater.from(this).inflate(R.layout.sobot_item_form_info_text, ll_list, false);
                 EditText value = v.findViewById(R.id.work_order_customer_field_text_single);
-                if (SobotStringUtils.isNoEmpty(nodeInfo.getTips())) {
+                if (StringUtils.isNoEmpty(nodeInfo.getTips())) {
                     value.setHint(nodeInfo.getTips());
                 }
                 //类型
@@ -512,5 +560,5 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             lable.setTag(nodeInfo);
             ll_list.addView(v);
         }
-    }
+    }*/
 }

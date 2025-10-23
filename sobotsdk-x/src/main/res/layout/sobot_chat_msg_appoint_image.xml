@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sobot.chat.widget.image.SobotProgressImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/spiv_image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:image_is_show_progressbar="true"
+    app:image_layout_change_animate="false"
+    android:layout_marginStart="3dp"
+    app:image_max_height="@dimen/sobot_appoint_msg_picture_max_height"
+    app:image_max_width="@dimen/sobot_appoint_msg_picture_max_width"
+    app:image_min_height="@dimen/sobot_msg_picture_min_height"
+    app:image_min_width="@dimen/sobot_msg_picture_min_width"
+    app:sobot_round_corner_bottom_left="4dp"
+    app:sobot_round_corner_bottom_right="4dp"
+    app:sobot_round_corner_top_left="4dp"
+    app:sobot_round_corner_top_right="4dp" />

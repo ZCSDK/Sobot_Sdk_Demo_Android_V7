@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -37,20 +38,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
-                style="@style/sobot_msg_file_left_content_ll_bg_style"
+                style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:id="@+id/sobot_rl_mini"
-                    android:layout_width="216dp"
+                    android:layout_width="260dp"
                     android:layout_height="wrap_content"
                     android:paddingBottom="2dp">
 
@@ -66,14 +66,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignBaseline="@id/tv_mimi_logo"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginBottom="8dp"
                         android:layout_toEndOf="@id/tv_mimi_logo"
                         android:ellipsize="end"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                         android:maxLines="1"
-                        android:textColor="@color/sobot_order_label_text_color"
-                        android:textSize="@dimen/sobot_text_font_12"
+                        android:textColor="@color/sobot_color_text_first"
+                        android:textSize="@dimen/sobot_text_font_14"
                         android:visibility="gone" />
 
                     <TextView
@@ -81,28 +79,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/tv_mimi_des"
+                        android:ellipsize="end"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textColor="@color/sobot_color_text_second"
                         android:textSize="@dimen/sobot_text_font_14" />
 
                     <com.sobot.chat.widget.image.SobotProgressImageView
                         android:id="@+id/tv_mimi_thumbUrl"
                         android:layout_width="216dp"
                         android:layout_height="164dp"
-                        app:image_width="216dp"
-                        app:image_height="164dp"
                         android:layout_below="@id/tv_mimi_title"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="8dp"
+                        app:image_height="164dp"
+                        app:image_width="216dp" />
 
                     <View
                         android:id="@+id/view_split"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/sobot_line_height_dp"
                         android:layout_below="@id/tv_mimi_thumbUrl"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="2dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="6dp"
                         android:background="@color/sobot_color_line_divider" />
 
                     <TextView
@@ -110,13 +108,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/view_split"
-                        android:drawableStart="@drawable/sobot_mini_program_logo"
                         android:drawablePadding="4dp"
                         android:gravity="center_vertical"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                         android:text="@string/sobot_mini_program"
                         android:textColor="@color/sobot_color_text_third"
-                        android:textSize="@dimen/sobot_text_font_12" />
+                        android:textSize="@dimen/sobot_text_font_12"
+                        app:drawableStartCompat="@drawable/sobot_mini_program_logo" />
                 </RelativeLayout>
 
                 <!-- 关联问题 提示语 -->

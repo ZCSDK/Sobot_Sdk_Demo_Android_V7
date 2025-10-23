@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/view_root"
     android:layout_width="match_parent"
-    android:background="@color/sobot_white"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
@@ -14,7 +13,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sobot_common_gray2"
+        android:background="@color/sobot_textview_text_color_second"
         android:padding="6dp"
         android:text="参考文档"
         android:textSize="14sp" />
@@ -34,7 +33,7 @@
         android:layout_height="0.4dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@color/sobot_common_gray1" />
+        android:background="@color/sobot_textview_text_color" />
 
 
     <TextView
@@ -45,11 +44,11 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/sobot_btn_bg_help_center"
+        android:background="@drawable/sobot_demo_btn_bg"
         android:gravity="center"
         android:padding="6dp"
         android:text="点击初始化"
-        android:textColor="@color/sobot_common_gray1"
+        android:textColor="@color/sobot_textview_text_color"
         android:textSize="16sp"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp" />

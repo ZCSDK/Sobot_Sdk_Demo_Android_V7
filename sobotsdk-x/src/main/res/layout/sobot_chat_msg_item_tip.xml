@@ -27,6 +27,45 @@
         style="@style/sobot_center_remind_note"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:id="@+id/ll_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge"
+        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+        android:background="@drawable/sobot_btn_bg_line_15"
+        android:gravity="center_vertical"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone"
+        android:paddingBottom="9dp">
+
+        <ImageView
+            android:id="@+id/iv_notice_left"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="9dp"
+            android:visibility="gone"
+            android:src="@drawable/sobot_msg_leavemsg" />
+
+        <TextView
+            android:id="@+id/sobot_center_Remind_note3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/sobot_color_text_first" />
+
+        <ImageView
+            android:id="@+id/iv_notice_right"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="9dp"
+            android:src="@drawable/sobot_icon_right_arrow" />
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/rl_not_read"
         android:layout_width="wrap_content"

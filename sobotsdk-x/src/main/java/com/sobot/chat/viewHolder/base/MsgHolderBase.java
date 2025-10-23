@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Display;
@@ -24,12 +22,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.core.view.ViewCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
-import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotPhotoActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.apiUtils.ZhiChiConstants;
@@ -43,7 +39,6 @@ import com.sobot.chat.listener.NoDoubleClickListener;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.HtmlTools;
-import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
@@ -55,8 +50,6 @@ import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.chat.widget.toast.ToastUtil;
-import com.sobot.utils.SobotDensityUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,7 +64,8 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
     public Context mContext;
     //左侧右侧气泡 标识 默认false左侧
     public boolean isRight = false;
-
+    //消息cell 根节点 （1分钟相邻两条消息是同一个人发的，调整间距变小）
+    public View sobot_real_ll_content;
     //气泡父控件
     public View mItemView;
     // 用户姓名
@@ -83,30 +77,25 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
 
     //左侧 转人工、顶踩控件
     public SobotAntoLineLayout sobot_chat_more_action;//包含以下所有控件
-    private LinearLayout sobot_ll_transferBtn;//转人工按钮
+    private final LinearLayout sobot_ll_transferBtn;//转人工按钮
     public TextView sobot_tv_transferBtn;//机器人转人工按钮
     public ImageView sobot_right_likebtn_iv;//机器人评价 顶 的按钮
     public ImageView sobot_right_dislikegtn_iv;//机器人评价 踩 的按钮
     public RelativeLayout rightEmptyRL;//左侧消息右边的空白区域
     //底部顶踩显示
-    protected LinearLayout sobot_ll_bottom_likeBtn;
-    protected LinearLayout sobot_ll_bottom_dislikeBtn;
     protected ImageView sobot_iv_bottom_likeBtn;//气泡下边 机器人评价 顶 的按钮 图标
     protected ImageView sobot_iv_bottom_dislikeBtn;//气泡下边 机器人评价 踩 的按钮 图标
-    protected TextView sobot_tv_bottom_likeBtn;//气泡下边 机器人评价 顶 的按钮 文字
-    protected TextView sobot_tv_bottom_dislikeBtn;//气泡下边 机器人评价 踩 的按钮 文字
     public TextView stripe;//关联问题提示语
     public LinearLayout answersList;//关联问题
 
+    public LinearLayout sobot_msg_ll;//左侧消息布局
+    public LinearLayout ll_status;// 右侧消息布局
+    public View sobot_msg_content_ll;//气泡内容显示区
 
     //右侧 发送消息状态控件 发送中（菊花转）、发送失败（红色叹号，点击重新发送）
     public ImageView msgStatus;// 消息发送的状态
     public ImageView msgReadStatus;// 消息已读未读状态
-    public LinearLayout ll_status;// 状态布局
     public ProgressBar msgProgressBar; // 重新发送的进度条的信信息；
-
-    //  气泡内容显示区
-    public View sobot_msg_content_ll;
 
     //消息体
     public ZhiChiMessageBase message;
@@ -122,14 +111,17 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
     public int sobot_chat_file_bgColor;//文件类型的气泡默认颜色
 
     public int msgMaxWidth;//气泡里边的内容最大宽度
-    public int msgMaxWidthL = 0;//左边气泡里边的内容最大宽度
 
-    //接口返回是否显示头像
+    //接口返回左侧消息是否显示头像，默认显示
     private boolean isShowFace = true;
     private boolean isShowNickName = true;
 
-    //气泡里边卡片宽度，默认260
-    public int msgCardWidth = 260;
+    //用户设置的右侧消息是否显示头像昵称,默认不显示
+    private boolean isShowRightFace = false;
+    private boolean isShowRightNickName = false;
+
+    //气泡里边卡片宽度，默认288
+    public int msgCardWidth = 288;
 
     public MsgHolderBase(Context context, View convertView) {
         super(convertView);
@@ -142,6 +134,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         information = (Information) SharedPreferencesUtil.getObject(context,
                 ZhiChiConstant.sobot_last_current_info);
         reminde_time_Text = convertView.findViewById(R.id.sobot_reminde_time_Text);
+        sobot_real_ll_content = convertView.findViewById(R.id.sobot_real_ll_content);
         imgHead = convertView.findViewById(R.id.sobot_msg_face_iv);
         if (imgHead != null) {
             float width = mContext.getResources().getDimension(R.dimen.sobot_msg_face_width_heigth);
@@ -149,6 +142,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         }
         name = convertView.findViewById(R.id.sobot_msg_nike_name_tv);
 
+        sobot_msg_ll = convertView.findViewById(R.id.sobot_msg_ll);
         sobot_chat_more_action = convertView.findViewById(R.id.sobot_chat_more_action);
         sobot_ll_transferBtn = convertView.findViewById(R.id.sobot_ll_transferBtn);
         sobot_tv_transferBtn = convertView.findViewById(R.id.sobot_tv_transferBtn);
@@ -156,12 +150,8 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         sobot_right_likebtn_iv = convertView.findViewById(R.id.sobot_right_likebtn_iv);
         sobot_right_dislikegtn_iv = convertView.findViewById(R.id.sobot_right_dislikegtn_iv);
 
-        sobot_ll_bottom_likeBtn = convertView.findViewById(R.id.sobot_ll_bottom_likeBtn);
-        sobot_ll_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_ll_bottom_dislikeBtn);
         sobot_iv_bottom_likeBtn = convertView.findViewById(R.id.sobot_iv_bottom_likeBtn);
         sobot_iv_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_iv_bottom_dislikeBtn);
-        sobot_tv_bottom_likeBtn = convertView.findViewById(R.id.sobot_tv_bottom_likeBtn);
-        sobot_tv_bottom_dislikeBtn = convertView.findViewById(R.id.sobot_tv_bottom_dislikeBtn);
 
         stripe = convertView
                 .findViewById(R.id.sobot_stripe);
@@ -197,23 +187,14 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
      * 设置已读未读
      */
     public void refreshReadStatus() {
-//        LogUtils.d("=========message.getReadStatus()=="+message.getReadStatus());
         if (message != null && message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS && message.getReadStatus() > 0) {
             if (msgReadStatus != null) {
-//            0-未标记，1-未读，2-已读
+                //0-未标记，1-未读，2-已读
                 if (message.getReadStatus() == 1) {
-                    if (ThemeUtils.isChangedThemeColor(mContext)) {
-                        int themeColor = ThemeUtils.getThemeColor(mContext);
-                        Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_no_read);
-                        if (bg != null) {
-                            msgReadStatus.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
-                        }
-                    } else {
-                        msgReadStatus.setImageDrawable(mContext.getResources().getDrawable(R.drawable.sobot_icon_no_read));
-                    }
+                    msgReadStatus.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_icon_no_read, null));
                     msgReadStatus.setVisibility(View.VISIBLE);
                 } else if (message.getReadStatus() == 2) {
-                    msgReadStatus.setImageDrawable(mContext.getResources().getDrawable(R.drawable.sobot_icon_already_read));
+                    msgReadStatus.setImageDrawable(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_icon_already_read, null));
                     msgReadStatus.setVisibility(View.VISIBLE);
                 } else {
                     msgReadStatus.setVisibility(View.GONE);
@@ -239,6 +220,10 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
      */
     public void initNameAndFace(int itemType) {
         try {
+            if (imgHead == null || name == null || mContext == null) {
+                //头像昵称控件不能为空
+                return;
+            }
             applyCustomHeadUI();
             if (!isRight() && sobot_tv_transferBtn != null) {
                 sobot_tv_transferBtn.setText(R.string.sobot_transfer_to_customer_service);
@@ -279,163 +264,309 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 }
             }
             if (isRight()) {
-                if (information != null && information.isShowRightMsgFace()) {
-                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 — 头像32- 头像到气泡间距8-头像到边上的举例16 -  气泡左右间距16
-                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 32 + 8 + 16 + 16 + 16);
-                    msgCardWidth = SobotDensityUtil.dp2px(mContext, 260 - 40);
-                } else {
-                    //不带客服头像和昵称
-                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 -头像到边上的举例16 -  气泡左右间距16
-                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 16 + 16 + 16);
-                    msgCardWidth = SobotDensityUtil.dp2px(mContext, 260);
-                }
-
-            } else {
-                if (isShowFace) {
-                    //带有客服头像和昵称
-                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 — 头像32- 头像到气泡间距8-头像到边上的举例16 -  气泡左右间距16
-                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 32 + 8 + 16 + 16 + 16);
-                    msgCardWidth = SobotDensityUtil.dp2px(mContext, 260 - 40);
-                } else {
-                    //不带客服头像和昵称
-                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 -头像到边上的举例16 -  气泡左右间距16
-                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 16 + 16 + 16);
-                    msgCardWidth = SobotDensityUtil.dp2px(mContext, 260);
-                }
-            }
-            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-                //横屏最宽是300dp
-                msgMaxWidthL = SobotDensityUtil.dp2px(mContext, 300);
-            }else {
-                //算出左边的宽度，用于左右消息宽度一致的消息
-                if (isShowFace || (information != null && information.isShowRightMsgFace())) {
-                    msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 32 + 8 + 16 + 16 + 16);
-                } else {
-                    msgMaxWidthL = ScreenUtils.getScreenWidth((Activity) mContext) - SobotDensityUtil.dp2px(mContext, 56 + 16 + 16 + 16);
-                }
-            }
-            if (name == null || imgHead == null) {
-                return;
-            }
-            name.setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 36));
-            if (isRight()) {
-                if (information != null && information.isShowRightMsgNickName()) {
-                    name.setVisibility(View.VISIBLE);
-                    if (message != null && name != null) {
-                        if (!TextUtils.isEmpty(message.getSenderName())) {
-                            name.setText(message.getSenderName());
-                        }
-                    }
-                } else {
-                    name.setVisibility(View.GONE);
-                }
-                if (information != null && information.isShowRightMsgFace()) {
-                    imgHead.setVisibility(View.VISIBLE);
-                    if (message != null && imgHead != null) {
-                        imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
-                    }
-                } else {
-                    imgHead.setVisibility(View.GONE);
-                }
-                //是否是 文件、商品卡片、订单卡片、文件类型的气泡 线框气泡
-                boolean isWireframeMsgType = itemType == SobotMsgAdapter.MSG_TYPE_FILE_R || itemType == SobotMsgAdapter.MSG_TYPE_CARD_R || itemType == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R || itemType == SobotMsgAdapter.MSG_TYPE_LOCATION_R || itemType == SobotMsgAdapter.MSG_TYPE_MUITI_LEAVE_MSG_R || itemType == SobotMsgAdapter.MSG_TYPE_CUSTOMER_CARD_R || itemType == SobotMsgAdapter.MSG_TYPE_AI_CARD_R;
-                if (mContext.getResources().getColor(R.color.sobot_gradient_end) == mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_end)) {
-                    if (initMode != null && initMode.getVisitorScheme() != null) {
-                        //服务端返回的导航条背景颜色
-                        if (!TextUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
-                            String themeColor[] = initMode.getVisitorScheme().getRebotTheme().split(",");
-                            if (themeColor.length > 1) {
-                                if (mContext.getResources().getColor(R.color.sobot_gradient_start) != Color.parseColor(themeColor[0]) || mContext.getResources().getColor(R.color.sobot_gradient_end) != Color.parseColor(themeColor[1])) {
-                                    int[] colors = new int[themeColor.length];
-                                    if (isWireframeMsgType) {
-//                                        GradientDrawable gradientDrawable = new GradientDrawable();
-//                                        gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-//                                        gradientDrawable.setStroke(mContext.getResources().getDimensionPixelOffset(R.dimen.sobot_right_msg_line_width), Color.parseColor(themeColor[colors.length - 1]));//线的宽度 与 线的颜色
-//                                        gradientDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-//                                        if (sobot_msg_content_ll != null) {
-//                                            sobot_msg_content_ll.setBackground(gradientDrawable);
-//                                        }
-                                    } else {
-                                        for (int i = 0; i < themeColor.length; i++) {
-                                            colors[i] = Color.parseColor(themeColor[i]);
-                                        }
-                                        GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                                        aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-                                        if (sobot_msg_content_ll != null) {
-                                            sobot_msg_content_ll.setBackground(aDrawable);
-                                        }
-                                    }
-                                } else {
-                                    setRightMsgDefaulBg(isWireframeMsgType);
-                                }
+                //设置右侧头像昵称是否显示
+                if (information != null) {
+                    isShowRightNickName = information.isShowRightMsgNickName();
+                    isShowRightFace = information.isShowRightMsgFace();
+                    //右侧头像、昵称布局(只有头像显示时，左右布局；默认上下布局)（布局是按照左侧消息头像昵称显示决定的）
+                    if (ll_status != null) {
+                        if (isShowFace) {
+                            if (!isShowNickName) {
+                                //头像显示，昵称不显示
+                                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) ll_status.getLayoutParams();
+                                layoutParams.addRule(RelativeLayout.START_OF, imgHead.getId());
+                                layoutParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                                ll_status.setLayoutParams(layoutParams);
+                            } else {
+                                //头像显示，昵称显示
+                                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) ll_status.getLayoutParams();
+                                layoutParams.addRule(RelativeLayout.BELOW, name.getId());
+                                layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
+                                ll_status.setLayoutParams(layoutParams);
                             }
+                        } else {
+                            //不显示头像,昵称显示
+                            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) ll_status.getLayoutParams();
+                            layoutParams.addRule(RelativeLayout.BELOW, name.getId());
+                            layoutParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
+                            ll_status.setLayoutParams(layoutParams);
                         }
-                    } else {
-                        setRightMsgDefaulBg(isWireframeMsgType);
                     }
-                } else {
-                    setRightMsgDefaulBg(isWireframeMsgType);
-                }
-            } else {
-                if (message != null && name != null) {
-                    if (StringUtils.isNoEmpty(message.getSenderName())) {
-                        name.setText(message.getSenderName());
-                    }
-                    //后端返回的昵称需要显示
-                    if (isShowNickName) {
+                    if (isShowRightNickName) {
                         name.setVisibility(View.VISIBLE);
-                        //相邻两条消息同一个人，1分钟内不显示
-                        if (!message.isShowFaceAndNickname()) {
-                            name.setVisibility(View.GONE);
+                        if (message != null && name != null) {
+                            if (!TextUtils.isEmpty(message.getSenderName())) {
+                                name.setText(message.getSenderName().trim());
+                            }
                         }
                     } else {
                         name.setVisibility(View.GONE);
                     }
-                }
-                if (message != null && imgHead != null) {
-                    if (StringUtils.isNoEmpty(message.getSenderFace())) {
-                        imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
-                    }
-                    //后端返回的头像需要显示
-                    if (isShowFace) {
+                    if (isShowRightFace) {
                         imgHead.setVisibility(View.VISIBLE);
-                        //相邻两条消息同一个人，1分钟内不显示
-                        if (!message.isShowFaceAndNickname()) {
-                            //占位
-                            imgHead.setVisibility(View.INVISIBLE);
+                        if (message != null && imgHead != null) {
+                            if (ZhiChiConstant.ALLOCATED_FACE.equals(message.getSenderFace())) {
+                                Drawable afaceDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_face, null);
+                                if (afaceDrawable != null) {
+                                    imgHead.setImageDrawable(afaceDrawable);
+                                }
+                            } else {
+                                imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
+                            }
                         }
                     } else {
                         imgHead.setVisibility(View.GONE);
                     }
                 }
+            } else {
+                //左侧头像、昵称布局(只有头像显示时，左右布局；默认上下布局)
+                if (sobot_msg_ll != null) {
+                    if (isShowFace) {
+                        if (!isShowNickName) {
+                            //头像显示，昵称不显示
+                            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) sobot_msg_ll.getLayoutParams();
+                            layoutParams.addRule(RelativeLayout.END_OF, imgHead.getId());
+                            sobot_msg_ll.setLayoutParams(layoutParams);
+                        } else {
+                            //头像显示，昵称显示
+                            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) sobot_msg_ll.getLayoutParams();
+                            layoutParams.addRule(RelativeLayout.BELOW, name.getId());
+                            sobot_msg_ll.setLayoutParams(layoutParams);
+                        }
+                    } else {
+                        //不显示头像,昵称显示
+                        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) sobot_msg_ll.getLayoutParams();
+                        layoutParams.addRule(RelativeLayout.BELOW, name.getId());
+                        sobot_msg_ll.setLayoutParams(layoutParams);
+                    }
+                }
             }
-        } catch (Exception e) {
+            int tempHeaderWidth= 32 + 8;//头像32+ 头像到气泡间距8
+            if (sobot_msg_ll != null&&isShowFace&&isShowNickName) {
+                //头像昵称都显示 上下布局 气泡最大宽度不包含头像昵称大小
+                tempHeaderWidth=0;
+            }
+            if (isRight()) {
+                if (information != null && information.isShowRightMsgFace()) {
+                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 — ((头像32+头像到气泡间距8) 或者 0)-头像到边上的举例16 -  气泡左右间距16
+                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 +tempHeaderWidth + 16 + 16 + 16);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 40);
+                } else {
+                    //不带客服头像和昵称
+                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60 -头像到边上的举例16 -  气泡左右间距16
+                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 + 16 + 16 + 16);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288);
+                }
+
+            } else {
+                if (isShowFace) {
+                    //带有客服头像和昵称
+                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60 — ((头像32+头像到气泡间距8) 或者 0)-头像到边上的举例16 -  气泡左右间距16
+                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 + tempHeaderWidth + 16 + 16 + 16);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 40);
+                } else {
+                    //不带客服头像和昵称
+                    //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60 -头像到边上的举例16 -  气泡左右间距16
+                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 + 16 + 16 + 16);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288);
+                }
+            }
+            name.setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 36));
+            if (isRight()) {
+                boolean isTextAudioMsgType = (itemType == SobotMsgAdapter.MSG_TYPE_TXT_R || itemType == SobotMsgAdapter.MSG_TYPE_APPOINT_R || itemType == SobotMsgAdapter.MSG_TYPE_AUDIO_R || itemType == SobotMsgAdapter.MSG_TYPE_MULTI_ROUND_R);
+                //右侧文本、语音气泡=渐变主题色背景
+                //图片视频=无边框气泡背景 不处理
+                //文件、商品卡片、订单卡片、文件类型其它的气泡=线框气泡 不处理
+                if (mContext.getResources().getColor(R.color.sobot_gradient_end) == mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_end)) {
+                    if (initMode != null && initMode.getVisitorScheme() != null) {
+                        //服务端返回的导航条背景颜色
+                        if (!TextUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
+                            String themeColorStr = initMode.getVisitorScheme().getRebotTheme();
+                            if (!themeColorStr.contains(",")) {
+                                //单色 需要变成两个一样
+                                themeColorStr = themeColorStr + "," + themeColorStr;
+                            }
+                            String themeColor[] = themeColorStr.split(",");
+                            if (themeColor.length > 1) {
+
+                                int[] colors = new int[themeColor.length];
+                                for (int i = 0; i < themeColor.length; i++) {
+                                    colors[i] = Color.parseColor(themeColor[i]);
+                                }
+                                if (isTextAudioMsgType) {
+                                    float[] cornerRadii = null;
+                                    //修改文本语音的圆角弧度 连续消息 右侧圆角弧度需要调整
+                                    if (message.isShowFaceAndNickname()) {
+                                        if (message.isNextIsShowFaceAndNickname()) {
+                                            //本条显示头像昵称，下条也显示 圆角弧度正常 只有右上角是4dp
+                                            cornerRadii = new float[]{
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                            };
+                                        } else {
+                                            //本条显示头像昵称，下条不显示 左侧圆角弧度正常，右侧弧度都是小的 4dp
+                                            cornerRadii = new float[]{
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                            };
+                                        }
+                                    } else {
+                                        if (message.isNextIsShowFaceAndNickname()) {
+                                            //本条不显示头像昵称，下条也显示 相当于连续消息结束 只有右上角是4dp
+                                            cornerRadii = new float[]{
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                            };
+                                        } else {
+                                            //本条不显示头像昵称，下条也不显示 还是连续消息，右侧弧度都是小的 4dp
+                                            cornerRadii = new float[]{
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                            };
+                                        }
+                                    }
+                                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+                                    aDrawable.setCornerRadii(cornerRadii);
+                                    if (sobot_msg_content_ll != null) {
+                                        sobot_msg_content_ll.setBackground(aDrawable);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                //是否是文本 富文本消息
+                boolean isTextRichMsgType = (itemType == SobotMsgAdapter.MSG_TYPE_TXT_L || itemType == SobotMsgAdapter.MSG_TYPE_RICH);
+                if (isTextRichMsgType) {
+                    int[] colors = new int[]{mContext.getResources().getColor(R.color.sobot_chat_left_bgColor), mContext.getResources().getColor(R.color.sobot_chat_left_bgColor)};
+                    float[] cornerRadii = null;
+                    //修改文本语音的圆角弧度 连续消息 左侧圆角弧度需要调整
+                    if (message.isShowFaceAndNickname()) {
+                        if (message.isNextIsShowFaceAndNickname()) {
+                            //本条显示头像昵称，下条也显示 圆角弧度正常
+                            //文本语音气泡 左上角是小角度 4dp
+                            cornerRadii = new float[]{
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                            };
+                        } else {
+                            //本条显示头像昵称，下条不显示 左侧圆角弧度都是小的 4dp
+                            cornerRadii = new float[]{
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius)    // 左下角
+                            };
+                        }
+                    } else {
+                        if (message.isNextIsShowFaceAndNickname()) {
+                            //本条不显示头像昵称，下条也显示 相当于连续消息结束,只有左上角弧度是4dp
+                            cornerRadii = new float[]{
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                            };
+                        } else {
+                            //本条不显示头像昵称，下条也不显示 还是连续消息，左侧圆角弧度都需要调小
+                            cornerRadii = new float[]{
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius)    // 左下角
+                            };
+                        }
+                    }
+                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+                    aDrawable.setCornerRadii(cornerRadii);
+                    if (sobot_msg_content_ll != null) {
+                        sobot_msg_content_ll.setBackground(aDrawable);
+                    }
+                }
+            }
+            if (message != null) {
+                if (name != null) {
+                    if (StringUtils.isNoEmpty(message.getSenderName())) {
+                        name.setText(message.getSenderName().trim());
+                    }
+                    if (isRight()) {
+                        if (isShowRightNickName) {
+                            // 相邻两条消息同一个人，1分钟内不显示
+                            name.setVisibility(message.isShowFaceAndNickname() ? View.VISIBLE : View.GONE);
+                        }
+                    } else {
+                        if (isShowNickName) {
+                            // 相邻两条消息同一个人，1分钟内不显示
+                            name.setVisibility(message.isShowFaceAndNickname() ? View.VISIBLE : View.GONE);
+                        }
+                    }
+                }
+
+                if (imgHead != null) {
+                    if (StringUtils.isNoEmpty(message.getSenderFace()) && ChatUtils.isDefaultFace(message.getSenderFace())) {
+                        //默认头像
+                        Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(mContext, message.getSenderName(), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_face_width_heigth), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_face_width_heigth), ThemeUtils.getThemeColor(mContext), ThemeUtils.getThemeTextAndIconColor(mContext));
+                        if (afaceDrawable != null) {
+                            imgHead.setImageDrawable(afaceDrawable);
+                        } else {
+                            imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
+                        }
+                    } else {
+                        if (StringUtils.isNoEmpty(message.getSenderFace())) {
+                            if (ZhiChiConstant.ALLOCATED_FACE.equals(message.getSenderFace())) {
+                                Drawable afaceDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_face, null);
+                                if (afaceDrawable != null) {
+                                    imgHead.setImageDrawable(afaceDrawable);
+                                }
+                            } else {
+                                imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
+                            }
+                        }
+                    }
+                    if (isRight()) {
+                        if (isShowRightFace) {
+                            // 相邻两条消息同一个人，1分钟内不显示
+                            imgHead.setVisibility(message.isShowFaceAndNickname() ? View.VISIBLE : View.INVISIBLE);
+                        }
+                    } else {
+                        if (isShowFace) {
+                            // 相邻两条消息同一个人，1分钟内不显示
+                            imgHead.setVisibility(message.isShowFaceAndNickname() ? View.VISIBLE : View.INVISIBLE);
+                        }
+                    }
+                }
+                if (sobot_real_ll_content != null) {
+                    //修改消息之间的间距
+                    if (message.isNextIsShowFaceAndNickname()) {
+                        //下条显示头像昵称 消息之间间距是默认的20dp
+                        sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_margin));
+                    } else {
+                        //下条不显示头像昵称 消息之间间距是小的4dp
+                        sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_small_margin));
+                    }
+                }
+            }
+            if (information != null && information.isShowEveryLeftMsgFaceNickName()) {
+                //永远显示
+                name.setVisibility(View.VISIBLE);
+                imgHead.setVisibility(View.VISIBLE);
+            }
+        } catch (Exception ignored) {
         }
         resetMaxWidth();
     }
 
-    //设置右侧气泡默认背景色（不使用文件、商品卡片、订单卡片、文件类型的气泡）
-    private void setRightMsgDefaulBg(boolean isWireframeMsgType) {
-        if (sobot_msg_content_ll == null) {
-            return;
-        }
-        if (!isWireframeMsgType) {
-            int[] colors = new int[]{mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_start), mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_end)};
-            GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-            aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-            if (sobot_msg_content_ll != null) {
-                sobot_msg_content_ll.setBackground(aDrawable);
-            }
-        } else {
-//            GradientDrawable gradientDrawable = new GradientDrawable();
-//            gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-//            gradientDrawable.setStroke(mContext.getResources().getDimensionPixelOffset(R.dimen.sobot_right_msg_line_width), mContext.getResources().getColor(R.color.sobot_chat_file_bgColor));//线的宽度 与 线的颜色
-//            gradientDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-//            if (sobot_msg_content_ll != null) {
-//                sobot_msg_content_ll.setBackground(gradientDrawable);
-//            }
-        }
-    }
 
     //左右两边气泡内链接文字的字体颜色
     protected int getLinkTextColor() {
@@ -495,11 +626,8 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
 
     /**
      * 显示重新发送dialog
-     *
-     * @param msgStatus
-     * @param reSendListener
      */
-    public static void showReSendDialog(Context context, final ImageView msgStatus, final ReSendListener reSendListener) {
+    public static void showReSendDialog(Context context, ImageView msgStatus, ReSendListener reSendListener) {
         int width = context.getResources().getDisplayMetrics().widthPixels;
         int widths = 0;
         if (width == 480) {
@@ -652,7 +780,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             @Override
             public void onNoDoubleClick(View v) {
                 if (msgCallBack != null) {
-                    msgCallBack.doClickTransferBtn(message);
+                    msgCallBack.doClickTransfer(message);
                 }
             }
         });
@@ -665,7 +793,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         }
         //找不到顶和踩就返回
         if (sobot_right_likebtn_iv == null ||
-                sobot_right_dislikegtn_iv == null || sobot_ll_bottom_likeBtn == null && sobot_ll_bottom_dislikeBtn == null) {
+                sobot_right_dislikegtn_iv == null || sobot_iv_bottom_likeBtn == null && sobot_iv_bottom_dislikeBtn == null) {
             return;
         }
         if (isRight()) {
@@ -681,68 +809,31 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 if (dingcaiIsShowRight()) {
                     //右侧样式
                     if (sobot_right_likebtn_iv != null && sobot_right_dislikegtn_iv != null) {
-                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) sobot_right_likebtn_iv.getLayoutParams();
-                        lp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        lp.height = SobotDensityUtil.dp2px(mContext, 26);
-                        sobot_right_likebtn_iv.setPadding(0, 0, 0, 0);
-                        RelativeLayout.LayoutParams dislp = (RelativeLayout.LayoutParams) sobot_right_dislikegtn_iv.getLayoutParams();
-                        dislp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        dislp.height = SobotDensityUtil.dp2px(mContext, 26);
-                        dislp.topMargin = SobotDensityUtil.dp2px(mContext, 8);
-                        sobot_right_dislikegtn_iv.setPadding(0, 0, 0, 0);
                         if (aiRobotRealuateConfigInfo.getRealuateButtonStyle() == 1) {
                             //心型
-                            sobot_right_likebtn_iv.setImageResource(R.drawable.sobot_evaluate_btn_aiagent_zan_selector);
-                            sobot_right_dislikegtn_iv.setImageResource(R.drawable.sobot_evaleuate_btn_aiagent_cai_selector);
-                            sobot_right_likebtn_iv.setBackground(null);
-                            sobot_right_dislikegtn_iv.setBackground(null);
+                            sobot_right_likebtn_iv.setImageResource(R.drawable.sobot_btn_heart_shaped_zan_selector);
+                            sobot_right_dislikegtn_iv.setImageResource(R.drawable.sobot_btn_heart_shaped_cai_selector);
                         } else {
                             //手势
-                            sobot_right_likebtn_iv.setImageResource(R.drawable.sobot_evaluate_btn_aiagent_zan_shoushi_selector);
-                            sobot_right_dislikegtn_iv.setImageResource(R.drawable.sobot_evaleuate_btn_aiagent_cai_shoushi_selector);
-                            sobot_right_likebtn_iv.setBackground(null);
-                            sobot_right_dislikegtn_iv.setBackground(null);
+                            sobot_right_likebtn_iv.setImageResource(R.drawable.sobot_evaluate_btn_zan_selector);
+                            sobot_right_dislikegtn_iv.setImageResource(R.drawable.sobot_evaleuate_btn_cai_selector);
                         }
                     }
                 } else {
                     if (sobot_chat_more_action != null) {
-                        sobot_chat_more_action.setHorizontalGap(SobotDensityUtil.dp2px(mContext, 12));
+                        sobot_chat_more_action.setHorizontalGap(ScreenUtils.dip2px(mContext, 12));
                     }
                     //气泡下边顶踩样式
                     if (sobot_iv_bottom_likeBtn != null && sobot_iv_bottom_dislikeBtn != null && aiRobotRealuateConfigInfo != null) {
-                        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) sobot_iv_bottom_likeBtn.getLayoutParams();
-                        lp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        lp.height = SobotDensityUtil.dp2px(mContext, 26);
-                        LinearLayout.LayoutParams disLp = (LinearLayout.LayoutParams) sobot_iv_bottom_dislikeBtn.getLayoutParams();
-                        disLp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        disLp.height = SobotDensityUtil.dp2px(mContext, 26);
                         if (aiRobotRealuateConfigInfo.getRealuateButtonStyle() == 1) {
                             //心型
-                            sobot_iv_bottom_likeBtn.setImageResource(R.drawable.sobot_evaluate_btn_aiagent_zan_selector);
-                            sobot_iv_bottom_dislikeBtn.setImageResource(R.drawable.sobot_evaleuate_btn_aiagent_cai_selector);
+                            sobot_iv_bottom_likeBtn.setImageResource(R.drawable.sobot_btn_heart_shaped_zan_selector);
+                            sobot_iv_bottom_dislikeBtn.setImageResource(R.drawable.sobot_btn_heart_shaped_cai_selector);
                         } else {
                             //手势
-                            sobot_iv_bottom_likeBtn.setImageResource(R.drawable.sobot_evaluate_btn_aiagent_zan_shoushi_selector);
-                            sobot_iv_bottom_dislikeBtn.setImageResource(R.drawable.sobot_evaleuate_btn_aiagent_cai_shoushi_selector);
+                            sobot_iv_bottom_likeBtn.setImageResource(R.drawable.sobot_evaluate_btn_zan_selector);
+                            sobot_iv_bottom_dislikeBtn.setImageResource(R.drawable.sobot_evaleuate_btn_cai_selector);
                         }
-                    }
-                    if (sobot_tv_bottom_dislikeBtn != null && sobot_tv_bottom_likeBtn != null) {
-                        //不显示文字
-                        sobot_tv_bottom_dislikeBtn.setVisibility(View.GONE);
-                        sobot_tv_bottom_likeBtn.setVisibility(View.GONE);
-                    }
-                    if (sobot_ll_bottom_likeBtn != null && sobot_ll_bottom_dislikeBtn != null) {
-                        //按钮背景样式
-                        ViewGroup.LayoutParams lp = sobot_ll_bottom_likeBtn.getLayoutParams();
-                        lp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        lp.height = SobotDensityUtil.dp2px(mContext, 26);
-                        ViewCompat.setPaddingRelative(sobot_ll_bottom_likeBtn, 0, 0, 0, 0); // 设置左右各20dp，上下各10dp的padding
-                        ViewGroup.LayoutParams dislp = sobot_ll_bottom_dislikeBtn.getLayoutParams();
-                        dislp.width = SobotDensityUtil.dp2px(mContext, 26);
-                        dislp.height = SobotDensityUtil.dp2px(mContext, 26);
-                        ViewCompat.setPaddingRelative(sobot_ll_bottom_dislikeBtn, 0, 0, 0, 0); // 设置左右各20dp，上下各10dp的padding
-                        sobot_ll_bottom_likeBtn.setBackground(null);
-                        sobot_ll_bottom_dislikeBtn.setBackground(null);
                     }
                 }
             }
@@ -772,20 +863,15 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             sobot_right_likebtn_iv.setVisibility(View.VISIBLE);
             sobot_right_dislikegtn_iv.setVisibility(View.VISIBLE);
             rightEmptyRL.setVisibility(View.VISIBLE);
-            if (sobot_ll_bottom_likeBtn != null) {
-                sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
-                sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+            if (sobot_iv_bottom_likeBtn != null) {
+                sobot_iv_bottom_likeBtn.setVisibility(View.GONE);
+                sobot_iv_bottom_dislikeBtn.setVisibility(View.GONE);
             }
         } else {
-            doTwoViewWidthConsistent(sobot_ll_bottom_dislikeBtn, sobot_tv_bottom_dislikeBtn, mContext.getResources().getString(R.string.sobot_cai), sobot_ll_bottom_likeBtn, sobot_tv_bottom_likeBtn, mContext.getResources().getString(R.string.sobot_ding), true);
             sobot_chat_more_action.setVisibility(View.VISIBLE);
-            if (sobot_ll_bottom_likeBtn != null) {
-                sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
-                sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
-                if (initMode.isAiAgent()) {
-                    sobot_ll_bottom_likeBtn.setBackground(null);
-                    sobot_ll_bottom_dislikeBtn.setBackground(null);
-                }
+            if (sobot_iv_bottom_likeBtn != null) {
+                sobot_iv_bottom_likeBtn.setVisibility(View.VISIBLE);
+                sobot_iv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
             }
             sobot_right_likebtn_iv.setVisibility(View.GONE);
             sobot_right_dislikegtn_iv.setVisibility(View.GONE);
@@ -812,13 +898,13 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             sobot_iv_bottom_dislikeBtn.setEnabled(true);
             sobot_iv_bottom_likeBtn.setSelected(false);
             sobot_iv_bottom_dislikeBtn.setSelected(false);
-            sobot_ll_bottom_likeBtn.setOnClickListener(new NoDoubleClickListener() {
+            sobot_iv_bottom_likeBtn.setOnClickListener(new NoDoubleClickListener() {
                 @Override
                 public void onNoDoubleClick(View v) {
                     doRevaluate(true);
                 }
             });
-            sobot_ll_bottom_dislikeBtn.setOnClickListener(new NoDoubleClickListener() {
+            sobot_iv_bottom_dislikeBtn.setOnClickListener(new NoDoubleClickListener() {
                 @Override
                 public void onNoDoubleClick(View v) {
                     doRevaluate(false);
@@ -835,9 +921,9 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         sobot_right_likebtn_iv.setVisibility(View.GONE);
         sobot_right_dislikegtn_iv.setVisibility(View.GONE);
         rightEmptyRL.setVisibility(View.GONE);
-        if (sobot_ll_bottom_likeBtn != null) {
-            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
-            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
+        if (sobot_iv_bottom_likeBtn != null) {
+            sobot_iv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_iv_bottom_dislikeBtn.setVisibility(View.GONE);
         }
     }
 
@@ -854,17 +940,12 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             sobot_right_dislikegtn_iv.setVisibility(View.GONE);
             rightEmptyRL.setVisibility(View.VISIBLE);
         } else {
-            doTwoViewWidthConsistent(sobot_ll_bottom_dislikeBtn, sobot_tv_bottom_dislikeBtn, mContext.getResources().getString(R.string.sobot_cai), sobot_ll_bottom_likeBtn, sobot_tv_bottom_likeBtn, mContext.getResources().getString(R.string.sobot_ding), true);
             sobot_iv_bottom_likeBtn.setSelected(true);
             sobot_iv_bottom_likeBtn.setEnabled(false);
             sobot_iv_bottom_dislikeBtn.setEnabled(false);
             sobot_iv_bottom_dislikeBtn.setSelected(false);
-            sobot_ll_bottom_likeBtn.setVisibility(View.VISIBLE);
-            sobot_ll_bottom_dislikeBtn.setVisibility(View.GONE);
-            if (initMode.isAiAgent()) {
-                sobot_ll_bottom_likeBtn.setBackground(null);
-                sobot_ll_bottom_dislikeBtn.setBackground(null);
-            }
+            sobot_iv_bottom_likeBtn.setVisibility(View.VISIBLE);
+            sobot_iv_bottom_dislikeBtn.setVisibility(View.GONE);
             sobot_chat_more_action.setVisibility(View.VISIBLE);
             sobot_right_likebtn_iv.setVisibility(View.GONE);
             sobot_right_dislikegtn_iv.setVisibility(View.GONE);
@@ -885,17 +966,12 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             sobot_right_dislikegtn_iv.setVisibility(View.VISIBLE);
             rightEmptyRL.setVisibility(View.VISIBLE);
         } else {
-            doTwoViewWidthConsistent(sobot_ll_bottom_dislikeBtn, sobot_tv_bottom_dislikeBtn, mContext.getResources().getString(R.string.sobot_cai), sobot_ll_bottom_likeBtn, sobot_tv_bottom_likeBtn, mContext.getResources().getString(R.string.sobot_ding), false);
             sobot_iv_bottom_dislikeBtn.setSelected(true);
             sobot_iv_bottom_dislikeBtn.setEnabled(false);
             sobot_iv_bottom_likeBtn.setEnabled(false);
             sobot_iv_bottom_likeBtn.setSelected(false);
-            sobot_ll_bottom_likeBtn.setVisibility(View.GONE);
-            sobot_ll_bottom_dislikeBtn.setVisibility(View.VISIBLE);
-            if (initMode.isAiAgent()) {
-                sobot_ll_bottom_likeBtn.setBackground(null);
-                sobot_ll_bottom_dislikeBtn.setBackground(null);
-            }
+            sobot_iv_bottom_likeBtn.setVisibility(View.GONE);
+            sobot_iv_bottom_dislikeBtn.setVisibility(View.VISIBLE);
             sobot_chat_more_action.setVisibility(View.VISIBLE);
             sobot_right_likebtn_iv.setVisibility(View.GONE);
             sobot_right_dislikegtn_iv.setVisibility(View.GONE);
@@ -945,7 +1021,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 }
             }
             if (answersList != null) {
-                if (message.getListSuggestions() != null && message.getListSuggestions().size() > 0) {
+                if (message.getListSuggestions() != null && !message.getListSuggestions().isEmpty()) {
                     ArrayList<Suggestions> listSuggestions = message.getListSuggestions();
                     answersList.removeAllViews();
                     answersList.setVisibility(View.VISIBLE);
@@ -957,7 +1033,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     }
                     for (int i = startNum; i < endNum; i++) {
                         TextView answer = ChatUtils.initAnswerItemTextView(mContext, false);
-                        if (i == 0 && SobotStringUtils.isEmpty(message.getStripe())) {
+                        if (i == 0 && StringUtils.isEmpty(message.getStripe())) {
                             answer.setPadding(0, 0, 0, 0);
                         }
                         int currentItem = i + 1;
@@ -974,7 +1050,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     answersList.setVisibility(View.VISIBLE);
                     for (int i = 0; i < answerStringList.length; i++) {
                         TextView answer = ChatUtils.initAnswerItemTextView(mContext, true);
-                        if (i == 0 && SobotStringUtils.isEmpty(message.getStripe())) {
+                        if (i == 0 && StringUtils.isEmpty(message.getStripe())) {
                             answer.setPadding(0, 0, 0, 0);
                         }
                         int currentItem = i + 1;
@@ -1034,12 +1110,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
 
     /**
      * 显示复制和引用的提示
-     *
-     * @param context
-     * @param v
-     * @param str
-     * @param x
-     * @param y
      */
     public void showCopyAndAppointPopWindows(final Context context, View v, final String str, int x, int y) {
         if (v == null) {
@@ -1052,15 +1122,15 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         View mPopView = LayoutInflater.from(context).inflate(R.layout.sobot_pop_chat_room_long_press, null);
         if (initMode == null || initMode.getMsgAppointFlag() == 0 || StringUtils.isEmpty(message.getMessage())) {
             //引用未开启
-            mPopView.findViewById(R.id.sobot_tv_appoint_txt).setVisibility(View.GONE);
+            mPopView.findViewById(R.id.ll_click_appoint).setVisibility(View.GONE);
             mPopView.findViewById(R.id.view_split).setVisibility(View.GONE);
         } else {
-            if (answersList != null && ((message.getListSuggestions() != null && message.getListSuggestions().size() > 0) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
+            if (answersList != null && ((message.getListSuggestions() != null && !message.getListSuggestions().isEmpty()) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
                 //只要带有关联问题都不能引用
-                mPopView.findViewById(R.id.sobot_tv_appoint_txt).setVisibility(View.GONE);
+                mPopView.findViewById(R.id.ll_click_appoint).setVisibility(View.GONE);
                 mPopView.findViewById(R.id.view_split).setVisibility(View.GONE);
             } else {
-                mPopView.findViewById(R.id.sobot_tv_appoint_txt).setVisibility(View.VISIBLE);
+                mPopView.findViewById(R.id.ll_click_appoint).setVisibility(View.VISIBLE);
                 mPopView.findViewById(R.id.view_split).setVisibility(View.VISIBLE);
             }
         }
@@ -1083,28 +1153,19 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 location[1] - popupHeight + y);// + v.getWidth() / 2) -
 
         mPopWindow.update();
-        mPopView.findViewById(R.id.sobot_tv_copy_txt).setOnClickListener(
+        mPopView.findViewById(R.id.ll_click_copy).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (Build.VERSION.SDK_INT >= 11) {
-                            LogUtils.i("API是大于11");
-                            android.content.ClipboardManager cmb = (android.content.ClipboardManager) context.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                            if (cmb != null) {
-                                cmb.setText(str);
-                            }
-                        } else {
-                            LogUtils.i("API是小于11");
-                            android.text.ClipboardManager cmb = (android.text.ClipboardManager) context.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                            if (cmb != null) {
-                                cmb.setText(str);
-                            }
+                        android.content.ClipboardManager cmb = (android.content.ClipboardManager) context.getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (cmb != null) {
+                            cmb.setText(str);
                         }
                         ToastUtil.showCustomToast(context, context.getResources().getString(R.string.sobot_ctrl_v_success), R.drawable.sobot_icon_success);
                         mPopWindow.dismiss();
                     }
                 });
-        mPopView.findViewById(R.id.sobot_tv_appoint_txt).setOnClickListener(
+        mPopView.findViewById(R.id.ll_click_appoint).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1123,7 +1184,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             //引用未开启
             return;
         }
-        if (answersList != null && ((message.getListSuggestions() != null && message.getListSuggestions().size() > 0) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
+        if (answersList != null && ((message.getListSuggestions() != null && !message.getListSuggestions().isEmpty()) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
             //只要带有关联问题都不能引用
             return;
         }
@@ -1163,11 +1224,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
 
     /**
      * 显示引用的提示
-     *
-     * @param context
-     * @param v
-     * @param x
-     * @param y
      */
     public void showAppointPopWindows(final Context context, View v, int x, int y, final ZhiChiMessageBase message) {
         if (v == null) {
@@ -1180,13 +1236,13 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         if (message == null || StringUtils.isEmpty(message.getMessage())) {
             return;
         }
-        if (answersList != null && ((message.getListSuggestions() != null && message.getListSuggestions().size() > 0) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
+        if (answersList != null && ((message.getListSuggestions() != null && !message.getListSuggestions().isEmpty()) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
             //只要带有关联问题都不能引用
             return;
         }
         /** pop view */
         View mPopView = LayoutInflater.from(context).inflate(R.layout.sobot_pop_chat_room_long_press, null);
-        mPopView.findViewById(R.id.sobot_tv_copy_txt).setVisibility(View.GONE);
+        mPopView.findViewById(R.id.ll_click_copy).setVisibility(View.GONE);
         mPopView.findViewById(R.id.view_split).setVisibility(View.GONE);
         final PopupWindow mPopWindow = new PopupWindow(mPopView,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1207,7 +1263,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 location[1] - popupHeight + y);// + v.getWidth() / 2) -
 
         mPopWindow.update();
-        mPopView.findViewById(R.id.sobot_tv_appoint_txt).setOnClickListener(
+        mPopView.findViewById(R.id.ll_click_appoint).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1234,10 +1290,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             appointMessage.setAppointType(0);
         } else if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
             appointMessage.setAppointType(2);
-        } else if (ZhiChiConstant.message_sender_type_customer_sendImage == message.getSenderType()) {
-            appointMessage.setAppointType(1);
-        } else if (ZhiChiConstant.message_sender_type_send_voice == message.getSenderType()) {
-            appointMessage.setAppointType(1);
         } else {
             appointMessage.setAppointType(1);
         }
@@ -1245,7 +1297,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         JSONObject messageJsonObject = null;
         try {
             messageJsonObject = new JSONObject(message.getMessage());
-            if (messageJsonObject != null && messageJsonObject.has("msgType") && !TextUtils.isEmpty(messageJsonObject.optString("msgType"))) {
+            if (messageJsonObject.has("msgType") && !TextUtils.isEmpty(messageJsonObject.optString("msgType"))) {
                 String msgType = messageJsonObject.optString("msgType");
                 String content = messageJsonObject.optString("content");
                 appointMessage.setContent(content);
@@ -1277,46 +1329,5 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             }
         }
         return true;
-    }
-
-    /**
-     * 设置两个文本控件宽度是否一致
-     *
-     * @param textView1
-     * @param textView2
-     * @param isWidthConsistent true 宽度一致，false 宽度正常
-     */
-    public void doTwoViewWidthConsistent(LinearLayout ll1, TextView textView1, String text1, LinearLayout ll2, TextView textView2, String text2, boolean isWidthConsistent) {
-        if (mContext == null || ll1 == null || ll2 == null || textView1 == null || textView2 == null || SobotStringUtils.isEmpty(text1) || SobotStringUtils.isEmpty(text1)) {
-            return;
-        }
-        // 创建Paint对象
-        Paint paint = new Paint();
-        // 设置Paint的文字大小与TextView相同
-        paint.setTextSize(textView1.getTextSize());
-        // 测量两段文字的宽度
-        float width1 = paint.measureText(text1);
-        float width2 = paint.measureText(text2);
-        if (width1 == width2) {
-            return;
-        }
-        // 设置最大宽度为两段文字中的最大值
-        float maxWidth = Math.max(width1, width2);
-        if (isWidthConsistent) {
-            // 设置TextView的宽度为最大宽度
-//            textView1.setWidth((int) maxWidth);
-//            textView2.setWidth((int) maxWidth);
-            if (width1 > width2) {
-                ll2.setPadding(ScreenUtils.dip2px(mContext, 12) + (int) (width1 - width2) / 2, ScreenUtils.dip2px(mContext, 7), ScreenUtils.dip2px(mContext, 12) + (int) (width1 - width2) / 2, ScreenUtils.dip2px(mContext, 7));
-            } else {
-                ll1.setPadding(ScreenUtils.dip2px(mContext, 12) + (int) (width2 - width1) / 2, ScreenUtils.dip2px(mContext, 7), ScreenUtils.dip2px(mContext, 12) + (int) (width2 - width1) / 2, ScreenUtils.dip2px(mContext, 7));
-            }
-        } else {
-            textView1.setWidth((int) width1);
-            textView2.setWidth((int) width2);
-        }
-        // 设置文字
-        textView1.setText(text1);
-        textView2.setText(text2);
     }
 }

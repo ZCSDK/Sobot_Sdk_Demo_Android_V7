@@ -157,6 +157,7 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
     public void initDatas(IssueViewPagerdAdapter mAdapter) {
         this.mAdapter = mAdapter;
         mContainer = (LinearLayout) getChildAt(0);
+        mContainer.removeAllViews();
         // 获得适配器中第一个View
         final View view = mAdapter.getView(0, null, mContainer);
         view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));

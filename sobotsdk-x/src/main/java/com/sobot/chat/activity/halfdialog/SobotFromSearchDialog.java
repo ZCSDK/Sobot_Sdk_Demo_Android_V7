@@ -16,8 +16,8 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotFromSearchAdapter;
 import com.sobot.chat.api.model.FormNodeInfo;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.utils.SobotStringUtils;
+import com.sobot.chat.utils.SobotSoftKeyboardUtils;
+import com.sobot.chat.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,7 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
     private EditText et_search;//搜索
     private ImageView iv_clear;
     private TextView tv_nodata;
+    private int type;
 
     @Override
     public void onClick(View v) {
@@ -52,9 +53,15 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
     }
 
     @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotFromSearchDialog";
+    }
+
+    @Override
     protected void initData() {
         list = (ArrayList<FormNodeInfo>) getIntent().getSerializableExtra("List");
         String title = getIntent().getStringExtra("title");
+        type = getIntent().getIntExtra("type",0);
         sobot_tv_title.setText(title);
         if (list == null) {
             list = new ArrayList<>();
@@ -78,6 +85,13 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
         } else {
             showEmpt();
         }
+        //是否显示搜索框
+        if (type != 8) {
+            ll_search.setVisibility(View.VISIBLE);
+        } else {
+//            单选不显示搜索
+            ll_search.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -87,6 +101,7 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
 
     @Override
     protected void initView() {
+        super.initView();
         //根布局
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
@@ -104,9 +119,9 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    KeyboardUtil.showKeyboard(et_search);
+                    SobotSoftKeyboardUtils.showSoftKeyboard(getSobotBaseActivity());
                 } else {
-                    KeyboardUtil.hideKeyboard(v);
+                    SobotSoftKeyboardUtils.hideKeyboard(getSobotBaseActivity());
                 }
             }
         });
@@ -138,7 +153,7 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
 
     private void setIv_search() {
         final String searchText = et_search.getText().toString();
-        if (SobotStringUtils.isEmpty(searchText)) {
+        if (StringUtils.isEmpty(searchText)) {
             showAll();
         } else {
             List<FormNodeInfo> temList = new ArrayList();

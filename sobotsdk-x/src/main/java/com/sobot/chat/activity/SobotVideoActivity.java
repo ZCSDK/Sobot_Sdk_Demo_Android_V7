@@ -3,6 +3,8 @@ package com.sobot.chat.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.sobot.chat.R;
@@ -20,6 +23,7 @@ import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.StVideoView;
 import com.sobot.chat.camera.listener.StVideoListener;
 import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
 /**
@@ -67,6 +71,13 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
         st_tv_play = (TextView) findViewById(R.id.st_tv_play);
         st_iv_pic = (ImageView) findViewById(R.id.st_iv_pic);
         progressBar = (ProgressBar) findViewById(R.id.sobot_msgProgressBar);
+        try {
+            Drawable moreBgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_loading_anim, null);
+            if (moreBgDrawable != null) {
+                progressBar.setIndeterminateDrawable(ThemeUtils.applyColorToDrawable(moreBgDrawable, ThemeUtils.getThemeColor(SobotVideoActivity.this)));
+            }
+        } catch (Resources.NotFoundException e) {
+        }
         st_tv_play.setOnClickListener(this);
         initData();
         mVideoView.setVideoLisenter(new StVideoListener() {
@@ -155,9 +166,7 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         } else if (Build.VERSION.SDK_INT >= 16) {

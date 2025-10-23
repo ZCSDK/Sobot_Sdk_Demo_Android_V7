@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -40,6 +41,8 @@ import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.SobotSoftKeyboardUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.toast.ToastUtil;
@@ -60,6 +63,8 @@ public abstract class SobotChatBaseFragment extends Fragment {
     public PermissionListener permissionListener;
     private View overlay;//权限用途提示蒙层
     private ViewGroup viewGroup;//根view content
+    //是否横屏 false:竖屏 ,true:横屏
+    public boolean isLandscapeScreen = false;
 
     public SobotChatBaseFragment() {
 
@@ -78,7 +83,8 @@ public abstract class SobotChatBaseFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         zhiChiApi = SobotMsgManager.getInstance(getContext().getApplicationContext()).getZhiChiApi();
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            isLandscapeScreen = true;
             // 支持显示到刘海区域
             NotchScreenManager.getInstance().setDisplayInNotch(getActivity());
             // 设置Activity全屏
@@ -604,4 +610,32 @@ public abstract class SobotChatBaseFragment extends Fragment {
         return activity;
     }
 
+    //显示键盘
+    public void showSoftKeyboard() {
+        if (getSobotActivity() != null)
+            SobotSoftKeyboardUtils.showSoftKeyboard(getSobotActivity());
+    }
+
+    //隐藏键盘
+    public void hideKeyboard() {
+        if (getSobotActivity() != null)
+            SobotSoftKeyboardUtils.hideKeyboard(getSobotActivity());
+    }
+
+    /**
+     * 判断当前是否为夜间模式
+     *
+     * @return true: 夜间模式, false: 日间模式
+     */
+    public boolean isSystemNightMode() {
+        if (getSobotActivity() != null) {
+            int nightModeFlags = getSobotActivity().getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
+            boolean isNightMode = (nightModeFlags == Configuration.UI_MODE_NIGHT_YES);
+            LogUtils.d("fragment:" + (isNightMode ? "夜间模式" : "日间模式"));
+            return isNightMode;
+        } else {
+            return false;
+        }
+    }
 }

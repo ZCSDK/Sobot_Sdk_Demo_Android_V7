@@ -16,9 +16,8 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotChooseLanguaeAdapter;
 import com.sobot.chat.api.model.SobotlanguaeModel;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
-import com.sobot.chat.widget.kpswitch.util.KeyboardUtil;
-import com.sobot.utils.SobotStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +37,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
     private EditText et_search;//搜索
     private ImageView iv_clear;
     private TextView tv_nodata;
+    private TextView sobot_tv_title;
 
     @Override
     public void onClick(View v) {
@@ -87,6 +87,9 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
 
     @Override
     protected void initView() {
+        super.initView();
+        sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
+        sobot_tv_title.setText(R.string.sobot_select_language);
         //根布局
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
@@ -103,9 +106,9 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    KeyboardUtil.showKeyboard(et_search);
+                    showSoftKeyboard();
                 } else {
-                    KeyboardUtil.hideKeyboard(v);
+                    hideKeyboard();
                 }
             }
         });
@@ -135,9 +138,14 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
         });
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG ="SobotChooseLanguaeActivity";
+    }
+
     private void setIv_search() {
         final String searchText = et_search.getText().toString();
-        if (SobotStringUtils.isEmpty(searchText)) {
+        if (StringUtils.isEmpty(searchText)) {
             showAll();
         } else {
             List<SobotlanguaeModel> temList = new ArrayList();

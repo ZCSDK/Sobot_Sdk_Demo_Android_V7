@@ -2,22 +2,24 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.image.SobotProgressImageView;
-import com.sobot.utils.SobotStringUtils;
 
 /**
  * 商品卡片
@@ -28,6 +30,9 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
     private TextView mLabel;
     private TextView mDes;
     private ConsultingContent mConsultingContent;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
 
     public CardMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -50,19 +55,19 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
             } else {
                 mPic.setVisibility(View.GONE);
             }
-            if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsTitle())) {
+            if (!StringUtils.isEmpty(message.getConsultingContent().getSobotGoodsTitle())) {
                 mTitle.setText(message.getConsultingContent().getSobotGoodsTitle());
-            }else{
+            } else {
                 mTitle.setText("");
             }
-            if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsLable())) {
+            if (!StringUtils.isEmpty(message.getConsultingContent().getSobotGoodsLable())) {
                 mLabel.setText(message.getConsultingContent().getSobotGoodsLable());
-            }else{
+            } else {
                 mLabel.setText("");
             }
-            if (!SobotStringUtils.isEmpty(message.getConsultingContent().getSobotGoodsDescribe())) {
+            if (!StringUtils.isEmpty(message.getConsultingContent().getSobotGoodsDescribe())) {
                 mDes.setText(message.getConsultingContent().getSobotGoodsDescribe());
-            }else{
+            } else {
                 mDes.setText("");
             }
             if (isRight) {
@@ -71,14 +76,30 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
                         msgStatus.setVisibility(View.GONE);
                         msgProgressBar.setVisibility(View.GONE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_ERROR) {
                         msgStatus.setVisibility(View.VISIBLE);
                         msgProgressBar.setVisibility(View.GONE);
-//                        msgStatus.setOnClickListener(new TextMessageHolder.ReSendTextLisenter(context, message
-//                                .getId(), content, msgStatus, msgCallBack));
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
                     } else if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_LOADING) {
-                        msgProgressBar.setVisibility(View.VISIBLE);
-                        msgStatus.setVisibility(View.GONE);
+                        // 当状态变为成功或失败时，移除延迟任务
+                        if (handler != null && loadingRunnable != null) {
+                            handler.removeCallbacks(loadingRunnable);
+                        }
+                        loadingRunnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                msgProgressBar.setVisibility(View.VISIBLE);
+                                msgStatus.setVisibility(View.GONE);
+                            }
+                        };
+                        handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -90,8 +111,8 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
         setLongClickListener(sobot_msg_content_ll);
         refreshReadStatus();
         if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 +16));
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16+16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
+            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
         }
     }
 

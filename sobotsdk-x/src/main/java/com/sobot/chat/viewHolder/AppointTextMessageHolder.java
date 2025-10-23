@@ -2,15 +2,18 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.SobotFileDetailActivity;
@@ -35,6 +38,8 @@ import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.gson.SobotGsonUtil;
+import com.sobot.chat.gson.reflect.TypeToken;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.DateUtil;
@@ -47,11 +52,8 @@ import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
-import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
-import com.sobot.chat.widget.image.SobotRCImageView;
-import com.sobot.chat.gson.SobotGsonUtil;
-import com.sobot.chat.gson.reflect.TypeToken;
+import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
@@ -104,23 +106,24 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             if (!TextUtils.isEmpty(content) && HtmlTools.isHasPatterns(content)) {
                 //只有一个，是超链接，并且是卡片形式才显示卡片
                 View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 240), ViewGroup.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 288), ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, ScreenUtils.dip2px(mContext, 4));
                 view.setLayoutParams(layoutParams);
                 showLinkUI(context, message, content, view);
-                if (sobot_ll_card != null && sobot_ll_card instanceof LinearLayout) {
+                if (sobot_ll_card != null) {
                     sobot_ll_card.setVisibility(View.VISIBLE);
                     sobot_ll_card.removeAllViews();
                     sobot_ll_card.addView(view);
-                } else {
-                    sobot_ll_card.setVisibility(View.GONE);
                 }
             } else {
-                sobot_ll_card.setVisibility(View.GONE);
+                if (sobot_ll_card != null) {
+                    sobot_ll_card.setVisibility(View.GONE);
+                }
             }
 
             if (isRight) {
                 try {
+                    msg.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
                     msgStatus.setClickable(true);
                     if (message.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_SUCCESS) {// 成功的状态
                         if (!StringUtils.isEmpty(message.getDesensitizationWord())) {
@@ -177,6 +180,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                 tempStr = mContext.getResources().getString(R.string.sobot_cus_service);
             }
             tv_appoint_type.setText(tempStr);
+            setTextThemeColor(tv_appoint_type);
             sobot_appoint_content_ll.setVisibility(View.VISIBLE);
         } else {
             sobot_appoint_content_ll.setVisibility(View.GONE);
@@ -327,7 +331,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             if (msgType == 0) {
                 //文本
                 String text = appointMessage.getContent();
-                showTextView(sobot_rich_ll, context, isRight, text, 3);
+                showTextView(sobot_rich_ll, context, isRight, text, 2);
             } else if (msgType == 1) {
                 //图片
                 final String url = appointMessage.getContent();
@@ -358,6 +362,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                 voiceIV.setImageDrawable(context.getResources().getDrawable(R.drawable.sobot_pop_voice_send_anime_appoint_3));
                                 view.setBackgroundResource(R.drawable.sobot_chat_msg_bg_transparent);
                                 voiceTimeLong.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
+                                setTextThemeColor(voiceTimeLong);
                             } else {
                                 voiceIV.setImageDrawable(context.getResources().getDrawable(R.drawable.sobot_pop_voice_send_anime_appoint_left_3));
                                 view.setBackgroundResource(R.drawable.sobot_chat_msg_left_bg_transparent);
@@ -501,16 +506,16 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                                     }
                                                 }
                                             }
-                                            if (tempRichList != null && tempRichList.size() > 0) {
+                                            if (!tempRichList.isEmpty()) {
                                                 message.getAnswer().setRichList(tempRichList);
                                             }
-                                            if (tempRichList != null && tempRichList.size() > 0) {
+                                            if (!tempRichList.isEmpty()) {
                                                 list.clear();
                                                 list.addAll(tempRichList);
                                             }
                                         }
 
-                                        if (list != null && list.size() > 0) {
+                                        if (!list.isEmpty()) {
                                             ChatMessageRichListModel richListModel1 = list.get(0);
                                             if (list.size() > 1) {
                                                 ChatMessageRichListModel richListModel2 = list.get(1);
@@ -522,8 +527,9 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                                     showRichView(sobot_rich_ll, context, richListModel1, isRight, 1);
                                                     showRichView(sobot_rich_ll, context, richListModel2, isRight, 1);
                                                 }
-                                            } else if (list.size() == 1) {
-                                                showRichView(sobot_rich_ll, context, richListModel1, isRight, 3);
+                                            } else {
+                                                list.size();
+                                                showRichView(sobot_rich_ll, context, richListModel1, isRight, 2);
                                             }
                                         }
                                     }
@@ -555,21 +561,14 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                 locationData.setUrl(StringUtils.checkStringIsNull(jsonObj.optString("url")));
                                 View otherView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_other, null);
                                 TextView tv_title = otherView.findViewById(R.id.tv_title);
-                                ImageView iv_type = otherView.findViewById(R.id.iv_type);
+                                TextView tv_des = otherView.findViewById(R.id.tv_des);
                                 ImageView iv_type_left = otherView.findViewById(R.id.iv_type_left);
-                                if (isRight) {
-                                    iv_type_left.setBackgroundResource(R.drawable.sobon_icon_map);
-                                    otherView.setBackgroundResource(R.drawable.sobot_chat_msg_bg_transparent);
-                                    tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
-                                } else {
-                                    iv_type_left.setBackgroundResource(R.drawable.sobon_icon_map_left);
-                                    otherView.setBackgroundResource(R.drawable.sobot_chat_msg_left_bg_transparent);
-                                    tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_left_appoint_msg_card_text_color));
-                                }
-
-                                iv_type_left.setVisibility(View.VISIBLE);
-                                SobotBitmapUtil.display(context, R.drawable.sobot_bg_default_map, iv_type);
+                                iv_type_left.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.sobot_icon_map, null));
                                 tv_title.setText(StringUtils.checkStringIsNull(locationData.getTitle()));
+                                if (StringUtils.isNoEmpty(locationData.getDesc())) {
+                                    tv_des.setVisibility(View.VISIBLE);
+                                    tv_des.setText(StringUtils.checkStringIsNull(locationData.getDesc()));
+                                }
                                 otherView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 217), ViewGroup.LayoutParams.WRAP_CONTENT));
                                 sobot_rich_ll.addView(otherView);
                                 otherView.setOnClickListener(new View.OnClickListener() {
@@ -629,7 +628,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                         mDes.setText(consultingContent.getSobotGoodsDescribe());
                                         mLabel.setTextColor(ThemeUtils.getThemeColor(context));
                                     }
-                                    cardView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 182), ViewGroup.LayoutParams.WRAP_CONTENT));
+                                    cardView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 240), ViewGroup.LayoutParams.WRAP_CONTENT));
                                     sobot_rich_ll.addView(cardView);
                                     cardView.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -682,22 +681,14 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                     }
                                     View otherView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_other, null);
                                     TextView tv_title = otherView.findViewById(R.id.tv_title);
-                                    ImageView iv_type = otherView.findViewById(R.id.iv_type);
-                                    if (StringUtils.isNoEmpty(model.getThumbUrl())) {
-                                        SobotBitmapUtil.display(context, model.getThumbUrl(), iv_type);
-                                    }
+                                    TextView tv_des = otherView.findViewById(R.id.tv_des);
                                     ImageView iv_type_left = otherView.findViewById(R.id.iv_type_left);
-                                    iv_type_left.setVisibility(View.VISIBLE);
-                                    if (isRight) {
-                                        iv_type_left.setBackgroundResource(R.drawable.sobot_mini_program_logo_white);
-                                        otherView.setBackgroundResource(R.drawable.sobot_chat_msg_bg_transparent);
-                                        tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
-                                    } else {
-                                        iv_type_left.setBackgroundResource(R.drawable.sobot_mini_program_logo_gray);
-                                        otherView.setBackgroundResource(R.drawable.sobot_chat_msg_left_bg_transparent);
-                                        tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_left_appoint_msg_card_text_color));
-                                    }
+                                    iv_type_left.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.sobot_icon_mini_program, null));
                                     tv_title.setText(StringUtils.checkStringIsNull(model.getTitle()));
+                                    if (StringUtils.isNoEmpty(model.getDescribe())) {
+                                        tv_des.setVisibility(View.VISIBLE);
+                                        tv_des.setText(StringUtils.checkStringIsNull(model.getDescribe()));
+                                    }
                                     otherView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 217), ViewGroup.LayoutParams.WRAP_CONTENT));
                                     sobot_rich_ll.addView(otherView);
                                     otherView.setOnClickListener(new View.OnClickListener() {
@@ -739,24 +730,24 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                     if (miniJsonObj.has("title")) {
                                         model.setTitle(StringUtils.checkStringIsNull(miniJsonObj.optString("title")));
                                     }
-                                    View otherView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_other, null);
+                                    View otherView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_article, null);
                                     TextView tv_title = otherView.findViewById(R.id.tv_title);
-                                    ImageView iv_type = otherView.findViewById(R.id.iv_type);
-                                    if (StringUtils.isNoEmpty(model.getSnapshot())) {
-                                        SobotBitmapUtil.display(context, model.getSnapshot(), iv_type);
-                                    }
-                                    if (isRight) {
-                                        otherView.setBackgroundResource(R.drawable.sobot_chat_msg_bg_transparent);
-                                        tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
+                                    if (StringUtils.isNoEmpty(model.getTitle())) {
+                                        tv_title.setText(StringUtils.checkStringIsNull(model.getTitle()));
+                                        tv_title.setVisibility(View.VISIBLE);
                                     } else {
-                                        otherView.setBackgroundResource(R.drawable.sobot_chat_msg_left_bg_transparent);
-                                        tv_title.setTextColor(ContextCompat.getColor(context, R.color.sobot_left_appoint_msg_card_text_color));
+                                        tv_title.setVisibility(View.GONE);
                                     }
-                                    tv_title.setText(StringUtils.checkStringIsNull(model.getTitle()));
-                                    otherView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 217), ViewGroup.LayoutParams.WRAP_CONTENT));
+                                    TextView tv_des = otherView.findViewById(R.id.tv_desc);
+                                    if (StringUtils.isNoEmpty(model.getTitle())) {
+                                        tv_des.setText(StringUtils.checkStringIsNull(model.getDesc()));
+                                        tv_des.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tv_des.setVisibility(View.GONE);
+                                    }
+                                    otherView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                                     sobot_rich_ll.addView(otherView);
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
                             }
                         } else if ("21".equals(contentJsonObject.optString("type"))) {
@@ -848,6 +839,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             cacheFile.setUrl(richListModel1.getMsg());
             cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(richListModel1.getMsg())));
             cacheFile.setMsgId(message.getMsgId());
+            cacheFile.setSnapshot(richListModel1.getMsg());
             showVideoView(sobot_rich_ll, context, cacheFile, false);
         } else if (richListModel1.getType() == 4 || richListModel1.getType() == 2) {
             SobotCacheFile cacheFile = new SobotCacheFile();
@@ -865,10 +857,13 @@ public class AppointTextMessageHolder extends MsgHolderBase {
 
     private void showVideoView(LinearLayout sobot_rich_ll, final Context context,
                                final SobotCacheFile cacheFile, boolean isCanClick) {
+        if (cacheFile == null && context == null || sobot_rich_ll == null) {
+            return;
+        }
         View videoView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_vedio, null);
-        ImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
-        SobotBitmapUtil.display(context, cacheFile.getSnapshot(), sobot_video_first_image, R.drawable.sobot_rich_item_vedoi_default, R.drawable.sobot_rich_item_vedoi_default);
-        videoView.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 71), ScreenUtils.dip2px(context, 40)));
+        videoView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        SobotProgressImageView sobot_video_first_image = videoView.findViewById(R.id.sobot_video_first_image);
+        sobot_video_first_image.setImageUrl(cacheFile.getSnapshot());
         sobot_rich_ll.addView(videoView);
         if (isCanClick) {
             videoView.setOnClickListener(new View.OnClickListener() {
@@ -885,22 +880,17 @@ public class AppointTextMessageHolder extends MsgHolderBase {
 
     private void showFileView(LinearLayout sobot_rich_ll, final Context context,
                               final SobotCacheFile cacheFile, boolean isAudio, boolean isCanClick) {
-        if (cacheFile == null) {
+        if (cacheFile == null && context == null || sobot_rich_ll == null) {
             return;
         }
         View view = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_file, null);
         TextView sobot_file_name = view.findViewById(R.id.sobot_file_name);
-        SobotSectorProgressView sobot_progress = view.findViewById(R.id.sobot_progress);
-        sobot_file_name.setText(cacheFile.getFileName());
-        if (isRight) {
-            view.setBackgroundResource(R.drawable.sobot_chat_msg_bg_transparent);
-            sobot_file_name.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
-        } else {
-            view.setBackgroundResource(R.drawable.sobot_chat_msg_left_bg_transparent);
-            sobot_file_name.setTextColor(ContextCompat.getColor(context, R.color.sobot_left_appoint_msg_card_text_color));
-        }
-        SobotBitmapUtil.display(context, ChatUtils.getFileIcon(context, FileTypeConfig.getFileType(FileUtil.checkFileEndWith(cacheFile.getUrl()))), sobot_progress);
-        view.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 217), ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView sobot_file_size = view.findViewById(R.id.sobot_file_size);
+        ImageView sobot_file_icon = view.findViewById(R.id.sobot_file_icon);
+        sobot_file_name.setText(StringUtils.checkStringIsNull(cacheFile.getFileName()).replace("\r\n\t", ""));
+        sobot_file_size.setText(StringUtils.checkStringIsNull(cacheFile.getFileSize()));
+        SobotBitmapUtil.display(context, ChatUtils.getFileIcon(context, FileTypeConfig.getFileType(FileUtil.checkFileEndWith(cacheFile.getUrl()))), sobot_file_icon);
+        view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         sobot_rich_ll.addView(view);
         if (isCanClick) {
             if (isAudio) {
@@ -930,13 +920,13 @@ public class AppointTextMessageHolder extends MsgHolderBase {
 
     private void showImageView(LinearLayout sobot_rich_ll, final Context context,
                                final String url, boolean isCanClick) {
-        LinearLayout.LayoutParams mlayoutParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 40),
-                ScreenUtils.dip2px(context, 40));
-        SobotRCImageView imageView = new SobotRCImageView(context);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setLayoutParams(mlayoutParams);
-        imageView.setRadius(ScreenUtils.dip2px(context, 2));
-        SobotBitmapUtil.display(context, url, imageView);
+        if (context == null || sobot_rich_ll == null) {
+            return;
+        }
+        View imageView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_appoint_image, null);
+        SobotProgressImageView sobot_video_first_image = imageView.findViewById(R.id.spiv_image);
+        sobot_video_first_image.setImageUrl(url);
+        sobot_rich_ll.addView(imageView);
         if (isCanClick) {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -955,7 +945,6 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             });
             setCopyAndAppointView(context, imageView);
         }
-        sobot_rich_ll.addView(imageView);
     }
 
     private void setCopyAndAppointView(final Context context, View view) {
@@ -980,32 +969,39 @@ public class AppointTextMessageHolder extends MsgHolderBase {
         TextView textView = new TextView(context);
         LinearLayout.LayoutParams wlayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
+        wlayoutParams.setMarginStart(ScreenUtils.dip2px(context, 3));
         textView.setMaxLines(maxLines);
         textView.setMaxWidth(msgMaxWidth - ScreenUtils.dip2px(context, 8));
         textView.setEllipsize(TextUtils.TruncateAt.END);
-        textView.setTextSize(13);
+        textView.setTextSize(12);
         if (isRight) {
             textView.setTextColor(ContextCompat.getColor(context, R.color.sobot_right_appoint_msg_text_color));
+            setTextThemeColor(textView);
         } else {
             textView.setTextColor(ContextCompat.getColor(context, R.color.sobot_left_appoint_msg_text_color));
         }
         textView.setLayoutParams(wlayoutParams);
 
-
         if (!TextUtils.isEmpty(content) && HtmlTools.isHasPatterns(content)) {
             //只有一个，是超链接，并且是卡片形式才显示卡片
-            View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_appoint_linkcard, null);
-            view.setLayoutParams(new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 217), ViewGroup.LayoutParams.WRAP_CONTENT));
+            View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 288), ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMarginStart(ScreenUtils.dip2px(context, 5));
             showLinkUI(context, message, content, view);
-            if (view != null) {
-                sobot_rich_ll.addView(view);
-            }
+            sobot_rich_ll.addView(view);
         } else {
             if (!TextUtils.isEmpty(content)) {
                 textView.setText(StringUtils.stripHtml(content));
                 sobot_rich_ll.addView(textView);
             }
         }
+    }
+
+    private void setTextThemeColor(TextView textView) {
+        textView.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
+        int currentColor = textView.getCurrentTextColor();
+        int newColor = Color.argb(153, Color.red(currentColor), Color.green(currentColor), Color.blue(currentColor));
+        textView.setTextColor(newColor);
     }
 
 }

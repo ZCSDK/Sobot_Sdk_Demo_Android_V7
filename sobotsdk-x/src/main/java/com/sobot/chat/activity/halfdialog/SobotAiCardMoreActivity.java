@@ -14,7 +14,7 @@ import com.sobot.chat.api.apiUtils.ZhiChiConstants;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.utils.CommonUtils;
-import com.sobot.utils.SobotStringUtils;
+import com.sobot.chat.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +39,15 @@ public class SobotAiCardMoreActivity extends SobotDialogBaseActivity implements 
 
     @Override
     protected void initView() {
+        super.initView();
         rv_list = findViewById(R.id.rv_list);
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         rv_list.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG="SobotAiCardMoreActivity";
     }
 
     @Override
@@ -52,7 +58,7 @@ public class SobotAiCardMoreActivity extends SobotDialogBaseActivity implements 
         if(showCustomCard==null ){
             finish();
         }
-        sobot_tv_title.setText(SobotStringUtils.isNoEmpty(showCustomCard.getCardGuide())?showCustomCard.getCardGuide():"");
+        sobot_tv_title.setText(StringUtils.isNoEmpty(showCustomCard.getCardGuide())?showCustomCard.getCardGuide():"");
         customCard = (SobotChatCustomCard) getIntent().getSerializableExtra("customCard");
         mDatas.addAll(showCustomCard.getCustomCards());
         mListAdapter = new SobotAiCardAdapter(this, mDatas,false, true,isHistoy );

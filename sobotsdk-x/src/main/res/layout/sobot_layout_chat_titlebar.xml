@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/sobot_layout_titlebar"
+    android:id="@+id/tl_titlebar"
     android:layout_width="match_parent"
     android:layout_height="@dimen/sobot_header_titlebar_hight"
-    android:background="@drawable/sobot_header_toolbar_bg">
+    android:background="@drawable/sobot_header_toolbar_bg"
+    app:contentInsetStart="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <ImageView
             android:id="@+id/sobot_iv_left"
-            android:layout_width="40dp"
-            android:layout_height="44dp"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:padding="8dp"
             android:scaleType="centerCrop"
             android:src="@drawable/sobot_icon_titlebar_back" />
 
@@ -30,42 +35,45 @@
 
             <com.sobot.chat.widget.image.SobotProgressImageView
                 android:id="@+id/sobot_avatar_iv"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/sobot_header_face_width_heigth"
+                android:layout_height="@dimen/sobot_header_face_width_heigth"
+                android:layout_marginEnd="10dp"
                 android:visibility="gone"
-                app:image_bg="@color/sobot_transparent"
-                app:image_is_show_progressbar="false"
+                app:image_bg="@color/sobot_color_transparent"
+                app:image_is_show_progressbar="true"
+                app:image_layout_change_animate="false"
+                app:image_max_height="40dp"
+                app:image_max_width="100dp"
+                app:image_min_height="@dimen/sobot_header_face_width_heigth"
+                app:image_min_width="@dimen/sobot_header_face_width_heigth"
                 app:sobot_round_as_circle="true" />
 
             <LinearLayout
                 android:id="@+id/sobot_titlebar_text_ll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/sobot_text_title"
+                    android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="0dp"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
                     android:singleLine="true"
                     android:textColor="@color/sobot_color_title_bar_nike_name"
                     android:textSize="@dimen/sobot_header_titlebar_name_sp"
                     android:visibility="gone" />
 
                 <TextView
-                    android:id="@+id/sobot_titlebar_company_name"
+                    android:id="@+id/tv_des"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:includeFontPadding="false"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
                     android:singleLine="true"
                     android:textColor="@color/sobot_color_title_bar_company_name"
                     android:textSize="@dimen/sobot_header_titlebar_company_sp"
@@ -112,44 +120,37 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/iv_close"
-                android:layout_width="40dp"
-                android:layout_height="44dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/sobot_icon_close" />
 
             <ImageView
                 android:id="@+id/iv_right_third"
-                android:layout_width="40dp"
-                android:layout_height="44dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/sobot_phone"
                 android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/iv_right_second"
-                android:layout_width="40dp"
-                android:layout_height="44dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/sobot_pop_satisfaction"
                 android:visibility="gone" />
 
             <ImageView
-                android:id="@+id/sobot_iv_right"
-                android:layout_width="40dp"
-                android:layout_height="44dp"
-                android:src="@drawable/sobot_delete_history_msg"
+                android:id="@+id/iv_right_more"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/sobot_icon_toolbar_more"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
-
-    <View
-        android:id="@+id/sobot_title_line"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_alignParentBottom="true" />
-
-</RelativeLayout>
+</androidx.appcompat.widget.Toolbar>

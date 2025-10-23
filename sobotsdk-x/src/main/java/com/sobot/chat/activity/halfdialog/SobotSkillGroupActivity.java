@@ -18,6 +18,7 @@ import com.sobot.chat.api.apiUtils.ZhiChiConstants;
 import com.sobot.chat.api.model.SobotConnCusParam;
 import com.sobot.chat.api.model.ZhiChiGroup;
 import com.sobot.chat.api.model.ZhiChiGroupBase;
+import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.channel.SobotMsgManager;
@@ -44,14 +45,9 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
     private List<ZhiChiGroupBase> list_skill = new ArrayList<ZhiChiGroupBase>();
     private boolean flag_exit_sdk;
     private String uid = null;
-    private String companyId = null;
-    private String customerId = null;
     private String appkey = null;
-    private String msgTmp = null;
-    private String msgTxt = null;
     private int transferType;
     private ZhiChiApi zhiChiApi;
-    private int mType = -1;
     private int msgFlag = 0;
     private SobotConnCusParam param;
 
@@ -60,39 +56,57 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
 
     @Override
     protected int getContentViewResId() {
-        return R.layout.sobot_activity_skill_group;
+        return R.layout.sobot_dialog_list;
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotSkillGroupActivity";
     }
 
     @Override
     protected void initView() {
+        super.initView();
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         mPressenter = StPostMsgPresenter.newInstance(SobotSkillGroupActivity.this, SobotSkillGroupActivity.this);
         sobot_rcy_skill = (RecyclerView) findViewById(R.id.rv_list);
-
         sobotSkillAdapter = new SobotSkillAdapter(this, list_skill, msgFlag, new SobotRecyclerCallBack() {
             @Override
             public void onItemClickListener(View view, int position) {
-                if (list_skill != null && list_skill.size() > 0) {
-                    if ("true".equals(list_skill.get(position).isOnline())) {
-                        if (!TextUtils.isEmpty(list_skill.get(position).getGroupName())) {
-                            Intent intent = new Intent();
-                            intent.putExtra("groupIndex", position);
-                            intent.putExtra("transferType", transferType);
-                            if (param != null) {
-                                intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
-                            }
-                            setResult(ZhiChiConstant.REQUEST_COCE_TO_GRROUP, intent);
-                            finish();
+                if (list_skill != null && !list_skill.isEmpty()) {
+                    if (getInitModel() != null && getInitModel().getAssignmentMode() == 1) {
+                        //异步接待 进行转人工
+                        Intent intent = new Intent();
+                        intent.putExtra("groupIndex", position);
+                        intent.putExtra("transferType", transferType);
+                        if (param != null) {
+                            intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
                         }
+                        setResult(ZhiChiConstant.REQUEST_COCE_TO_GRROUP, intent);
+                        finish();
                     } else {
-                        if (msgFlag == ZhiChiConstant.sobot_msg_flag_open) {
-                            Intent intent = new Intent();
-                            intent.putExtra("toLeaveMsg", true);
-                            intent.putExtra("groupIndex", position);
-                            setResult(ZhiChiConstant.REQUEST_COCE_TO_GRROUP, intent);
-                            finish();
+                        if ("true".equals(list_skill.get(position).isOnline())) {
+                            if (!TextUtils.isEmpty(list_skill.get(position).getGroupName())) {
+                                Intent intent = new Intent();
+                                intent.putExtra("groupIndex", position);
+                                intent.putExtra("transferType", transferType);
+                                if (param != null) {
+                                    intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
+                                }
+                                setResult(ZhiChiConstant.REQUEST_COCE_TO_GRROUP, intent);
+                                finish();
+                            }
+                        } else {
+                            if (msgFlag == ZhiChiConstant.sobot_msg_flag_open) {
+                                Intent intent = new Intent();
+                                intent.putExtra("toLeaveMsg", true);
+                                intent.putExtra("groupIndex", position);
+                                setResult(ZhiChiConstant.REQUEST_COCE_TO_GRROUP, intent);
+                                finish();
+                            }
                         }
                     }
+
                 }
             }
 
@@ -127,17 +141,16 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
     protected void initData() {
         if (getIntent() != null) {
             uid = getIntent().getStringExtra("uid");
-            companyId = getIntent().getStringExtra("companyId");
-            customerId = getIntent().getStringExtra("customerId");
             appkey = getIntent().getStringExtra("appkey");
             flag_exit_sdk = getIntent().getBooleanExtra(
                     ZhiChiConstant.FLAG_EXIT_SDK, false);
-            mType = getIntent().getIntExtra("type", -1);
-            msgTmp = getIntent().getStringExtra("msgTmp");
-            msgTxt = getIntent().getStringExtra("msgTxt");
             msgFlag = getIntent().getIntExtra("msgFlag", 0);
             transferType = getIntent().getIntExtra("transferType", 0);
             param = (SobotConnCusParam) getIntent().getSerializableExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM);
+        }
+        if (getInitModel() != null && getInitModel().getAssignmentMode() == 1) {
+            //异步接待 屏蔽留言
+            msgFlag = ZhiChiConstant.sobot_msg_flag_close;
         }
 
         zhiChiApi = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
@@ -150,7 +163,7 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
                         //图文样式
                         GridLayoutManager gridlayoutmanager = new GridLayoutManager(SobotSkillGroupActivity.this, 3);
                         sobot_rcy_skill.setLayoutManager(gridlayoutmanager);
-                        sobot_rcy_skill.setPadding(ScreenUtils.dip2px(SobotSkillGroupActivity.this, 16), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 14), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 16), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 14));
+                        sobot_rcy_skill.setPadding(ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24));
                     } else if (list_skill.get(0).getGroupStyle() == 2) {
                         //图文加描述
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SobotSkillGroupActivity.this);
@@ -218,5 +231,19 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
         if (resultCode == 200) {
             finish();
         }
+    }
+
+    /**
+     * 获取会话初始化返回的ZhiChiInitModeBase对象
+     *
+     * @return
+     */
+    public ZhiChiInitModeBase getInitModel() {
+        ZhiChiInitModeBase initModel = null;
+        if (getSobotBaseActivity() != null) {
+            initModel = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(getSobotBaseActivity(),
+                    ZhiChiConstant.sobot_last_current_initModel);
+        }
+        return initModel;
     }
 }

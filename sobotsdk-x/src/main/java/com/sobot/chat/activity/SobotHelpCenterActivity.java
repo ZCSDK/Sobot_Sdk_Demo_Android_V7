@@ -1,41 +1,33 @@
 package com.sobot.chat.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.base.SobotBaseHelpCenterActivity;
 import com.sobot.chat.adapter.SobotHelpCenterAdapter;
 import com.sobot.chat.api.ZhiChiApi;
-import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.model.HelpConfigModel;
 import com.sobot.chat.api.model.StCategoryModel;
 import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.utils.ChatUtils;
-import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.widget.SobotAutoGridView;
-import com.sobot.chat.widget.statusbar.StatusBarUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
-import com.sobot.utils.SobotSharedPreferencesUtil;
-import com.sobot.utils.SobotStringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 帮助中心
@@ -44,21 +36,28 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
     //空态页面
     private View mEmptyView;
-    private LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
-    private TextView tv_sobot_layout_online_service, tv_sobot_layout_online_service_v;
-    private TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v;
-    private View view_split_online_tel;
     private SobotAutoGridView mGridView;
     private SobotHelpCenterAdapter mAdapter;
     private TextView tvNoData;
     private TextView tvNoDataDescribe;
-    private TextView tvOnlineService;
-    private String tel;
-    private HelpConfigModel configModel;
+    public LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
+    public TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v;
+    public View view_split_online_tel;
+    public TextView tvOnlineService;
+    public String tel;
+    public LinearLayout ll_sobot_layout_online_service, ll_sobot_layout_online_service_v;
+    public LinearLayout ll_sobot_layout_online_tel, ll_sobot_layout_online_tel_v;
+
+    public HelpConfigModel configModel;
 
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_help_center;
+    }
+
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotHelpCenterActivity";
     }
 
     @Override
@@ -69,8 +68,10 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         ll_bottom = findViewById(R.id.ll_bottom);
         ll_bottom_h = findViewById(R.id.ll_bottom_h);
         ll_bottom_v = findViewById(R.id.ll_bottom_v);
-        tv_sobot_layout_online_service = findViewById(R.id.tv_sobot_layout_online_service);
-        tv_sobot_layout_online_service_v = findViewById(R.id.tv_sobot_layout_online_service_v);
+        ll_sobot_layout_online_service = findViewById(R.id.ll_sobot_layout_online_service);
+        ll_sobot_layout_online_service_v = findViewById(R.id.ll_sobot_layout_online_service_v);
+        ll_sobot_layout_online_tel = findViewById(R.id.ll_sobot_layout_online_tel);
+        ll_sobot_layout_online_tel_v = findViewById(R.id.ll_sobot_layout_online_tel_v);
         tv_sobot_layout_online_tel = findViewById(R.id.tv_sobot_layout_online_tel);
         tv_sobot_layout_online_tel_v = findViewById(R.id.tv_sobot_layout_online_tel_v);
         view_split_online_tel = findViewById(R.id.view_split_online_tel);
@@ -80,46 +81,63 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         tvNoData.setText(R.string.sobot_help_center_no_data);
         tvNoDataDescribe = findViewById(R.id.tv_sobot_help_center_no_data_describe);
         tvNoDataDescribe.setText(R.string.sobot_help_center_no_data_describe);
-        tvOnlineService = findViewById(R.id.tv_sobot_layout_online_service);
-        tvOnlineService.setText(R.string.sobot_help_center_online_service);
-        tv_sobot_layout_online_service.setOnClickListener(this);
-        tv_sobot_layout_online_tel.setOnClickListener(this);
-        tv_sobot_layout_online_service_v.setOnClickListener(this);
-        tv_sobot_layout_online_tel_v.setOnClickListener(this);
+        ll_sobot_layout_online_service.setOnClickListener(this);
+        ll_sobot_layout_online_tel.setOnClickListener(this);
+        ll_sobot_layout_online_service_v.setOnClickListener(this);
+        ll_sobot_layout_online_tel_v.setOnClickListener(this);
         mGridView.setOnItemClickListener(this);
         configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
-        try {
-            View decorView = getWindow().getDecorView();
-            ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                    int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                    LogUtils.d("SobotHelpCenterActivity 状态栏高度: " + statusBarHeight);
-                    StatusBarUtil.SOBOT_STATUS_HIGHT = statusBarHeight;
-                    if (SobotApp.getApplicationContext() != null) {
-                        SobotSharedPreferencesUtil.getInstance(SobotApp.getApplicationContext()).put("SobotStatusBarHeight", statusBarHeight);
-                    }
-                    setTool();
-                    return insets;
-                }
-            });
-        } catch (Exception e) {
-            setTool();
-        }
-        displayInNotch(mGridView);
-        displayInNotch(ll_bottom);
-    }
-
-    private void setTool() {
         if (configModel != null) {
-            setToobar(configModel);
+            setToolBarDefBg();
+            setBottomBtnUI();
         }
-        SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getHelpConfig(this, mInfo.getApp_key(), mInfo.getPartnerid(), new SobotResultCallBack<HelpConfigModel>() {
+        Map<String, Object> param = new HashMap();
+        param.put("appId", mInfo.getApp_key());
+        param.put("partnerId", mInfo.getPartnerid());
+        if (!TextUtils.isEmpty(mInfo.getMulti_params())) {
+            param.put("multiParams", mInfo.getMulti_params());
+        }
+        if (!TextUtils.isEmpty(mInfo.getIsVip())) {
+            param.put("isVip", mInfo.getIsVip());
+        }
+        if (!TextUtils.isEmpty(mInfo.getVip_level())) {
+            param.put("vipLevel", mInfo.getVip_level());
+        }
+        if (!TextUtils.isEmpty(mInfo.getUser_label())) {
+            param.put("userLabel", mInfo.getUser_label());
+        }
+        if (!TextUtils.isEmpty(mInfo.getParams())) {
+            param.put("params", mInfo.getParams());
+        }
+        if (!TextUtils.isEmpty(mInfo.getCustomer_fields())) {
+            param.put("customerFields", mInfo.getCustomer_fields());
+        }
+        SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
 
             @Override
             public void onSuccess(HelpConfigModel o) {
+                if (configModel != null) {
+                    try {
+                        int rebotThemeStyle = configModel.getRebotThemeStyle();
+                        int appCompatDelegate;
+                        //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
+                        if (rebotThemeStyle == 2) {
+                            appCompatDelegate = -1;
+                        } else if (rebotThemeStyle == 0) {
+                            appCompatDelegate = 1;
+                        } else if (rebotThemeStyle == 1) {
+                            appCompatDelegate = 2;
+                        } else {
+                            appCompatDelegate = -1;
+                        }
+                        SharedPreferencesUtil.saveIntData(getSobotBaseActivity(), "local_night_mode", appCompatDelegate);
+                    } catch (Exception e) {
+                    }
+                }
+                SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", o);
                 configModel = o;
-                setToobar(o);
+                setToolBarDefBg();
+                setBottomBtnUI();
             }
 
             @Override
@@ -127,80 +145,46 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
             }
         });
+        displayInNotch(mGridView);
+        displayInNotch(ll_bottom);
     }
 
-    //设置导航条颜色
-    private void setToobar(HelpConfigModel configModel) {
-        this.configModel = configModel;
-        if (configModel != null) {
-            SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", configModel);
-            if (mInfo != null && SobotStringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && SobotStringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
-                tel = mInfo.getHelpCenterTel();
-                tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
-                tv_sobot_layout_online_tel.setVisibility(View.VISIBLE);
-                tv_sobot_layout_online_tel_v.setText(mInfo.getHelpCenterTelTitle());
-                view_split_online_tel.setVisibility(View.VISIBLE);
-                tv_sobot_layout_online_tel.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        int lineCount = tv_sobot_layout_online_tel.getLineCount();
-                        if (lineCount > 1) {
-                            ll_bottom_h.setVisibility(View.GONE);
-                            ll_bottom_v.setVisibility(View.VISIBLE);
-                        } else {
-                            ll_bottom_h.setVisibility(View.VISIBLE);
-                            ll_bottom_v.setVisibility(View.GONE);
-                        }
-                    }
-                }, 100);
+    //设置底部 按钮（在线客服和客服电话）
+    public void setBottomBtnUI() {
+        if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
+            tel = mInfo.getHelpCenterTel();
+            tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
+            ll_sobot_layout_online_tel.setVisibility(View.VISIBLE);
+            tv_sobot_layout_online_tel_v.setText(mInfo.getHelpCenterTelTitle());
+            view_split_online_tel.setVisibility(View.VISIBLE);
+            if (StringUtils.calculateTextLines(14, configModel.getHotlineName(), ScreenUtils.getScreenWidth(getSobotBaseActivity()) / 2 - ScreenUtils.dip2px(getSobotBaseActivity(), 16 + 4 + 20 + 14 + 8), getSobotBaseActivity()) < 2) {
+                ll_bottom_h.setVisibility(View.VISIBLE);
+                ll_bottom_v.setVisibility(View.GONE);
             } else {
-                if (!TextUtils.isEmpty(configModel.getHotlineName()) && !TextUtils.isEmpty(configModel.getHotlineTel())) {
-                    tel = configModel.getHotlineTel();
-                    tv_sobot_layout_online_tel.setText(configModel.getHotlineName());
-                    tv_sobot_layout_online_tel_v.setText(configModel.getHotlineName());
-                    tv_sobot_layout_online_tel.setVisibility(View.VISIBLE);
-                    view_split_online_tel.setVisibility(View.VISIBLE);
-                    tv_sobot_layout_online_tel.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            int lineCount = tv_sobot_layout_online_tel.getLineCount();
-                            if (lineCount > 1) {
-                                ll_bottom_h.setVisibility(View.GONE);
-                                ll_bottom_v.setVisibility(View.VISIBLE);
-                            } else {
-                                ll_bottom_h.setVisibility(View.VISIBLE);
-                                ll_bottom_v.setVisibility(View.GONE);
-                            }
-                        }
-                    }, 100);
-                } else {
-                    tv_sobot_layout_online_tel.setVisibility(View.GONE);
-                    view_split_online_tel.setVisibility(View.GONE);
-                }
+                ll_bottom_h.setVisibility(View.GONE);
+                ll_bottom_v.setVisibility(View.VISIBLE);
             }
-            //服务端返回的导航条背景颜色
-            if (!TextUtils.isEmpty(configModel.getTopBarColor())) {
-                String topBarColor[] = configModel.getTopBarColor().split(",");
-                if (topBarColor.length > 1) {
-                    int[] colors = new int[topBarColor.length];
-                    for (int i = 0; i < topBarColor.length; i++) {
-                        colors[i] = Color.parseColor(topBarColor[i]);
-                    }
-                    GradientDrawable gradientDrawable = new GradientDrawable();
-                    gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                    gradientDrawable.setColors(colors); //添加颜色组
-                    gradientDrawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);//设置线性渐变
-                    gradientDrawable.setOrientation(GradientDrawable.Orientation.LEFT_RIGHT);//设置渐变方向
-                    getToolBar().setBackground(gradientDrawable);
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
-                    } else {
-                        StatusBarUtil.setColor(getSobotBaseActivity(), aDrawable);
-                    }
+        } else {
+            if (!TextUtils.isEmpty(configModel.getHotlineName()) && !TextUtils.isEmpty(configModel.getHotlineTel())) {
+                tel = configModel.getHotlineTel();
+                tv_sobot_layout_online_tel.setText(configModel.getHotlineName());
+                tv_sobot_layout_online_tel_v.setText(configModel.getHotlineName());
+                ll_sobot_layout_online_tel.setVisibility(View.VISIBLE);
+                view_split_online_tel.setVisibility(View.VISIBLE);
+                if (StringUtils.calculateTextLines(14, configModel.getHotlineName(), ScreenUtils.getScreenWidth(getSobotBaseActivity()) / 2 - ScreenUtils.dip2px(getSobotBaseActivity(), 16 + 4 + 20 + 14 + 8), getSobotBaseActivity()) < 2) {
+                    ll_bottom_h.setVisibility(View.VISIBLE);
+                    ll_bottom_v.setVisibility(View.GONE);
+                } else {
+                    ll_bottom_h.setVisibility(View.GONE);
+                    ll_bottom_v.setVisibility(View.VISIBLE);
                 }
+            } else {
+                ll_sobot_layout_online_tel.setVisibility(View.GONE);
+                view_split_online_tel.setVisibility(View.GONE);
             }
         }
     }
+
 
     @Override
     protected void initData() {
@@ -209,11 +193,11 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
             @Override
             public void onSuccess(List<StCategoryModel> datas) {
                 ll_bottom.setVisibility(View.VISIBLE);
-                if (datas != null && datas.size() > 0) {
+                if (datas != null && !datas.isEmpty()) {
                     mEmptyView.setVisibility(View.GONE);
                     mGridView.setVisibility(View.VISIBLE);
                     if (mAdapter == null) {
-                        mAdapter = new SobotHelpCenterAdapter(getApplicationContext(), datas);
+                        mAdapter = new SobotHelpCenterAdapter(getSobotBaseActivity(), datas);
                         mGridView.setAdapter(mAdapter);
                     } else {
                         List<StCategoryModel> list = mAdapter.getDatas();
@@ -236,7 +220,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
     @Override
     public void onClick(View v) {
-        if (v == tv_sobot_layout_online_service || v == tv_sobot_layout_online_service_v) {
+        if (v == ll_sobot_layout_online_service || v == ll_sobot_layout_online_service_v) {
             if (SobotOption.openChatListener != null) {
                 boolean isIntercept = SobotOption.openChatListener.onOpenChatClick(getSobotBaseActivity(), mInfo);
                 if (isIntercept) {
@@ -245,7 +229,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
             }
             ZCSobotApi.openZCChat(getApplicationContext(), mInfo);
         }
-        if (v == tv_sobot_layout_online_tel || v == tv_sobot_layout_online_tel_v) {
+        if (v == ll_sobot_layout_online_tel || v == ll_sobot_layout_online_tel_v) {
             if (tel != null && !TextUtils.isEmpty(tel)) {
                 if (SobotOption.functionClickListener != null) {
                     SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_PhoneCustomerService);

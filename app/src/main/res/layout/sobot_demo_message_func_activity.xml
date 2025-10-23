@@ -34,7 +34,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="本地消息自动提醒"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -72,7 +72,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_5"
@@ -88,7 +88,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="获取未读消息数"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -124,7 +124,7 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_51"
@@ -140,7 +140,7 @@
                     android:background="@null"
                     android:gravity="center_vertical"
                     android:text="清空未读消息数"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:textSize="16sp"
                     android:layout_marginEnd="25dp" />
 
@@ -177,13 +177,13 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_common_gray1" />
+                android:background="@color/sobot_textview_text_color" />
 
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/sobot_common_gray2"
+                android:background="@color/sobot_textview_text_color_second"
                 android:padding="6dp"
                 android:text="参考文档"
                 android:textSize="14sp" />

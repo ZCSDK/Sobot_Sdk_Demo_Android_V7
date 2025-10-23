@@ -427,7 +427,7 @@
                     android:layout_marginRight="15dp"
                     android:layout_toLeftOf="@id/img_pc_right15"
                     android:text="横竖屏、超链接拦截"
-                    android:textColor="@color/sobot_common_gray1"
+                    android:textColor="@color/sobot_textview_text_color"
                     android:layout_marginEnd="15dp"
                     android:layout_toStartOf="@id/img_pc_right15" />
 

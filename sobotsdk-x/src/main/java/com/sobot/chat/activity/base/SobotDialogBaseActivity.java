@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 
@@ -20,10 +21,10 @@ import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 
 /**
- * 从界面下方弹出的activity
+ * 从界面下方弹出的activity 内容高度自适应
  */
 public abstract class SobotDialogBaseActivity extends SobotChatBaseActivity {
-
+    private ImageView iv_closes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,6 +49,19 @@ public abstract class SobotDialogBaseActivity extends SobotChatBaseActivity {
         win.setAttributes(lp);
     }
 
+    @Override
+    protected void initView() {
+        iv_closes = findViewById(R.id.iv_closes);
+        if(iv_closes!=null) {
+            //关闭
+            iv_closes.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    finish();
+                }
+            });
+        }
+    }
 
     public static void displayInNotch(Activity activity, final View view) {
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null && activity != null) {

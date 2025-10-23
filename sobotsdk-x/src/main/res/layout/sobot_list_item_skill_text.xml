@@ -3,29 +3,45 @@
     android:id="@+id/sobot_ll_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/sobot_bg_dialog_list"
-    android:orientation="vertical"
-    android:paddingTop="7dp"
-    android:paddingBottom="7dp"
-    android:visibility="visible">
+    android:layout_marginTop="10dp"
+    android:background="@drawable/sobot_bg_dialog_item"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/sobot_tv_group_name"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/sobot_dialog_margin"
-        android:paddingEnd="@dimen/sobot_dialog_margin"
-        android:textColor="@color/sobot_color_text_first"
-        android:textSize="@dimen/sobot_text_font_14" />
+        android:layout_weight="1"
+        android:paddingTop="13dp"
+        android:paddingBottom="13dp"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/sobot_tv_group_desc"
-        android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/sobot_tv_group_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <TextView
+            android:id="@+id/sobot_tv_group_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_12"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_select"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/sobot_dialog_margin"
-        android:paddingEnd="@dimen/sobot_dialog_margin"
-        android:textColor="@color/sobot_color_text_third"
-        android:textSize="@dimen/sobot_text_font_12"
-        android:visibility="gone" />
-
+        android:layout_marginEnd="20dp"
+        android:src="@drawable/sobot_icon_right_arrow"
+        />
 </LinearLayout>

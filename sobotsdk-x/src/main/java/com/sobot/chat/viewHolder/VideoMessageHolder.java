@@ -2,11 +2,14 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.SobotVideoActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.apiUtils.ZhiChiConstants;
@@ -16,8 +19,11 @@ import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.ZhiChiMessageMsgModel;
 import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
+import com.sobot.chat.widget.image.SobotProgressView;
+import com.sobot.chat.widget.image.SobotRCRelativeLayout;
 import com.sobot.network.http.model.SobotProgress;
 import com.sobot.network.http.upload.SobotUpload;
 import com.sobot.network.http.upload.SobotUploadListener;
@@ -28,28 +34,35 @@ import com.sobot.network.http.upload.SobotUploadTask;
  * 视频
  */
 public class VideoMessageHolder extends MsgHolderBase implements View.OnClickListener {
-    private ImageView st_tv_play;
-    private SobotProgressImageView st_iv_pic;
+    private final ImageView st_tv_play;
+    private final SobotProgressImageView st_iv_pic;
 
     private ZhiChiMessageBase mData;
     private String mTag;
 
-    private int mResNetError;
-    private int mResRemove;
+    private final int mResNetError;
+    // 延迟显示 发送中（旋转菊花）效果
+    private Runnable loadingRunnable;
+    private final Handler handler = new Handler();
+    private final SobotRCRelativeLayout rl_upload;//上传中UI控件
+    private final TextView tv_progress;//上传进度
+    private final SobotProgressView progress_view;
 
     public VideoMessageHolder(Context context, View convertView) {
         super(context, convertView);
         sobot_rl_hollow_container = convertView.findViewById(R.id.sobot_rl_hollow_container);
-        st_tv_play = (ImageView) convertView.findViewById(R.id.st_tv_play);
-        st_iv_pic = (SobotProgressImageView) convertView.findViewById(R.id.st_iv_pic);
-        answersList = (LinearLayout) convertView
+        st_tv_play = convertView.findViewById(R.id.st_tv_play);
+        st_iv_pic = convertView.findViewById(R.id.st_iv_pic);
+        rl_upload = convertView.findViewById(R.id.rl_upload);
+        tv_progress = convertView.findViewById(R.id.tv_progress);
+        progress_view = convertView.findViewById(R.id.progress_view);
+        answersList = convertView
                 .findViewById(R.id.sobot_answersList);
         st_tv_play.setOnClickListener(this);
         if (st_iv_pic != null) {
             st_iv_pic.setOnClickListener(this);
         }
         mResNetError = R.drawable.sobot_icon_send_fail;
-        mResRemove = R.drawable.sobot_icon_remove;
     }
 
     @Override
@@ -57,6 +70,25 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
         mData = message;
         if (message.getAnswer() != null && message.getAnswer().getCacheFile() != null) {
             SobotCacheFile cacheFile = message.getAnswer().getCacheFile();
+            st_iv_pic.setListener(new SobotProgressImageView.OnDisplayImageListener() {
+                @Override
+                public void onSuccess(View imgView) {
+                    if (rl_upload != null && imgView != null) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+//                                LogUtils.d("图片宽高：" + imgView.getWidth() + "---" + imgView.getHeight());
+                                rl_upload.setLayoutParams(new RelativeLayout.LayoutParams(imgView.getWidth(), imgView.getHeight()));
+                            }
+                        }, 10);
+                    }
+                }
+
+                @Override
+                public void onFail(View view) {
+
+                }
+            });
             st_iv_pic.setImageUrlWithScaleType(cacheFile.getSnapshot(), ImageView.ScaleType.CENTER_INSIDE);
             mTag = cacheFile.getMsgId();
             if (isRight()) {
@@ -173,6 +205,12 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
             if (msgStatus != null) {
                 msgStatus.setVisibility(View.GONE);
                 msgProgressBar.setVisibility(View.GONE);
+                if (rl_upload != null) {
+                    rl_upload.setVisibility(View.GONE);
+                }
+                if (st_tv_play != null) {
+                    st_tv_play.setVisibility(View.VISIBLE);
+                }
             }
             // sobot_progress.setProgress(100);
             return;
@@ -185,8 +223,18 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
             case SobotProgress.FINISH:
                 msgStatus.setVisibility(View.GONE);
                 msgProgressBar.setVisibility(View.GONE);
+                if (rl_upload != null) {
+                    rl_upload.setVisibility(View.GONE);
+                }
+                if (st_tv_play != null) {
+                    st_tv_play.setVisibility(View.VISIBLE);
+                }
                 refreshReadStatus();
                 // sobot_progress.setProgress(progress.fraction * 100);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
                 break;
             case SobotProgress.ERROR:
                 msgStatus.setVisibility(View.VISIBLE);
@@ -194,17 +242,54 @@ public class VideoMessageHolder extends MsgHolderBase implements View.OnClickLis
                 msgStatus.setSelected(true);
                 //  sobot_progress.setProgress(100);
                 msgProgressBar.setVisibility(View.GONE);
+                if (rl_upload != null) {
+                    rl_upload.setVisibility(View.GONE);
+                }
+                if (st_tv_play != null) {
+                    st_tv_play.setVisibility(View.VISIBLE);
+                }
                 goneReadStatus();
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
                 break;
             case SobotProgress.PAUSE:
             case SobotProgress.WAITING:
             case SobotProgress.LOADING:
-                msgProgressBar.setVisibility(View.VISIBLE);
-                goneReadStatus();
-                msgStatus.setVisibility(View.GONE);
-                msgStatus.setBackgroundResource(mResRemove);
-                msgStatus.setSelected(false);
-                //    sobot_progress.setProgress(progress.fraction * 100);
+                // 当状态变为成功或失败时，移除延迟任务
+                if (handler != null && loadingRunnable != null) {
+                    handler.removeCallbacks(loadingRunnable);
+                }
+                loadingRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+//                        msgProgressBar.setVisibility(View.VISIBLE);
+                        if (rl_upload != null) {
+                            //显示上传按钮
+                            rl_upload.setVisibility(View.VISIBLE);
+                        }
+                        try {
+                            if (progress_view != null) {
+                                // 设置进度值
+                                progress_view.setProgress((int) (progress.fraction * 100));
+                            }
+                        } catch (Exception e) {
+                        }
+                        if (tv_progress != null) {
+                            tv_progress.setText(String.valueOf((int) (progress.fraction * 100) + "%"));
+                        }
+                        if (st_tv_play != null) {
+                            //隐藏播放按钮
+                            st_tv_play.setVisibility(View.GONE);
+                        }
+                        goneReadStatus();
+                        msgStatus.setVisibility(View.GONE);
+                        msgStatus.setSelected(false);
+                        //    sobot_progress.setProgress(progress.fraction * 100);
+                    }
+                };
+                handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                 break;
         }
     }

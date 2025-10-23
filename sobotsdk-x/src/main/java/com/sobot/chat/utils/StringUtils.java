@@ -1,7 +1,12 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
+import android.os.Build;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.TypedValue;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -421,4 +426,92 @@ public final class StringUtils {
             return str;
         }
     }
+
+    /**
+     * 计算TextView内容显示的行数
+     *
+     * @param textSize  字号（sp单位）
+     * @param content   显示内容
+     * @param viewWidth 控件宽度（像素单位）
+     * @param context   上下文
+     * @return 显示行数
+     */
+    public static int calculateTextLines(float textSize, String content, int viewWidth, Context context) {
+        if (context == null) {
+            return 0;
+        }
+        if (TextUtils.isEmpty(content) || viewWidth <= 0) {
+            return 0;
+        }
+
+        // 创建TextPaint对象（专门用于文本绘制）
+        TextPaint textPaint = new TextPaint();
+        textPaint.setAntiAlias(true);
+
+        // 将sp转换为像素
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize,
+                context.getResources().getDisplayMetrics());
+        textPaint.setTextSize(textSizePx);
+
+        // 使用StaticLayout计算行数
+        StaticLayout staticLayout;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            staticLayout = StaticLayout.Builder.obtain(content, 0, content.length(), textPaint, viewWidth)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setLineSpacing(0f, 1f)
+                    .setIncludePad(false)
+                    .build();
+        } else {
+            staticLayout = new StaticLayout(content, textPaint, viewWidth,
+                    Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+        }
+        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
+        return staticLayout.getLineCount();
+    }
+
+    /**
+     * 计算TextView内容显示的行数（考虑行间距）
+     *
+     * @param textSize 字号（sp单位）
+     * @param content 显示内容
+     * @param viewWidth 控件宽度（像素单位）
+     * @param lineSpacingExtra 额外行间距（像素单位）
+     * @param lineSpacingMultiplier 行间距倍数
+     * @param context 上下文
+     * @return 显示行数
+     */
+    public static int calculateTextLinesWithSpacing(float textSize, String content, int viewWidth,
+                                                    float lineSpacingExtra, float lineSpacingMultiplier, Context context) {
+        if (context == null) {
+            return 0;
+        }
+        if (TextUtils.isEmpty(content) || viewWidth <= 0) {
+            return 0;
+        }
+
+        // 创建TextPaint对象（专门用于文本绘制）
+        TextPaint textPaint = new TextPaint();
+        textPaint.setAntiAlias(true);
+
+        // 将sp转换为像素
+        float textSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize,
+                context.getResources().getDisplayMetrics());
+        textPaint.setTextSize(textSizePx);
+
+        // 使用StaticLayout计算行数
+        StaticLayout staticLayout;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            staticLayout = StaticLayout.Builder.obtain(content, 0, content.length(), textPaint, viewWidth)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .setLineSpacing(lineSpacingExtra, lineSpacingMultiplier)
+                    .setIncludePad(false)
+                    .build();
+        } else {
+            staticLayout = new StaticLayout(content, textPaint, viewWidth,
+                    Layout.Alignment.ALIGN_NORMAL, lineSpacingMultiplier, lineSpacingExtra, false);
+        }
+        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
+        return staticLayout.getLineCount();
+    }
+
 }

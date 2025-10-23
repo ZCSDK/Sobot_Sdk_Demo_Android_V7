@@ -37,7 +37,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容  列表 -->
@@ -45,56 +44,50 @@
                 android:id="@+id/sobot_msg_content_ll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/sobot_bg_line_4"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:orientation="vertical">
+                android:background="@drawable/sobot_bg_line_12"
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <com.sobot.chat.widget.ReceivingLinearLayout
                     android:id="@+id/sobot_card_rll"
-                    style="@style/sobot_activity_def_theme"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="0dp">
+                    >
                     <!--标题-->
                     <LinearLayout
                         android:id="@+id/ll_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/sobot_card_title"
-                            style="@style/SobotCardMargin"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
-                            android:textSize="@dimen/sobot_text_font_16"
+                            android:textSize="@dimen/sobot_text_font_14"
                             android:textStyle="bold" />
                         <!--描述-->
                         <TextView
                             android:id="@+id/sobot_card_desc"
-                            style="@style/SobotCardMargin"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="4dp"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
-                            android:textSize="@dimen/sobot_text_font_14" />
+                            android:textSize="@dimen/sobot_text_font_12" />
                     </LinearLayout>
                     <!--图片-->
                     <com.sobot.chat.widget.image.SobotRCImageView
                         android:id="@+id/sobot_card_pic"
-                        style="@style/SobotCardMargin"
                         android:layout_width="match_parent"
                         android:layout_height="72dp"
                         android:layout_below="@id/sobot_goods_title"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginTop="20dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/sobot_icon_consulting_default_pic"
                         android:visibility="visible"
@@ -102,30 +95,25 @@
                     <!--商品列表-->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_goods_list"
-                        style="@style/SobotCardMargin_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                         />
+                        android:layout_marginTop="20dp"/>
 
                     <!--竖向 订单商品信息-->
                     <LinearLayout
                         android:id="@+id/ll_order_good_info"
-                        style="@style/SobotCardMargin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="10dp"
                         android:background="@drawable/sobot_layout_custom_card_order_bg"
                         android:orientation="horizontal"
-                        android:paddingStart="6dp"
-                        android:paddingTop="6dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="8dp">
+                        android:padding="10dp">
 
                         <com.sobot.chat.widget.image.SobotRCImageView
                             android:id="@+id/sobot_order_good_pic"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
-                            android:layout_marginEnd="10dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_marginEnd="8dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/sobot_icon_consulting_default_pic"
                             app:sobot_round_corner="4dp" />
@@ -142,14 +130,14 @@
                                 android:ellipsize="end"
                                 android:maxLines="1"
                                 android:textColor="@color/sobot_color_text_first"
-                                android:textSize="@dimen/sobot_text_font_14"
+                                android:textSize="@dimen/sobot_text_font_12"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/sobot_order_good_des"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:ellipsize="end"
                                 android:maxLines="2"
                                 android:textColor="@color/sobot_card_goods_desc"
@@ -159,7 +147,7 @@
                                 android:id="@+id/sobot_order_good_count"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="3dp"
+                                android:layout_marginTop="10dp"
                                 android:gravity="bottom"
                                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                                 android:textColor="@color/sobot_card_goods_desc"
@@ -170,12 +158,11 @@
                     <!--订单固定字段-->
                     <LinearLayout
                         android:id="@+id/ll_order_param"
-                        style="@style/SobotCardMargin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:visibility="gone"
-                        android:orientation="vertical">
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
                         <TextView
                             android:id="@+id/sobot_order_code"
@@ -190,7 +177,7 @@
                             android:id="@+id/sobot_order_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="8dp"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
@@ -200,7 +187,7 @@
                             android:id="@+id/sobot_order_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="8dp"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
@@ -209,12 +196,11 @@
                     <!--自定义字段-->
                     <LinearLayout
                         android:id="@+id/sobot_card_param"
-                        style="@style/SobotCardMargin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:visibility="gone"
-                        android:orientation="vertical" />
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        android:visibility="gone" />
                 </com.sobot.chat.widget.ReceivingLinearLayout>
                 <!--展开按钮-->
                 <LinearLayout
@@ -233,7 +219,7 @@
                         android:layout_marginEnd="4dp"
                         android:gravity="center"
                         android:paddingTop="8dp"
-                        android:paddingBottom="6dp"
+                        android:paddingBottom="8dp"
                         android:text="@string/sobot_card_open"
                         android:textColor="@color/sobot_color_text_second"
                         android:textSize="@dimen/sobot_text_font_12" />
@@ -246,25 +232,22 @@
                         android:src="@drawable/sobot_notice_arrow_down" />
                 </LinearLayout>
                 <!--按钮   -->
-                <com.sobot.chat.widget.SobotAntoLineEquidistanceLayout
+                <LinearLayout
                     android:id="@+id/sobot_card_menu"
-                    style="@style/SobotCardMargin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal"
-                    app:sobot_fillMode="1"
-                    app:sobot_horizontalGap="10dp"
-                    app:sobot_verticalGap="10dp" />
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                   />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
             <!--横向 订单商品信息-->
             <LinearLayout
                 android:id="@+id/ll_order_good_info_h"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/sobot_bg_line_4"
                 android:layout_marginEnd="56dp"
+                android:background="@drawable/sobot_bg_line_12"
                 android:orientation="vertical">
 
                 <com.sobot.chat.widget.image.SobotRCImageView
@@ -275,8 +258,8 @@
                     android:src="@drawable/sobot_icon_consulting_default_pic"
                     app:sobot_round_corner_bottom_left="0dp"
                     app:sobot_round_corner_bottom_right="0dp"
-                    app:sobot_round_corner_top_left="4dp"
-                    app:sobot_round_corner_top_right="4dp" />
+                    app:sobot_round_corner_top_left="12dp"
+                    app:sobot_round_corner_top_right="12dp" />
 
 
                 <TextView
@@ -284,9 +267,10 @@
                     style="@style/SobotCardMargin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="16dp"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:textStyle="bold"
                     android:textColor="@color/sobot_goods_title_text_color"
                     android:textSize="@dimen/sobot_text_font_14" />
 
@@ -296,8 +280,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:maxLines="2"
                     android:ellipsize="end"
+                    android:maxLines="2"
                     android:textColor="@color/sobot_card_goods_desc"
                     android:textSize="@dimen/sobot_text_font_12" />
 
@@ -308,8 +292,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_marginTop="12dp"
-                    android:maxLines="1"
                     android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="@color/sobot_card_goods_price"
                     android:textSize="@dimen/sobot_text_font_18"
                     android:visibility="gone" />
@@ -320,8 +304,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:maxLines="1"
                     android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="@color/sobot_card_goods_desc"
                     android:textSize="@dimen/sobot_text_font_12" />
 
@@ -335,21 +319,6 @@
                     android:orientation="vertical"
                     android:visibility="gone" />
             </LinearLayout>
-            <!--            横向 滑动卡片-->
-            <com.sobot.chat.widget.SobotMaxSizeLinearLayout
-                android:id="@+id/sobot_v_h"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:orientation="vertical">
-            <!--商品列表-->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_goods_list_h"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:maxWidth="300dp" />
-            </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

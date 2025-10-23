@@ -18,15 +18,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.sobot.widget.R;
-import com.sobot.widget.refresh.layout.api.RefreshHeader;
-import com.sobot.widget.refresh.layout.api.RefreshLayout;
-import com.sobot.widget.refresh.layout.constant.RefreshState;
-import com.sobot.widget.refresh.layout.constant.SpinnerStyle;
-import com.sobot.widget.refresh.layout.drawable.ProgressDrawable;
-import com.sobot.widget.refresh.layout.footer.ArrowDrawable;
-import com.sobot.widget.refresh.layout.footer.ClassicsAbstract;
-import com.sobot.widget.refresh.layout.util.SmartUtil;
+import com.sobot.chat.R;
+import com.sobot.chat.widget.refresh.layout.api.RefreshHeader;
+import com.sobot.chat.widget.refresh.layout.api.RefreshLayout;
+import com.sobot.chat.widget.refresh.layout.constant.RefreshState;
+import com.sobot.chat.widget.refresh.layout.constant.SpinnerStyle;
+import com.sobot.chat.widget.refresh.layout.drawable.ProgressDrawable;
+import com.sobot.chat.widget.refresh.layout.footer.ArrowDrawable;
+import com.sobot.chat.widget.refresh.layout.footer.ClassicsAbstract;
+import com.sobot.chat.widget.refresh.layout.util.SmartUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

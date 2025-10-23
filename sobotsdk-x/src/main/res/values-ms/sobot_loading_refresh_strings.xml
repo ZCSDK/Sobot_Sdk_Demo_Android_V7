@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">Paparan kandungan tidak dijumpai. Adakah anda terlupa untuk menambahkannya dalam fail susun atur XML?</string>
+    <string name="sobot_srl_header_pulling">Tarik ke bawah untuk muat semula</string>
+    <string name="sobot_srl_header_refreshing">Sedang memuat semula...</string>
+    <string name="sobot_srl_header_loading">Menunggu pemuatan bahagian bawah selesai...</string>
+    <string name="sobot_srl_header_release">Lepaskan untuk muat semula serta-merta</string>
+    <string name="sobot_srl_header_finish">Muat semula selesai</string>
+    <string name="sobot_srl_header_failed">Muat semula gagal</string>
+    <string name="sobot_srl_header_update">Kemas kini terakhir %s</string>
+    <string name="sobot_srl_header_secondary">Lepaskan untuk masuk ke tingkat dua</string>
+    <string name="sobot_srl_footer_pulling">Tarik ke atas untuk muatkan lagi</string>
+    <string name="sobot_srl_footer_release">Lepaskan untuk muat serta-merta</string>
+    <string name="sobot_srl_footer_loading">Sedang memuat...</string>
+    <string name="sobot_srl_footer_refreshing">Menunggu muat semula pengepala selesai...</string>
+    <string name="sobot_srl_footer_finish">Pemuatan selesai</string>
+    <string name="sobot_srl_footer_failed">Pemuatan gagal</string>
+    <string name="sobot_srl_footer_nothing">Tiada lagi data</string>
+    <string name="sobot_no_data_string">Tiada data tersedia</string>
+    <string name="sobot_no_net_string">Tiada sambungan rangkaian, sila semak rangkaian anda...</string>
+    <string name="sobot_error_click_reload_string">Pemuatan gagal, klik untuk cuba semula~~</string>
+    <string name="sobot_loading_string">Sedang memuat...</string>
+</resources>

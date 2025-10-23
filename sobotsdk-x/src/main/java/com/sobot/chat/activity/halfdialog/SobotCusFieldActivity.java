@@ -66,9 +66,14 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         return R.layout.sobot_activity_cusfield;
     }
 
+    @Override
+    protected void setRequestTag() {
+        REQUEST_TAG = "SobotCusFieldActivity";
+    }
 
     @Override
     public void initView() {
+        super.initView();
         screenHeight70 = ScreenUtils.getScreenHeight(this) * 0.8f;
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
@@ -165,7 +170,7 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         sobot_et_search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     if (adapter == null) {
                         return false;
                     }
@@ -174,7 +179,7 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
                     SobotCusFieldAdapter.MyFilter m = adapter.getFilter();
                     m.filter(s);
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
@@ -256,7 +261,7 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE == fieldType) {
             //多选 显示提交按钮
             sobot_btn_submit.setVisibility(View.VISIBLE);
-        } else{
+        } else {
             //单选  显示搜索框 选中直接返回
             sobot_btn_submit.setVisibility(View.GONE);
         }

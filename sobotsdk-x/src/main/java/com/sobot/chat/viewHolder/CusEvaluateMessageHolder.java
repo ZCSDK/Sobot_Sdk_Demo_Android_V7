@@ -83,7 +83,6 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
     private LinearLayout ll_2_type;//二级评价
     private TextView sobot_btn_satisfied;//二级评价  满意
     private TextView sobot_btn_dissatisfied;//二级评价  不满意
-    private View v_top;
     private TextView sobot_text_other_problem;//评价  机器人或人工客服存在哪些问题的标题
 
     //标签选中样式
@@ -91,7 +90,6 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
 
     public CusEvaluateMessageHolder(Context context, View convertView) {
         super(context, convertView);
-        v_top = convertView.findViewById(R.id.v_top);
         sobot_text_other_problem = convertView.findViewById(R.id.sobot_text_other_problem);
         sobot_center_title =  convertView.findViewById(R.id.sobot_center_title);
         sobot_readiogroup = convertView.findViewById(R.id.sobot_readiogroup);
@@ -121,29 +119,23 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
         changeThemeColor = ThemeUtils.isChangedThemeColor(context);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(context);
-            sobot_submit.setTextColor(themeColor);
+            Drawable bg = sobot_submit.getBackground();
+            sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
         }
         if (!TextUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
-            String themeColor[] = initMode.getVisitorScheme().getRebotTheme().split(",");
-            if (themeColor.length > 1) {
-                if (mContext.getResources().getColor(R.color.sobot_gradient_start) != Color.parseColor(themeColor[0]) || mContext.getResources().getColor(R.color.sobot_gradient_end) != Color.parseColor(themeColor[1])) {
-                    int[] colors = new int[themeColor.length];
-                    for (int i = 0; i < themeColor.length; i++) {
-                        colors[i] = Color.parseColor(themeColor[i]);
-                    }
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-                    if (v_top != null) {
-                        v_top.setBackground(aDrawable);
-                    }
-                } else {
-                    int[] colors = new int[]{mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_start), mContext.getResources().getColor(R.color.sobot_chat_right_bgColor_end)};
-                    GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                    aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-                    if (v_top != null) {
-                        v_top.setBackground(aDrawable);
-                    }
+            String themeColorStr = initMode.getVisitorScheme().getRebotTheme();
+            if (!themeColorStr.contains(",")) {
+                //单色 需要变成两个一样
+                themeColorStr = themeColorStr + "," + themeColorStr;
+            }
+            String themeColorArr[] = themeColorStr.split(",");
+            if (themeColorArr.length > 1) {
+                int[] colors = new int[themeColorArr.length];
+                for (int i = 0; i < themeColorArr.length; i++) {
+                    colors[i] = Color.parseColor(themeColorArr[i]);
                 }
+                GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+                aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
             }
         }
         sobot_readiogroup.setOnCheckedChangeListener(this);
@@ -358,7 +350,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
             score = (mSatisfactionSet.getDefaultType() == 0) ? 5 : 0;
             deftaultScore = score;
             sobotEvaluateModel.setScore(deftaultScore);
-            sobot_ratingBar.init(score,false,32);
+            sobot_ratingBar.init(score,false,35);
             sobot_ten_root_ll.setVisibility(View.GONE);
             ll_2_type.setVisibility(View.GONE);
             sobot_ratingBar.setVisibility(View.VISIBLE);
@@ -515,7 +507,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
             setLableViewVisible(null);
         }
 
-        sobot_center_title.setText(message.getSenderName() + " " + mContext.getResources().getString(R.string.sobot_question));
+        sobot_center_title.setText(String.format(mContext.getResources().getString(R.string.sobot_satisfied),message.getSenderName())  );
         sobot_tv_star_title.setText(message.getSenderName() + " " + mContext.getResources().getString(R.string.sobot_please_evaluate));
 
         checkQuestionFlag();
@@ -758,7 +750,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements RadioGrou
                 compoundButton.setBackground(stateListDrawable);
 
             } else {
-                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_bg_cai_reason_lable_checkbox_bg);
+                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_lable_def);
                 compoundButton.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_first));
                 compoundButton.setBackground(drawable);
             }

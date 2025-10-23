@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +38,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
-            android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:orientation="horizontal">
 
             <!--消息内容 -->
@@ -45,10 +46,12 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:minWidth="@dimen/sobot_msg_min_width"
+                android:orientation="vertical"
+                app:sobot_max_width="@dimen/sobot_msg_max_width">
 
                 <TextView
-                    android:id="@+id/sobot_template2_msg"
+                    android:id="@+id/tv_template_tip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:includeFontPadding="false"
@@ -57,51 +60,15 @@
                     android:textSize="@dimen/sobot_text_font_14"
                     android:visibility="visible" />
 
-                <com.sobot.chat.widget.RobotTemplateViewPager
-                    android:id="@+id/view_pager"
+                <com.sobot.chat.widget.robottemplate.RobotTemplateViewPager
+                    android:id="@+id/pv_template_second"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="2dp" />
 
-                <LinearLayout
-                    android:id="@+id/ll_sobot_template2_item_page"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
-
-                    <TextView
-                        android:id="@+id/sobot_template2_item_previous_page"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableEnd="@drawable/sobot_no_pre_page"
-                        android:drawablePadding="4dp"
-                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:text="@string/sobot_previous_page"
-                        android:textColor="@color/sobot_color_text_third"
-                        android:textSize="@dimen/sobot_text_font_12" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0.6dp"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:id="@+id/sobot_template2_item_last_page"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:drawableEnd="@drawable/sobot_last_page"
-                        android:drawablePadding="4dp"
-                        android:gravity="center"
-                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:text="@string/sobot_last_page"
-                        android:textColor="@color/sobot_color_text_second"
-                        android:textSize="@dimen/sobot_text_font_12"
-                        android:visibility="visible" />
-                </LinearLayout>
+                <include
+                    layout="@layout/sobot_pre_next_layout"
+                    android:visibility="gone" />
 
                 <!-- 关联问题 提示语 -->
                 <TextView

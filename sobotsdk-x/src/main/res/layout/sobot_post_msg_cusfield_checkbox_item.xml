@@ -2,7 +2,6 @@
     android:id="@+id/sobot_tv_checkbox_item"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/sobot_search_bg"
     android:button="@null"
     android:gravity="center"
     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"

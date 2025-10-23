@@ -1,7 +1,6 @@
 
 package com.sobot.chat.utils;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -124,18 +123,15 @@ public class ImageUtils {
      * @param uri
      * @return
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
         if (context == null) {
             return "";
         }
-
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)) {
             return uriToFileApiQ(context, uri);
         }
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -483,6 +479,7 @@ public class ImageUtils {
         }
         return uri;
     }
+
     /**
      * Android 10 以上适配
      *

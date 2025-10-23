@@ -14,50 +14,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sobot_color_transparent"
+        android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@drawable/sobot_dialog_title_bg"
-            android:gravity="center_vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginStart="40dp"
-                android:layout_marginEnd="40dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
-
-                <TextView
-                    android:id="@+id/sobot_tv_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/sobot_time_zone"
-                    android:textColor="@color/sobot_color_text_first"
-                    android:textSize="@dimen/sobot_text_font_16"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-        </RelativeLayout>
+        <include layout="@layout/sobot_dialog_title" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/sobot_color_bg_first"
             android:orientation="vertical">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/sobot_line_height_dp"
-                android:background="@color/sobot_color_line_divider" />
 
             <TextView
                 android:id="@+id/tv_time_zone"
@@ -82,63 +48,51 @@
                 android:visibility="visible" />
 
             <LinearLayout
+                android:id="@+id/timepicker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:background="@color/sobot_color_bg_first"
-                android:orientation="vertical">
+                android:layout_marginTop="15dp"
+                android:paddingEnd="@dimen/sobot_dialog_margin"
+                android:paddingStart="@dimen/sobot_dialog_margin"
+                android:orientation="horizontal">
 
-                <LinearLayout
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    android:id="@+id/year"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.96" />
 
-                    <LinearLayout
-                        android:id="@+id/timepicker"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_weight="1"
-                        android:background="@color/sobot_white"
-                        android:orientation="horizontal">
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
 
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                            android:id="@+id/year"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.96" />
+                    android:id="@+id/month"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    android:id="@+id/day"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                            android:id="@+id/month"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    android:id="@+id/hour"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                            android:id="@+id/day"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    android:id="@+id/min"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                            android:id="@+id/hour"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                            android:id="@+id/min"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                            android:id="@+id/second"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-                    </LinearLayout>
-                </LinearLayout>
+                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    android:id="@+id/second"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <TextView
@@ -147,8 +101,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/sobot_btn_submit"
-                android:background="@drawable/sobot_bg_theme_color_4dp" />
+                android:background="@drawable/sobot_bg_theme_color_4dp"
+                android:text="@string/sobot_btn_submit" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
