@@ -94,42 +94,6 @@
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_textview_text_color" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4.7.6.2 服务端接口多语言支持"
-                android:textColor="@color/sobot_textview_text_color"
-                android:textSize="16sp" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="[说明:暂时支持简体中文:zh-Hans 繁体中文:zh-Hant 英语:en 西班牙语:es 葡萄牙语:pt]"
-                android:textColor="@color/sobot_textview_text_color"
-                android:textSize="14sp" />
-
-            <EditText
-                android:id="@+id/sobot_et_server_langue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/sobot_editview_stocke_bg"
-                android:enabled="true"
-                android:padding="6dp"
-                android:scrollbars="none"
-                android:textColor="@color/sobot_textview_text_color"
-                android:textColorHint="@color/sobot_textview_text_color_third"
-                android:textSize="14sp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.4dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:background="@color/sobot_textview_text_color" />
 
             <RelativeLayout
                 android:id="@+id/sobot_rl_4_7_6_1"
