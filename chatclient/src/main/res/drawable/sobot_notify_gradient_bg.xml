@@ -3,6 +3,7 @@
     <gradient
         android:angle="270"
         android:endColor="@color/sobot_announcement_msg_bgcolor"
+        android:centerColor="@color/sobot_announcement_msg_bgcolor"
         android:startColor="@color/sobot_announcement_msg_start_bgcolor" />
     <corners android:radius="12dp" />
 </shape>

@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">حفظ بنجاح</string>
        <string name="sobot_time_zone">اختيار المنطقة الزمنية</string>
        <string name="sobot_time_zone_hint">الرجاء اختيار المنطقة الزمنية</string>
-       <string name="sobot_phone_hint">الرجاء تحديد رقم الهاتف المحمول</string>
+       <string name="sobot_phone_hint">يرجى ملء رقم الهاتف المحمول</string>
        <string name="sobot_select_chat_language">الرجاء تحديد اللغة التي تريد الدردشة بها:</string>
        <string name="sobot_more_language">المزيد من اللغات</string>
        <string name="sobot_select_language">اختر اللغة</string>

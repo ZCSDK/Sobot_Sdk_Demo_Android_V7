@@ -278,6 +278,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private TextView tv_announcement_title;
     //机器人切换按钮
     private LinearLayout ll_switch_robot;
+    private ImageView iv_switch_robot;
     private TextView tv_switch_robot;
 
     //录音相关
@@ -806,7 +807,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         });
         ll_switch_robot = (LinearLayout) rootView.findViewById(R.id.ll_switch_robot);
         tv_switch_robot = (TextView) rootView.findViewById(R.id.tv_switch_robot);
-        tv_switch_robot.setText(R.string.sobot_switch_business);
+        iv_switch_robot= rootView.findViewById(R.id.iv_switch_robot);
 
         rl_announcement = rootView.findViewById(R.id.rl_announcement);
         iv_announcement_right_icon = rootView.findViewById(R.id.iv_announcement_right_icon);
@@ -3746,9 +3747,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         int status = Integer.parseInt(zhichiMessageBase.getStatus());
                         statusFlag = status;
                         preCurrentCid = getInitModel().getCid();
+                        setCustomerServiceName(zhichiMessageBase.getAname());
                         setToolbarFace(zhichiMessageBase.getAface());
                         setToolbarTitle(zhichiMessageBase.getAname());
-                        setCustomerServiceName(zhichiMessageBase.getAname());
                         SharedPreferencesUtil.saveStringData(getSobotActivity(), ZhiChiConstant.sobot_last_current_aFace, zhichiMessageBase.getAface());
                         SharedPreferencesUtil.saveStringData(getSobotActivity(), ZhiChiConstant.sobot_last_current_aName, zhichiMessageBase.getAname());
                         LogUtils.i("status---:" + status);
@@ -6231,6 +6232,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     if (ZhiChiConstant.push_message_createChat == pushMessage.getType()) {
                         setToolbarFace(pushMessage.getAface());
                         setToolbarTitle(pushMessage.getAname());
+                        //保存座席名字
                         setCustomerServiceName(pushMessage.getAname());
                         if (getInitModel() != null) {
                             getInitModel().setServiceEndPushMsg(!TextUtils.isEmpty(pushMessage.getServiceEndPushMsg()) ? pushMessage.getServiceEndPushMsg() : getInitModel().getServiceEndPushMsg());
@@ -6302,6 +6304,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         LogUtils.i("用户被转接--->" + pushMessage.getName());
                         setToolbarFace(pushMessage.getFace());
                         setToolbarTitle(pushMessage.getAname());
+                        //保存座席名字
                         setCustomerServiceName(pushMessage.getAname());
                         //替换标题 转接后客服头像取face 和name
                         showLogicTitle(pushMessage.getName(), pushMessage.getFace());
@@ -7474,10 +7477,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                                         }
                                     }
                                 }
+                                //保存机器人名字
+                                setCustomerServiceName(StringUtils.checkStringIsNull(sobotRobot.getRobotName()));
+                                showLogicTitle(sobotRobot.getRobotName(), sobotRobot.getRobotLogo());
                                 //请求快捷菜单
                                 requestAllQuickMenu(quick_menu_robot);
-
-                                messageAdapter.notifyDataSetChanged();
                                 //切换机器人后调整UI
                                 remindRobotMessageTimes = 0;
                                 remindRobotMessage(handler, getInitModel(), info);
@@ -7775,14 +7779,21 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     }
 
     /**
-     * 切换机器人：根据主题色更改切换机器人图标颜色
+     * 根据主题色更改切换UI
      */
     public void updateUIByThemeColor() {
+        int color = ThemeUtils.getThemeColor(getSobotActivity());
+        //修改发送消息按钮
         Drawable sengDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_oval_send_msg_bg, null);
         if (sengDrawable != null) {
-            int color = ThemeUtils.getThemeColor(getSobotActivity());
             llSendMsg.setBackground(ThemeUtils.applyColorToDrawable(sengDrawable, color));
         }
+        //修改切换机器人按钮
+        Drawable switchRrobotDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_switch_robot, null);
+        if (switchRrobotDrawable != null) {
+            iv_switch_robot.setBackground(ThemeUtils.applyColorToDrawable(switchRrobotDrawable, color));
+        }
+        tv_switch_robot.setTextColor(color);
     }
 
     private void applyUIConfig() {

@@ -16,6 +16,22 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/sobot_dialog_line" />
+<!--    加载中 -->
+    <LinearLayout
+        android:id="@+id/ll_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+        <!--    加载中-->
+        <com.sobot.chat.widget.LoadingView.SobotLoadingView
+            android:id="@+id/iv_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            app:backgroundColor="@color/sobot_color_loading_bg"
+            app:progressColor="@color/sobot_color"
+            app:strokeWidth="2dp" />
+    </LinearLayout>
     <!--    新建工单-->
     <LinearLayout
         android:id="@+id/sobot_ll_container"
@@ -164,7 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:background="@drawable/sobot_normal_btn_bg"
+            android:background="@drawable/sobot_bg_theme_color_20dp"
             android:gravity="center"
             android:padding="8dp"
             android:stateListAnimator="@null"

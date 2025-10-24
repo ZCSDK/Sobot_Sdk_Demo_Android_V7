@@ -19,6 +19,7 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotPostCategoryAdapter;
 import com.sobot.chat.api.model.SobotTypeModel;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.util.ArrayList;
@@ -130,11 +131,11 @@ public class SobotPostCategoryActivity extends SobotDialogBaseActivity {
         types.clear();
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("bundle");
-        ArrayList<SobotTypeModel> typeTemp = null;
+        List<SobotTypeModel> typeTemp = null;
         if (bundle != null) {
             typeName = bundle.getString("typeName");
             typeId = bundle.getString("typeId");
-            typeTemp = (ArrayList<SobotTypeModel>) bundle.getSerializable("types");
+            typeTemp = ChatUtils.getTypeList();
         }
         if (typeTemp != null) {
             types.addAll(typeTemp);
@@ -200,5 +201,11 @@ public class SobotPostCategoryActivity extends SobotDialogBaseActivity {
                 type.get(i).setChecked(true);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        ChatUtils.setTypeList(null);
+        super.onDestroy();
     }
 }

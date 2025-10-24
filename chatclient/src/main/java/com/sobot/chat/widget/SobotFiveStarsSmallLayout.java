@@ -48,7 +48,7 @@ public class SobotFiveStarsSmallLayout extends LinearLayout {
             line1.setLayoutParams(layoutParams);
             addView(line1);
         }
-
+        line1.removeAllViews();
         LayoutParams lp = null;
         for (int i = 0; i < 5; i++) {
             ImageView imageView = new ImageView(getContext());
@@ -65,7 +65,6 @@ public class SobotFiveStarsSmallLayout extends LinearLayout {
             } else {
                 imageView.setImageResource(R.drawable.sobot_evaluate_star_empty);
             }
-            final int position = i;
             line1.addView(imageView);
         }
 

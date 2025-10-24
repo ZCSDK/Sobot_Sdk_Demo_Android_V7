@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">đã lưu thành công</string>
        <string name="sobot_time_zone">Chọn múi giờ</string>
        <string name="sobot_time_zone_hint">Vui lòng chọn múi giờ</string>
-       <string name="sobot_phone_hint">Vui lòng chọn số điện thoại di động</string>
+       <string name="sobot_phone_hint">Vui lòng điền số điện thoại di động của bạn</string>
        <string name="sobot_select_chat_language">Vui lòng chọn ngôn ngữ bạn muốn trò chuyện:</string>
        <string name="sobot_more_language">Thêm ngôn ngữ</string>
        <string name="sobot_select_language">Chọn ngôn ngữ</string>

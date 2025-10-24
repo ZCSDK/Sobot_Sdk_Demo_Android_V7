@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Zapisano pomyślnie</string>
        <string name="sobot_time_zone">Wybierz strefę czasową</string>
        <string name="sobot_time_zone_hint">Proszę wybrać strefę czasową</string>
-       <string name="sobot_phone_hint">Proszę wybrać numer telefonu komórkowego</string>
+       <string name="sobot_phone_hint">Proszę wypełnić numer telefonu komórkowego</string>
        <string name="sobot_select_chat_language">Wybierz język, w którym chcesz rozmawiać:</string>
        <string name="sobot_more_language">Więcej języków</string>
        <string name="sobot_select_language">Wybierz język</string>

@@ -45,26 +45,17 @@ public class NoticeMessageHolder extends MsgHolderBase {
                         obs.removeOnGlobalLayoutListener(this);
                         //通告内容长度大于3行，或者显示的内容和接口返回的不一样 设置渐变色
                         if (message.getNoticeExceedStatus() == 0) {
-                            if (tv_expandable.getLineCount() > 4) {
+                            if (tv_expandable.getLineCount() > 3) {
                                 ll_expand.setVisibility(View.VISIBLE);
-                                int lineEndIndex = tv_expandable.getLayout().getLineEnd(2);
-                                String text = "";
-                                if ((lineEndIndex - 2) > 0 && (lineEndIndex - 2) <= noticeMsg.length()) {
-                                    text = noticeMsg.subSequence(0, lineEndIndex - 2) + "…";
-                                } else {
-                                    text = noticeMsg;
-                                }
-                                HtmlTools.getInstance(mContext).setRichText(tv_expandable, text, getLinkTextColor());
-//                                setTextColorGradient(expandable_text, R.color.sobot_color_text_first, R.color.sobot_announcement_bgcolor);
+                                tv_expandable.setPadding(ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 30));
+                                tv_expandable.setMaxLines(3);
                                 message.setNoticeExceedStatus(1);
-                                message.setNoticeNoExceedContent(text);
                             } else {
                                 ll_expand.setVisibility(View.GONE);
                             }
                         }
                     }
                 });
-                showNoticeExceed(noticeMsg);
                 iv_expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -90,6 +81,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
             if (message.getNoticeExceedStatus() == 1) {
                 //收起
                 ll_expand.setVisibility(View.VISIBLE);
+                tv_expandable.setMaxLines(3);
                 iv_expand.setImageResource(R.drawable.sobot_notice_arrow_down);
                 tv_expandable.setPadding(ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 30));
                 HtmlTools.getInstance(mContext).setRichText(tv_expandable, message.getNoticeNoExceedContent(), getLinkTextColor());
@@ -106,6 +98,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                 }
             } else if (message.getNoticeExceedStatus() == 2) {
                 //展开
+                tv_expandable.setMaxLines(60);
                 ll_expand.setVisibility(View.VISIBLE);
                 iv_expand.setImageResource(R.drawable.sobot_notice_arrow_up);
                 tv_expandable.setPadding(ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 30));
@@ -119,6 +112,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                 });
                 ll_expand.setBackground(null);
             } else {
+                tv_expandable.setMaxLines(60);
                 tv_expandable.setPadding(ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 16), ScreenUtils.dip2px(mContext, 10));
                 ll_expand.setVisibility(View.GONE);
                 ll_expand.setBackground(null);

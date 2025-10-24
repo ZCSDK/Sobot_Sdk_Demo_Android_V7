@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">บันทึกเรียบร้อยแล้ว</string>
        <string name="sobot_time_zone">เลือกเขตเวลา</string>
        <string name="sobot_time_zone_hint">โปรดเลือกเขตเวลา</string>
-       <string name="sobot_phone_hint">กรุณาเลือกหมายเลขโทรศัพท์มือถือ</string>
+       <string name="sobot_phone_hint">กรุณากรอกหมายเลขโทรศัพท์มือถือ</string>
        <string name="sobot_select_chat_language">โปรดเลือกภาษาที่คุณต้องการสนทนา:</string>
        <string name="sobot_more_language">ภาษาเพิ่มเติม</string>
        <string name="sobot_select_language">เลือกภาษา</string>

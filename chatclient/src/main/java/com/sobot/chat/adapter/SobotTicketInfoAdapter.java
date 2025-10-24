@@ -131,10 +131,10 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public SobotTicketStatus getStatus(String code) {
+    public SobotTicketStatus getStatus(int code) {
         if (statusList != null && statusList.size() > 0) {
             for (int i = 0; i < statusList.size(); i++) {
-                if (code.equals(statusList.get(i).getStatusCode())) {
+                if (code==statusList.get(i).getStatusCode()) {
                     return statusList.get(i);
                 }
             }

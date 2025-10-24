@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">保存成功</string>
        <string name="sobot_time_zone">選擇時區</string>
        <string name="sobot_time_zone_hint">請選擇時區</string>
-       <string name="sobot_phone_hint">請選擇手機號碼</string>
+       <string name="sobot_phone_hint">請填寫手機號碼</string>
        <string name="sobot_select_chat_language">請選擇您要使用的聊天語言：</string>
        <string name="sobot_more_language">更多語言</string>
        <string name="sobot_select_language">選擇語言</string>

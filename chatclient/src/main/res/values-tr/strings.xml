@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Başarıyla kaydedildi</string>
        <string name="sobot_time_zone">Zaman bölgesini seç</string>
        <string name="sobot_time_zone_hint">Lütfen zaman alanını seç</string>
-       <string name="sobot_phone_hint">Lütfen cep telefonu numarasını seçin</string>
+       <string name="sobot_phone_hint">Lütfen cep telefonu numaranızı girin</string>
        <string name="sobot_select_chat_language">Lütfen sohbet etmek istediğiniz dili seçin:</string>
        <string name="sobot_more_language">Daha fazla dil</string>
        <string name="sobot_select_language">Dil seçin</string>

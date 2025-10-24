@@ -1,6 +1,7 @@
 package com.sobot.chat.adapter;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
@@ -72,17 +73,11 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
                     }
                 }
                 vh.iv_select.setVisibility(View.VISIBLE);
-
+                vh.sobot_tv_content.setTypeface(Typeface.DEFAULT_BOLD);
             } else {
                 vh.iv_select.setVisibility(View.GONE);
             }
             vh.sobot_tv_content.setText(data.getOperationRemark());
-//            if(null!= chatStatus && chatStatus.getTimezoneId().equals(checkin.getTimezoneId())){
-//                vh.sobot_tv_content_detail.setVisibility(View.VISIBLE);
-//                vh.sobot_tv_content_detail.setText();
-//            }else{
-//                vh.sobot_tv_content_detail.setVisibility(View.GONE);
-//            }
             vh.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

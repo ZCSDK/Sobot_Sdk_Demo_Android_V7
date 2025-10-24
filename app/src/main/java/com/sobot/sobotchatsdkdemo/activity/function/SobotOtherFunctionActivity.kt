@@ -42,7 +42,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
     private var sobot_tv_save: TextView? = null
     private var sobot_et_scope_time: EditText? = null
     private var sobot_et_langue: EditText? = null
-    private var sobot_et_server_langue: EditText? = null
     private var information: Information? = null
 
     override val contentViewResId: Int
@@ -61,7 +60,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
         sobot_text_title.text = "其它配置"
         sobot_et_scope_time = findViewById(R.id.sobot_et_scope_time)
         sobot_et_langue = findViewById(R.id.sobot_et_langue)
-        sobot_et_server_langue = findViewById(R.id.sobot_et_server_langue)
         sobot_tv_save = findViewById(R.id.sobot_tv_save)
         sobot_tv_save!!.setVisibility(View.VISIBLE)
         sobot_tv_save!!.setOnClickListener(this)
@@ -79,7 +77,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
             setImageShowStatus(status4761, sobotImage4761)
             status4762 = information!!.isHideManualEvaluationLabels
             setImageShowStatus(status4762, sobotImage4762)
-            sobot_et_server_langue!!.setText(information!!.locale)
         }
         status478 = getBooleanData(this, "auto_match_timezone", false)
         setImageShowStatus(status478, sobotImage478)
@@ -119,7 +116,6 @@ class SobotOtherFunctionActivity : SobotDemoBaseActivity(), View.OnClickListener
                 if (information != null) {
                     information!!.isHideManualEvaluationLabels = status4762
                     information!!.isHideRototEvaluationLabels = status4761
-                    information!!.locale = sobot_et_server_langue!!.text.toString()
                     saveObject(this, "sobot_demo_infomation", information!!)
                 }
                    saveBooleanData(this, "auto_match_timezone", status478)

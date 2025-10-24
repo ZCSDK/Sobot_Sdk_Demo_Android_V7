@@ -523,7 +523,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             if (mConfig.getType() != null && mConfig.getType().size() != 0) {
                 Intent intent = new Intent(getSobotBaseActivity(), SobotPostCategoryActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("types", mConfig.getType());
+                ChatUtils.setTypeList( mConfig.getType());
                 if (sobot_post_question_type != null &&
                         !TextUtils.isEmpty(sobot_post_question_type.getText().toString()) &&
                         sobot_post_question_type.getTag() != null &&

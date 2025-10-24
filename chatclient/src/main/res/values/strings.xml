@@ -286,7 +286,7 @@
     <string name="sobot_time_zone_hint">请选择时区</string>
     <!--    4.1.8 区号-->
     <string name="sobot_phone_code_hint">请选择区号</string>
-    <string name="sobot_phone_hint">请选择手机号</string>
+    <string name="sobot_phone_hint">请填写手机号码</string>
     <!--    4.2.0 指定语言-->
     <string name="sobot_select_chat_language">请选择您要使用的聊天语言：</string>
     <string name="sobot_more_language">更多语言</string>

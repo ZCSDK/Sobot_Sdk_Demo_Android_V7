@@ -361,7 +361,7 @@ public class StCusFieldPresenter {
 
                     } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_MORE_LINE_TYPE == cusFieldConfig.getFieldType()) {
                         //多行文本
-                        view.setInputType("many_line");
+                        view.setInputType("many_lines");
 
                     } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE == cusFieldConfig.getFieldType()) {
                         //日期

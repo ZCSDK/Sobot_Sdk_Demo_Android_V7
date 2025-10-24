@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Salvato con successo</string>
        <string name="sobot_time_zone">Seleziona fuso orario</string>
        <string name="sobot_time_zone_hint">Seleziona un fuso orario</string>
-       <string name="sobot_phone_hint">Seleziona il numero di cellulare</string>
+       <string name="sobot_phone_hint">Si prega di compilare il numero di telefono cellulare</string>
        <string name="sobot_select_chat_language">Seleziona la lingua in cui desideri chattare:</string>
        <string name="sobot_more_language">Più lingue</string>
        <string name="sobot_select_language">Seleziona la lingua</string>

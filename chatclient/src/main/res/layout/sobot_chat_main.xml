@@ -118,6 +118,7 @@
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:paddingStart="10dp"
                 android:paddingEnd="0dp"
+                android:text="@string/sobot_switch_business"
                 android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_12" />
         </com.sobot.chat.widget.attach.SobotRobotAttachLinearlayout>

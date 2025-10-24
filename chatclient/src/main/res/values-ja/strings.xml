@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">正常に保存</string>
        <string name="sobot_time_zone">タイムゾーンの選択</string>
        <string name="sobot_time_zone_hint">タイムゾーンを選択してください</string>
-       <string name="sobot_phone_hint">携帯電話番号を選択してください</string>
+       <string name="sobot_phone_hint">携帯電話番号を記入してください</string>
        <string name="sobot_select_chat_language">チャットに使用する言語を選択してください:</string>
        <string name="sobot_more_language">さらに多くの言語</string>
        <string name="sobot_select_language">言語を選択してください</string>

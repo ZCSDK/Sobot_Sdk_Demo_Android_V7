@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Berjaya disimpan</string>
        <string name="sobot_time_zone">Pilih zon masa</string>
        <string name="sobot_time_zone_hint">Sila pilih zon masa</string>
-       <string name="sobot_phone_hint">Sila pilih nombor telefon bimbit</string>
+       <string name="sobot_phone_hint">Sila isi nombor telefon bimbit anda</string>
        <string name="sobot_select_chat_language">Sila pilih bahasa yang ingin anda sembang:</string>
        <string name="sobot_more_language">Lebih banyak bahasa</string>
        <string name="sobot_select_language">Pilih bahasa</string>

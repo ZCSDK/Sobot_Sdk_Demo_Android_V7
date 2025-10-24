@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Met succes opgeslagen</string>
        <string name="sobot_time_zone">Tijdzone selecteren</string>
        <string name="sobot_time_zone_hint">Selecteer een tijdzone</string>
-       <string name="sobot_phone_hint">Selecteer een mobiel telefoonnummer</string>
+       <string name="sobot_phone_hint">Vul alsjeblieft uw mobiele telefoonnummer in</string>
        <string name="sobot_select_chat_language">Selecteer de taal waarin u wilt chatten:</string>
        <string name="sobot_more_language">Meer talen</string>
        <string name="sobot_select_language">Selecteer taal</string>

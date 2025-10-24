@@ -41,6 +41,7 @@ import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
 import com.sobot.chat.api.model.SobotQuestionRecommend;
 import com.sobot.chat.api.model.SobotTicketStatus;
+import com.sobot.chat.api.model.SobotTypeModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
@@ -90,6 +91,7 @@ public class ChatUtils {
     public static final String INTENT_KEY_TICKET_ID = "intent_key_ticket_id";
     public static final String SOBOT_ACTION_CLOSE_TIKET = "sobot_action_close_tiket";
     private static List<SobotTicketStatus> statusList;//工单状态集合
+    private static List<SobotTypeModel> typeList;//工单分类集合
 
     public static void setStatusList(List<SobotTicketStatus> statusList) {
         ChatUtils.statusList = statusList;
@@ -97,6 +99,14 @@ public class ChatUtils {
 
     public static List<SobotTicketStatus> getStatusList() {
         return statusList;
+    }
+
+    public static List<SobotTypeModel> getTypeList() {
+        return typeList;
+    }
+
+    public static void setTypeList(List<SobotTypeModel> typeList) {
+        ChatUtils.typeList = typeList;
     }
 
     /**

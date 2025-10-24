@@ -35,7 +35,7 @@
         <LinearLayout
             android:id="@+id/ll_expand"
             android:layout_width="match_parent"
-            android:layout_height="46dp"
+            android:layout_height="50dp"
             android:layout_gravity="bottom|center_horizontal"
             android:background="@drawable/sobot_notify_gradient_bg"
             android:gravity="bottom|center_horizontal"
@@ -50,6 +50,7 @@
                 android:paddingTop="8dp"
                 android:paddingEnd="30dp"
                 android:paddingBottom="8dp"
+                android:layout_marginBottom="3dp"
                 android:src="@drawable/sobot_notice_arrow_down" />
         </LinearLayout>
     </FrameLayout>

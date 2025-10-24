@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Успешно сохранено</string>
        <string name="sobot_time_zone">Выберите часовой пояс</string>
        <string name="sobot_time_zone_hint">Пожалуйста, выберите часовой пояс</string>
-       <string name="sobot_phone_hint">Пожалуйста, выберите номер мобильного телефона</string>
+       <string name="sobot_phone_hint">Пожалуйста, введите номер мобильного телефона</string>
        <string name="sobot_select_chat_language">Пожалуйста, выберите язык, на котором вы хотите общаться:</string>
        <string name="sobot_more_language">Больше языков</string>
        <string name="sobot_select_language">Выберите язык</string>

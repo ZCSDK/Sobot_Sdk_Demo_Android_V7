@@ -159,7 +159,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                 break;
             }
             case MSG_TYPE_EVALUATE: {
-                View convertView = LayoutInflater.from(mActivity).inflate(R.layout.sobot_ticket_detail_foot_item, null);
+                View convertView = LayoutInflater.from(mActivity).inflate(R.layout.sobot_ticket_detail_evaluate_item, null);
                 holder = new EvaluateViewHolder(convertView);
                 break;
             }
@@ -436,7 +436,6 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
     }
 
     class EvaluateViewHolder extends RecyclerView.ViewHolder {
-        private LinearLayout sobot_ll_score;
         private TextView sobot_tv_remark;
         private SobotFiveStarsSmallLayout sobot_ll_ratingBar;
         private TextView sobot_tv_my_evaluate_score;
@@ -451,7 +450,6 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             iv_head = view.findViewById(R.id.iv_head);
             sobot_tv_name = (TextView) view.findViewById(R.id.sobot_tv_name);
             sobot_tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
-            sobot_ll_score = (LinearLayout) view.findViewById(R.id.sobot_ll_score);
 
             sobot_tv_isSolve = (TextView) view.findViewById(R.id.sobot_tv_isSolve);
             sobot_tv_lab = (TextView) view.findViewById(R.id.sobot_tv_lab);
