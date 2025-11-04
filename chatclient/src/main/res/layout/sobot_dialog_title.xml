@@ -32,6 +32,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="0.6dp"
+        android:layout_height="@dimen/sobot_line_height_dp"
         android:background="@color/sobot_dialog_line" />
 </LinearLayout>

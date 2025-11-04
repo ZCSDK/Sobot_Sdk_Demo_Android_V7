@@ -66,155 +66,172 @@
 
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
+                style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/sobot_bg_line_12"
                 android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/sobot_goods_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+
+                    <com.sobot.chat.widget.image.SobotProgressImageView
+                        android:id="@+id/sobot_goods_pic"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/sobot_icon_consulting_default_pic"
+                        android:visibility="visible"
+                        app:image_height="50dp"
+                        app:image_width="50dp"
+                        app:sobot_round_corner="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sobot_goods_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:maxLines="2"
+                            android:textColor="@color/sobot_order_label_text_color"
+                            android:textSize="@dimen/sobot_text_font_12"
+                            android:textStyle="bold"/>
+
+
+                        <TextView
+                            android:id="@+id/sobot_goods_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="bottom"
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:maxLines="1"
+                            android:textColor="@color/sobot_order_des_text_color"
+                            android:textSize="@dimen/sobot_text_font_12" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/sobot_goods_order_split"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/sobot_line_height_dp"
+                    android:background="@color/sobot_color_line_divider" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <LinearLayout
-                        android:id="@+id/sobot_goods_rl"
+                        android:id="@+id/sobot_goods_order_status_ll"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:orientation="horizontal">
 
-
-                        <com.sobot.chat.widget.image.SobotProgressImageView
-                            android:id="@+id/sobot_goods_pic"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
+                        <TextView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:src="@drawable/sobot_icon_consulting_default_pic"
-                            android:visibility="visible"
-                            app:image_height="52dp"
-                            app:image_width="52dp"
-                            app:sobot_round_corner="4dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/sobot_goods_title"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                                android:maxLines="1"
-                                android:textColor="@color/sobot_order_label_text_color"
-                                android:textSize="@dimen/sobot_text_font_14" />
-
-
-                            <TextView
-                                android:id="@+id/sobot_goods_count"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="bottom"
-                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                                android:textColor="@color/sobot_order_des_text_color"
-                                android:textSize="@dimen/sobot_text_font_12" />
-
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <View
-                        android:id="@+id/sobot_goods_order_split"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/sobot_line_height_dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:background="@color/sobot_color_line_divider" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:id="@+id/sobot_goods_order_status_ll"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                                android:text="@string/sobot_order_status_lable"
-                                android:textColor="@color/sobot_order_label_text_color"
-                                android:textSize="@dimen/sobot_text_font_12" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                                android:text="："
-                                android:textColor="@color/sobot_order_label_text_color"
-                                android:textSize="@dimen/sobot_text_font_12" />
-
-                            <TextView
-                                android:id="@+id/sobot_order_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                                android:textColor="@color/sobot_order_status_text_color"
-                                android:textSize="@dimen/sobot_text_font_12"
-                                android:textStyle="bold" />
-                        </LinearLayout>
+                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                            android:text="@string/sobot_order_status_lable"
+                            android:textColor="@color/sobot_order_label_text_color"
+                            android:textSize="@dimen/sobot_text_font_12"
+                            android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/sobot_order_number"
-                            android:layout_width="match_parent"
+                            android:id="@+id/sobot_order_status"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
                             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                            android:textColor="@color/sobot_order_label_text_color"
-                            android:textSize="@dimen/sobot_text_font_12" />
-
-                        <TextView
-                            android:id="@+id/sobot_order_createtime"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                            android:textColor="@color/sobot_order_label_text_color"
-                            android:textSize="@dimen/sobot_text_font_12" />
-
-                        <LinearLayout
-                            android:id="@+id/sobot_order_ll_extent_fields"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:orientation="vertical"
-                            android:visibility="gone" />
+                            android:textColor="@color/sobot_order_status_text_color"
+                            android:textSize="@dimen/sobot_text_font_12"
+                             />
                     </LinearLayout>
-
-                    <View
-                        android:id="@+id/sobot_see_all_split"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/sobot_line_height_dp"
-                        android:background="@color/sobot_color_line_divider" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/sobot_order_see_all"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:text="@string/sobot_order_code_lable"
+                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textSize="@dimen/sobot_text_font_12"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/sobot_order_number"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
+                        android:layout_marginTop="2dp"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:padding="16dp"
-                        android:text="@string/sobot_see_detail"
-                        android:textColor="@color/sobot_color"
+                        android:textColor="@color/sobot_order_label_text_color"
                         android:textSize="@dimen/sobot_text_font_12" />
-
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:text="@string/sobot_order_time_lable"
+                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textSize="@dimen/sobot_text_font_12"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/sobot_order_createtime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                        android:textColor="@color/sobot_order_label_text_color"
+                        android:textSize="@dimen/sobot_text_font_12" />
+                </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/sobot_order_ll_extent_fields"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:orientation="vertical"
+                        android:visibility="gone" />
+                </LinearLayout>
+                <View
+                    android:id="@+id/sobot_see_all_split"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/sobot_line_height_dp"
+                    android:background="@color/sobot_item_hot_bg_line" />
+                <TextView
+                    android:id="@+id/sobot_order_see_all"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="13dp"
+                    android:paddingBottom="13dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:gravity="center"
+                    android:text="@string/sobot_see_detail"
+                    android:textColor="@color/sobot_goods_title_text_color"
+                    android:textSize="@dimen/sobot_text_font_14"
+                    android:ellipsize="end"
+                    android:lines="1" />
+
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
         </LinearLayout>
     </RelativeLayout>

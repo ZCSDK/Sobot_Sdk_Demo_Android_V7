@@ -23,16 +23,16 @@ public class MiniProgramMessageHolder extends MsgHolderBase implements View.OnCl
     private ImageView tv_mimi_logo;
     private TextView tv_mimi_des;
     private TextView tv_mimi_title;
-    private SobotProgressImageView tv_mimi_thumbUrl;
+    private ImageView tv_mimi_thumbUrl;
     private MiniProgramModel miniProgramModel;
 
     public MiniProgramMessageHolder(Context context, View convertView) {
         super(context, convertView);
         sobot_rl_mini = convertView.findViewById(R.id.sobot_rl_mini);
-        tv_mimi_logo = (ImageView) convertView.findViewById(R.id.tv_mimi_logo);
-        tv_mimi_des = (TextView) convertView.findViewById(R.id.tv_mimi_des);
-        tv_mimi_title = (TextView) convertView.findViewById(R.id.tv_mimi_title);
-        tv_mimi_thumbUrl = (SobotProgressImageView) convertView.findViewById(R.id.tv_mimi_thumbUrl);
+        tv_mimi_logo = convertView.findViewById(R.id.tv_mimi_logo);
+        tv_mimi_des = convertView.findViewById(R.id.tv_mimi_des);
+        tv_mimi_title = convertView.findViewById(R.id.tv_mimi_title);
+        tv_mimi_thumbUrl =  convertView.findViewById(R.id.tv_mimi_thumbUrl);
     }
 
     @Override
@@ -59,12 +59,13 @@ public class MiniProgramMessageHolder extends MsgHolderBase implements View.OnCl
             }
 
             if (!TextUtils.isEmpty(miniProgramModel.getThumbUrl())) {
-                tv_mimi_thumbUrl.setImageUrl(miniProgramModel.getThumbUrl());
+                SobotBitmapUtil.display(mContext, miniProgramModel.getThumbUrl(), tv_mimi_thumbUrl);
                 tv_mimi_thumbUrl.setVisibility(View.VISIBLE);
             } else {
                 tv_mimi_thumbUrl.setVisibility(View.GONE);
             }
         }
+        resetMaxWidth();
         sobot_rl_mini.setOnClickListener(this);
         if (!isRight()) {
             refreshItem();//左侧消息刷新顶和踩布局

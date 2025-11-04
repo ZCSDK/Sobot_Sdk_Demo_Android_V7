@@ -3,6 +3,7 @@ package com.sobot.chat.adapter;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -13,10 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotRobot;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.List;
@@ -56,16 +59,14 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
         final SobotRobot data = list.get(i);
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if(data!=null){
-            StateListDrawable selector =(StateListDrawable)mContext.getResources().getDrawable(R.drawable.sobot_bg_dialog_item);
-            if (selector != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    Drawable bg = selector.getStateDrawable(1);
-                    ThemeUtils.applyColorToDrawable(bg, themeColor);
-                    vh.sobot_ll_content.setBackground(selector);
-                }
-            }
+
             if(selectPosition!=-1 && data.getRobotFlag()==selectPosition){
-                vh.sobot_ll_content.setSelected(true);
+                Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_item_hot_press, null);
+                if (drawable instanceof GradientDrawable) {
+                    GradientDrawable gradientDrawable = (GradientDrawable) drawable;
+                    gradientDrawable.setStroke(ScreenUtils.dip2px(mContext, 1), ThemeUtils.getThemeColor(mContext)); // 1dp边框，主题颜色
+                }
+                vh.sobot_ll_content.setBackground(drawable);
                 if (ThemeUtils.isChangedThemeColor(mContext)) {
                     Drawable bgg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
                     if (bgg != null) {
@@ -75,6 +76,7 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
                 vh.iv_select.setVisibility(View.VISIBLE);
                 vh.sobot_tv_content.setTypeface(Typeface.DEFAULT_BOLD);
             } else {
+                vh.sobot_ll_content.setBackgroundResource(R.drawable.sobot_bg_dialog_item);
                 vh.iv_select.setVisibility(View.GONE);
             }
             vh.sobot_tv_content.setText(data.getOperationRemark());

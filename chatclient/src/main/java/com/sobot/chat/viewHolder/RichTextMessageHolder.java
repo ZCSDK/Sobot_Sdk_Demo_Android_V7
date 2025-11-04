@@ -10,6 +10,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -369,14 +370,14 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         }
                     } else if (richListModel.getType() == 1) {
                         int imgHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
-                        if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())&&!message.isAiAgentReceiveMsgEnd()){
+                        if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant()) && !message.isAiAgentReceiveMsgEnd()) {
                             //图片如果是大模型消息里，同时消息还在接收，图片高度固定
-                            imgHeight=500;
+                            imgHeight = 500;
                         }
                         View imageView = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_rich_image_view, sobot_rich_ll, false);
                         SobotProgressImageView image = imageView.findViewById(R.id.sobot_iv_picture);
                         if (!TextUtils.isEmpty(richListModel.getMsg())) {
-                            image.setImageUrlWithScaleType(richListModel.getMsg(), ImageView.ScaleType.FIT_CENTER);
+                            image.setImageUrlWithScaleType(richListModel.getMsg(), ImageView.ScaleType.FIT_START);
                             image.setImageWidthAndHeight(msgMaxWidth, imgHeight);
                         }
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgMaxWidth, imgHeight);
@@ -384,7 +385,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
                         }
                         image.setOnClickListener(new ImageClickLisenter(context, richListModel.getMsg(), isRight));
-                        sobot_rich_ll.addView(imageView,layoutParams);
+                        sobot_rich_ll.addView(imageView, layoutParams);
                         setLongClickListener(imageView);
                     } else if (richListModel.getType() == 3) {
                         View videoView = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_rich_vedio_view, sobot_rich_ll, false);
@@ -455,6 +456,52 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                 }
                             }
                         });
+                    } else if ((richListModel.getType() == 5)) {
+                        try {
+                            //md 表格
+                            WebView webview = new WebView(mContext);
+                            int color = ContextCompat.getColor(mContext, R.color.sobot_color_bg_second);
+                            String bgColorString = String.format("#%06X", (0xFFFFFF & color));
+                            String htmlContent = "<!DOCTYPE html>" +
+                                    "<html>" +
+                                    "<head>" +
+                                    "<meta charset='utf-8'>" +
+                                    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                                    "<style>" +
+                                    "body { background: " + bgColorString + "; margin: 0; padding: 0px; overflow-x: scroll; }" +  // 添加 overflow-x: scroll
+                                    "table { background: #f0f0f0; border: 1px solid #e6e6e6; " +
+                                    "border-radius: 12px; border-collapse: separate; border-spacing: 0; " +
+                                    "display: table; table-layout: auto; " +
+                                    "margin: 0; overflow-x: scroll; overflow-y: hidden; }" +
+                                    "th, td { min-width: 80px; max-width: 300px; padding: 10px 10px; font-size: 14px; " +
+                                    "color: #161616; line-height: 22px; word-break: break-word; " +
+                                    "border-width: 0 0 1px 1px; border-style: solid; border-color: #e6e6e6; " +
+                                    "text-align: left; }" +
+                                    "th { font-weight: 600; background-color: #f0f0f0; }" +
+                                    "td { background-color: #fff; }" +
+                                    "th:first-child, td:first-child { border-left-width: 0; }" +
+                                    "tr:last-child td { border-bottom-width: 0; }" +
+                                    "th:first-child { border-top-left-radius: 12px; }" +
+                                    "th:last-child { border-top-right-radius: 12px; }" +
+                                    "tr:last-child td:first-child { border-bottom-left-radius: 12px; }" +
+                                    "tr:last-child td:last-child { border-bottom-right-radius: 12px; }" +
+                                    "</style>" +
+                                    "</head>" +
+                                    "<body>" +
+                                    richListModel.getMsg() +
+                                    "</body>" +
+                                    "</html>";
+                            webview.loadDataWithBaseURL(null, htmlContent, "text/html", "utf-8", null);
+                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT);
+                            if (i != 0) {
+                                layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
+                            }
+                            webview.setLayoutParams(layoutParams);
+                            sobot_rich_ll.addView(webview);
+                        } catch (Exception e) {
+                        }
                     }
                 }
             }

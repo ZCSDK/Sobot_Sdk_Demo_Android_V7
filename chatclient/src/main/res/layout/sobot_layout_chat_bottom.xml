@@ -50,18 +50,20 @@
         android:layout_marginEnd="17dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/sobot_bg_chat_bottom_edit_shadow"
+        android:elevation="16dp"
         android:gravity="bottom"
-        android:layoutDirection="ltr"
         android:orientation="vertical"
+        android:outlineSpotShadowColor="@color/sobot_color_shadow"
         android:paddingStart="8dp"
         android:paddingTop="7dp"
         android:paddingEnd="8dp"
-        android:paddingBottom="7dp">
+        android:paddingBottom="7dp"
+        android:translationY="6dp">
         <!-- 引用 -->
         <LinearLayout
             android:id="@+id/ll_appoint"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="24dp"
             android:layout_marginStart="2dp"
             android:layout_marginTop="3dp"
             android:layout_marginEnd="2dp"
@@ -70,27 +72,28 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="10dp"
-            android:paddingTop="2dp"
             android:paddingEnd="10dp"
-            android:paddingBottom="2dp"
             android:visibility="gone">
 
             <TextView
                 android:id="@+id/tv_appoint_temp_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:includeFontPadding="false"
                 android:lines="1"
+                android:maxLines="1"
                 android:textColor="@color/sobot_bottom_appoint_text_color"
-                android:textSize="@dimen/sobot_text_font_13" />
+                android:textSize="@dimen/sobot_text_font_12" />
 
             <ImageView
                 android:id="@+id/iv_appoint_clear"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:padding="6dp"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="8dp"
+                android:padding="2dp"
                 android:src="@drawable/sobot_appoint_clear" />
         </LinearLayout>
 
@@ -237,7 +240,7 @@
 
             <!--删除表情按钮区域-->
             <LinearLayout
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="92dp"
                 android:layout_gravity="end|bottom"
                 android:background="@color/sobot_color_bg_first"

@@ -13,9 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:background="@drawable/sobot_bg_line_12"
+        style="@style/sobot_msg_content_ll_hollow_bg_style"
         android:orientation="horizontal"
-        android:padding="16dp">
+        >
 
         <com.sobot.chat.widget.image.SobotProgressImageView
             android:id="@+id/sobot_goods_pic"
@@ -63,11 +63,12 @@
                 <TextView
                     android:id="@+id/sobot_goods_label"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
                     android:singleLine="true"
+                    android:textStyle="bold"
                     android:textColor="@color/sobot_card_goods_price"
                     android:textSize="@dimen/sobot_text_font_14" />
 
@@ -81,9 +82,9 @@
                     android:gravity="center"
                     android:lines="1"
                     android:paddingStart="16dp"
-                    android:paddingTop="6dp"
+                    android:paddingTop="9dp"
                     android:paddingEnd="16dp"
-                    android:paddingBottom="6dp"
+                    android:paddingBottom="9dp"
                     android:textColor="@color/sobot_color_white"
                     android:textSize="@dimen/sobot_text_font_14" />
 

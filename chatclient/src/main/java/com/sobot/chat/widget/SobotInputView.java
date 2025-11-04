@@ -61,7 +61,6 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     private Drawable bgDrawable;//
 
     private Context mContext;
-    private SobotInputCallBack callBack;//回调方法
     private ISobotCusField cusCallBack;//回调方法
     private SobotCusFieldConfig cusFieldConfig;//字段配置
     private SobotFieldModel cusFields;//字段 包括选项

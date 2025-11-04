@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
-    style="@style/sobot_msg_top_bottom_style"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,7 +17,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge_card">
 
         <!--头像-->
         <com.sobot.chat.widget.image.SobotProgressImageView
@@ -112,7 +112,7 @@
                     android:visibility="gone" />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
-            <include layout="@layout/sobot_layout_chat_left_msg_right_empty" />
+            <include layout="@layout/sobot_layout_chat_left_msg_right_empty_card" />
         </LinearLayout>
 
         <include layout="@layout/sobot_layout_chat_left_msg_bottom" />

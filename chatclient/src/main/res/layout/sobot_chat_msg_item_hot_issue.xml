@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
-    style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:orientation="vertical">
 
     <!-- 中间提醒内容 -->
@@ -17,9 +17,7 @@
         android:id="@+id/sobot_fast_menu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sobot_msg_margin_edge"
-        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:paddingBottom="12dp"
+        android:layout_marginStart="16dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -35,8 +33,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/sobot_item_hot_bg"
-        android:orientation="horizontal">
+        android:elevation="16dp"
+        android:orientation="horizontal"
+        android:outlineSpotShadowColor="@color/sobot_color_shadow"
+        android:translationY="6dp">
 
         <com.sobot.chat.widget.image.SobotRCImageView
             android:id="@+id/sobot_hot_pic"
@@ -57,7 +59,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
-
+            <!--tab 或者标题-->
             <FrameLayout
                 android:id="@+id/ll_hot_title"
                 android:layout_width="match_parent"
@@ -68,7 +70,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/sobot_line_height_dp"
                     android:layout_gravity="bottom"
-                    android:background="@color/sobot_color_line_divider" />
+                    android:background="@color/sobot_color_line_divider_3" />
 
                 <HorizontalScrollView
                     android:id="@+id/tab_hot_title"
@@ -87,7 +89,7 @@
 
             </FrameLayout>
 
-
+            <!-- 列表-->
             <LinearLayout
                 android:id="@+id/lin_question_list"
                 android:layout_width="match_parent"
@@ -96,7 +98,7 @@
                 android:layout_marginTop="6dp"
                 android:orientation="vertical"
                 android:visibility="visible" />
-
+            <!--换一批-->
             <LinearLayout
                 android:id="@+id/sobot_ll_switch_list"
                 android:layout_width="wrap_content"
@@ -122,8 +124,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:includeFontPadding="false"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
                     android:text="@string/sobot_switch_text"

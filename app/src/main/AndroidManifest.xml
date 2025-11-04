@@ -70,7 +70,7 @@
         <!-- value的值填写你在友盟后台申请的应用Appkey -->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="68ccf3c6c0c131698b71f7c3" />
+            android:value="6908204d644c9e2c206e98d8" />
     </application>
 
 </manifest>

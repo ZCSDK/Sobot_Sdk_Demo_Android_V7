@@ -139,6 +139,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     //滚动
     private ScrollView sobot_sv_root;
 
+    //点击的view
+    private TextView selectView;
+
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_ticket_new;
@@ -828,10 +831,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     };
     @Override
-    public void onClickCusField(View view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
+    public void onClickCusField(TextView view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
         clearFocus();
         //清空获得焦点
         if (cusField == null) return;
+        selectView =view;
         final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
         switch (fieldConfig.getFieldType()) {
             case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE:
@@ -851,7 +855,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     bundle.putSerializable("cusField", cusField);
                     bundle.putSerializable("fieldId", cusField.getCusFieldConfig().getFieldId());
                     intent.putExtra("bundle", bundle);
-                    startActivityForResult(intent, ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE);
+                    startActivityForResult(intent, cusFieldConfig.getFieldType());
                 }
                 break;
             case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE:
@@ -984,7 +988,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
         @Override
         public void onSuccess(final String filePath) {
-            zhiChiApi.fileUploadForPostMsg(REQUEST_TAG, mConfig.getCompanyId(), mUid, filePath, new ResultCallBack<ZhiChiMessage>() {
+            zhiChiApi.fileUploadForPostMsg(SobotTicketNewActivity.this, mConfig.getCompanyId(), mUid, filePath, new ResultCallBack<ZhiChiMessage>() {
                 @Override
                 public void onSuccess(ZhiChiMessage zhiChiMessage) {
                     SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
@@ -1125,7 +1129,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     File videoFile = new File(SobotCameraActivity.getSelectedVideo(data));
                     if (videoFile.exists()) {
                         cameraFile = videoFile;
-                        SobotDialogUtils.startProgressDialog(this);
+                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
                         sendFileListener.onSuccess(videoFile.getAbsolutePath());
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
@@ -1134,16 +1138,16 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     File tmpPic = new File(SobotCameraActivity.getSelectedImage(data));
                     if (tmpPic.exists()) {
                         cameraFile = tmpPic;
-                        SobotDialogUtils.startProgressDialog(this);
-                        ChatUtils.sendPicByFilePath(this, tmpPic.getAbsolutePath(), sendFileListener, true);
+                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                        ChatUtils.sendPicByFilePath(getSobotBaseActivity(), tmpPic.getAbsolutePath(), sendFileListener, true);
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
                 }
             }
         }
-        StCusFieldPresenter.onStCusFieldActivityResult(getSobotBaseActivity(), data, mFields, sobot_post_customer_field);
         if (data != null) {
+            StCusFieldPresenter.onStCusFieldActivityResult(getSobotBaseActivity(), data, mFields, sobot_post_customer_field);
             switch (requestCode) {
                 case ZhiChiConstant.work_order_list_display_type_category:
                     if (!TextUtils.isEmpty(data.getStringExtra("category_typeId"))) {

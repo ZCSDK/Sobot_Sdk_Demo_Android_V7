@@ -238,16 +238,17 @@ public class ZCSobotApi {
                             SharedPreferencesUtil.saveObject(context,
                                     ZhiChiConstant.sobot_last_current_initModel, initModel);
                             ThemeUtils.updateThemeStyle(context);
-                            if(isOnlyShowTicket){
+                            if (isOnlyShowTicket) {
                                 //留言记录
                                 Intent intent = new Intent(context, SobotTicketListActivity.class);
                                 intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
                                 //留言记录，但不显示新建
                                 intent.putExtra("isOnlyShowTicket", true);
                                 context.startActivity(intent);
-                            }else{
+                            } else {
                                 //新建留言
                                 if (!TextUtils.isEmpty(info.getLeaveTemplateId())) {
                                     SobotMsgManager.getInstance(context).getZhiChiApi().getMsgTemplateConfig(this, initModel.getPartnerid(), info.getLeaveTemplateId(), new StringResultCallBack<SobotLeaveMsgConfig>() {
@@ -262,14 +263,14 @@ public class ZCSobotApi {
                                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_CONFIG, data);
                                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
                                                 context.startActivity(intent);
-                                            }else{
+                                            } else {
                                                 //新建留言工单,显示所有模板
                                                 Intent intent = new Intent(context, SobotTicketListActivity.class);
                                                 intent.putExtra(INTENT_KEY_UID, initModel.getPartnerid());
                                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, initModel.getCompanyId());
                                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
                                                 if (!isOnlyShowTicket) {
-                                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, 1);
+                                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
                                                 }
                                                 context.startActivity(intent);
                                             }
@@ -288,7 +289,7 @@ public class ZCSobotApi {
                                     intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, initModel.getCustomerId());
                                     if (!isOnlyShowTicket) {
                                         //新建留言工单,显示所有模板
-                                        intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, 1);
+                                        intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
                                     }
                                     context.startActivity(intent);
                                 }
@@ -598,7 +599,7 @@ public class ZCSobotApi {
      * @param context 上下文对象
      * @param reason  手动结束会话的原因，非必填
      */
-    public static void outCurrentUserZCLibInfo(final Context context, String reason) {
+    public static void outCurrentUserZCLibInfo(Context context, String reason) {
         if (context == null) {
             return;
         }

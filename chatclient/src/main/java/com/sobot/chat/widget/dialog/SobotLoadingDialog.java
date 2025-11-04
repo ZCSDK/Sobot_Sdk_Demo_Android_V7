@@ -15,6 +15,9 @@ import androidx.annotation.NonNull;
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.widget.LoadingView.SobotLoadingView;
 
 /**
  * Created by jinxl on 2017/4/10.
@@ -28,9 +31,13 @@ public class SobotLoadingDialog extends Dialog {
     private String mMessage;
     private boolean mCancelable;
     private TextView tv_loading;
+    private SobotLoadingView loading;
 
     public SobotLoadingDialog(@NonNull Context context, String message) {
         this(context, R.style.sobot_dialog_Progress, message, false);
+    }
+    public SobotLoadingDialog(@NonNull Context context, boolean cancelable) {
+        this(context, R.style.sobot_dialog_Progress, "", cancelable);
     }
 
     public SobotLoadingDialog(@NonNull Context context, int themeResId, String message, boolean cancelable) {
@@ -64,7 +71,14 @@ public class SobotLoadingDialog extends Dialog {
         setCancelable(mCancelable);
 
         tv_loading = findViewById(R.id.tv_loading);
-        tv_loading.setText(mMessage);
+        if(StringUtils.isNoEmpty(mMessage)) {
+            tv_loading.setVisibility(SobotLoadingView.VISIBLE);
+            tv_loading.setText(mMessage);
+        }else{
+            tv_loading.setVisibility(SobotLoadingView.GONE);
+        }
+        loading = findViewById(R.id.progress_loading);
+        loading.setProgressColor(ThemeUtils.getThemeColor(getContext()));
     }
 
     @Override
@@ -87,6 +101,11 @@ public class SobotLoadingDialog extends Dialog {
 
     public void setmMessage(String mMessage) {
         this.mMessage = mMessage;
-        tv_loading.setText(mMessage);
+        if(StringUtils.isNoEmpty(mMessage)) {
+            tv_loading.setVisibility(SobotLoadingView.VISIBLE);
+            tv_loading.setText(mMessage);
+        }else{
+            tv_loading.setVisibility(SobotLoadingView.GONE);
+        }
     }
 }

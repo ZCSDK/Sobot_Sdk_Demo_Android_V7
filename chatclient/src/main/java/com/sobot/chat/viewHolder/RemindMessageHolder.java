@@ -72,6 +72,7 @@ public class RemindMessageHolder extends MsgHolderBase {
     @Override
     public void bindData(Context context, ZhiChiMessageBase message) {
         rl_connect_service_card.setVisibility(View.GONE);
+        iv_notice_left.setVisibility(View.GONE);
         if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsg())) {
             if (message.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_nomore) {
                 rl_not_read.setVisibility(View.GONE);

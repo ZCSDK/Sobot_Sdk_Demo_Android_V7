@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * 点踩 提示信息+原因卡片
  */
-public class CaiReasonMessageHolder extends MsgHolderBase implements CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
+public class CaiReasonMessageHolder extends MsgHolderBase implements  View.OnTouchListener {
     private SobotAntoLineLayout sobot_evaluate_lable_autoline;//标签 自动换行
     private EditText ed_describe;
     private TextView sobot_submit;//提交
@@ -167,10 +167,9 @@ public class CaiReasonMessageHolder extends MsgHolderBase implements CompoundBut
         for (int i = 0; i < list.size(); i++) {
             SobotRealuateTagInfoList temp = list.get(i);
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View view = inflater.inflate(R.layout.sobot_layout_cai_reason_lable_item, null);
+            View view = inflater.inflate(R.layout.sobot_layout_evaluate_item, null);
             CheckBox checkBox = view.findViewById(R.id.sobot_evaluate_cb_lable);
             checkBox.setText(list.get(i).getRealuateTag());
-            checkBox.setOnCheckedChangeListener(this);
             if (sobotRealuateInfo.getRealuateTag() != null && sobotRealuateInfo.getRealuateTag().getId().equals(list.get(i).getId())) {
                 checkBox.setChecked(true);
                 sobot_submit.setAlpha(1f);
@@ -196,22 +195,6 @@ public class CaiReasonMessageHolder extends MsgHolderBase implements CompoundBut
         }
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        if (changeThemeColor) {
-            if (b) {
-                if (checkboxDrawable == null) {
-                    checkboxDrawable = createShape(themeColor);
-                }
-                compoundButton.setBackground(checkboxDrawable);
-                compoundButton.setTextColor(themeColor);
-            } else {
-                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_lable_def);
-                compoundButton.setBackground(drawable);
-                compoundButton.setTextColor(mContext.getResources().getColor(R.color.sobot_chat_lable_checkbox_text_color));
-            }
-        }
-    }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -225,18 +208,4 @@ public class CaiReasonMessageHolder extends MsgHolderBase implements CompoundBut
         return false;
     }
 
-    // 标签选中背景样式
-    public GradientDrawable createShape(int color) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setShape(GradientDrawable.RECTANGLE);
-        drawable.setColor(ThemeUtils.addAlphaToColor(color, 0x1A));// 设置形状的填充颜色 10 透明度
-        if (mContext != null) {
-            drawable.setCornerRadius(ScreenUtils.dip2px(mContext, 4)); // 设置圆角半径
-            drawable.setStroke(2, color);
-        } else {
-            drawable.setCornerRadius(8); // 设置圆角半径
-            drawable.setStroke(2, color);
-        }
-        return drawable;
-    }
 }

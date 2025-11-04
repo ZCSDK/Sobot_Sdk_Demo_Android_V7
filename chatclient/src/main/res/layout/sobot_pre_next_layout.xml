@@ -1,22 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--多轮 分页 上一页 下一页按钮布局-->
+<?xml version="1.0" encoding="utf-8"?><!--多轮 分页 上一页 下一页按钮布局-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_pre_next_page"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
+    android:layout_marginTop="6dp"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingStart="12dp"
-    android:paddingEnd="12dp">
+    android:paddingTop="5dp"
+    android:paddingEnd="12dp"
+    android:paddingBottom="5dp">
 
-    <ImageView
-        android:id="@+id/iv_previous_page"
-        android:layout_width="76dp"
-        android:layout_height="16dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:src="@drawable/sobot_pre_page" />
+    <LinearLayout
+        android:id="@+id/ll_previous_page"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/iv_previous_page"
+            android:layout_width="76dp"
+            android:layout_height="16dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:src="@drawable/sobot_pre_page" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_cus_page_count"
@@ -27,12 +35,19 @@
         android:textColor="@color/sobot_color_text_third"
         android:textSize="@dimen/sobot_text_font_14" />
 
-    <ImageView
-        android:id="@+id/iv_next_page"
-        android:layout_width="76dp"
-        android:layout_height="16dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:src="@drawable/sobot_last_page"
-        android:visibility="visible" />
+    <LinearLayout
+        android:id="@+id/ll_next_page"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/iv_next_page"
+            android:layout_width="76dp"
+            android:layout_height="16dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:src="@drawable/sobot_last_page"
+            android:visibility="visible" />
+    </LinearLayout>
 </LinearLayout>

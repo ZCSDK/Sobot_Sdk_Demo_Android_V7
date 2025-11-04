@@ -35,6 +35,7 @@ import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
+import com.sobot.chat.widget.refresh.layout.util.SmartUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -55,7 +56,7 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     private int mFrom = 0;//0新建留言，1留言列表
 
     private SobotFreeAccountTipDialog sobotFreeAccountTipDialog;
-    private List<SobotUserTicketInfo> mList = new ArrayList<>();
+    private ArrayList<SobotUserTicketInfo> mList ;
     private LinearLayout mllContent,mllLoading;
     private RecyclerView recyclerView;
     private TextView mNewTicket;
@@ -98,7 +99,9 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
             mGroupId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_GROUPID);
             mCustomerId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID);
             mCompanyId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID);
-            mFrom = getIntent().getIntExtra(StPostMsgPresenter.INTENT_KEY_FROM, 0);
+            mFrom = getIntent().getIntExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
+            mList = (ArrayList<SobotUserTicketInfo>) getIntent().getSerializableExtra(StPostMsgPresenter.INTENT_KEY_TICKET_LIST);
+            templates = (ArrayList<SobotPostMsgTemplate>) getIntent().getSerializableExtra(StPostMsgPresenter.INTENT_KEY_TEMP_LIST);
         }
     }
 
@@ -110,8 +113,12 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     @Override
     protected void initView() {
         initReceiver();
-        templates = new ArrayList<>();
-        mList = new ArrayList<>();
+        if(null == mList){
+            mList = new ArrayList<>();
+        }
+        if(null == templates) {
+            templates = new ArrayList<>();
+        }
         if (ChatUtils.getStatusList() == null || ChatUtils.getStatusList().size() == 0) {
             String companyId = SharedPreferencesUtil.getStringData(this,
                     ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
@@ -130,16 +137,18 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
         mllContent = findViewById(R.id.ll_content);
         mllLoading = findViewById(R.id.ll_loading);
         mllContent.setVisibility(View.GONE);
-        loading = findViewById(R.id.iv_loading);
         recyclerView = findViewById(R.id.sobot_listview);
         mNewTicket = findViewById(R.id.sobot_new_ticket);
         sobotEmpty = findViewById(R.id.sobot_empty);
+        loading = findViewById(R.id.iv_loading);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
         Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
         if (bg != null) {
             mNewTicket.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
         }
         mNewTicket.setOnClickListener(this);
+        mNewTicket.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
+//        mNewTicket.setCompoundDrawables();
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         recyclerView.setLayoutManager(layoutManager);
@@ -147,8 +156,9 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
 
     @Override
     protected void initData() {
-        if (mFrom == 0 ) {
+        if (mFrom == StPostMsgPresenter.TICKET_TO_LIST ) {
             //留言记录
+            setTitle(R.string.sobot_message_record);
             ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotTicketListActivity.this,
                     ZhiChiConstant.sobot_last_current_initModel);
             if (initMode != null && ChatUtils.isFreeAccount(initMode.getAccountStatus())) {
@@ -163,14 +173,53 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     sobotFreeAccountTipDialog.show();
                 }
             } else {
-                loading.startSpinning();
-                requestDate();
+                if(mList!=null && !mList.isEmpty()){
+                    loading.stopSpinning();
+                    mllLoading.setVisibility(View.GONE);
+                    sobotEmpty.setVisibility(View.GONE);
+                    mllContent.setVisibility(View.VISIBLE);
+                    if(isOnlyShowTicket){
+                        //仅显示留言记录，不显示新建
+                        mNewTicket.setVisibility(View.GONE);
+                    }else {
+                        mNewTicket.setVisibility(View.VISIBLE);
+                    }
+                    recyclerView.setVisibility(View.VISIBLE);
+                    //直接显示数据
+                    mAdapter = new SobotTicketInfoAdapter(SobotTicketListActivity.this, mList, new SobotTicketInfoAdapter.SobotItemListener() {
+                        @Override
+                        public void onItemClick(SobotUserTicketInfo model) {
+                            //详情
+                            Intent intent = SobotTicketDetailActivity.newIntent(getSobotBaseActivity(), mCompanyId, mUid, model.getTicketId());
+                            startActivityForResult(intent, REQUEST_CODE);
+                        }
+                    });
+                    recyclerView.setAdapter(mAdapter);
+                }else {
+                    loading.startSpinning();
+                    requestDate();
+                }
             }
         }else{
-            loading.startSpinning();
-            //新建请求模板
             setTitle(R.string.sobot_please_leave_a_message);
-            requestTemps();
+            recyclerView.setPadding(0, SmartUtil.dp2px(12), 0, 0);
+            if(null != templates && !templates.isEmpty()) {
+                loading.stopSpinning();
+                mllLoading.setVisibility(View.GONE);
+                mllContent.setVisibility(View.VISIBLE);
+                tmpAdapter = new SobotTicketTmpsAdapter(getSobotBaseActivity(), templates, new SobotTicketTmpsAdapter.ItemOnClick() {
+                    @Override
+                    public void onItemClick(SobotPostMsgTemplate itemBeen) {
+                        //跳转到留言页面
+                        gotoNewTicket(itemBeen.getTemplateId());
+                    }
+                });
+                recyclerView.setAdapter(tmpAdapter);
+            }else{
+                loading.startSpinning();
+                //新建请求模板
+                requestTemps();
+            }
         }
 
     }
@@ -223,17 +272,16 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
      */
     private void requestDate() {
         loading.startSpinning();
-        zhiChiApi.getUserTicketInfoList(REQUEST_TAG, mUid, mCompanyId, mCustomerId, new StringResultCallBack<List<SobotUserTicketInfo>>() {
+        zhiChiApi.getUserTicketInfoList(REQUEST_TAG, mUid, mCompanyId, mCustomerId, new StringResultCallBack<ArrayList<SobotUserTicketInfo>>() {
 
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onSuccess(List<SobotUserTicketInfo> datas) {
+            public void onSuccess(ArrayList<SobotUserTicketInfo> datas) {
                 loading.stopSpinning();
                 if (datas != null && datas.size() > 0) {
                     mllLoading.setVisibility(View.GONE);
                     sobotEmpty.setVisibility(View.GONE);
                     mllContent.setVisibility(View.VISIBLE);
-                    setTitle(R.string.sobot_message_record);
                     if(isOnlyShowTicket){
                         //仅显示留言记录，不显示新建
                         mNewTicket.setVisibility(View.GONE);
@@ -313,7 +361,7 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                 intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
                 intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
                 intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, 1);
+                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
                 startActivity(intent2);
             }
         }

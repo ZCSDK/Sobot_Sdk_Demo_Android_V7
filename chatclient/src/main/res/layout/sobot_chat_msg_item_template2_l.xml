@@ -47,6 +47,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="@dimen/sobot_msg_min_width"
+                android:paddingEnd="11dp"
+                android:paddingStart="11dp"
                 android:orientation="vertical"
                 app:sobot_max_width="@dimen/sobot_msg_max_width">
 
@@ -55,6 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:includeFontPadding="false"
+                    android:layout_marginStart="5dp"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:textColor="@color/sobot_color_text_first"
                     android:textSize="@dimen/sobot_text_font_14"
@@ -76,6 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
+                    android:layout_marginStart="5dp"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:textColor="@color/sobot_left_msg_text_color"
                     android:textSize="@dimen/sobot_text_font_14"
@@ -87,6 +91,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:layout_marginStart="5dp"
                     android:visibility="gone" />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 

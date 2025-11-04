@@ -39,14 +39,14 @@ import com.sobot.pictureframe.SobotBitmapUtil;
  */
 public class FileMessageHolder extends MsgHolderBase implements View.OnClickListener {
 
-    private SobotSectorProgressView sobot_file_icon;
-    private TextView sobot_file_name;
-    private TextView sobot_file_size;
-    private RelativeLayout sobot_ll_file_container;
+    private final SobotSectorProgressView sobot_file_icon;
+    private final TextView sobot_file_name;
+    private final TextView sobot_file_size;
+    private final RelativeLayout sobot_ll_file_container;
 
     private ZhiChiMessageBase mData;
     private String mTag;
-    private int mResNetError;
+    private final int mResNetError;
     // 延迟显示 发送中（旋转菊花）效果
     private Runnable loadingRunnable;
     private final Handler handler = new Handler();

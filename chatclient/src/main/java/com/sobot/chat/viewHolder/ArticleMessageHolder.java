@@ -17,6 +17,8 @@ import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotProgressImageView;
+import com.sobot.chat.widget.image.SobotRCImageView;
+import com.sobot.pictureframe.SobotBitmapUtil;
 
 /**
  * 文章卡片
@@ -24,23 +26,23 @@ import com.sobot.chat.widget.image.SobotProgressImageView;
 public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickListener {
     private LinearLayout answersList;
     private TextView stripe;
-    private SobotProgressImageView iv_snapshot;
+    private SobotRCImageView iv_snapshot;
     private TextView tv_title;
     private TextView tv_desc;
     private ArticleModel articleModel;
-    private RelativeLayout rl_name_des;
+    private LinearLayout rl_name_des;
 
     public ArticleMessageHolder(Context context, View convertView) {
         super(context, convertView);
-        iv_snapshot = (SobotProgressImageView) convertView.findViewById(R.id.iv_snapshot);
-        tv_title = (TextView) convertView.findViewById(R.id.tv_title);
-        tv_desc = (TextView) convertView.findViewById(R.id.tv_desc);
-        sobot_tv_transferBtn = (TextView) convertView.findViewById(R.id.sobot_tv_transferBtn);
+        iv_snapshot = convertView.findViewById(R.id.iv_snapshot);
+        tv_title = convertView.findViewById(R.id.tv_title);
+        tv_desc = convertView.findViewById(R.id.tv_desc);
+        sobot_tv_transferBtn = convertView.findViewById(R.id.sobot_tv_transferBtn);
         sobot_tv_transferBtn.setText(R.string.sobot_transfer_to_customer_service);
-        answersList = (LinearLayout) convertView
+        answersList = convertView
                 .findViewById(R.id.sobot_answersList);
-        stripe = (TextView) convertView.findViewById(R.id.sobot_stripe);
-        rl_name_des= convertView.findViewById(R.id.rl_name_des);
+        stripe = convertView.findViewById(R.id.sobot_stripe);
+        rl_name_des = convertView.findViewById(R.id.rl_name_des);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickL
         if (articleModel != null) {
             if (!TextUtils.isEmpty(articleModel.getSnapshot())) {
                 iv_snapshot.setVisibility(View.VISIBLE);
-                 iv_snapshot.setImageUrlWithScaleType(articleModel.getSnapshot(), ImageView.ScaleType.CENTER_CROP);
+                SobotBitmapUtil.display(mContext, articleModel.getSnapshot(), iv_snapshot);
             } else {
                 iv_snapshot.setVisibility(View.GONE);
             }

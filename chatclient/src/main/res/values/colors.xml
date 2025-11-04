@@ -80,6 +80,8 @@
     <color name="sobot_color_bg_third">#FFFFFF</color>
     <!--背景色 聊天页面 底部 快捷菜单 输入框区域 扩展菜单-->
     <color name="sobot_color_bg_four">#FFFFFF</color>
+    <!--背景色 卡片类消息-->
+    <color name="sobot_color_bg_five">#FFFFFF</color>
     <!--线条 按钮边框颜色-->
     <color name="sobot_color_line_button_frame">#D9D9D9</color>
     <!--线条 分割线颜色-->
@@ -90,6 +92,8 @@
     <color name="sobot_color_line_divider_to_transparent_second">#F0F0F0</color>
     <!--线条 分割线颜色2-->
     <color name="sobot_color_line_divider_2">#E6E6E6</color>
+    <!--线条 分割线颜色3-->
+    <color name="sobot_color_line_divider_3">#EBEBEB</color>
     <!-- 头部开始 -->
 
     <!-- 头部导航栏和状态栏默认背景渐变色 左边 开始 -->
@@ -106,7 +110,8 @@
     <color name="sobot_color_title_bar_more_bg_black">#0F000000</color>
     <!-- 头部 右侧 更多 背景颜色 -按下 白色-->
     <color name="sobot_color_title_bar_more_bg_white">#1AFFFFFF</color>
-
+    <!-- 点击更多 显示清空历史记录 背景颜色 -->
+    <color name="sobot_color_clear_history_bg">#FFFFFF</color>
 
     <!-- 顶部无网文案 背景颜色-->
     <color name="sobot_no_net_bgcolor">#FFF1F0</color>
@@ -139,8 +144,8 @@
     <color name="sobot_color_remind_text">@color/sobot_color_text_second</color>
     <!-- 消息提醒中的超链接颜色 -->
     <color name="sobot_color_link_remind">@color/sobot_color</color>
-    <!-- 文件消息气泡颜色 -->
-    <color name="sobot_chat_file_bgColor">@color/sobot_color</color>
+    <!-- 卡片类 文件、小程序、文章、订单等 消息气泡颜色 -->
+    <color name="sobot_chat_card_bgColor">@color/sobot_color_bg_five</color>
     <!-- 消息气泡左侧背景默认颜色 -->
     <color name="sobot_chat_left_bgColor">@color/sobot_color_bg_second</color>
     <!-- 消息气泡右侧背景默认颜色 渐变色 左边 开始 -->
@@ -179,6 +184,8 @@
     <color name="sobot_color_suggestion_history">@color/sobot_color_text_first</color>
 
     <!--                      底部                       -->
+    <!--输入框 内容 背景色 -->
+    <color name="sobot_bottom_edit_bg_color">#FFFFFF</color>
     <!--输入框上边  引用 背景色 -->
     <color name="sobot_bottom_appoint_bg_color">#F0F0F0</color>
     <!--输入框上边  引用 文字颜色 -->
@@ -229,6 +236,12 @@
     <!-- 聊天页面 加载中 圆环背景灰色 -->
     <color name="sobot_color_loading_bg">#1A000000</color>
 
+
+    <!-- 阴影颜色 -->
+    <color name="sobot_color_shado">#0A000000</color>
+    <color name="sobot_color_shadow">#0F000000</color>
+    <color name="sobot_color_shadow_second">#26000000</color>
+    <color name="sobot_color_shadow_third">#40000000</color>
 
     <!--提示弹窗界面 背景色 -->
     <color name="sobot_color_dialog_bg">#FFFFFF</color>
@@ -340,9 +353,9 @@
     <color name="sobot_evaluate_text_select">@color/sobot_color_text_first</color>
 
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之十透明度 -->
-    <color name="sobot_common_btn_bg">#FFFFFF</color>
+    <color name="sobot_common_btn_bg">@color/sobot_color_transparent</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之二十透明度 -->
-    <color name="sobot_common_btn_bg_second">#FFFFFF</color>
+    <color name="sobot_common_btn_bg_second">@color/sobot_color_transparent</color>
 
     <!--    对话框相关-->
     <!--    对话框关背景色-->
@@ -375,5 +388,9 @@
     <!--    评价-->
     <color name="sobot_evaluate_input_bg">@color/sobot_color_transparent</color>
     <color name="sobot_evaluate_btn_checked">#595959</color>
+
+    <!--    80% 黑色 加载框背景色-->
+    <color name="sobot_loading_bg">#CC000000</color>
+    <color name="sobot_color_ten_point">@color/sobot_color_bg_second</color>
 
 </resources>

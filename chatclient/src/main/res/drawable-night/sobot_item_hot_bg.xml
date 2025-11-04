@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><!--常见问题 背景样式-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/sobot_item_hot_bg" />
+    <stroke
+        android:width="0.8dp"
+        android:color="@color/sobot_item_hot_bg" />
+    <corners android:radius="@dimen/sobot_msg_corner_radius_second" />
+</shape>

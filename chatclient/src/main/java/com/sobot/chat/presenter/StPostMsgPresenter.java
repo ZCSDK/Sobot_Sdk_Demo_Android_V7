@@ -24,6 +24,12 @@ public class StPostMsgPresenter {
     public static final String INTENT_KEY_COMPANYID = "intent_key_companyid";
     public static final String INTENT_KEY_TEMPID = "intent_key_tempid";
     public static final String INTENT_KEY_FROM = "intent_key_from";
+    public static final String INTENT_KEY_TICKET_LIST = "intent_key_ticket_list";
+    public static final String INTENT_KEY_TEMP_LIST = "intent_key_temp_list";
+    //进入留言列表
+    public static final int TICKET_TO_LIST=0;
+    //进入留言新建
+    public static final int TICKET_TO_NEW=1;
 
     private StPostMsgPresenter() {
     }

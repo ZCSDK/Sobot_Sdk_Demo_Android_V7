@@ -48,7 +48,7 @@ public class FunctionPageAdapter extends RecyclerView.Adapter<FunctionPageAdapte
 
         // 设置固定宽度为屏幕宽度
         LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
-                screenWidth - ScreenUtils.dip2px(context, 20 * 2),//外间距20*2
+                ViewGroup.LayoutParams.MATCH_PARENT,//外间距20*2
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
         pageContainer.setLayoutParams(containerParams);

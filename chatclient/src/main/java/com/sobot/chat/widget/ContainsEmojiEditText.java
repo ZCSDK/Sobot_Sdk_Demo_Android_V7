@@ -50,7 +50,7 @@ import java.util.List;
 public class ContainsEmojiEditText extends AppCompatEditText implements View.OnFocusChangeListener {
     private OnFocusChangeListener externalFocusListener;
     private static final String SOBOT_AUTO_COMPLETE_REQUEST_CANCEL_TAG = "SOBOT_AUTO_COMPLETE_REQUEST_CANCEL_TAG";
-    private static final int MAX_AUTO_COMPLETE_NUM = 4;
+    private static final int MAX_AUTO_COMPLETE_NUM = 5;
     Handler handler = new Handler();
     SobotCustomPopWindow mPopWindow;
 
@@ -280,7 +280,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         }
         int[] location = new int[2];
         anchorView.getLocationOnScreen(location);
-        mPopWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, location[0], location[1] - ScreenUtils.dip2px(getContext(), 33) * (list.size() > MAX_AUTO_COMPLETE_NUM ? MAX_AUTO_COMPLETE_NUM : list.size()) - ScreenUtils.dip2px(getContext(), 16+20));
+        mPopWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, location[0], location[1] - ScreenUtils.dip2px(getContext(), 36) * (list.size() > MAX_AUTO_COMPLETE_NUM ? MAX_AUTO_COMPLETE_NUM : list.size()) - ScreenUtils.dip2px(getContext(), 16+20));
     }
 
     private ListView handleListView(View contentView, final List<RespInfoListBean> list) {
@@ -325,15 +325,15 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         }
         listView.setSelection(0);
 
-        measureListViewHeight(listView, list.size());
+//        measureListViewHeight(listView, list.size());
     }
 
     private void measureListViewHeight(ListView listView, int count) {
         int listHeight;
         if (count > MAX_AUTO_COMPLETE_NUM) {
-            listHeight = ScreenUtils.dip2px(getContext(), 33) * MAX_AUTO_COMPLETE_NUM;
+            listHeight = ScreenUtils.dip2px(getContext(), 36) * MAX_AUTO_COMPLETE_NUM;
         } else {
-            listHeight = ScreenUtils.dip2px(getContext(), 33) * count;
+            listHeight = ScreenUtils.dip2px(getContext(), 36) * count;
         }
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) listView.getLayoutParams();
         params.height = listHeight;

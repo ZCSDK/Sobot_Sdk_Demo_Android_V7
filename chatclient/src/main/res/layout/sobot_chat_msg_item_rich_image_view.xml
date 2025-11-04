@@ -9,8 +9,4 @@
     app:image_max_height="@dimen/sobot_msg_picture_max_height"
     app:image_max_width="@dimen/sobot_msg_picture_max_width"
     app:image_min_height="@dimen/sobot_msg_picture_max_height"
-    app:image_min_width="@dimen/sobot_msg_picture_max_height"
-    app:sobot_round_corner_bottom_left="@dimen/sobot_msg_image_video_corner_radius"
-    app:sobot_round_corner_bottom_right="@dimen/sobot_msg_image_video_corner_radius"
-    app:sobot_round_corner_top_left="@dimen/sobot_msg_image_video_corner_radius"
-    app:sobot_round_corner_top_right="@dimen/sobot_msg_image_video_corner_radius" />
+    app:image_min_width="@dimen/sobot_msg_picture_max_height" />

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--聊天界面 消息列表 右侧空白区域 顶踩-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_left_msg_right_empty_rl"
+    style="@style/sobot_left_msg_right_empty_bg_style_card"
+    android:layout_gravity="bottom"
+    android:gravity="bottom|center_vertical"
+    android:layout_marginBottom="10dp"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/sobot_right_likebtn_iv"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
+        android:gravity="center"
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaluate_btn_zan_selector"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/sobot_right_dislikegtn_iv"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/sobot_right_likebtn_iv"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
+        android:gravity="center"
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
+</RelativeLayout>

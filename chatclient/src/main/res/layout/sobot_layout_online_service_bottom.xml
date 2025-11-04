@@ -16,7 +16,7 @@
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
+        android:paddingBottom="16dp"
         android:visibility="visible">
 
         <LinearLayout
@@ -26,6 +26,7 @@
             android:layout_weight="1"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
+            android:minHeight="40dp"
             android:orientation="horizontal"
             android:padding="10dp">
 
@@ -57,6 +58,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minHeight="40dp"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
             android:orientation="horizontal"
@@ -99,6 +101,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
+            android:minHeight="40dp"
             android:orientation="horizontal"
             android:padding="10dp">
 
@@ -126,6 +129,7 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/sobot_btn_bg_help_center"
             android:gravity="center"
+            android:minHeight="40dp"
             android:orientation="horizontal"
             android:padding="10dp">
 

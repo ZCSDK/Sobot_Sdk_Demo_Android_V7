@@ -36,7 +36,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsg())) {
             String noticeMsg = message.getAnswer().getMsg().trim();
-            HtmlTools.getInstance(mContext).setRichText(tv_expandable, noticeMsg, getLinkTextColor());
+            HtmlTools.getInstance(mContext).setRichText(tv_expandable, noticeMsg, R.color.sobot_common_hese);
             try {
                 tv_expandable.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override

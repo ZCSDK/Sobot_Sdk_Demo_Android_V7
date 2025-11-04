@@ -38,7 +38,7 @@
         android:textColor="@color/sobot_color_text_third"
         android:textSize="@dimen/sobot_text_font_14" />
 
-    <Button
+    <TextView
         android:id="@+id/sobot_btn_reconnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,6 +47,7 @@
         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
         android:minWidth="240dp"
         android:paddingStart="15dp"
+        android:gravity="center"
         android:paddingTop="9dp"
         android:paddingEnd="15dp"
         android:paddingBottom="9dp"

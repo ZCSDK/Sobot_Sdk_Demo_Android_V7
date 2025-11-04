@@ -74,9 +74,9 @@
                     android:id="@+id/sobot_msg_content_ll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/sobot_bg_line_12"
+                    style="@style/sobot_msg_content_ll_hollow_bg_style"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    >
                     <!--标题-->
                     <LinearLayout
                         android:id="@+id/ll_title"
@@ -244,7 +244,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:background="@drawable/sobot_bg_line_12"
+                    style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                     android:paddingBottom="16dp"
                     android:orientation="vertical"
                     >

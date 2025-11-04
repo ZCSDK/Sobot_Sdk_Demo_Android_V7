@@ -25,16 +25,21 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
     private LinearLayout sobot_languaeList;//语言列表
     private TextView tv_more;//更多语言按钮
     private View view_split;//更多语言按钮 分割线
+    private TextView tvStripe;
+
 
     public ChangeLanguaeMessageHolder(Context context, View convertView) {
         super(context, convertView);
         sobot_languaeList = (LinearLayout) convertView.findViewById(R.id.sobot_languaeList);
         tv_more = convertView.findViewById(R.id.tv_more);
         view_split = convertView.findViewById(R.id.view_split);
+        tvStripe = convertView.findViewById(R.id.sobot_stripe);
     }
 
     @Override
     public void bindData(Context context, ZhiChiMessageBase message) {
+        tvStripe.setMaxWidth(msgMaxWidth);
+        resetMaxWidth();
         if (message.getLanguaeModels() != null && !message.getLanguaeModels().isEmpty()) {
             ArrayList<SobotlanguaeModel> languaeModels = message.getLanguaeModels();
             sobot_languaeList.removeAllViews();

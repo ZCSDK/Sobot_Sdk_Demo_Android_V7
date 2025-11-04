@@ -28,7 +28,9 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
     // 聊天的消息内容
     private TextView tvTip;
     public ZhiChiMessageBase message;
+    private LinearLayout llPreviousPage;//上一页
     private ImageView ivPreviousPage;//上一页
+    private LinearLayout llLastPage;//下一页
     private ImageView ivLastPage;//下一页
     private TextView tvCusPageCount;//当前页数
     private LinearLayout llPage;//分页ll
@@ -44,6 +46,8 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
         tvTip = convertView.findViewById(R.id.tv_template_tip);
         ivPreviousPage = convertView.findViewById(R.id.iv_previous_page);
         ivLastPage = convertView.findViewById(R.id.iv_next_page);
+        llPreviousPage = convertView.findViewById(R.id.ll_previous_page);
+        llLastPage = convertView.findViewById(R.id.ll_next_page);
         llPage = convertView.findViewById(R.id.ll_pre_next_page);
         pvTemplateSecond = convertView.findViewById(R.id.pv_template_second);
         this.mContext = context;
@@ -140,7 +144,7 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
             }
         });
 
-        ivPreviousPage.setOnClickListener(new View.OnClickListener() {
+        llPreviousPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pvTemplateSecond.selectPreviousPage();
@@ -148,7 +152,7 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                 updatePreAndLastUI();
             }
         });
-        ivLastPage.setOnClickListener(new View.OnClickListener() {
+        llLastPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pvTemplateSecond.selectLastPage();

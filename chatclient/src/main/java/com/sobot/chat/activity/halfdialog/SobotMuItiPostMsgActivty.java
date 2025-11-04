@@ -1015,7 +1015,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     };
 
     @Override
-    public void onClickCusField(View view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
+    public void onClickCusField(TextView view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
         if (cusField == null) return;
         final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
         switch (fieldConfig.getFieldType()) {

@@ -69,10 +69,11 @@ public class SobotMHLinearLayout extends LinearLayout {
             mMaxVHeight = Math.min(mMaxVHeight, mMaxVRatio * (float) getScreenHeight(getContext()));
         }
 
+        // 横屏时也使用 mMaxVRatio
         if (mMaxHHeight <= 0) {
-            mMaxHHeight = mMaxHRatio * (float) getScreenHeight(getContext());
+            mMaxHHeight = mMaxVRatio * (float) getScreenHeight(getContext());
         } else {
-            mMaxHHeight = Math.min(mMaxHHeight, mMaxHRatio * (float) getScreenHeight(getContext()));
+            mMaxHHeight = Math.min(mMaxHHeight, mMaxVRatio * (float) getScreenHeight(getContext()));
         }
     }
 

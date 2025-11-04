@@ -40,8 +40,6 @@
                 android:layout_marginEnd="10dp"
                 android:visibility="gone"
                 app:image_bg="@color/sobot_color_transparent"
-                app:image_is_show_progressbar="true"
-                app:image_layout_change_animate="false"
                 app:image_max_height="40dp"
                 app:image_max_width="100dp"
                 app:image_min_height="@dimen/sobot_header_face_width_heigth"
@@ -64,6 +62,7 @@
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="0dp"
                     android:singleLine="true"
+                    android:textStyle="bold"
                     android:textColor="@color/sobot_color_title_bar_nike_name"
                     android:textSize="@dimen/sobot_header_titlebar_name_sp"
                     android:visibility="gone" />
@@ -128,7 +127,7 @@
                 android:id="@+id/iv_close"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:scaleType="centerCrop"
+                android:padding="8dp"
                 android:src="@drawable/sobot_icon_close" />
 
             <ImageView
@@ -149,6 +148,7 @@
                 android:id="@+id/iv_right_more"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:padding="8dp"
                 android:src="@drawable/sobot_icon_toolbar_more"
                 android:visibility="gone" />
         </LinearLayout>

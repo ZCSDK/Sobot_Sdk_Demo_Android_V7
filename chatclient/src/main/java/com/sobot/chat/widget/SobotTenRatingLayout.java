@@ -12,7 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.utils.ScreenUtils;
 
 /**
@@ -64,87 +66,129 @@ public class SobotTenRatingLayout extends LinearLayout {
             line1.setOrientation(LinearLayout.HORIZONTAL);
             line1.setGravity(Gravity.CENTER_HORIZONTAL);
             addView(line1);
-            FrameLayout.LayoutParams layoutParams2=new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            layoutParams2.gravity = Gravity.CENTER_HORIZONTAL;
-            line2 = new LinearLayout(getContext());
-            line2.setOrientation(LinearLayout.HORIZONTAL);
-            layoutParams2.topMargin = ScreenUtils.dip2px(getContext(),16);
-            line2.setLayoutParams(layoutParams2);
-            line2.setGravity(Gravity.CENTER_HORIZONTAL);
-            addView(line2);
+            if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                //竖屏2行，横屏一行
+                FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
+                layoutParams2.gravity = Gravity.CENTER_HORIZONTAL;
+                line2 = new LinearLayout(getContext());
+                line2.setOrientation(LinearLayout.HORIZONTAL);
+                layoutParams2.topMargin = ScreenUtils.dip2px(getContext(), 16);
+                line2.setLayoutParams(layoutParams2);
+                line2.setGravity(Gravity.CENTER_HORIZONTAL);
+                addView(line2);
+            }
         }
 
         LayoutParams lp = null;
         selectContent=defScore;
-        for (int i = 0; i < 6; i++) {
-            TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
-            textView.setText(i + "");
-            if (i != 5) {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
-                        ScreenUtils.dip2px(getContext(), 30));
-                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
-            } else {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
-                        ScreenUtils.dip2px(getContext(), 30));
-                lp.rightMargin = 0;
-            }
-            textView.setLayoutParams(lp);
-            if (i == defScore) {
-                textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
-                textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
-            } else {
-                textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
-                textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
-            }
-            final int position = i;
-            textView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onClickItemListener != null) {
-                        if (isCanChange) {
-                            updateUI(position);
-                        }
-                        onClickItemListener.onClickItem(position);
-                        selectContent = position;
-                    }
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            //横屏
+            for (int i = 0; i < 11; i++) {
+                TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
+                textView.setText(i + "");
+                if (i != 10) {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                } else {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = 0;
                 }
-            });
-            line1.addView(textView);
-        }
-        for (int i = 6; i < 11; i++) {
-            TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
-            textView.setText(i + "");
-            if (i != 10) {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
-                        ScreenUtils.dip2px(getContext(), 30));
-                lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
-            } else {
-                lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
-                        ScreenUtils.dip2px(getContext(), 30));
-                lp.rightMargin = 0;
-            }
-            textView.setLayoutParams(lp);
-            if (i == defScore) {
-                textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
-                textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
-            } else {
-                textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
-                textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
-            }
-            final int position = i;
-            textView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onClickItemListener != null) {
-                        if (isCanChange) {
-                            updateUI(position);
-                        }
-                        onClickItemListener.onClickItem(position);
-                        selectContent = position;
-                    }
+                textView.setLayoutParams(lp);
+                if (i == defScore) {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
+                } else {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
                 }
-            });
-            line2.addView(textView);
+                final int position = i;
+                textView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (onClickItemListener != null) {
+                            if (isCanChange) {
+                                updateUI(position);
+                            }
+                            onClickItemListener.onClickItem(position);
+                            selectContent = position;
+                        }
+                    }
+                });
+                line1.addView(textView);
+            }
+        }else {
+            for (int i = 0; i < 6; i++) {
+                TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
+                textView.setText(i + "");
+                if (i != 5) {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                } else {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = 0;
+                }
+                textView.setLayoutParams(lp);
+                if (i == defScore) {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
+                } else {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
+                }
+                final int position = i;
+                textView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (onClickItemListener != null) {
+                            if (isCanChange) {
+                                updateUI(position);
+                            }
+                            onClickItemListener.onClickItem(position);
+                            selectContent = position;
+                        }
+                    }
+                });
+                line1.addView(textView);
+            }
+            for (int i = 6; i < 11; i++) {
+                TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
+                textView.setText(i + "");
+                if (i != 10) {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                } else {
+                    lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
+                            ScreenUtils.dip2px(getContext(), 30));
+                    lp.rightMargin = 0;
+                }
+                textView.setLayoutParams(lp);
+                if (i == defScore) {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
+                } else {
+                    textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
+                    textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
+                }
+                final int position = i;
+                textView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (onClickItemListener != null) {
+                            if (isCanChange) {
+                                updateUI(position);
+                            }
+                            onClickItemListener.onClickItem(position);
+                            selectContent = position;
+                        }
+                    }
+                });
+                line2.addView(textView);
+            }
         }
     }
 
@@ -180,24 +224,26 @@ public class SobotTenRatingLayout extends LinearLayout {
                 tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
             }
         }
-        if(selIndex>5) {
-            int totalNum2 = line2.getChildCount();
-            for (int i = 0; i < totalNum2; i++) {
-                TextView tv = (TextView) line2.getChildAt(i);
-                if (i == selIndex -6) {
-                    tv.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
-                    tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
-                } else {
+        if(line2!=null) {
+            if (selIndex > 5) {
+                int totalNum2 = line2.getChildCount();
+                for (int i = 0; i < totalNum2; i++) {
+                    TextView tv = (TextView) line2.getChildAt(i);
+                    if (i == selIndex - 6) {
+                        tv.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
+                        tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
+                    } else {
+                        tv.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
+                        tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
+                    }
+                }
+            } else {
+                int totalNum2 = line2.getChildCount();
+                for (int i = 0; i < totalNum2; i++) {
+                    TextView tv = (TextView) line2.getChildAt(i);
                     tv.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
                     tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
                 }
-            }
-        }else{
-            int totalNum2 = line2.getChildCount();
-            for (int i = 0; i < totalNum2; i++) {
-                TextView tv = (TextView) line2.getChildAt(i);
-                tv.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
-                tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
             }
         }
     }

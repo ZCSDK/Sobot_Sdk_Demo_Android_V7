@@ -19,17 +19,19 @@ import com.sobot.chat.utils.FileSizeUtil;
 import com.sobot.chat.utils.SobotPathManager;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.network.http.db.SobotDownloadManager;
 import com.sobot.network.http.download.SobotDownload;
 import com.sobot.network.http.download.SobotDownloadListener;
 import com.sobot.network.http.download.SobotDownloadTask;
 import com.sobot.network.http.model.SobotProgress;
+import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.io.File;
 
 public class SobotFileDetailActivity extends SobotChatBaseActivity implements View.OnClickListener {
 
-    private TextView sobot_file_icon;
+    private SobotSectorProgressView sobot_file_icon;
     private TextView sobot_file_name;
     private TextView sobot_tv_file_size;
     private TextView sobot_tv_progress;
@@ -59,12 +61,13 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
     protected void initView() {
         setTitle(R.string.sobot_file_preview);
         showLeftMenu(true);
-        sobot_file_icon = (TextView) findViewById(R.id.sobot_file_icon);
+        sobot_file_icon =findViewById(R.id.sobot_file_icon);
         sobot_file_name = (TextView) findViewById(R.id.sobot_file_name);
         sobot_tv_file_size = (TextView) findViewById(R.id.sobot_tv_file_size);
         sobot_tv_progress = (TextView) findViewById(R.id.sobot_tv_progress);
         sobot_btn_start = (TextView) findViewById(R.id.sobot_btn_start);
         sobot_btn_start.setText(R.string.sobot_file_download);
+        sobot_btn_start.setTextColor(ThemeUtils.getThemeTextAndIconColor(getSobotBaseContext()));
         sobot_ll_progress = (LinearLayout) findViewById(R.id.sobot_ll_progress);
         sobot_pb_progress = (ProgressBar) findViewById(R.id.sobot_pb_progress);
         sobot_btn_cancel = (TextView) findViewById(R.id.sobot_btn_cancel);
@@ -101,7 +104,7 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
             }
         };
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg_22);
             if (bg != null) {
                 sobot_btn_start.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
@@ -116,7 +119,7 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
             if (mCacheFile == null || TextUtils.isEmpty(mCacheFile.getMsgId())) {
                 return;
             }
-            sobot_file_icon.setBackgroundResource(ChatUtils.getFileIcon(getApplicationContext(), mCacheFile.getFileType()));
+            SobotBitmapUtil.display(getSobotBaseActivity(), ChatUtils.getFileIcon(getSobotBaseActivity(), mCacheFile.getFileType()), sobot_file_icon);
             sobot_file_name.setText(mCacheFile.getFileName());
             if (TextUtils.isEmpty(mCacheFile.getFileSize())) {
                 FileSizeUtil.getFileUrlSize(mCacheFile.getUrl(), new FileSizeUtil.CallBack<String>() {

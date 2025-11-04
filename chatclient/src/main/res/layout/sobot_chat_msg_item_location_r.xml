@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
-    style="@style/sobot_msg_top_bottom_style"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -12,39 +12,34 @@
         android:id="@+id/sobot_reminde_time_Text"
         style="@style/sobot_center_remind_time" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:orientation="vertical">
+        android:gravity="end">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginBottom="@dimen/sobot_chat_msg_nick_bubble_margin_edge"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            <!-- 昵称 -->
-            <TextView
-                android:id="@+id/sobot_msg_nike_name_tv"
-                style="@style/sobot_chatting_right_nickname"
-                android:visibility="gone" />
-            <!--头像-->
-            <com.sobot.chat.widget.image.SobotProgressImageView
-                android:id="@+id/sobot_msg_face_iv"
-                style="@style/sobot_chatting_right_face_style"
-                android:visibility="gone" />
+    <!--头像-->
+    <com.sobot.chat.widget.image.SobotProgressImageView
+        android:id="@+id/sobot_msg_face_iv"
+        style="@style/sobot_chatting_right_face_style"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone" />
 
-        </LinearLayout>
+    <!-- 昵称 -->
+    <TextView
+        android:id="@+id/sobot_msg_nike_name_tv"
+        style="@style/sobot_chatting_right_nickname"
+        android:layout_toStartOf="@id/sobot_msg_face_iv"
+        android:visibility="gone" />
 
-        <LinearLayout
-            android:id="@+id/ll_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+    <LinearLayout
+        android:id="@+id/ll_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal">
 
             <FrameLayout
                 android:id="@+id/sobot_frame_layout"
@@ -124,6 +119,6 @@
 
                 </RelativeLayout>
             </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

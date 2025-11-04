@@ -148,6 +148,7 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
 
         if (cusField != null && cusField.getCusFieldDataInfoList() != null) {
             cusFieldDataInfoList = cusField.getCusFieldDataInfoList();
+            sobot_tv_title.setText(cusField.getCusFieldConfig().getFieldName());
         } else {
             cusFieldDataInfoList = new ArrayList<>();
         }

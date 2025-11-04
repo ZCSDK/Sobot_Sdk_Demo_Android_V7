@@ -5,7 +5,7 @@ package com.sobot.chat;
  */
 public class MarkConfig {
 
-    private static int markValue = 0b00000000010;
+    private static int markValue = 0b00000000110;
 
 
     /**
@@ -18,9 +18,9 @@ public class MarkConfig {
     public static final int LEAVE_COMPLETE_CAN_REPLY = 0b10;
 
     /**
-     * 横屏下刘海屏和水滴屏是否显示 默认 false 显示
+     * 横屏下刘海屏和水滴屏是否显示 默认 true 显示
      */
-    public static final int DISPLAY_INNOTCH = 0b10;
+    public static final int DISPLAY_INNOTCH = 0b100;
 
 
     /**
@@ -56,7 +56,8 @@ public class MarkConfig {
 
 //        setON_OFF(LANDSCAPE_SCREEN,true);
 //        System.out.println(Integer.toBinaryString(markValue));
-
+        System.out.println(getON_OFF(LANDSCAPE_SCREEN));
+        System.out.println(getON_OFF(LEAVE_COMPLETE_CAN_REPLY));
         System.out.println(getON_OFF(DISPLAY_INNOTCH));
 
     }

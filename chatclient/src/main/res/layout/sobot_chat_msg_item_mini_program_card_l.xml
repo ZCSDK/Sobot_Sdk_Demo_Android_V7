@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sobot_real_ll_content"
-    style="@style/sobot_msg_top_bottom_style"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,7 +17,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge_card">
 
         <!--头像-->
         <com.sobot.chat.widget.image.SobotProgressImageView
@@ -44,13 +44,13 @@
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
-                android:layout_width="240dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <RelativeLayout
                     android:id="@+id/sobot_rl_mini"
-                    android:layout_width="260dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="2dp">
 
@@ -63,7 +63,7 @@
 
                     <TextView
                         android:id="@+id/tv_mimi_des"
-                        android:layout_width="match_parent"
+                        android:layout_width="238dp"
                         android:layout_height="wrap_content"
                         android:layout_alignBaseline="@id/tv_mimi_logo"
                         android:layout_toEndOf="@id/tv_mimi_logo"
@@ -76,27 +76,26 @@
 
                     <TextView
                         android:id="@+id/tv_mimi_title"
-                        android:layout_width="match_parent"
+                        android:layout_width="238dp"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/tv_mimi_des"
                         android:ellipsize="end"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                        android:maxLines="1"
-                        android:textColor="@color/sobot_color_text_second"
+                        android:maxLines="2"
+                        android:textColor="@color/sobot_color_text_first"
                         android:textSize="@dimen/sobot_text_font_14" />
 
-                    <com.sobot.chat.widget.image.SobotProgressImageView
+                    <ImageView
                         android:id="@+id/tv_mimi_thumbUrl"
-                        android:layout_width="216dp"
-                        android:layout_height="164dp"
+                        android:layout_width="236dp"
+                        android:layout_height="169dp"
                         android:layout_below="@id/tv_mimi_title"
                         android:layout_marginTop="8dp"
-                        app:image_height="164dp"
-                        app:image_width="216dp" />
+                        android:scaleType="centerCrop"/>
 
                     <View
                         android:id="@+id/view_split"
-                        android:layout_width="match_parent"
+                        android:layout_width="238dp"
                         android:layout_height="@dimen/sobot_line_height_dp"
                         android:layout_below="@id/tv_mimi_thumbUrl"
                         android:layout_marginTop="8dp"
@@ -105,7 +104,7 @@
 
                     <TextView
                         android:id="@+id/tv_xiaochengxu"
-                        android:layout_width="match_parent"
+                        android:layout_width="238dp"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/view_split"
                         android:drawablePadding="4dp"
@@ -120,7 +119,7 @@
                 <!-- 关联问题 提示语 -->
                 <TextView
                     android:id="@+id/sobot_stripe"
-                    android:layout_width="wrap_content"
+                    android:layout_width="238dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
@@ -131,13 +130,13 @@
                 <!-- 关联问题 -->
                 <LinearLayout
                     android:id="@+id/sobot_answersList"
-                    android:layout_width="match_parent"
+                    android:layout_width="238dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone" />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
-            <include layout="@layout/sobot_layout_chat_left_msg_right_empty" />
+            <include layout="@layout/sobot_layout_chat_left_msg_right_empty_card" />
         </LinearLayout>
 
         <include layout="@layout/sobot_layout_chat_left_msg_bottom" />

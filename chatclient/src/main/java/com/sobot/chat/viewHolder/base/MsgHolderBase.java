@@ -39,6 +39,7 @@ import com.sobot.chat.listener.NoDoubleClickListener;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
@@ -107,8 +108,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
     public SobotMsgAdapter.SobotMsgCallBack msgCallBack;
 
     public RelativeLayout sobot_rl_hollow_container;//文件类型的气泡
-    public LinearLayout sobot_ll_hollow_container;//文件类型的气泡
-    public int sobot_chat_file_bgColor;//文件类型的气泡默认颜色
 
     public int msgMaxWidth;//气泡里边的内容最大宽度
 
@@ -167,8 +166,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         sobot_msg_content_ll = convertView.findViewById(R.id.sobot_msg_content_ll);
 
         sobot_rl_hollow_container = convertView.findViewById(R.id.sobot_rl_hollow_container);
-
-        sobot_chat_file_bgColor = R.color.sobot_chat_file_bgColor;
     }
 
     public abstract void bindData(Context context, final ZhiChiMessageBase message);
@@ -220,6 +217,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
      */
     public void initNameAndFace(int itemType) {
         try {
+            msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 + 16 + 16 + 16);
             if (imgHead == null || name == null || mContext == null) {
                 //头像昵称控件不能为空
                 return;
@@ -341,15 +339,15 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     }
                 }
             }
-            int tempHeaderWidth= 32 + 8;//头像32+ 头像到气泡间距8
-            if (sobot_msg_ll != null&&isShowFace&&isShowNickName) {
+            int tempHeaderWidth = 32 + 8;//头像32+ 头像到气泡间距8
+            if (sobot_msg_ll != null && isShowFace && isShowNickName) {
                 //头像昵称都显示 上下布局 气泡最大宽度不包含头像昵称大小
-                tempHeaderWidth=0;
+                tempHeaderWidth = 0;
             }
             if (isRight()) {
                 if (information != null && information.isShowRightMsgFace()) {
                     //屏幕宽度 - 气泡边界到屏幕边上的空白宽度56 — ((头像32+头像到气泡间距8) 或者 0)-头像到边上的举例16 -  气泡左右间距16
-                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 +tempHeaderWidth + 16 + 16 + 16);
+                    msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - ScreenUtils.dip2px(mContext, 60 + tempHeaderWidth + 16 + 16 + 16);
                     msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 40);
                 } else {
                     //不带客服头像和昵称
@@ -547,13 +545,38 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     }
                 }
                 if (sobot_real_ll_content != null) {
+                    boolean isCard = itemType == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
+                            || itemType == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
+                            || itemType == SobotMsgAdapter.MSG_TYPE_FILE_L
+                            || itemType == SobotMsgAdapter.MSG_TYPE_FILE_R
+                            || itemType == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
+                            || itemType == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
+                            || itemType == SobotMsgAdapter.MSG_TYPE_CARD_L
+                            || itemType == SobotMsgAdapter.MSG_TYPE_CARD_R;
                     //修改消息之间的间距
                     if (message.isNextIsShowFaceAndNickname()) {
                         //下条显示头像昵称 消息之间间距是默认的20dp
-                        sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_margin));
+                        if (isCard) {
+                            //本条是卡片类型
+                            sobot_real_ll_content.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext,4));
+                        } else {
+                            if (message.isNextIsCard()) {
+                                //下条是卡片类型，本条不是卡片
+                                sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_margin) - ScreenUtils.dip2px(mContext, 10));
+                            } else {
+                                //相邻两条都不是卡片类型
+                                sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_margin));
+                            }
+                        }
                     } else {
-                        //下条不显示头像昵称 消息之间间距是小的4dp
-                        sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_small_margin));
+                        if (message.isNextIsCard()) {
+                            //下条是卡片消息，不设置下间距，因为有阴影
+//                            LogUtils.d("下条是卡片消息，不设置下间距，因为有阴影");
+                            sobot_real_ll_content.setPadding(0, 0, 0, 0);
+                        } else {
+                            //下条不显示头像昵称 消息之间间距是小的4dp
+                            sobot_real_ll_content.setPadding(0, 0, 0, (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_small_margin));
+                        }
                     }
                 }
             }
@@ -1007,6 +1030,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         }
         try {
             if (stripe != null) {
+                stripe.setMaxWidth(msgMaxWidth);
                 // 回复语的答复
                 String stripeContent = message.getStripe() != null ? message.getStripe().trim() : "";
                 if (!TextUtils.isEmpty(stripeContent)) {

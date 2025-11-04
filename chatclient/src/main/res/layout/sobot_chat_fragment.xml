@@ -7,6 +7,13 @@
 
     <include layout="@layout/sobot_layout_chat_titlebar" />
 
+    <View
+        android:id="@+id/view_titlebar_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sobot_line_height_dp"
+        android:visibility="gone"
+        android:background="@color/sobot_color_line_divider"/>
+
     <RelativeLayout
         android:id="@+id/sobot_net_status_remide"
         android:layout_width="match_parent"

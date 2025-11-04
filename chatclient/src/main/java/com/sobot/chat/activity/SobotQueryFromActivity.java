@@ -3,6 +3,7 @@ package com.sobot.chat.activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -215,9 +216,8 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
         setResult(ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM_CANCEL, new Intent());
         finish();
     }
-
     @Override
-    public void onClickCusField(final View view, final SobotCusFieldConfig field, final SobotFieldModel cusField) {
+    public void onClickCusField(final TextView view, final SobotCusFieldConfig field, final SobotFieldModel cusField) {
         switch (field.getFieldType()) {
             case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE:
             case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_TYPE:
@@ -322,4 +322,5 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
             submit();
         }
     }
+
 }

@@ -22,9 +22,7 @@ public class SobotDialogUtils {
             return;
         }
         if (progressDialog == null) {
-            progressDialog = new SobotLoadingDialog(context, context.getResources().getString(R.string.sobot_loading));
-        } else {
-            progressDialog.setmMessage(context.getResources().getString(R.string.sobot_loading));
+            progressDialog = new SobotLoadingDialog(context, false);
         }
 
         try {

@@ -16,6 +16,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -48,9 +50,9 @@
         android:listSelector="@null"
         android:numColumns="2"
         android:overScrollMode="never"
-        android:paddingStart="10dp"
+        android:paddingStart="11dp"
         android:paddingTop="10dp"
-        android:paddingEnd="10dp"
+        android:paddingEnd="11dp"
         android:paddingBottom="8dp"
         android:scrollbarThumbVertical="@drawable/sobot_skill_group_scroll_img"
         android:scrollbars="none"

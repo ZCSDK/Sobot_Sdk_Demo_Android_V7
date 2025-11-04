@@ -61,9 +61,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:background="@drawable/sobot_chat_msg_hollow_bg_left"
+            android:background="@drawable/sobot_chat_msg_hollow_bg"
+            android:elevation="16dp"
             android:orientation="vertical"
-            android:paddingTop="20dp">
+            android:outlineSpotShadowColor="@color/sobot_color_shadow"
+            android:paddingTop="20dp"
+            android:translationY="6dp">
 
             <com.sobot.chat.widget.SobotAntoLineLayout
                 android:id="@+id/sobot_evaluate_lable_autoline"

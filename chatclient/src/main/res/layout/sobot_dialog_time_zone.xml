@@ -13,34 +13,9 @@
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        app:sobot_mhv_HeightRatio="0.7">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <!-- 标题 -->
-            <TextView
-                android:id="@+id/sobot_tv_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sobot_dialog_margin"
-                android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp"
-                android:text="@string/sobot_time_zone"
-                android:textColor="@color/sobot_color_text_first"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sobot_line_height_dp"
-            android:background="@color/sobot_color_line_divider" />
+        android:paddingBottom="40dp"
+        app:sobot_mhv_HeightRatio="0.9">
+        <include layout="@layout/sobot_dialog_title" />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -61,7 +61,7 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 int p= ScreenUtils.dip2px(getContext(), 3);
                 imageView.setPadding(p,p,p,p);
                 if (i != 4) {
-                    lp.rightMargin = ScreenUtils.dip2px(getContext(), 6f);
+                    lp.rightMargin = ScreenUtils.dip2px(getContext(), 10f);
                 } else {
                     lp.rightMargin = 0;
                 }

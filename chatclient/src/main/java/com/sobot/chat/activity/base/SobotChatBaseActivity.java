@@ -100,6 +100,13 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         try {
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+                if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
+                } else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
+                }
+            }
             if (getSobotBaseContext() != null && getDelegate() != null) {
                 //暗夜模式设置：默认跟随系统，可以根据设置切换
                 int local_night_mode = SharedPreferencesUtil.getIntData(getSobotBaseContext(), ZCSobotConstant.LOCAL_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -112,14 +119,6 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             changeAppLanguage();
             super.onCreate(savedInstanceState);
             initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-                if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
-                } else {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
-                }
-            }
-
             if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
                 isLandscapeScreen = true;
                 // 支持显示到刘海区域
@@ -135,7 +134,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             }
             int targetSdkVersion = CommonUtils.getTargetSdkVersion(getSobotBaseActivity());
             //Android 15 底部避让
-            if( Build.VERSION.SDK_INT >= 35 && targetSdkVersion>=35) {
+            if (Build.VERSION.SDK_INT >= 35 && targetSdkVersion >= 35) {
                 try {
                     View decorView = getWindow().getDecorView();
                     ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {

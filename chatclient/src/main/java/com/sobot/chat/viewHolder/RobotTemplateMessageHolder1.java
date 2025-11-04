@@ -25,7 +25,9 @@ import java.util.Map;
 public class RobotTemplateMessageHolder1 extends MsgHolderBase {
 
     private TextView tvTip;
+    private LinearLayout llPreviousPage;//上一页
     private ImageView ivPreviousPage;//上一页
+    private LinearLayout llLastPage;//下一页
     private ImageView ivLastPage;//下一页
     private TextView tvCusPageCount;//当前页数
     private LinearLayout llPage;//分页ll
@@ -40,6 +42,8 @@ public class RobotTemplateMessageHolder1 extends MsgHolderBase {
         tvCusPageCount = convertView.findViewById(R.id.tv_cus_page_count);
         ivPreviousPage = convertView.findViewById(R.id.iv_previous_page);
         ivLastPage = convertView.findViewById(R.id.iv_next_page);
+        llPreviousPage = convertView.findViewById(R.id.ll_previous_page);
+        llLastPage = convertView.findViewById(R.id.ll_next_page);
         llPage = convertView.findViewById(R.id.ll_pre_next_page);
         pvTemplateFirst = convertView.findViewById(R.id.pv_template_first);
         this.mContext = context;
@@ -105,7 +109,7 @@ public class RobotTemplateMessageHolder1 extends MsgHolderBase {
             }
         });
 
-        ivPreviousPage.setOnClickListener(new View.OnClickListener() {
+        llPreviousPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pvTemplateFirst.selectPreviousPage();
@@ -113,7 +117,7 @@ public class RobotTemplateMessageHolder1 extends MsgHolderBase {
                 updatePreAndLastUI();
             }
         });
-        ivLastPage.setOnClickListener(new View.OnClickListener() {
+        llLastPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 pvTemplateFirst.selectLastPage();

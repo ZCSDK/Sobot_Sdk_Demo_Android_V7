@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="sobot_activity_def_theme" parent="Theme.AppCompat.Light.NoActionBar" >
+    <style name="sobot_activity_def_theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/sobot_color_transparent</item> <!-- 状态栏颜色 -->
         <item name="android:navigationBarColor">@color/sobot_color_bg_first</item> <!-- 导航栏颜色 -->
     </style>
@@ -59,12 +59,13 @@
         <item name="android:textColor">@color/sobot_color_remind_text</item>
         <item name="android:textSize">@dimen/sobot_text_font_12</item>
         <item name="android:lineSpacingExtra">@dimen/sobot_text_line_spacing_extra</item>
-        <item name="android:visibility">gone</item>
+
         <item name="android:layout_marginStart">20dp</item>
         <item name="android:layout_marginEnd">20dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
     </style>
+
 
     <style name="sobot_clearHistoryDialogStyle" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
@@ -130,6 +131,14 @@
     </style>
 
     <!--邀请评价解决和未解决背景-->
+    <style name="sobot_tx_evaluate_style">
+        <item name="android:textColor">@color/sobot_color_text_first</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:lineSpacingExtra">@dimen/sobot_text_line_spacing_extra</item>
+    </style>
     <style name="sobot_rb_evaluate_style">
         <item name="android:textColor">@color/sobot_color_text_first</item>
         <item name="android:layout_width">wrap_content</item>
@@ -313,7 +322,26 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">16dp</item>
-        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg_left</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:elevation">16dp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:translationY">6dp</item>
+        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg</item>
+    </style>
+
+    <!--消息气泡背景 空心边框 文章 小程序 位置等-->
+    <style name="sobot_msg_content_ll_hollow_bg_no_padding_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:elevation">16dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:translationY">6dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg</item>
     </style>
 
     <!--消息气泡背景 引用消息 空心边框 文件、小程序、文章等-->
@@ -322,21 +350,20 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">16dp</item>
-        <item name="android:paddingTop">11dp</item>
-        <item name="android:paddingBottom">11dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
         <item name="android:background">@drawable/sobot_chat_appoint_hollow_bg</item>
-    </style>
-
-    <!--消息气泡背景 空心边框 文章 小程序 位置等-->
-    <style name="sobot_msg_content_ll_hollow_bg_no_padding_style">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg_left</item>
     </style>
 
     <!--聊天消息气泡上下间距-->
     <style name="sobot_msg_top_bottom_style">
         <item name="android:paddingBottom">@dimen/sobot_msg_top_bottom_margin</item>
+    </style>
+
+    <!--聊天消息气泡上下间距 卡片类型-->
+    <style name="sobot_msg_top_bottom_style_card">
+        <item name="android:paddingBottom">0dp</item>
     </style>
 
     <style name="sobot_card_msg_top_bottom_style">
@@ -358,6 +385,12 @@
         <item name="android:layout_width">@dimen/sobot_chat_msg_boundary_to_empty_width</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingStart">8dp</item>
+    </style>
+
+    <!--左侧发送消息  右侧空白区域 卡片 边框  背景样式-->
+    <style name="sobot_left_msg_right_empty_bg_style_card">
+        <item name="android:layout_width">@dimen/sobot_chat_msg_boundary_to_empty_width</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!--发送消息 菊花 样式-->

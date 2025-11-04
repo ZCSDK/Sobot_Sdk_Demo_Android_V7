@@ -74,6 +74,8 @@
     <color name="sobot_color_bg_third">#404040</color>
     <!--背景色 聊天页面 底部 快捷菜单 输入框区域 扩展菜单-->
     <color name="sobot_color_bg_four">#2C2C2C</color>
+    <!--背景色 卡片类消息-->
+    <color name="sobot_color_bg_five">#404040</color>
     <!--线条 按钮边框颜色-->
     <color name="sobot_color_line_button_frame">#353535</color>
     <!--线条 分割线颜色-->
@@ -84,6 +86,8 @@
     <color name="sobot_color_line_divider_to_transparent_second">#00FFFFFF</color>
     <!--线条 分割线颜色2-->
     <color name="sobot_color_line_divider_2">#595959</color>
+    <!--线条 分割线颜色3-->
+    <color name="sobot_color_line_divider_3">#595959</color>
     <!-- 头部开始 -->
 
     <!-- 头部背景 -->
@@ -101,6 +105,8 @@
     <color name="sobot_color_title_bar_more_bg_black">#0F000000</color>
     <!-- 头部 右侧 更多 背景颜色 -按下 白色-->
     <color name="sobot_color_title_bar_more_bg_white">#1AFFFFFF</color>
+    <!-- 点击更多 显示清空历史记录 背景颜色 -->
+    <color name="sobot_color_clear_history_bg">#404040</color>
 
     <!-- 中间 聊天列表 -->
     <!-- 聊天背景 -->
@@ -119,8 +125,8 @@
     <color name="sobot_color_remind_text">@color/sobot_color_text_second</color>
     <!-- 消息提醒中的跳转文字颜色 -->
     <color name="sobot_color_link_remind">@color/sobot_color</color>
-    <!-- 文件消息气泡颜色 -->
-    <color name="sobot_chat_file_bgColor">@color/sobot_color</color>
+    <!-- 卡片类 文件、小程序、文章、订单等 消息气泡颜色 -->
+    <color name="sobot_chat_card_bgColor">@color/sobot_color_bg_five</color>
     <!-- 消息气泡左侧背景默认颜色 -->
     <color name="sobot_chat_left_bgColor">@color/sobot_color_bg_second</color>
     <!-- 消息气泡右侧背景默认颜色 渐变色 左边 开始 -->
@@ -128,12 +134,12 @@
     <!-- 消息气泡右侧背景默认颜色 渐变色 右边 结束-->
     <color name="sobot_chat_right_bgColor_end">@color/sobot_gradient_end</color>
     <!-- 左侧消息气泡昵称颜色 -->
-    <color name="sobot_chat_left_nikename_color">@color/sobot_color_text_third</color>
+    <color name="sobot_chat_left_nikename_color">#FFADB0B3</color>
     <!-- 右侧消息气泡昵称颜色 -->
-    <color name="sobot_chat_right_nikename_color">@color/sobot_color_text_third</color>
+    <color name="sobot_chat_right_nikename_color">#FFADB0B3</color>
     <!--引用消息-->
     <!--文本消息气泡 左侧 引用 内容 颜色  黑色字 -->
-    <color name="sobot_left_appoint_msg_text_color">@color/sobot_color_text_third</color>
+    <color name="sobot_left_appoint_msg_text_color">#FFFFFFFF</color>
     <!--文本消息气泡 左侧 引用 卡片里边 颜色  黑色字 -->
     <color name="sobot_left_appoint_msg_card_text_color">@color/sobot_color_text_first</color>
     <!--文本消息气泡 左侧 引用 卡片 背景颜色 -->
@@ -156,6 +162,8 @@
     <color name="sobot_color_suggestion_history">@color/sobot_color_text_first</color>
 
     <!--                      底部                       -->
+    <!--输入框 内容 背景色 -->
+    <color name="sobot_bottom_edit_bg_color">@color/sobot_color_bg_second</color>
     <!--输入框上边  引用 背景色 -->
     <color name="sobot_bottom_appoint_bg_color">#505559</color>
     <!--输入框上边  引用 文字颜色 -->
@@ -324,4 +332,5 @@
     <color name="sobot_item_hot_bg">#404040</color>
     <color name="sobot_item_hot_bg_line">#404040</color>
     <color name="sobot_item_issuse_press">@color/sobot_common_btn_bg</color>
+    <color name="sobot_color_ten_point">@color/sobot_common_btn_bg</color>
 </resources>

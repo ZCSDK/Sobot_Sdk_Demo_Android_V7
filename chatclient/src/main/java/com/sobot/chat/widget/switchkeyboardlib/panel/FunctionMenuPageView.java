@@ -16,8 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.SobotUIConfig;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.SobotVisitorSchemeExtModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
@@ -72,10 +74,13 @@ public class FunctionMenuPageView extends LinearLayout {
     }
 
     private void init() {
-        setOrientation(LinearLayout.VERTICAL);
         initData();
         rows = getContext().getResources().getInteger(R.integer.sobot_plus_menu_line);
         columns = getContext().getResources().getInteger(R.integer.sobot_plus_menu_row);
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            rows = getContext().getResources().getInteger(R.integer.sobot_plus_menu_line_h);
+            columns = getContext().getResources().getInteger(R.integer.sobot_plus_menu_row_h);
+        }
         realRows = rows;
         // 初始化 RecyclerView
         recyclerView = new RecyclerView(getContext());

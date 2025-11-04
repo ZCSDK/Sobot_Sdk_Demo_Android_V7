@@ -1,64 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="260dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-
-    <com.sobot.chat.widget.image.SobotProgressImageView
+    <com.sobot.chat.widget.image.SobotRCImageView
         android:id="@+id/iv_snapshot"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
         android:visibility="gone"
-        app:image_height="124dp"
-        app:image_width="260dp"
         app:sobot_round_corner_top_left="@dimen/sobot_msg_corner_radius_second"
         app:sobot_round_corner_top_right="@dimen/sobot_msg_corner_radius_second" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/rl_name_des"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sobot_msg_frame_msgtype_spacing"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="11dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="11dp"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxLines="2"
+                android:textColor="@color/sobot_color_text_second"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/iv_see_all"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
             android:src="@drawable/sobot_icon_right_arrow" />
 
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/iv_see_all"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14"
-            android:visibility="gone" />
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_desc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_title"
-            android:layout_marginTop="8dp"
-            android:layout_toStartOf="@id/iv_see_all"
-            android:ellipsize="end"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:maxLines="2"
-            android:textColor="@color/sobot_color_text_second"
-            android:textSize="@dimen/sobot_text_font_14" />
-    </RelativeLayout>
 
 </LinearLayout>

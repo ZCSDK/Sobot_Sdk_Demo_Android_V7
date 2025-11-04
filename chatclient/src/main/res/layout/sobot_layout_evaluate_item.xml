@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     android:background="@drawable/sobot_button_label_selector"
     android:button="@null"
-    android:gravity="center"
     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
     android:paddingStart="14dp"
     android:paddingTop="8dp"

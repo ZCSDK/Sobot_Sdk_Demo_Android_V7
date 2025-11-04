@@ -72,6 +72,7 @@ import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.channel.Const;
 import com.sobot.chat.core.channel.LimitQueue;
 import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.fragment.SobotBaseFragment;
 import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.handler.SobotMsgHandler;
 import com.sobot.chat.notchlib.INotchScreen;
@@ -105,7 +106,7 @@ import java.util.TimerTask;
 /**
  * @author Created by jinxl on 2018/2/9.
  */
-public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.SobotChatBaseFragment implements SensorEventListener {
+public abstract class SobotChatBaseFragment extends SobotBaseFragment implements SensorEventListener {
 
     protected Context mAppContext;
 
@@ -2305,10 +2306,11 @@ public abstract class SobotChatBaseFragment extends com.sobot.chat.fragment.Sobo
                     if (data.isExistFlag()) {
                         ZhiChiMessageBase base = new ZhiChiMessageBase();
                         base.setT(System.currentTimeMillis() + "");
+                        base.setAction(ZhiChiConstant.action_remind_livemsg_new);
                         base.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
                         ZhiChiReplyAnswer reply1 = new ZhiChiReplyAnswer();
                         reply1.setRemindType(ZhiChiConstant.sobot_have_new_leavemsg);
-                        reply1.setMsg("<font color='#ffacb5c4'>" + getResources().getString(R.string.sobot_new_ticket_info) + " </font>" + " <a href='sobot:SobotTicketInfo'  target='_blank' >" + getResources().getString(R.string.sobot_new_ticket_info_update) + "</a> ");
+                        reply1.setMsg("<font color='#ffacb5c4'>" + getResources().getString(R.string.sobot_new_ticket_info) + " </font>" + " <a href='sobot:SobotTicketInfo'  target='_blank' >" + getSobotActivity().getResources().getString(R.string.sobot_new_ticket_info_update) + "</a> ");
                         base.setAnswer(reply1);
                         Message message = handler.obtainMessage();
                         message.what = ZhiChiConstant.hander_send_msg;

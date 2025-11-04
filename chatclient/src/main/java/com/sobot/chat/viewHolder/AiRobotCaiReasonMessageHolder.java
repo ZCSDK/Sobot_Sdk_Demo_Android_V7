@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 点踩问题消息
  */
-public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
+public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements  View.OnTouchListener {
     private SobotAntoLineLayout sobot_evaluate_lable_autoline;//标签 自动换行
     private EditText ed_describe;
     private TextView sobot_submit;//提交
@@ -165,10 +165,9 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
         for (int i = 0; i < list.size(); i++) {
             final SobotAiRobotRealuateTag temp = list.get(i);
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View view = inflater.inflate(R.layout.sobot_layout_cai_reason_lable_item, null);
+            View view = inflater.inflate(R.layout.sobot_layout_evaluate_item, null);
             final CheckBox checkBox = view.findViewById(R.id.sobot_evaluate_cb_lable);
             checkBox.setText(list.get(i).getRealuateTagLan());
-            checkBox.setOnCheckedChangeListener(this);
             if (sobotRealuateInfo.getRealuateTag() != null && sobotRealuateInfo.getRealuateTag().getId().equals(list.get(i).getId())) {
                 checkBox.setChecked(true);
                 sobot_submit.setAlpha(1f);
@@ -194,22 +193,6 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements Comp
         }
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        if (changeThemeColor) {
-            if (b) {
-                if (checkboxDrawable == null) {
-                    checkboxDrawable = createShape(themeColor);
-                }
-                compoundButton.setBackground(checkboxDrawable);
-                compoundButton.setTextColor(themeColor);
-            } else {
-                Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_lable_def);
-                compoundButton.setBackground(drawable);
-                compoundButton.setTextColor(mContext.getResources().getColor(R.color.sobot_chat_lable_checkbox_text_color));
-            }
-        }
-    }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {

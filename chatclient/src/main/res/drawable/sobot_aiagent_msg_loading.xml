@@ -3,18 +3,12 @@
     <!--聊天页面加载loading 帧动画-->
     <item
         android:drawable="@drawable/sobot_progressbar_loading_first"
-        android:duration="100" />
+        android:duration="500" />
     <item
         android:drawable="@drawable/sobot_progressbar_loading_second"
         android:duration="100" />
     <item
         android:drawable="@drawable/sobot_progressbar_loading_third"
-        android:duration="100" />
-    <item
-        android:drawable="@drawable/sobot_progressbar_loading_second"
-        android:duration="100" />
-    <item
-        android:drawable="@drawable/sobot_progressbar_loading_seven"
         android:duration="100" />
     <item
         android:drawable="@drawable/sobot_progressbar_loading_four"

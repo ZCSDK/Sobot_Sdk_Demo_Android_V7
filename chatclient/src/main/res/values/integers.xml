@@ -6,6 +6,12 @@
     <integer name="sobot_plus_menu_row">3</integer>
     <!--加号里边表情区域 一行显示几个表情-->
     <integer name="sobot_emoji_span_count">7</integer>
-    <!--加号里边功能按钮区域 一行显示几个表情-->
-    <integer name="sobot_function_span_count">3</integer>
+
+    <!--横屏-->
+    <!--加号里 功能菜单区域 每页几行-->
+    <integer name="sobot_plus_menu_line_h">1</integer>
+    <!--加号里 功能菜单区域 每行几列-->
+    <integer name="sobot_plus_menu_row_h">6</integer>
+    <!--加号里边表情区域 一行显示几个表情-->
+    <integer name="sobot_emoji_span_count_h">12</integer>
 </resources>

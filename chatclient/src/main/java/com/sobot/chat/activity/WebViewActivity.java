@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
@@ -46,7 +47,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     private ProgressBar mProgressBar;
     private LinearLayout sobot_rl_net_error;
 
-    private Button btnReconnect;
+    private TextView btnReconnect;
     private ImageView ivIconNonet;
 
     private String mUrl = "";
@@ -152,17 +153,17 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         setTitle("");
         showLeftMenu(true);
         isChangeThemeColor = ThemeUtils.isChangedThemeColor(this);
-        mWebView = (WebView) findViewById(R.id.sobot_mWebView);
-        mProgressBar = (ProgressBar) findViewById(R.id.sobot_loadProgress);
+        mWebView = findViewById(R.id.sobot_mWebView);
+        mProgressBar = findViewById(R.id.sobot_loadProgress);
         sobot_rl_net_error = findViewById(R.id.sobot_rl_net_error);
-        sobot_webview_toolsbar = (LinearLayout) findViewById(R.id.sobot_webview_toolsbar);
-        btnReconnect = (Button) findViewById(R.id.sobot_btn_reconnect);
+        sobot_webview_toolsbar = findViewById(R.id.sobot_webview_toolsbar);
+        btnReconnect = findViewById(R.id.sobot_btn_reconnect);
         btnReconnect.setOnClickListener(this);
         ivIconNonet = findViewById(R.id.sobot_icon_nonet);
-        sobot_webview_goback = (ImageView) findViewById(R.id.sobot_webview_goback);
-        sobot_webview_forward = (ImageView) findViewById(R.id.sobot_webview_forward);
-        sobot_webview_reload = (ImageView) findViewById(R.id.sobot_webview_reload);
-        sobot_webview_copy = (ImageView) findViewById(R.id.sobot_webview_copy);
+        sobot_webview_goback = findViewById(R.id.sobot_webview_goback);
+        sobot_webview_forward = findViewById(R.id.sobot_webview_forward);
+        sobot_webview_reload = findViewById(R.id.sobot_webview_reload);
+        sobot_webview_copy = findViewById(R.id.sobot_webview_copy);
         sobot_webview_goback.setOnClickListener(this);
         sobot_webview_forward.setOnClickListener(this);
         sobot_webview_reload.setOnClickListener(this);

@@ -3,7 +3,7 @@
 
     <item>
         <shape>
-            <solid android:color="@color/sobot_color_transparent" />
+            <solid android:color="@color/sobot_dialog_item_default_color" />
 
             <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_color_line_divider" />
 

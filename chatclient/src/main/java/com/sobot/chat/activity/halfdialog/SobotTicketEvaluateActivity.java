@@ -1,16 +1,17 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -22,6 +23,7 @@ import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.SobotOrderScoreModel;
 import com.sobot.chat.api.model.SobotUserTicketEvaluate;
 import com.sobot.chat.notchlib.utils.ScreenUtil;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
@@ -43,10 +45,11 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     private LinearLayout sobot_robot_relative;//评价 机器人布局
     private LinearLayout sobot_custom_relative;//评价人工布局
     private LinearLayout sobot_hide_layout;//评价机器人和人工未解决时显示出来的布局
-    private RadioGroup sobot_readiogroup;//
-    private RadioButton sobot_btn_ok_robot;//评价  已解决
-    private RadioButton sobot_btn_no_robot;//评价  未解决
-    private TextView sobot_close_now;//提交评价按钮
+    private LinearLayout sobot_readiogroup,sobot_ll_ok_robot,sobot_ll_no_robot;//已解决、为解决
+    private TextView sobot_btn_ok_robot;//评价  已解决
+    private TextView sobot_btn_no_robot;//评价  未解决
+    private ImageView iv_solved,iv_no_solve;
+    private TextView sobot_btn_submit;//提交评价按钮
     private View sobot_ratingBar_split_view;//如果有已解决按钮和未解决按钮就显示，否则隐藏；
 
     private EditText sobot_add_content;//评价  添加建议
@@ -58,8 +61,6 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     private TextView sobot_tv_evaluate_title_hint;//评价  提交后结束评价
     private SobotFiveStarsLayout sobot_ratingBar;//评价  打分
     private LinearLayout sobot_ten_root_ll;//评价  十分全布局
-    private TextView sobot_ten_very_dissatisfied;//评价 非常不满意
-    private TextView sobot_ten_very_satisfaction;//评价  非常满意
     private SobotTenRatingLayout sobot_ten_rating_ll;//评价  十分 父布局 动态添加10个textview
     private int ratingType;//评价  类型   0 5星 ；1 十分 默认5星
 
@@ -69,6 +70,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
 
     private int themeColor;
     private boolean changeThemeColor;
+
+    private int isSolve = 2;//是否解决问题 1:已解决，0：未解决，2：都不选
 
     private List<CheckBox> checkBoxList = new ArrayList<>();
     private SobotUserTicketEvaluate mEvaluate;
@@ -89,9 +92,9 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     protected void initView() {
         super.initView();
         mEvaluate = (SobotUserTicketEvaluate) getIntent().getSerializableExtra("sobotUserTicketEvaluate");
-        sobot_close_now = findViewById(R.id.sobot_close_now);
-        sobot_close_now.setText(R.string.sobot_btn_submit_text);
-        sobot_readiogroup = (RadioGroup) findViewById(R.id.sobot_readiogroup);
+        sobot_btn_submit = findViewById(R.id.sobot_close_now);
+        sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
+        sobot_readiogroup = findViewById(R.id.sobot_readiogroup);
         sobot_tv_evaluate_title = (TextView) findViewById(R.id.sobot_tv_evaluate_title);
         //统一显示为服务评价
         sobot_tv_evaluate_title.setText(R.string.sobot_please_evaluate_this_service);
@@ -110,16 +113,18 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_ratingBar = findViewById(R.id.sobot_ratingBar);
         sobot_ten_root_ll = findViewById(R.id.sobot_ten_root_ll);
         sobot_ten_rating_ll = findViewById(R.id.sobot_ten_rating_ll);
-        sobot_ten_very_dissatisfied = findViewById(R.id.sobot_ten_very_dissatisfied);
-        sobot_ten_very_satisfaction = findViewById(R.id.sobot_ten_very_satisfaction);
-        sobot_ten_very_dissatisfied.setText(R.string.sobot_very_dissatisfied);
-        sobot_ten_very_satisfaction.setText(R.string.sobot_great_satisfaction);
 
         sobot_evaluate_lable_autoline = findViewById(R.id.sobot_evaluate_lable_autoline);
         sobot_add_content = (EditText) findViewById(R.id.sobot_add_content);
-        sobot_btn_ok_robot = (RadioButton) findViewById(R.id.sobot_btn_ok_robot);
+        sobot_ll_ok_robot = findViewById(R.id.sobot_ll_ok_robot);
+        sobot_ll_no_robot = findViewById(R.id.sobot_ll_no_robot);
+        sobot_ll_ok_robot.setOnClickListener(this);
+        sobot_ll_no_robot.setOnClickListener(this);
+        sobot_btn_ok_robot = findViewById(R.id.sobot_btn_ok_robot);
+        sobot_btn_no_robot = findViewById(R.id.sobot_btn_no_robot);
+        iv_solved = findViewById(R.id.iv_solved);
+        iv_no_solve = findViewById(R.id.iv_no_solve);
         sobot_btn_ok_robot.setText(R.string.sobot_evaluate_yes);
-        sobot_btn_no_robot = (RadioButton) findViewById(R.id.sobot_btn_no_robot);
         sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
         sobot_robot_relative = (LinearLayout) findViewById(R.id.sobot_robot_relative);
         sobot_custom_relative = (LinearLayout) findViewById(R.id.sobot_custom_relative);
@@ -128,9 +133,9 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         changeThemeColor = ThemeUtils.isChangedThemeColor(this);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(this);
-            Drawable bg = sobot_close_now.getBackground();
+            Drawable bg = sobot_btn_submit.getBackground();
             if (bg != null) {
-                sobot_close_now.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             }
         }
         if (ScreenUtils.isFullScreen(this)) {
@@ -163,7 +168,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 if (score == -1) {
                     score = 5;
                 }
-                sobot_ratingBar.init(score, true, 44);
+                sobot_ratingBar.init(score, true, 36);
             } else {
                 sobot_ten_rating_ll.init(score, true, 16);
             }
@@ -175,21 +180,39 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 //关闭评价输入框
                 setl_submit_content.setVisibility(View.GONE);
             }
-
+            isSolve = mEvaluate.getDefaultQuestionFlag();
             if (mEvaluate.getDefaultQuestionFlag() == 1) {
                 //(1)-解决
-                sobot_btn_ok_robot.setChecked(true);
-                sobot_btn_no_robot.setChecked(false);
+                iv_solved.setSelected(true);
+                iv_no_solve.setSelected(false);
+                // 获取系统默认的加粗字体
+                sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
+                sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
             } else if (mEvaluate.getDefaultQuestionFlag() == 0) {
                 //(0)-未解决
-                sobot_btn_ok_robot.setChecked(false);
-                sobot_btn_no_robot.setChecked(true);
-            } else {
-                sobot_btn_ok_robot.setChecked(false);
-                sobot_btn_no_robot.setChecked(false);
-
+                iv_solved.setSelected(false);
+                iv_no_solve.setSelected(true);
+                sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
+                sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
             }
-
+//判断已解决 未解决长度是否相等
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    int width1 = sobot_ll_ok_robot.getMeasuredWidth();
+                    int width2 = sobot_ll_no_robot.getMeasuredWidth();
+                    sobot_ll_ok_robot.getPaddingStart();
+                    if (width1 < width2) {
+                        int pading = (width2 - width1) / 2 + ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 16);
+                        LogUtils.d("==pading==" + pading + "====16=" + ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 16));
+                        sobot_ll_ok_robot.setPadding(pading, ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 7), pading, ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 7));
+                    } else if (width1 > width2) {
+                        int pading = (width1 - width2) / 2 + ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 16);
+                        LogUtils.d("==pading==" + pading + "====16=" + ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 16));
+                        sobot_ll_no_robot.setPadding(pading, ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 7), pading, ScreenUtils.dip2px(SobotTicketEvaluateActivity.this, 7));
+                    }
+                }
+            });
             setCustomLayoutViewVisible(score, mEvaluate.getScoreInfo());
             if (ratingType == 0) {
                 if (0 == score) {
@@ -233,7 +256,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
 
             //是否是默认提交按钮
             if (mEvaluate.getIsDefaultButton() == 0 && !TextUtils.isEmpty(mEvaluate.getButtonDesc())) {
-                sobot_close_now.setText(mEvaluate.getButtonDesc());
+                sobot_btn_submit.setText(mEvaluate.getButtonDesc());
             }
             sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -279,34 +302,28 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                     changeCommitButtonUi(true);
                     setCustomLayoutViewVisible(score, mEvaluate.getScoreInfo());
                 }
-                sobot_close_now.setVisibility(View.VISIBLE);
+                sobot_btn_submit.setVisibility(View.VISIBLE);
                 changeCommitButtonUi(true);
             }
         });
 
-        sobot_close_now.setOnClickListener(new View.OnClickListener() {
+        sobot_btn_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sobot_add_content.clearFocus();
                 if (!checkInput()) {
                     return;
                 }
-                sobot_close_now.setClickable(false);
+                sobot_btn_submit.setClickable(false);
                 //提交评价
                 int score = (int) Math.ceil(sobot_ratingBar.getSelectContent());
                 String labelTag = checkBoxIsChecked();
-                int defaultQuestionFlag = 2;
-                if (sobot_btn_ok_robot.isChecked()) {
-                    defaultQuestionFlag = 1;
-                } else if (sobot_btn_no_robot.isChecked()) {
-                    defaultQuestionFlag = 0;
-                }
                 hideKeyboard();
                 Intent intent = new Intent();
                 intent.putExtra("score", score);
                 intent.putExtra("content", sobot_add_content.getText().toString());
                 intent.putExtra("labelTag", labelTag);
-                intent.putExtra("defaultQuestionFlag", defaultQuestionFlag);
+                intent.putExtra("defaultQuestionFlag", isSolve);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -316,7 +333,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             sobot_ten_rating_ll.setOnClickItemListener(new SobotTenRatingLayout.OnClickItemListener() {
                 @Override
                 public void onClickItem(int selectIndex) {
-                    sobot_close_now.setVisibility(View.VISIBLE);
+                    sobot_btn_submit.setVisibility(View.VISIBLE);
                     changeCommitButtonUi(true);
                     setCustomLayoutViewVisible(selectIndex, mEvaluate.getScoreInfo());
                 }
@@ -327,19 +344,20 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
 
     private void changeCommitButtonUi(boolean isCanClick) {
         if (changeThemeColor) {
-            Drawable bg = sobot_close_now.getBackground();
+            Drawable bg = sobot_btn_submit.getBackground();
             if (bg != null) {
-                sobot_close_now.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             }
         }
+        sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         if (isCanClick) {
-            sobot_close_now.setFocusable(true);
-            sobot_close_now.setClickable(true);
-            sobot_close_now.getBackground().setAlpha(255);
+            sobot_btn_submit.setFocusable(true);
+            sobot_btn_submit.setClickable(true);
+            sobot_btn_submit.getBackground().setAlpha(255);
         } else {
-            sobot_close_now.setFocusable(false);
-            sobot_close_now.setClickable(false);
-            sobot_close_now.getBackground().setAlpha(90);
+            sobot_btn_submit.setFocusable(false);
+            sobot_btn_submit.setClickable(false);
+            sobot_btn_submit.getBackground().setAlpha(90);
         }
     }
 
@@ -435,7 +453,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         //如果开启了是否解决问题
         if (mEvaluate != null && mEvaluate.getIsQuestionFlag() == 1 && mEvaluate.getIsQuestionMust() == 1) {
             //“问题是否解决”是否为必填选项： 0-非必填 1-必填
-            if (!sobot_btn_ok_robot.isChecked() && !sobot_btn_no_robot.isChecked()) {
+            if (isSolve==2) {
                 ToastUtil.showToast(this, getString(R.string.sobot_str_please_check_is_solve));//标签必选
                 return false;
             }
@@ -492,7 +510,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 View view = inflater.inflate(R.layout.sobot_layout_evaluate_item, null);
                 CheckBox checkBox = view.findViewById(R.id.sobot_evaluate_cb_lable);
                 //50 =antoLineLayout 左间距20+右间距20 +antoLineLayout 子控件行间距10
-                checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 50)) / 2);
+//                checkBox.setMinWidth((ScreenUtil.getScreenSize(this)[0] - ScreenUtils.dip2px(getContext(), 50)) / 2);
                 checkBox.setText(tmpData[i]);
                 checkBox.setOnClickListener(this);
                 antoLineLayout.addView(view);
@@ -504,5 +522,19 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     @Override
     public void onClick(View v) {
         sobot_add_content.clearFocus();
+        if (v.getId()  == R.id.sobot_ll_ok_robot) {
+            isSolve = 1;
+            // 获取系统默认的加粗字体
+            iv_solved.setSelected(true);
+            iv_no_solve.setSelected(false);
+            sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
+            sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
+        } else if (v.getId()  == R.id.sobot_ll_no_robot) {
+            isSolve = 0;
+            iv_solved.setSelected(false);
+            iv_no_solve.setSelected(true);
+            sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
+            sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
+        }
     }
 }

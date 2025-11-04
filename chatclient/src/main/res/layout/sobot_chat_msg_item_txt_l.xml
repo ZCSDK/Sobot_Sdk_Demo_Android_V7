@@ -42,6 +42,7 @@
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_left_content_ll_bg_style"
+                android:minHeight="44dp"
                 android:orientation="vertical">
 
                 <TextView

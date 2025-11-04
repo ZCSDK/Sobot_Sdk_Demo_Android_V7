@@ -1,6 +1,6 @@
 package com.sobot.chat.listener;
 
-import android.view.View;
+import android.widget.TextView;
 
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
@@ -16,5 +16,5 @@ public interface ISobotCusField {
      * @param fieldConfig 包含fieldType和fieldName  自定义字段的类型
      * @param cusField 点击这个字段的bean
      */
-    void onClickCusField(View view , SobotCusFieldConfig fieldConfig, SobotFieldModel cusField);
+    void onClickCusField(TextView view , SobotCusFieldConfig fieldConfig, SobotFieldModel cusField);
 }

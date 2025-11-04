@@ -16,6 +16,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.ConnectivityManager;
@@ -36,11 +37,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,6 +54,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,6 +66,7 @@ import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotPostLeaveMsgActivity;
 import com.sobot.chat.activity.SobotTicketListActivity;
+import com.sobot.chat.activity.SobotTicketNewActivity;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.activity.halfdialog.SobotAIEvaluateActivity;
 import com.sobot.chat.activity.halfdialog.SobotChooseLanguaeActivity;
@@ -104,11 +107,13 @@ import com.sobot.chat.api.model.SobotEvaluateModel;
 import com.sobot.chat.api.model.SobotKeyWordTransfer;
 import com.sobot.chat.api.model.SobotLocationModel;
 import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
+import com.sobot.chat.api.model.SobotPostMsgTemplate;
 import com.sobot.chat.api.model.SobotRealuateConfigInfo;
 import com.sobot.chat.api.model.SobotRealuateInfo;
 import com.sobot.chat.api.model.SobotRobot;
 import com.sobot.chat.api.model.SobotSemanticsKeyWordTransfer;
 import com.sobot.chat.api.model.SobotTransferOperatorParam;
+import com.sobot.chat.api.model.SobotUserTicketInfo;
 import com.sobot.chat.api.model.SobotlanguaeModel;
 import com.sobot.chat.api.model.SobotlanguaeResultModel;
 import com.sobot.chat.api.model.ZhiChiAppointMessage;
@@ -177,6 +182,7 @@ import com.sobot.chat.voice.AudioPlayPresenter;
 import com.sobot.chat.widget.ContainsEmojiEditText;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
 import com.sobot.chat.widget.dialog.SobotCommonDialog;
+import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.emoji.DisplayEmojiRules;
 import com.sobot.chat.widget.emoji.EmojiconNew;
 import com.sobot.chat.widget.emoji.InputHelper;
@@ -232,6 +238,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private LinearLayout llBarBottom; // 底部区域
     private FrameLayout flWelcome; // 欢迎窗口;
     public Toolbar headerToolbar;//顶部导航条
+    public View viewTitlebarDivider;//导航条和消息列表间的分割线，只有后台配置无颜色时才显示
     public LinearLayout llHeaderCenter;//导航栏中间部分
     public LinearLayout llTitlebar;//导航栏中间文字部分
     public TextView tvTitle;//导航栏标题（昵称）
@@ -243,8 +250,6 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     public ImageView ivRightThird;
     private ImageView ivRightClose;//右上角 关闭
     private ImageView ivRightMore;//右上角 三个点
-    private LinearLayout llMoreRoot;//右侧更多按钮点击后的控件
-    private LinearLayout llClearHistory;//删除历史记录
     private ImageView ivLeftBack;//左上角返回
     public ProgressBar sobot_conn_loading;
 
@@ -261,7 +266,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private SobotLoadingView ivLoading;
     private TextView tvLoading;
     private ImageView ivIconNonet;
-    private Button btnReconnect;
+    private TextView btnReconnect;
 
     private TextView tvVoicRobotHint;//机器人语音转文字提示语
     private int mRobotOperatorCount;//机器人聊天模式下加号面板菜单功能的数量
@@ -337,6 +342,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private RelativeLayout rlDelEmoji;//删除表情按钮
     private FunctionMenuPageView llFunction;//加号点击后功能菜单区域
     private LinearLayout llSendMsg; // 发送消息按钮
+    private ImageView ivSend;//发送消息按钮上的图标
 
     //可以获取RecyclerView 获取屏幕上消息的消息的索引，显示的数量
     private SobotScrollLinearLayoutManager rvScrollLayoutManager;
@@ -477,6 +483,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         initView(root);
         return root;
     }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -665,7 +672,6 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         if (rootView == null) {
             return;
         }
-
         llChatKeyboardPanle = rootView.findViewById(R.id.ll_chat_keyboard_panle);
         llModelEditOrVoice = rootView.findViewById(R.id.ll_model_edit_or_voice);
         llEmojiClick = rootView.findViewById(R.id.ll_emoji);
@@ -678,10 +684,17 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         llMenu = rootView.findViewById(R.id.ll_menu);
         flEmoji = rootView.findViewById(R.id.fl_emoji);
         rvEmoji = rootView.findViewById(R.id.rv_emoji);
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            flEmoji.getLayoutParams().height = (int) getResources().getDimension(R.dimen.sobot_emoji_panel_height_h);
+            rvEmoji.getLayoutParams().height = (int) getResources().getDimension(R.dimen.sobot_emoji_panel_height_h);
+        } else {
+            flEmoji.getLayoutParams().height = (int) getResources().getDimension(R.dimen.sobot_emoji_panel_height);
+            rvEmoji.getLayoutParams().height = (int) getResources().getDimension(R.dimen.sobot_emoji_panel_height);
+        }
         ivDelEmoji = rootView.findViewById(R.id.iv_del_emoji);
         rlDelEmoji = rootView.findViewById(R.id.rl_del_emoji);
         llFunction = rootView.findViewById(R.id.ll_function);
-        btn_press_to_speak = (LinearLayout) rootView.findViewById(R.id.sobot_btn_press_to_speak);
+        btn_press_to_speak = rootView.findViewById(R.id.sobot_btn_press_to_speak);
         initEmoji();
         initSwitchKeyboard();
 
@@ -692,50 +705,49 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 
         //loading 层
         headerToolbar = rootView.findViewById(R.id.tl_titlebar);
+        viewTitlebarDivider = rootView.findViewById(R.id.view_titlebar_divider);
         ivLeftBack = rootView.findViewById(R.id.sobot_iv_left);
         updateToolBarBg(false);
-        llHeaderCenter = (LinearLayout) rootView.findViewById(R.id.sobot_header_center_ll);
-        tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
-        llTitlebar = (LinearLayout) rootView.findViewById(R.id.sobot_titlebar_text_ll);
-        tvDes = (TextView) rootView.findViewById(R.id.tv_des);
+        llHeaderCenter = rootView.findViewById(R.id.sobot_header_center_ll);
+        tvTitle = rootView.findViewById(R.id.tv_title);
+        llTitlebar = rootView.findViewById(R.id.sobot_titlebar_text_ll);
+        tvDes = rootView.findViewById(R.id.tv_des);
         // 获取当前颜色并修改透明度
         int currentColor = tvDes.getCurrentTextColor();
         int newColor = Color.argb(192, Color.red(currentColor), Color.green(currentColor), Color.blue(currentColor));
         tvDes.setTextColor(newColor);
         mAvatarIV = rootView.findViewById(R.id.sobot_avatar_iv);
-        tvTitleConnStatus = (TextView) rootView.findViewById(R.id.sobot_title_conn_status);
-        llContainerConnStatus = (LinearLayout) rootView.findViewById(R.id.sobot_container_conn_status);
+        tvTitleConnStatus = rootView.findViewById(R.id.sobot_title_conn_status);
+        llContainerConnStatus = rootView.findViewById(R.id.sobot_container_conn_status);
         ivRightClose = rootView.findViewById(R.id.iv_close);
         ivRightSecond = rootView.findViewById(R.id.iv_right_second);
         ivRightThird = rootView.findViewById(R.id.iv_right_third);
-        sobot_conn_loading = (ProgressBar) rootView.findViewById(R.id.sobot_conn_loading);
-        rlNetStatusRemide = (RelativeLayout) rootView.findViewById(R.id.sobot_net_status_remide);
-        tvNetNotConnect = (TextView) rootView.findViewById(R.id.sobot_net_not_connect);
+        sobot_conn_loading = rootView.findViewById(R.id.sobot_conn_loading);
+        rlNetStatusRemide = rootView.findViewById(R.id.sobot_net_status_remide);
+        tvNetNotConnect = rootView.findViewById(R.id.sobot_net_not_connect);
         tvNetNotConnect.setText(R.string.sobot_network_unavailable);
-        notReadInfo = (TextView) rootView.findViewById(R.id.notReadInfo);
+        notReadInfo = rootView.findViewById(R.id.notReadInfo);
         mViewNotReadInfo = rootView.findViewById(R.id.ll_notReadInfo);
-        rlChatMain = (RelativeLayout) rootView.findViewById(R.id.sobot_chat_main);
+        rlChatMain = rootView.findViewById(R.id.sobot_chat_main);
         llBarBottom = rootView.findViewById(R.id.sobot_bar_bottom);
         displayInNotch(llBarBottom);
         sobot_header_right_ll = rootView.findViewById(R.id.sobot_header_right_ll);
         displayInNotchRight(sobot_header_right_ll);
         ivRightMore = rootView.findViewById(R.id.iv_right_more);
-        llMoreRoot = rootView.findViewById(R.id.ll_more_root);
-        llClearHistory = rootView.findViewById(R.id.ll_clear_history);
-        flWelcome = (FrameLayout) rootView.findViewById(R.id.sobot_welcome);
-        tvLoading = (TextView) rootView.findViewById(R.id.sobot_txt_loading);
-        textReConnect = (TextView) rootView.findViewById(R.id.sobot_textReConnect);
-        textReConnectTip = (TextView) rootView.findViewById(R.id.sobot_textReConnect_tip);
+        flWelcome = rootView.findViewById(R.id.sobot_welcome);
+        tvLoading = rootView.findViewById(R.id.sobot_txt_loading);
+        textReConnect = rootView.findViewById(R.id.sobot_textReConnect);
+        textReConnectTip = rootView.findViewById(R.id.sobot_textReConnect_tip);
         ivLoading = rootView.findViewById(R.id.iv_loading);
         try {
             ivLoading.setVisibility(View.VISIBLE);
             ivLoading.setProgressColor(ThemeUtils.getThemeColor(getSobotActivity()));
             // 开始动画
             ivLoading.startSpinning();
-            ivReLoading = (ImageView) rootView.findViewById(R.id.sobot_image_reloading);
-            ivIconNonet = (ImageView) rootView.findViewById(R.id.sobot_icon_nonet);
+            ivReLoading = rootView.findViewById(R.id.sobot_image_reloading);
+            ivIconNonet = rootView.findViewById(R.id.sobot_icon_nonet);
             ivIconNonet.setImageDrawable(ThemeUtils.applyColorToDrawable(ivIconNonet.getDrawable(), ThemeUtils.getThemeColor(getSobotActivity())));
-            btnReconnect = (Button) rootView.findViewById(R.id.sobot_btn_reconnect);
+            btnReconnect = rootView.findViewById(R.id.sobot_btn_reconnect);
             btnReconnect.setTextColor(ThemeUtils.getThemeTextAndIconColor(getSobotActivity()));
             Drawable bg = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_button_style, null);
             if (bg != null) {
@@ -752,6 +764,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     btnReconnect.setVisibility(View.GONE);
                     ivLoading.setVisibility(View.VISIBLE);
                     tvLoading.setVisibility(View.VISIBLE);
+                    //接待座席清空
+                    setCustomerServiceName("");
+                    setToolbarFace("");
+                    setToolbarTitle("");
                     //重新加载，相当于第一次进入
                     customerInit(1);
                 }
@@ -765,32 +781,33 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         messageRV.setOverScrollMode(View.OVER_SCROLL_NEVER);
         displayInNotch(messageRV);
         etSendContent.setVisibility(View.VISIBLE);
-        displayInNotch(etSendContent);
         llSendMsg = rootView.findViewById(R.id.ll_send_msg);
-        tvVoicRobotHint = (TextView) rootView.findViewById(R.id.send_voice_robot_hint);
+        ivSend = rootView.findViewById(R.id.iv_send_msg);
+
+        tvVoicRobotHint = rootView.findViewById(R.id.send_voice_robot_hint);
         tvVoicRobotHint.setText(R.string.sobot_robot_voice_hint);
         tvVoicRobotHint.setVisibility(View.GONE);
-        tv_recording_hint = (TextView) rootView.findViewById(R.id.tv_recording_hint);
-        tv_recording_countdown_hint = (TextView) rootView.findViewById(R.id.tv_recording_countdown_hint);
-        ll_sound_recording = (LinearLayout) rootView.findViewById(R.id.ll_sound_recording);
+        tv_recording_hint = rootView.findViewById(R.id.tv_recording_hint);
+        tv_recording_countdown_hint = rootView.findViewById(R.id.tv_recording_countdown_hint);
+        ll_sound_recording = rootView.findViewById(R.id.ll_sound_recording);
 
         // 开始语音的布局的信息
         fl_sound_recording_animation = rootView.findViewById(R.id.fl_sound_recording_animation);
         // 停止语音
-        iv_sound_recording_cancle = (ImageView) rootView.findViewById(R.id.iv_sound_recording_cancle);
+        iv_sound_recording_cancle = rootView.findViewById(R.id.iv_sound_recording_cancle);
         // 动画的效果
-        iv_sound_recording_in_progress = (ImageView) rootView.findViewById(R.id.iv_sound_recording_in_progress);
+        iv_sound_recording_in_progress = rootView.findViewById(R.id.iv_sound_recording_in_progress);
         // 时长的界面
-        voice_time_long = (TextView) rootView.findViewById(R.id.sobot_voiceTimeLong);
-        txt_speak_content = (TextView) rootView.findViewById(R.id.sobot_txt_speak_content);
+        voice_time_long = rootView.findViewById(R.id.sobot_voiceTimeLong);
+        txt_speak_content = rootView.findViewById(R.id.sobot_txt_speak_content);
         txt_speak_content.setText(R.string.sobot_press_say);
 
-        rlRestartTalk = (RelativeLayout) rootView.findViewById(R.id.sobot_ll_restart_talk);
-        tvRestartTalk = (TextView) rootView.findViewById(R.id.sobot_txt_restart_talk);
+        rlRestartTalk = rootView.findViewById(R.id.sobot_ll_restart_talk);
+        tvRestartTalk = rootView.findViewById(R.id.sobot_txt_restart_talk);
         tvRestartTalk.setText(R.string.sobot_restart_talk);
-        tvMessage = (TextView) rootView.findViewById(R.id.sobot_tv_message);
+        tvMessage = rootView.findViewById(R.id.sobot_tv_message);
         tvMessage.setText(R.string.sobot_str_bottom_message);
-        tvSatisfaction = (TextView) rootView.findViewById(R.id.sobot_tv_satisfaction);
+        tvSatisfaction = rootView.findViewById(R.id.sobot_tv_satisfaction);
         tvSatisfaction.setText(R.string.sobot_str_bottom_satisfaction);
         llBottomSatisfaction = rootView.findViewById(R.id.ll_satisfaction);
         llBottomMessage = rootView.findViewById(R.id.ll_message);
@@ -805,19 +822,19 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 clearAppointUI();
             }
         });
-        ll_switch_robot = (LinearLayout) rootView.findViewById(R.id.ll_switch_robot);
-        tv_switch_robot = (TextView) rootView.findViewById(R.id.tv_switch_robot);
-        iv_switch_robot= rootView.findViewById(R.id.iv_switch_robot);
+        ll_switch_robot = rootView.findViewById(R.id.ll_switch_robot);
+        tv_switch_robot = rootView.findViewById(R.id.tv_switch_robot);
+        iv_switch_robot = rootView.findViewById(R.id.iv_switch_robot);
 
         rl_announcement = rootView.findViewById(R.id.rl_announcement);
         iv_announcement_right_icon = rootView.findViewById(R.id.iv_announcement_right_icon);
         tv_announcement_title = rootView.findViewById(R.id.tv_announcement_title);
         tv_announcement_title.setSelected(true);
 
-        quickMenuHSV = (HorizontalScrollView) rootView.findViewById(R.id.sobot_custom_menu);
+        quickMenuHSV = rootView.findViewById(R.id.sobot_custom_menu);
         quickMenuHSV.setVisibility(View.GONE);
 
-        quickMenuLL = (LinearLayout) rootView.findViewById(R.id.sobot_custom_menu_linearlayout);
+        quickMenuLL = rootView.findViewById(R.id.sobot_custom_menu_linearlayout);
         //根据主题更新控件颜色
         updateUIByThemeColor();
         mPostMsgPresenter = StPostMsgPresenter.newInstance(SobotChatFragment.this, getSobotActivity());
@@ -843,6 +860,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         if (emojiconNewArrayList != null) {
             //每行显示数量
             int spanCount = getResources().getInteger(R.integer.sobot_emoji_span_count);
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                spanCount = getResources().getInteger(R.integer.sobot_emoji_span_count_h);
+                GridLayoutManager layoutManager = (GridLayoutManager) rvEmoji.getLayoutManager();
+                if (layoutManager != null) {
+                    layoutManager.setSpanCount(spanCount); // 横屏列数
+                }
+            }
             // 添加7个空的 EmojiconNew 数据
             for (int i = 0; i < spanCount; i++) {
                 emojiconNewArrayList.add(new EmojiconNew("", ""));
@@ -943,6 +967,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 //当键盘隐藏后回调
 //                tvAudio.setImageResource(R.drawable.ic_audio);
 //                ivFace.setImageResource(R.drawable.ic_face);
+                etSendContent.dismissPop();
             }
 
             @Override
@@ -1034,6 +1059,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     break;
                 case ZhiChiConstant.hander_show_newmsg_tip:
                     tv_newmsg.setText(newMsgNum + "");
+                    tv_newmsg.setVisibility(View.VISIBLE);
                     mViewNewmsg.setVisibility(View.VISIBLE);
                     break;
                 case ZhiChiConstant.hander_hide_newmsg_tip:
@@ -1163,7 +1189,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             messageAdapter.updateAIDataById(aiMsg.getMsgId(), aiMsg, false);
                             if (StringUtils.isNoEmpty(aiMsg.getT())) {
                                 long t = Long.parseLong(aiMsg.getT());
-                                if ((t - goToLastTime) > 800) {
+                                if ((t - goToLastTime) > 500) {
                                     goToLastTime = t;
                                     new Handler().postDelayed(new Runnable() {
                                         @Override
@@ -1672,6 +1698,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             if (headerToolbar == null) {
                 return;
             }
+            viewTitlebarDivider.setVisibility(View.GONE);
             if (isInitSuccess && getInitModel().getVisitorScheme() != null) {
                 RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) ll_switch_robot.getLayoutParams();
                 //导航条显示1 开启 0 关闭
@@ -1685,6 +1712,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 //服务端返回的导航条背景颜色
                 if (getInitModel().getVisitorScheme().getTopBarBackStyle() == 0) {
                     //导航条无颜色,修改导航栏昵称和描述的颜色
+                    viewTitlebarDivider.setVisibility(View.VISIBLE);
                     tvTitle.setTextColor(ContextCompat.getColor(getSobotActivity(), R.color.sobot_color_text_first));
                     tvDes.setTextColor(ContextCompat.getColor(getSobotActivity(), R.color.sobot_color_text_first));
                     tvTitleConnStatus.setTextColor(ContextCompat.getColor(getSobotActivity(), R.color.sobot_color_text_first));
@@ -1844,8 +1872,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 ivRightMore.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        hidePanelAndKeyboard();
+                        showMorePopupMenu(ivRightMore);
                         updateMoreBtnUi(true);
-                        onMoreMenuClick();
                     }
                 });
             }
@@ -1855,6 +1884,46 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             }
         }
     }
+
+    private PopupWindow morenPopupWindow;
+
+    //右上角点击加号弹出菜单布局
+    private void showMorePopupMenu(View anchorView) {
+        if (morenPopupWindow != null) {
+            morenPopupWindow.dismiss();
+            morenPopupWindow = null;
+        }
+        if (anchorView == null) {
+            return;
+        }
+        View popupView = LayoutInflater.from(getSobotActivity()).inflate(R.layout.sobot_toolbar_more_menu, null);
+        morenPopupWindow = new PopupWindow(popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true);
+        // 清空历史记录
+        LinearLayout clearHistoryItem = popupView.findViewById(R.id.ll_clear_history);
+        if (clearHistoryItem != null) {
+            clearHistoryItem.setOnClickListener(v -> {
+                // 处理清除历史记录
+                showClearHistoryDialog();
+                morenPopupWindow.dismiss();
+            });
+        }
+        morenPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                updateMoreBtnUi(false);
+            }
+        });
+        // 设置背景和外部触摸消失
+        morenPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        morenPopupWindow.setOutsideTouchable(true);
+
+        // 显示 PopupWindow
+        morenPopupWindow.showAsDropDown(ivRightMore);
+    }
+
 
     /**
      * 更新更多按钮的背景
@@ -1932,6 +2001,46 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         localBroadcastManager.registerReceiver(localReceiver, localFilter);
     }
 
+    /**
+     * 获取最后一条消息底部距离 RecyclerView 底部的距离
+     *
+     * @return 距离值，如果无法计算则返回0
+     */
+    private int getLastMessageBottomToRecyclerViewBottom() {
+        if (messageRV == null || messageAdapter == null || rvScrollLayoutManager == null || messageAdapter.getItemCount() == 0) {
+            return 0;
+        }
+        // 获取 RecyclerView 的高度
+        int recyclerViewHeight = messageRV.getHeight();
+        // 获取最后一个可见项的位置
+        int lastVisiblePosition = rvScrollLayoutManager.findLastVisibleItemPosition();
+        // 如果没有可见项，返回0
+        if (lastVisiblePosition < 0) {
+            return 0;
+        }
+        // 获取最后一个可见项的视图
+        View lastView = rvScrollLayoutManager.findViewByPosition(lastVisiblePosition);
+        if (lastView != null) {
+            // 获取最后一个视图的底部相对于父布局的位置
+            int lastViewBottom = lastView.getBottom();
+            // 计算最后一条消息底部到 RecyclerView 底部的距离
+            return Math.abs(recyclerViewHeight - lastViewBottom);
+        }
+        return 0;
+    }
+
+    //判断当前显示的最后一个item是否就是消息列表中的最后一条消息
+    private boolean isLastVisibleItemEqualLastMessage() {
+        if (rvScrollLayoutManager == null || messageAdapter == null) {
+            return false;
+        }
+        int lastVisiblePosition = rvScrollLayoutManager.findLastVisibleItemPosition();
+        int totalMessageCount = messageAdapter.getItemCount();
+        // 当前可见的最后一条消息位置等于总消息数减一（因为索引从0开始）
+        return lastVisiblePosition >= 0 && lastVisiblePosition == totalMessageCount - 1;
+    }
+
+
     private void initListener() {
         mViewNotReadInfo.setOnClickListener(this);
         llSendMsg.setOnClickListener(this);
@@ -1983,59 +2092,83 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (rvScrollLayoutManager != null) {
-                    // 获取当前可见的第一个item
-                    int firstVisiableItem = rvScrollLayoutManager.findFirstVisibleItemPosition();
-                    int lastVisibleItemPosition = rvScrollLayoutManager.findLastCompletelyVisibleItemPosition();
-                    // 获取当前可见的item数量
-                    int visibleItemCount = lastVisibleItemPosition - firstVisiableItem;
-                    int totalItemCount = rvScrollLayoutManager.getItemCount();
-                    if (msgAnswersNum > 0) {
-                        if ((firstVisiableItem + visibleItemCount < totalItemCount)) {
-                            //显示未读条数
-                            showNewMsg = true;
-                            msgAnswersNum = 0;
-                            newMsgNum = totalItemCount - (firstVisiableItem + visibleItemCount - 1);
-                        }
-                    }
-                    // 判断是否滑动到底部
-                    if ((totalItemCount > 0) && (lastVisibleItemPosition >= totalItemCount - 1)) {
-                        showNewMsg = false;//如果在底部，收到消息之间显示
-                    } else {
-                        showNewMsg = true;//未滑动到底部，收到消息显示新消息
-                    }
-                    //更新新消息
-                    if (newMsgNum > 0) {
-                        int showItem = totalItemCount - lastVisibleItemPosition - 1;
-                        if (showItem < newMsgNum) {
-                            newMsgNum = showItem;
-                            if (newMsgNum == 0) {
-                                //隐藏新消息
-                                handler.sendEmptyMessage(ZhiChiConstant.hander_hide_newmsg_tip);
-                            } else {
-                                //显示新消息
-                                handler.sendEmptyMessage(ZhiChiConstant.hander_show_newmsg_tip);
-                            }
+                try {
+                    if (rvScrollLayoutManager != null) {
+                        // 获取当前可见的第一个item
+                        int firstVisiableItem = rvScrollLayoutManager.findFirstVisibleItemPosition();
+                        int lastVisibleItemPosition = rvScrollLayoutManager.findLastCompletelyVisibleItemPosition();
+                        // 获取当前可见的item数量
+                        int visibleItemCount = lastVisibleItemPosition - firstVisiableItem;
+                        int totalItemCount = rvScrollLayoutManager.getItemCount();
 
-                        }
-                    }
-//                    LogUtils.d( "===============firstVisiableItem =" + firstVisiableItem + ",visibleItemCount=" + visibleItemCount + ",totalItemCount=" + totalItemCount + ",msgAnswersNum=" + msgAnswersNum);
-                    if (unReadMsgIndex > 0 && mUnreadNum > 0) {
-                        if (unReadMsgIndex <= firstVisiableItem) {
-                            //显示未读提示
-                            handler.sendEmptyMessage(ZhiChiConstant.hander_show_unread_tip);
-                        }
-                        if (messageList.size() > 0 && messageList.size() > firstVisiableItem) {
-                            if (messageList.get(firstVisiableItem) != null && messageList.get(firstVisiableItem).getAnswer() != null
-                                    && ZhiChiConstant.sobot_remind_type_below_unread == messageList.get(firstVisiableItem).getAnswer().getRemindType()) {
-                                hideNotReadLayout();
+                        // 向上滚动且超过阈值时显示新消息提示按钮
+                        if (dy < 0) {
+                            //向上滚动
+                            //如果当前显示的最后一个item是否不是消息列表中的最后一条消息；或者向上滚动超过80dp,就显示底部新消息按钮
+                            boolean isscrollExceedLimit = getLastMessageBottomToRecyclerViewBottom() > ScreenUtils.dip2px(getSobotActivity(), 80);
+                            boolean isLastMsg = isLastVisibleItemEqualLastMessage();
+                            if (mViewNewmsg != null && mViewNewmsg.getVisibility() != View.VISIBLE && (isscrollExceedLimit || !isLastMsg)) {
+                                mViewNewmsg.setVisibility(View.VISIBLE);
+                                if (tv_newmsg != null) {
+                                    if (newMsgNum > 0) {
+                                        tv_newmsg.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tv_newmsg.setVisibility(View.GONE);
+                                    }
+                                }
                             }
                         }
-                    } else if (mViewNotReadInfo.getVisibility() == View.VISIBLE) {
-                        mViewNotReadInfo.setVisibility(View.GONE);
+
+                        if (msgAnswersNum > 0) {
+                            if ((firstVisiableItem + visibleItemCount < totalItemCount)) {
+                                //显示未读条数
+                                showNewMsg = true;
+                                msgAnswersNum = 0;
+                                newMsgNum = totalItemCount - (firstVisiableItem + visibleItemCount - 1);
+                            }
+                        }
+                        // 判断是否滑动到底部
+                        if ((totalItemCount > 0) && (lastVisibleItemPosition >= totalItemCount - 1)) {
+                            showNewMsg = false;//如果在底部，收到消息之间显示
+                            if (mViewNewmsg != null && mViewNewmsg.getVisibility() == View.VISIBLE) {
+                                mViewNewmsg.setVisibility(View.GONE);
+                            }
+                        } else {
+                            showNewMsg = true;//未滑动到底部，收到消息显示新消息
+                        }
+                        //更新新消息
+                        if (newMsgNum > 0) {
+                            int showItem = totalItemCount - lastVisibleItemPosition - 1;
+                            if (showItem < newMsgNum) {
+                                newMsgNum = showItem;
+                                if (newMsgNum == 0) {
+                                    //隐藏新消息
+                                    handler.sendEmptyMessage(ZhiChiConstant.hander_hide_newmsg_tip);
+                                } else {
+                                    //显示新消息
+                                    handler.sendEmptyMessage(ZhiChiConstant.hander_show_newmsg_tip);
+                                }
+
+                            }
+                        }
+                        //                    LogUtils.d( "===============firstVisiableItem =" + firstVisiableItem + ",visibleItemCount=" + visibleItemCount + ",totalItemCount=" + totalItemCount + ",msgAnswersNum=" + msgAnswersNum);
+                        if (unReadMsgIndex > 0 && mUnreadNum > 0) {
+                            if (unReadMsgIndex <= firstVisiableItem) {
+                                //显示未读提示
+                                handler.sendEmptyMessage(ZhiChiConstant.hander_show_unread_tip);
+                            }
+                            if (messageList.size() > 0 && messageList.size() > firstVisiableItem) {
+                                if (messageList.get(firstVisiableItem) != null && messageList.get(firstVisiableItem).getAnswer() != null
+                                        && ZhiChiConstant.sobot_remind_type_below_unread == messageList.get(firstVisiableItem).getAnswer().getRemindType()) {
+                                    hideNotReadLayout();
+                                }
+                            }
+                        } else if (mViewNotReadInfo.getVisibility() == View.VISIBLE) {
+                            mViewNotReadInfo.setVisibility(View.GONE);
+                        }
                     }
+                } catch (Exception e) {
                 }
-
             }
         });
         etSendContent.setSobotAutoCompleteListener(this);
@@ -2615,9 +2748,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         }
     }
 
-
     //初始化成功后执行逻辑
     private void onInitResult(final ZhiChiInitModeBase result) {
+        onInitResult(result, null);
+    }
+
+    //初始化成功后执行逻辑
+    private void onInitResult(final ZhiChiInitModeBase result, SobotlanguaeModel sobotlanguaeModel) {
         if (getInitModel() != null && getInitModel().getVisitorScheme() != null) {
             if (getInitModel().getVisitorScheme().getChatBackPhotoFlag() == 1) {
                 String chatBackPhotoUrl = getInitModel().getVisitorScheme().getChatBackPhotoUrl();
@@ -2716,6 +2853,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             noticeModel.setMsgId(getMsgId());
             robotWelcomeMsgId = noticeModel.getMsgId();
             messageAdapter.justAddData(noticeModel);
+        }
+        if (sobotlanguaeModel != null) {
+            //显示语言已切换为 “说辞”
+            showSelectLanguaeTip(sobotlanguaeModel);
         }
         //初始化查询cid
         queryCids();
@@ -3932,6 +4073,17 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         }, 200);
     }
 
+    //延迟滚动到列表底部
+    public void goToLastMsgPostDelayed(long delayedTime) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+//                LogUtils.d("上传/收到图片、视频消息后延迟滚动到底部");
+                gotoLastItemWithOffset(true);
+            }
+        }, delayedTime);
+    }
+
     //上次滚动到底部的时间戳（大模型流式回答用到）
     private long goToLastTime = 0;
 
@@ -4716,7 +4868,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
      * 隐藏键盘和面板
      */
     public void hidePanelAndKeyboard() {
-        llMoreRoot.setVisibility(View.GONE);
+//        llMoreRoot.setVisibility(View.GONE);
         updateMoreBtnUi(false);
         if (switchKeyboardUtil != null) {
             //收起键盘或菜单
@@ -4927,7 +5079,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             sobotCommentParam.setScore(message.getSobotEvaluateModel().getScore() + "");
             sobotCommentParam.setScoreFlag(message.getSobotEvaluateModel().getScoreFlag());
             sobotCommentParam.setCommentType(0);
-            sobotCommentParam.setProblem(sobotEvaluateModel.getProblem());
+            sobotCommentParam.setProblem(sobotEvaluateModel.getLabels());
+            sobotCommentParam.setSuggest(sobotEvaluateModel.getProblem());
             sobotCommentParam.setIsresolve(sobotEvaluateModel.getIsResolved());
             sobotCommentParam.setScoreExplain(sobotEvaluateModel.getScoreExplain());
             sobotCommentParam.setScoreExplainLan(sobotEvaluateModel.getScoreExplainLan());
@@ -4953,7 +5106,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
             });
         } else {
-            submitEvaluation(false, sobotEvaluateModel.getScore(), sobotEvaluateModel.getIsResolved(), sobotEvaluateModel.getProblem());
+            submitEvaluation(false, sobotEvaluateModel.getScore(), sobotEvaluateModel.getIsResolved(), sobotEvaluateModel.getLabels());
         }
     }
 
@@ -5457,11 +5610,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     if (getInitModel().getVisitorScheme().getTopBarReceptionFlag() == 1) {
                         //先判断显示描述
                         isShowDes = true;
-                        if (CommonUtils.isZh(getSobotActivity())) {
-                            desStr = getCustomerServiceName() + getInitModel().getVisitorScheme().getTopBarReceptionText();
-                        } else {
-                            desStr = getCustomerServiceName() + " " + getInitModel().getVisitorScheme().getTopBarReceptionText();
-                        }
+                        desStr = getCustomerServiceName() + " " + getInitModel().getVisitorScheme().getTopBarReceptionText();
                     }
                     if (getInitModel().getVisitorScheme().getTopBarCompanyNameFlag() == 1) {
                         //后判断显示公司名称
@@ -5538,13 +5687,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 if (topBarType == 1) {
                     //客服接待
                     if (getInitModel().getVisitorScheme().getTopBarStaffPhotoFlag() == 1) {
-                        if (getIsDefaultFace()) {
+                        if (getIsDefaultFace() && current_client_model == ZhiChiConstant.client_model_customService) {
                             //默认头像
                             int bgColor = ThemeUtils.getThemeColor(getSobotActivity());
                             if (getInitModel().getVisitorScheme().getTopBarBackStyle() != 0) {
                                 bgColor = Color.parseColor("#33000000");
                             }
-                            Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(getSobotActivity(), title, (int) getSobotActivity().getResources().getDimension(R.dimen.sobot_header_face_width_heigth), (int) getSobotActivity().getResources().getDimension(R.dimen.sobot_header_face_width_heigth), bgColor, ThemeUtils.getThemeTextAndIconColor(getSobotActivity()));
+                            Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(getSobotActivity(), title, (int) getSobotActivity().getResources().getDimension(R.dimen.sobot_header_face_width_heigth), (int) getSobotActivity().getResources().getDimension(R.dimen.sobot_header_face_width_heigth), bgColor, Color.WHITE);
                             if (afaceDrawable != null) {
                                 mAvatarIV.setImageDrawable(afaceDrawable);
                                 mAvatarIV.setVisibility(View.VISIBLE);
@@ -5653,6 +5802,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             SobotOption.functionClickListener.onClickFunction(getSobotActivity(), SobotFunctionType.ZC_CloseChat);
         }
         try {
+            if (morenPopupWindow != null) {
+                morenPopupWindow.dismiss();
+                morenPopupWindow = null;
+            }
             // 取消广播接受者
             if (getSobotActivity() != null) {
                 if (receiver != null) {
@@ -5676,29 +5829,17 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         super.onDestroy();
     }
 
-    /**
-     * 导航栏右边点击更多事件
-     */
-    protected void onMoreMenuClick() {
-        llMoreRoot.setVisibility(View.VISIBLE);
-        //清空历史记录
-        llClearHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                llMoreRoot.setVisibility(View.GONE);
-                updateMoreBtnUi(false);
-                clearHistory();
-            }
-        });
-    }
 
     private SobotCommonDialog clearHistoryMsgDialog;//清楚历史记录弹窗
 
-    public void clearHistory() {
+    //显示清空历史记录弹窗
+    public void showClearHistoryDialog() {
         if (clearHistoryMsgDialog == null) {
             clearHistoryMsgDialog = new SobotCommonDialog(getSobotActivity(), getResources().getString(R.string.sobot_clear_his_msg_describe), "", getResources().getString(R.string.sobot_clear_his_msg_empty), getResources().getString(R.string.sobot_btn_cancle), new SobotCommonDialog.MyClickListener() {
                 @Override
                 public void clickOk() {
+                    hideNewmsgLayout();
+                    hideNotReadLayout();
                     zhiChiApi.deleteHisMsg(SobotChatFragment.this, getInitModel().getPartnerid(), new StringResultCallBack<CommonModelBase>() {
                         @Override
                         public void onSuccess(CommonModelBase modelBase) {
@@ -5867,18 +6008,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         , getInitModel().getMsgLeaveContentTxt(), getInitModel().getPartnerid());
                 startActivityForResult(intent, SobotPostLeaveMsgActivity.EXTRA_MSG_LEAVE_REQUEST_CODE);
             } else {
-                //打开留言
-                Intent intent2 = new Intent(getSobotActivity(), SobotTicketListActivity.class);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, getInitModel().getPartnerid());
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, getInitModel().getCompanyId());
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, getInitModel().getCustomerId());
-                intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
-                startActivity(intent2);
-                if (getSobotActivity() != null) {
-                    getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
-                            R.anim.sobot_push_left_out);
-                }
+                openTiket();
                /* String tempGroupId = SharedPreferencesUtil.getStringData(getSobotActivity(), ZhiChiConstant.sobot_connect_group_id, "");
                 mPostMsgPresenter.obtainTemplateList(getInitModel().getPartnerid(), tempGroupId, flag_exit_sdk, new StPostMsgPresenter.ObtainTemplateListDelegate() {
                     @Override
@@ -6268,10 +6398,14 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             newMsgNum++;
                             handler.sendEmptyMessage(ZhiChiConstant.hander_show_newmsg_tip);
                         } else {
-                            gotoLastItem();
                             handler.sendEmptyMessage(ZhiChiConstant.hander_hide_newmsg_tip);
-
+                            gotoLastItem();
+                            if (base.getAnswer() != null && (ZhiChiConstant.message_type_pic == base.getAnswer().getMsgType() || ZhiChiConstant.message_type_video == base.getAnswer().getMsgType())) {
+                                //图片视频延迟滚动
+                                goToLastMsgPostDelayed(1500);
+                            }
                         }
+
                         //修改客服状态为在线
                         customerState = CustomerState.Online;
                     } else if (ZhiChiConstant.push_message_outLine == pushMessage.getType()) {
@@ -6472,18 +6606,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             break;
                         }
                     }
-                    Intent intent2 = new Intent(getSobotActivity(), SobotTicketListActivity.class);
-                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, getInitModel().getPartnerid());
-                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, getInitModel().getCompanyId());
-                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, getInitModel().getCustomerId());
-                    intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
-                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, info.getLeaveMsgGroupId());
-                    startActivity(intent2);
-                    if (getSobotActivity() != null) {
-                        getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
-                                R.anim.sobot_push_left_out);
-                    }
-
+                    openTiket();
                 } else if (ZhiChiConstants.sobot_click_cancle.equals(intent.getAction())) {
                     //打开技能组后点击了取消
                     if (type == ZhiChiConstant.type_custom_first && current_client_model ==
@@ -7003,7 +7126,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         mUnreadNum = 0;
     }
 
-    //清空新消息数隐藏新消息提示
+    //清空底部新消息数隐藏新消息提示
     private void hideNewmsgLayout() {
         newMsgNum = 0;
         msgAnswersNum = 0;
@@ -7327,7 +7450,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     } else {
                         ToastUtil.showLongToast(mAppContext, getResources().getString(R.string.sobot_did_not_get_picture_path));
                     }
-
+                    //滚动到消息列表底部
+                    goToLastMsgPostDelayed(400);
                 }
                 hidePanelAndKeyboard();
             }
@@ -7782,18 +7906,26 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
      * 根据主题色更改切换UI
      */
     public void updateUIByThemeColor() {
-        int color = ThemeUtils.getThemeColor(getSobotActivity());
-        //修改发送消息按钮
-        Drawable sengDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_oval_send_msg_bg, null);
-        if (sengDrawable != null) {
-            llSendMsg.setBackground(ThemeUtils.applyColorToDrawable(sengDrawable, color));
+        try {
+            int color = ThemeUtils.getThemeColor(getSobotActivity());
+            int iconColor = ThemeUtils.getThemeTextAndIconColor(getSobotActivity());
+            //修改发送消息按钮
+            Drawable sengDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_oval_send_msg_bg, null);
+            if (sengDrawable != null) {
+                llSendMsg.setBackground(ThemeUtils.applyColorToDrawable(sengDrawable, color));
+            }
+            Drawable sengPicDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_pic_send_icon, null);
+            if (sengPicDrawable != null) {
+                ivSend.setBackground(ThemeUtils.applyColorToDrawable(sengPicDrawable, iconColor));
+            }
+            //修改切换机器人按钮
+            Drawable switchRrobotDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_switch_robot, null);
+            if (switchRrobotDrawable != null) {
+                iv_switch_robot.setBackground(ThemeUtils.applyColorToDrawable(switchRrobotDrawable, color));
+            }
+            tv_switch_robot.setTextColor(color);
+        } catch (Resources.NotFoundException e) {
         }
-        //修改切换机器人按钮
-        Drawable switchRrobotDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_switch_robot, null);
-        if (switchRrobotDrawable != null) {
-            iv_switch_robot.setBackground(ThemeUtils.applyColorToDrawable(switchRrobotDrawable, color));
-        }
-        tv_switch_robot.setTextColor(color);
     }
 
     private void applyUIConfig() {
@@ -7851,6 +7983,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
                 if (isShowTurnManualBtn) {
                     view = View.inflate(getSobotActivity(), R.layout.sobot_layout_lable, null);
+
                     TextView name = view.findViewById(R.id.sobot_lable_name);
                     ImageView icon = view.findViewById(R.id.sobot_lable_icon);
                     icon.setVisibility(View.VISIBLE);
@@ -7875,7 +8008,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         }
         if (null != view) {
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+                    ScreenUtils.dip2px(getSobotActivity(), 31));
             int marginRight = getResources().getDimensionPixelSize(R.dimen.sobot_layout_lable_margin_right);
             layoutParams.setMargins(0, 0, marginRight, 0);
             view.setLayoutParams(layoutParams);
@@ -7954,7 +8087,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             }
             final View view = View.inflate(getSobotActivity(), R.layout.sobot_layout_lable, null);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+                    ScreenUtils.dip2px(getSobotActivity(), 31));
             layoutParams.setMargins(0, 0, marginRight, 0);
             TextView lableName = view.findViewById(R.id.sobot_lable_name);
             ImageView lableIcon = view.findViewById(R.id.sobot_lable_icon);
@@ -8794,9 +8927,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         }
                     } catch (Exception e) {
                     }
-                    showSelectLanguaeTip(sobotlanguaeModel);
                     //展示后续的逻辑
-                    onInitResult(getInitModel());
+                    onInitResult(getInitModel(), sobotlanguaeModel);
                     getAiAgentRobotConfigInfo();
                 }
             }
@@ -8804,7 +8936,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             @Override
             public void onFailure(Exception e, String s) {
                 //展示后续的逻辑
-                onInitResult(getInitModel());
+                onInitResult(getInitModel(), sobotlanguaeModel);
             }
         });
     }
@@ -9036,5 +9168,115 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 onInitResult(getInitModel());
             }
         });
+    }
+
+    private void openTiket() {
+        SobotDialogUtils.startProgressDialog(getSobotActivity());
+        String mUid = getInitModel().getPartnerid();
+        String mCompanyId = getInitModel().getCompanyId();
+        String mCustomerId = getInitModel().getCustomerId();
+        String mGroupId = info.getLeaveMsgGroupId();
+        zhiChiApi.getUserTicketInfoList(getSobotActivity(), mUid, mCompanyId, mCustomerId, new StringResultCallBack<ArrayList<SobotUserTicketInfo>>() {
+
+            @SuppressLint("NotifyDataSetChanged")
+            @Override
+            public void onSuccess(ArrayList<SobotUserTicketInfo> datas) {
+                if (datas != null && !datas.isEmpty()) {
+                    SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                    //显示列表
+                    Intent intent2 = new Intent(getSobotActivity(), SobotTicketListActivity.class);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                    intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
+                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TICKET_LIST, datas);
+                    startActivity(intent2);
+                    if (getSobotActivity() != null) {
+                        getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
+                                R.anim.sobot_push_left_out);
+                    }
+                } else {
+                    //新建请求模板
+                    zhiChiApi.getWsTemplate(getSobotActivity(), mUid, mGroupId, new StringResultCallBack<ArrayList<SobotPostMsgTemplate>>() {
+                        @Override
+                        public void onSuccess(ArrayList<SobotPostMsgTemplate> list) {
+                            if (list != null && !list.isEmpty()) {
+                                if (list.size() == 1) {
+                                    SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                                    //只有一个 自动点选，跳转到留言页面
+                                    Intent intent = new Intent(getSobotActivity(), SobotTicketNewActivity.class);
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                                    intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, list.get(0).getTemplateId());
+                                    startActivity(intent);
+                                    if (getSobotActivity() != null) {
+                                        getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
+                                                R.anim.sobot_push_left_out);
+                                    }
+                                } else {
+                                    //显示列表
+                                    SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                                    Intent intent2 = new Intent(getSobotActivity(), SobotTicketListActivity.class);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                                    intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
+                                    intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TEMP_LIST, list);
+                                    startActivity(intent2);
+                                    if (getSobotActivity() != null) {
+                                        getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
+                                                R.anim.sobot_push_left_out);
+                                    }
+                                }
+                            } else {
+                                SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                                //跳转到新建工单页面
+                                Intent intent = new Intent(getSobotActivity(), SobotTicketNewActivity.class);
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "");
+                                startActivity(intent);
+                                if (getSobotActivity() != null) {
+                                    getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
+                                            R.anim.sobot_push_left_out);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e, String des) {
+                            SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                            //请求失败
+                            Intent intent = new Intent(getSobotActivity(), SobotTicketNewActivity.class);
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "");
+                            startActivity(intent);
+                            if (getSobotActivity() != null) {
+                                getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in,
+                                        R.anim.sobot_push_left_out);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+                LogUtils.i(des);
+            }
+
+        });
+
     }
 }

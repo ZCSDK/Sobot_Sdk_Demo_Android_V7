@@ -47,6 +47,7 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
         } else {
             btn_sendBtn.setText(R.string.sobot_button_send);
         }
+        btn_sendBtn.setTextColor(ThemeUtils.getThemeTextAndIconColor(context));
         sobot_container = convertView.findViewById(R.id.sobot_container);
         iv_pic = (SobotProgressImageView) convertView.findViewById(R.id.sobot_goods_pic);
         tv_title = (TextView) convertView.findViewById(R.id.sobot_goods_title);

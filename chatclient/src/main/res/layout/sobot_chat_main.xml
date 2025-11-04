@@ -35,8 +35,8 @@
             <TextView
                 android:id="@+id/tv_announcement_title"
                 android:layout_width="wrap_content"
-                android:layout_alignParentStart="true"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/iv_announcement_right_icon"
                 android:ellipsize="marquee"
                 android:includeFontPadding="false"
@@ -53,7 +53,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="6dp"
-                android:background="@drawable/sobot_icon_right_arrow"
+                android:background="@drawable/sobot_icon_tonggao_arrow"
                 android:visibility="gone" />
         </RelativeLayout>
         <!--消息列表-->
@@ -94,12 +94,15 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
             android:background="@drawable/sobot_swith_robot_bg"
+            android:elevation="24dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:outlineSpotShadowColor="@color/sobot_color_shadow_second"
             android:paddingStart="16dp"
             android:paddingTop="8dp"
             android:paddingEnd="10dp"
             android:paddingBottom="8dp"
+            android:translationY="6dp"
             android:visibility="visible">
 
             <ImageView
@@ -268,43 +271,6 @@
             android:textSize="@dimen/sobot_text_font_12" />
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_more_root"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="-3dp"
-        android:layout_marginEnd="9dp"
-        android:background="@drawable/sobot_background_shadow3"
-        android:orientation="vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:id="@+id/ll_clear_history"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingTop="9dp"
-            android:paddingBottom="9dp">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/sobot_icon_hisrory_clear" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:includeFontPadding="false"
-                android:text="@string/sobot_clear_history_message"
-                android:textColor="@color/sobot_color_text_first"
-                android:textSize="@dimen/sobot_text_font_14" />
-        </LinearLayout>
-    </LinearLayout>
     <!-- loading布局 -->
     <include
         android:id="@+id/sobot_welcome"

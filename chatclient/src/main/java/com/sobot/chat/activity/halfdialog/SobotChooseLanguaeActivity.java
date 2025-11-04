@@ -1,14 +1,18 @@
 package com.sobot.chat.activity.halfdialog;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,7 +20,9 @@ import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotChooseLanguaeAdapter;
 import com.sobot.chat.api.model.SobotlanguaeModel;
+import com.sobot.chat.utils.SobotSoftKeyboardUtils;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.util.ArrayList;
@@ -94,6 +100,14 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
         if (coustom_pop_layout == null) {
             coustom_pop_layout = findViewById(R.id.sobot_container);
         }
+        coustom_pop_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 清除搜索框焦点并隐藏键盘
+                SobotSoftKeyboardUtils.hideSoftInput(et_search);
+                et_search.clearFocus();
+            }
+        });
         rv_list = findViewById(R.id.rv_list);
         rv_list.setLayoutManager(new LinearLayoutManager(this));
 
@@ -105,10 +119,20 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
         et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_search_bg, null);
                 if (hasFocus) {
                     showSoftKeyboard();
+                    if (bgDrawable != null) {
+                        try {
+                            ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getSobotBaseActivity())));
+                        } catch (Exception e) {
+                        }
+                    }
                 } else {
                     hideKeyboard();
+                    if (bgDrawable != null) {
+                        ll_search.setBackground(bgDrawable);
+                    }
                 }
             }
         });
@@ -140,7 +164,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
 
     @Override
     protected void setRequestTag() {
-        REQUEST_TAG ="SobotChooseLanguaeActivity";
+        REQUEST_TAG = "SobotChooseLanguaeActivity";
     }
 
     private void setIv_search() {
@@ -154,7 +178,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
                     temList.add(list.get(i));
                 }
             }
-            adapter.setList(temList,searchText);
+            adapter.setList(temList, searchText);
             if (temList.size() > 0) {
                 showList();
             } else {
@@ -177,7 +201,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
         //显示全部数据
         List<SobotlanguaeModel> temList = new ArrayList();
         temList.addAll(list);
-        adapter.setList(temList,"");
+        adapter.setList(temList, "");
         if (temList.size() > 0) {
             showList();
         } else {

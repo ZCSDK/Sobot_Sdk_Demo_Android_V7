@@ -116,10 +116,24 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             //只显示列表
             curPageNum = 0;
             faqDocRespVoList = bean.getFaqDocRespVos();
-
+            if(StringUtils.isNoEmpty(bean.getGuideWords())){
+                //显示引导语
+                tab_hot_title.setVisibility(View.VISIBLE);
+                v_tab_hot_title_split.setVisibility(View.VISIBLE);
+                horizontalScrollView_ll.removeAllViews();
+                TextView titleTv = new TextView(mContext);
+                titleTv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                titleTv.setTextSize(14);
+                titleTv.setTextColor(ContextCompat.getColor(mContext,R.color.sobot_color_text_first));
+                titleTv.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 15));
+                titleTv.setText(bean.getGuideWords());
+                horizontalScrollView_ll.addView(titleTv);
+            }else{
+                tab_hot_title.setVisibility(View.GONE);
+                v_tab_hot_title_split.setVisibility(View.GONE);
+            }
             setList(faqDocRespVoList);
-            tab_hot_title.setVisibility(View.GONE);
-            v_tab_hot_title_split.setVisibility(View.GONE);
+
         } else if (bean.getShowType() == 2) {
             PAGE_NUM = bean.getGuidePageCount();
             List<GroupRespVo> groupRespVoList = bean.getGroupRespVos();
@@ -165,7 +179,11 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 TextView answer = view.findViewById(R.id.sobot_tv_name);
                 final FaqDocRespVo info = faqDocRespVoList.get(i);
                 answer.setText(info.getQuestionName());
-                answer.setLines(1);
+                if(sobot_hot_pic.getVisibility()==View.VISIBLE) {
+                    answer.setLines(1);
+                }else{
+                    answer.setMaxLines(2);
+                }
                 answer.setEllipsize(TextUtils.TruncateAt.END);
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -221,7 +239,11 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 TextView answer = view.findViewById(R.id.sobot_tv_name);
                 final FaqDocRespVo info = faqList.get(i);
                 answer.setText(info.getQuestionName());
-                answer.setLines(1);
+                if(sobot_hot_pic.getVisibility()==View.VISIBLE) {
+                    answer.setLines(1);
+                }else{
+                    answer.setMaxLines(2);
+                }
                 answer.setEllipsize(TextUtils.TruncateAt.END);
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -289,7 +311,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     line.setVisibility(View.VISIBLE);
                 } else {
                     titleTv.setTypeface(null,Typeface.NORMAL);
-                    titleTv.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
+                    titleTv.setTextColor(mContext.getResources().getColor(R.color.sobot_color_line_divider_3));
                     line.setVisibility(View.INVISIBLE);
                 }
             }

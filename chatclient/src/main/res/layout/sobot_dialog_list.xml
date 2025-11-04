@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/sobot_dialog_title_bg"
-        app:sobot_mhv_HeightRatio="0.8">
+        android:paddingBottom="40dp"
+        app:sobot_mhv_HeightRatio="0.9">
 
         <include layout="@layout/sobot_dialog_title"
             android:layout_width="match_parent"

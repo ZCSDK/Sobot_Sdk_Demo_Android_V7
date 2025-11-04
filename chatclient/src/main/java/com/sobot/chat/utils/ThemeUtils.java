@@ -21,8 +21,7 @@ import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import java.util.Locale;
 
 /**
- * @author: Sobot
- * 2022/9/15
+ * 主题工具类
  */
 public class ThemeUtils {
     /**
@@ -43,15 +42,18 @@ public class ThemeUtils {
         if (context == null) {
             return Color.parseColor("#4ADABE");
         }
-        ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
-                ZhiChiConstant.sobot_last_current_initModel);
-        if (initMode != null && initMode.getVisitorScheme() != null && !StringUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
-            String[] rebotTheme = initMode.getVisitorScheme().getRebotTheme().split(",");
-            if (rebotTheme.length >= 1) {
-                return Color.parseColor(rebotTheme[rebotTheme.length - 1]);
-            } else {
-                return Color.parseColor(rebotTheme[0]);
+        try {
+            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                    ZhiChiConstant.sobot_last_current_initModel);
+            if (initMode != null && initMode.getVisitorScheme() != null && !StringUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
+                String[] rebotTheme = initMode.getVisitorScheme().getRebotTheme().split(",");
+                if (rebotTheme.length >= 1) {
+                    return Color.parseColor(rebotTheme[rebotTheme.length - 1]);
+                } else {
+                    return Color.parseColor(rebotTheme[0]);
+                }
             }
+        } catch (Exception ignored) {
         }
         return context.getResources().getColor(R.color.sobot_color);
     }
@@ -65,12 +67,15 @@ public class ThemeUtils {
         if (context == null) {
             return Color.WHITE;
         }
-        ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
-                ZhiChiConstant.sobot_last_current_initModel);
-        if (initMode != null && initMode.getVisitorScheme() != null) {
-            if (StringUtils.isNoEmpty(initMode.getVisitorScheme().getRebotThemeBack())) {
-                return Color.parseColor(initMode.getVisitorScheme().getRebotThemeBack());
+        try {
+            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                    ZhiChiConstant.sobot_last_current_initModel);
+            if (initMode != null && initMode.getVisitorScheme() != null) {
+                if (StringUtils.isNoEmpty(initMode.getVisitorScheme().getRebotThemeBack())) {
+                    return Color.parseColor(initMode.getVisitorScheme().getRebotThemeBack());
+                }
             }
+        } catch (Exception ignored) {
         }
         return context.getResources().getColor(R.color.sobot_color_white);
     }
@@ -86,16 +91,19 @@ public class ThemeUtils {
         if (context == null) {
             return 0;
         }
-        ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
-                ZhiChiConstant.sobot_last_current_initModel);
-        if (initMode != null && initMode.getVisitorScheme() != null) {
-            if (StringUtils.isNoEmpty(initMode.getVisitorScheme().getTopBarFontIconColor())) {
-                if ("#ffffff".equals(initMode.getVisitorScheme().getTopBarFontIconColor().toLowerCase())||"#FFFFFF".equals(initMode.getVisitorScheme().getTopBarFontIconColor())) {
-                    return 0;
-                } else {
-                    return 1;
+        try {
+            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                    ZhiChiConstant.sobot_last_current_initModel);
+            if (initMode != null && initMode.getVisitorScheme() != null) {
+                if (StringUtils.isNoEmpty(initMode.getVisitorScheme().getTopBarFontIconColor())) {
+                    if ("#ffffff".equals(initMode.getVisitorScheme().getTopBarFontIconColor().toLowerCase())||"#FFFFFF".equals(initMode.getVisitorScheme().getTopBarFontIconColor())) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
                 }
             }
+        } catch (Exception ignored) {
         }
         return 0;
     }
@@ -108,34 +116,37 @@ public class ThemeUtils {
      */
     public static boolean updateThemeStyle(Context context) {
         if (context != null) {
-            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
-                    ZhiChiConstant.sobot_last_current_initModel);
-            if (initMode != null && initMode.getVisitorScheme() != null) {
-                //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
-                int rebotThemeStyle = initMode.getVisitorScheme().getRebotThemeStyle();
-                if (rebotThemeStyle == 2) {
-                    rebotThemeStyle = -1;
-                } else if (rebotThemeStyle == 0) {
-                    rebotThemeStyle = 1;
-                } else if (rebotThemeStyle == 1) {
-                    rebotThemeStyle = 2;
-                } else {
-                    rebotThemeStyle = -1;
-                }
-                //本地模式
-                int local_night_mode = SharedPreferencesUtil.getIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                if (rebotThemeStyle != local_night_mode) {
-                    int appCompatDelegate;
-                    if (rebotThemeStyle == 1) {
-                        appCompatDelegate = AppCompatDelegate.MODE_NIGHT_NO;//强制使用浅色
-                    } else if (rebotThemeStyle == 2) {
-                        appCompatDelegate = AppCompatDelegate.MODE_NIGHT_YES;//强制使用深色
+            try {
+                ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                        ZhiChiConstant.sobot_last_current_initModel);
+                if (initMode != null && initMode.getVisitorScheme() != null) {
+                    //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
+                    int rebotThemeStyle = initMode.getVisitorScheme().getRebotThemeStyle();
+                    if (rebotThemeStyle == 2) {
+                        rebotThemeStyle = -1;
+                    } else if (rebotThemeStyle == 0) {
+                        rebotThemeStyle = 1;
+                    } else if (rebotThemeStyle == 1) {
+                        rebotThemeStyle = 2;
                     } else {
-                        appCompatDelegate = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+                        rebotThemeStyle = -1;
                     }
-                    SharedPreferencesUtil.saveIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, appCompatDelegate);
-                    return true;
+                    //本地模式
+                    int local_night_mode = SharedPreferencesUtil.getIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                    if (rebotThemeStyle != local_night_mode) {
+                        int appCompatDelegate;
+                        if (rebotThemeStyle == 1) {
+                            appCompatDelegate = AppCompatDelegate.MODE_NIGHT_NO;//强制使用浅色
+                        } else if (rebotThemeStyle == 2) {
+                            appCompatDelegate = AppCompatDelegate.MODE_NIGHT_YES;//强制使用深色
+                        } else {
+                            appCompatDelegate = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+                        }
+                        SharedPreferencesUtil.saveIntData(context, ZCSobotConstant.LOCAL_NIGHT_MODE, appCompatDelegate);
+                        return true;
+                    }
                 }
+            } catch (Exception ignored) {
             }
         }
         return false;
@@ -148,10 +159,13 @@ public class ThemeUtils {
      * @return 返回的是color int 值
      */
     public static int getLinkColor(Context context) {
-        ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
-                ZhiChiConstant.sobot_last_current_initModel);
-        if (initMode != null && initMode.getVisitorScheme() != null && !StringUtils.isEmpty(initMode.getVisitorScheme().getMsgClickColor())) {
-            return Color.parseColor(initMode.getVisitorScheme().getMsgClickColor());
+        try {
+            ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(context,
+                    ZhiChiConstant.sobot_last_current_initModel);
+            if (initMode != null && initMode.getVisitorScheme() != null && !StringUtils.isEmpty(initMode.getVisitorScheme().getMsgClickColor())) {
+                return Color.parseColor(initMode.getVisitorScheme().getMsgClickColor());
+            }
+        } catch (Exception ignored) {
         }
         return context.getResources().getColor(R.color.sobot_color_link);
     }
@@ -217,9 +231,7 @@ public class ThemeUtils {
     /**
      * 为颜色 添加透明度
      *
-     * @param color
      * @param alpha 十六机制透明度
-     * @return
      */
     public static int addAlphaToColor(int color, int alpha) {
         return (alpha << 24) | (color & 0x00FFFFFF);

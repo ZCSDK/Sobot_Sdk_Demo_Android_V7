@@ -1,12 +1,15 @@
 package com.sobot.chat.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
 
 import java.lang.reflect.Method;
 
@@ -16,7 +19,20 @@ import java.lang.reflect.Method;
  */
 public class SobotSoftKeyboardUtils {
 
+    public static void hideSoftInput(@NonNull final View view) {
+        InputMethodManager imm =
+                (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm == null) return;
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
 
+    public static void showSoftInput(Context context) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm == null) {
+            return;
+        }
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
     /**
      * 键盘状态
      *

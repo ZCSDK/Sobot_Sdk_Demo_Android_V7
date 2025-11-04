@@ -39,6 +39,7 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
     private EditText et_search;//搜索
     private ImageView iv_clear;
     private TextView tv_nodata;
+    private TextView sobot_tv_title;
 
     @Override
     public void onClick(View v) {
@@ -94,6 +95,7 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
             coustom_pop_layout = findViewById(R.id.sobot_container);
         }
         rv_list = findViewById(R.id.rv_list);
+        sobot_tv_title = findViewById(R.id.sobot_tv_title);
         sobot_sureButton = findViewById(R.id.btnSubmit);
         if (ThemeUtils.isChangedThemeColor(this)) {
             int themeColor = ThemeUtils.getThemeColor(this);
@@ -143,6 +145,7 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
                 setIv_search();
             }
         });
+        sobot_tv_title.setText(R.string.sobot_time_zone);
     }
 
     private void setIv_search() {

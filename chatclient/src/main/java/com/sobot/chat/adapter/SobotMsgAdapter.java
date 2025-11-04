@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
@@ -393,255 +394,258 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
     public int getItemViewType(int position) {
         try {
             ZhiChiMessageBase message = getItem(position);
-            if (message == null) {
-                return MSG_TYPE_ILLEGAL;
-            } else if (message.isRetractedMsg()) {
-                return MSG_TYPE_RETRACTED_MSG;
-            } else if (message.getSkillGroups() != null && !message.getSkillGroups().isEmpty()) {
-                return MSG_TYPE_SKILL_GROUP;
-            }
-            int senderType = message.getSenderType();
-            if (senderType == -1) {
-                if (ZhiChiConstant.message_type_fraud_prevention == Integer
-                        .parseInt(message.getAction())) {
-                    //防诈骗消息
-                    return MSG_TYPE_FRAUD_PREVENTION;
-                }
-            }
-            if (ZhiChiConstant.message_sender_type_customer == senderType
-                    || ZhiChiConstant.message_sender_type_robot == senderType
-                    || ZhiChiConstant.message_sender_type_service == senderType) {
-                // 发送人类型 0是SDK客户  1是机器人  2 是客服
-                // 这些都是平台传过来的消息
-                if (message.getAnswer() != null) {
-                    if (ZhiChiConstant.message_type_text == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
-                            if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())) {
-                                //大模型文本消息
-                                return MSG_TYPE_TXT_L;
-                            } else {
-                                return MSG_TYPE_RICH;
-                            }
-                        } else if (ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
-                            return MSG_TYPE_TXT_L;
-                        } else if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            return MSG_TYPE_TXT_R;
-                        }
-                    } else if (ZhiChiConstant.message_type_pic == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            return MSG_TYPE_IMG_R;
-                        } else {
-                            return MSG_TYPE_IMG_L;
-                        }
-                    } else if (ZhiChiConstant.message_type_voice == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsgTransfer())) {
-                                return MSG_TYPE_TXT_R;
-                            }
-                            return MSG_TYPE_AUDIO_R;
-                        } else {
-                            return MSG_TYPE_ILLEGAL;
-                        }
+            return getItemTypeByMsg(message);
+        } catch (Exception e) {
+        }
+        return MSG_TYPE_ILLEGAL;
+    }
 
-                    } else if (ZhiChiConstant.message_type_emoji == message.getAnswer().getMsgType()) {
-                        // 富文本格式
-                        if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                                || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
-                            return MSG_TYPE_RICH;
-                        }
-                    } else if (ZhiChiConstant.message_type_textAndPic == message.getAnswer().getMsgType()) {
-                        //富文本中有图片
-                        if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                                || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
-                            return MSG_TYPE_RICH;
-                        }
-                    } else if (ZhiChiConstant.message_type_textAndText == message.getAnswer().getMsgType()) {
-                        //富文本中纯文字
-                        if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                                || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
-                            return MSG_TYPE_RICH;
-                        }
-                    } else if (message.getAnswer().getMsgType() == ZhiChiConstant.message_type_reply) {
-                        return MSG_TYPE_RICH;
-                    } else if (message.getAnswer().getMsgType() == ZhiChiConstant.message_type_reply_multi_round) {
-                        return MSG_TYPE_RICH;
-                    } else if (ZhiChiConstant.message_type_history_custom == message.getAnswer().getMsgType()) {
-                        return MSG_TYPE_MULTI_ROUND_R;
-                    } else if (ZhiChiConstant.message_type_history_robot == message.getAnswer().getMsgType()) {
-                        if (GsonUtil.isMultiRoundSession(message) && message.getAnswer().getMultiDiaRespInfo() != null) {
-                            SobotMultiDiaRespInfo multiDiaRespInfo = message.getAnswer().getMultiDiaRespInfo();
-                            if ("1511".equals(message.getAnswerType())) {
-                                return MSG_TYPE_ROBOT_ANSWER_ITEMS;
-                            }
-                            if ("1522".equals(message.getAnswerType())) {
-                                return MSG_TYPE_RICH;
-                            }
-                            if (multiDiaRespInfo.getInputContentList() != null && multiDiaRespInfo.getInputContentList().length > 0) {
-                                return MSG_TYPE_ROBOT_TEMPLATE2;
-                            }
-                            if (!TextUtils.isEmpty(multiDiaRespInfo.getTemplate())) {
-                                if ("0".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE1;
-                                } else if ("1".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE2;
-                                } else if ("2".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE3;
-                                } else if ("3".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE4;
-                                } else if ("4".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE5;
-                                } else if ("99".equals(multiDiaRespInfo.getTemplate())) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE6;
-                                }
-                            } else {
-                                if ((multiDiaRespInfo.getInterfaceRetList() == null || multiDiaRespInfo.getInterfaceRetList().size() <= 0) && (multiDiaRespInfo.getInputContentList() == null || multiDiaRespInfo.getInputContentList().length <= 0)) {
-                                    return MSG_TYPE_ROBOT_TEMPLATE5;
-                                }
-                                return MSG_TYPE_ROBOT_TEMPLATE2;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_file == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            return MSG_TYPE_FILE_R;
-                        } else {
-                            return MSG_TYPE_FILE_L;
-                        }
-                    } else if (ZhiChiConstant.message_type_video == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            if (message.getAnswer().getCacheFile() != null) {
-                                return MSG_TYPE_VIDEO_R;
-                            }
-                        } else {
-                            return MSG_TYPE_VIDEO_L;
-                        }
-                    } else if (ZhiChiConstant.message_type_location == message.getAnswer().getMsgType()) {
-                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                            if (message.getAnswer().getLocationData() != null) {
-                                return MSG_TYPE_LOCATION_R;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_card == message.getAnswer().getMsgType()) {
-                        if (message.getConsultingContent() != null) {
-                            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                                return MSG_TYPE_CARD_R;
-                            } else {
-                                return MSG_TYPE_CARD_L;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_ordercard == message.getAnswer().getMsgType()) {
-                        if (message.getOrderCardContent() != null) {
-                            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                                return MSG_TYPE_ROBOT_ORDERCARD_R;
-                            } else {
-                                return MSG_TYPE_ROBOT_ORDERCARD_L;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_miniprogram_card == message.getAnswer().getMsgType()) {
-                        if (message.getMiniProgramModel() != null) {
-                            return MSG_TYPE_MINIPROGRAM_CARD_L;
-                        }
-                    } else if (ZhiChiConstant.message_type_article_card_msg == message.getAnswer().getMsgType()) {
-                        return MSG_TYPE_ARTICLE_CARD_L;
-                    } else if (ZhiChiConstant.message_type_muiti_leave_msg == message.getAnswer().getMsgType()) {
-                        return MSG_TYPE_MUITI_LEAVE_MSG_R;
-                    } else if (ZhiChiConstant.message_type_card_msg == message.getAnswer().getMsgType()) {
-                        if (message.getCustomCard() != null) {
-                            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                                return MSG_TYPE_CUSTOMER_CARD_R;
-                            } else {
-                                return MSG_TYPE_CUSTOMER_CARD_L;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_ai_card_msg == message.getAnswer().getMsgType()) {
-                        if (message.getCustomCard() != null) {
-                            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                                return MSG_TYPE_AI_CARD_R;
-                            } else {
-                                return MSG_TYPE_AI_CARD_L;
-                            }
-                        }
-                    } else if (ZhiChiConstant.message_type_appoint_msg == message.getAnswer().getMsgType()) {
-                        if (message.getAppointMessage() != null) {
-                            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-                                return MSG_TYPE_APPOINT_R;
-                            } else {
-                                return MSG_TYPE_APPOINT_L;
-                            }
-                        }
-                    }
-                } else {
-                    return MSG_TYPE_ILLEGAL;
-                }
-            } else if (ZhiChiConstant.message_sender_type_system == senderType && null != message.getCustomCard()) {
-//                类型：11 横屏多个商品，22 竖屏单个商品卡片
-                if (message.getCustomCard().getType() == 11) {
-                    return MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL;
-                } else if (message.getCustomCard().getType() == 22) {
-                    return MSG_TYPE_CUSTOM_CARD_VERTICAL_SPECIAL;
-                } else {
-                    if (message.getCustomCard().getCardForm() == 1) {
-                        //大模型卡片
-                        return MSG_TYPE_AI_CARD_L;
-                    } else {
-                        //自定义卡片
-                        return MSG_TYPE_CUSTOMER_CARD_L;
-                    }
-                }
-            } else if (ZhiChiConstant.message_sender_type_remide_info == senderType) {
-                //提醒的消息
-                return MSG_TYPE_TIP;
-            } else if (ZhiChiConstant.message_sender_type_consult_info == senderType) {
-                return MSG_TYPE_CONSULT;
-            } else if (ZhiChiConstant.message_sender_type_robot_guide == senderType) {
-                return MSG_TYPE_RICH;
-            } else if (ZhiChiConstant.message_sender_type_custom_evaluate == senderType) {
-                return MSG_TYPE_CUSTOM_EVALUATE;
-            } else if (ZhiChiConstant.message_sender_type_questionRecommend == senderType) {
-                return MSG_TYPE_ROBOT_QUESTION_RECOMMEND;
-            } else if (ZhiChiConstant.message_sender_type_robot_welcome_msg == senderType) {
-                return MSG_TYPE_RICH;
-            } else if (ZhiChiConstant.message_sender_type_robot_keyword_msg == senderType) {
-                return MSG_TYPE_ROBOT_KEYWORD_ITEMS;
-            } else if (ZhiChiConstant.message_sender_type_robot_semantics_keyword_msg == senderType) {
-                return MSG_TYPE_ROBOT_SEMANTICS_KEYWORD_ITEMS;
-            } else if (ZhiChiConstant.message_sender_type_change_languae == senderType) {
-                return MSG_TYPE_CHANGE_LANGUAE;
-            } else if (ZhiChiConstant.message_sender_type_sensitive_authorize == senderType) {
-                return MSG_TYPE_SENSITIVE_AUTHORIZE;
-            } else if (ZhiChiConstant.message_sender_type_notice == senderType) {
-                return MSG_TYPE_NOTICE;
-            } else if (ZhiChiConstant.message_sender_type_aiagent_button == senderType) {
-                //大模型按钮卡片消息
-                return MSG_TYPE_ROBOT_AIAGENT_BUTTON;
-            } else if (ZhiChiConstant.message_sender_type_ai_tobot_cai_card == senderType) {
-                //大模型点踩问答
-                return MSG_TYPE_AI_ROBOT_CAI;
-            } else if ((ZhiChiConstant.message_type_fraud_prevention + "").equals(message.getAction())) {
+    @Nullable
+    private static int getItemTypeByMsg(ZhiChiMessageBase message) {
+        if (message == null) {
+            return MSG_TYPE_ILLEGAL;
+        } else if (message.isRetractedMsg()) {
+            return MSG_TYPE_RETRACTED_MSG;
+        } else if (message.getSkillGroups() != null && !message.getSkillGroups().isEmpty()) {
+            return MSG_TYPE_SKILL_GROUP;
+        }
+        int senderType = message.getSenderType();
+        if (senderType == -1) {
+            if (ZhiChiConstant.message_type_fraud_prevention == Integer
+                    .parseInt(message.getAction())) {
                 //防诈骗消息
                 return MSG_TYPE_FRAUD_PREVENTION;
-            } else if (ZhiChiConstant.action_sensitive_auth_agree.equals(message.getAction())) {
-                //发送消息触发隐私，同意后的系统消息
-                return MSG_TYPE_TIP;
-            } else if (ZhiChiConstant.action_sensitive_hot_issue.equals(message.getAction())) {
-                return MSG_TYPE_HOT_ISSUE;
-            } else if (ZhiChiConstant.action_mulit_postmsg_tip_can_click.equals(message.getAction())) {
-                //多轮收集节点提醒消息 可以点击
-                return MSG_TYPE_TIP;
-            } else if (ZhiChiConstant.action_mulit_postmsg_tip_nocan_click.equals(message.getAction())) {
-                //多轮收集节点提醒消息 不可以点击
-                return MSG_TYPE_TIP;
-            } else if (ZhiChiConstant.action_card_mind_msg.equals(message.getAction())) {
-                //多轮收集节点提醒消息 不可以点击
-                return MSG_TYPE_TIP;
-            } else if (!TextUtils.isEmpty(message.getAction()) && message.getAction().equals("25")) {
-                //点踩问答
-                return MSG_TYPE_CAI;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return MSG_TYPE_ILLEGAL;
         }
+        if (ZhiChiConstant.message_sender_type_customer == senderType
+                || ZhiChiConstant.message_sender_type_robot == senderType
+                || ZhiChiConstant.message_sender_type_service == senderType) {
+            // 发送人类型 0是SDK客户  1是机器人  2 是客服
+            // 这些都是平台传过来的消息
+            if (message.getAnswer() != null) {
+                if (ZhiChiConstant.message_type_text == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
+                        if (StringUtils.isNoEmpty(message.getServant()) && "aiagent".equals(message.getServant())) {
+                            //大模型文本消息
+                            return MSG_TYPE_TXT_L;
+                        } else {
+                            return MSG_TYPE_RICH;
+                        }
+                    } else if (ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                        return MSG_TYPE_TXT_L;
+                    } else if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        return MSG_TYPE_TXT_R;
+                    }
+                } else if (ZhiChiConstant.message_type_pic == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        return MSG_TYPE_IMG_R;
+                    } else {
+                        return MSG_TYPE_IMG_L;
+                    }
+                } else if (ZhiChiConstant.message_type_voice == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsgTransfer())) {
+                            return MSG_TYPE_TXT_R;
+                        }
+                        return MSG_TYPE_AUDIO_R;
+                    } else {
+                        return MSG_TYPE_ILLEGAL;
+                    }
 
+                } else if (ZhiChiConstant.message_type_emoji == message.getAnswer().getMsgType()) {
+                    // 富文本格式
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
+                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                        return MSG_TYPE_RICH;
+                    }
+                } else if (ZhiChiConstant.message_type_textAndPic == message.getAnswer().getMsgType()) {
+                    //富文本中有图片
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
+                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                        return MSG_TYPE_RICH;
+                    }
+                } else if (ZhiChiConstant.message_type_textAndText == message.getAnswer().getMsgType()) {
+                    //富文本中纯文字
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
+                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                        return MSG_TYPE_RICH;
+                    }
+                } else if (message.getAnswer().getMsgType() == ZhiChiConstant.message_type_reply) {
+                    return MSG_TYPE_RICH;
+                } else if (message.getAnswer().getMsgType() == ZhiChiConstant.message_type_reply_multi_round) {
+                    return MSG_TYPE_RICH;
+                } else if (ZhiChiConstant.message_type_history_custom == message.getAnswer().getMsgType()) {
+                    return MSG_TYPE_MULTI_ROUND_R;
+                } else if (ZhiChiConstant.message_type_history_robot == message.getAnswer().getMsgType()) {
+                    if (GsonUtil.isMultiRoundSession(message) && message.getAnswer().getMultiDiaRespInfo() != null) {
+                        SobotMultiDiaRespInfo multiDiaRespInfo = message.getAnswer().getMultiDiaRespInfo();
+                        if ("1511".equals(message.getAnswerType())) {
+                            return MSG_TYPE_ROBOT_ANSWER_ITEMS;
+                        }
+                        if ("1522".equals(message.getAnswerType())) {
+                            return MSG_TYPE_RICH;
+                        }
+                        if (multiDiaRespInfo.getInputContentList() != null && multiDiaRespInfo.getInputContentList().length > 0) {
+                            return MSG_TYPE_ROBOT_TEMPLATE2;
+                        }
+                        if (!TextUtils.isEmpty(multiDiaRespInfo.getTemplate())) {
+                            if ("0".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE1;
+                            } else if ("1".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE2;
+                            } else if ("2".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE3;
+                            } else if ("3".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE4;
+                            } else if ("4".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE5;
+                            } else if ("99".equals(multiDiaRespInfo.getTemplate())) {
+                                return MSG_TYPE_ROBOT_TEMPLATE6;
+                            }
+                        } else {
+                            if ((multiDiaRespInfo.getInterfaceRetList() == null || multiDiaRespInfo.getInterfaceRetList().size() <= 0) && (multiDiaRespInfo.getInputContentList() == null || multiDiaRespInfo.getInputContentList().length <= 0)) {
+                                return MSG_TYPE_ROBOT_TEMPLATE5;
+                            }
+                            return MSG_TYPE_ROBOT_TEMPLATE2;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_file == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        return MSG_TYPE_FILE_R;
+                    } else {
+                        return MSG_TYPE_FILE_L;
+                    }
+                } else if (ZhiChiConstant.message_type_video == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        if (message.getAnswer().getCacheFile() != null) {
+                            return MSG_TYPE_VIDEO_R;
+                        }
+                    } else {
+                        return MSG_TYPE_VIDEO_L;
+                    }
+                } else if (ZhiChiConstant.message_type_location == message.getAnswer().getMsgType()) {
+                    if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                        if (message.getAnswer().getLocationData() != null) {
+                            return MSG_TYPE_LOCATION_R;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_card == message.getAnswer().getMsgType()) {
+                    if (message.getConsultingContent() != null) {
+                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                            return MSG_TYPE_CARD_R;
+                        } else {
+                            return MSG_TYPE_CARD_L;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_ordercard == message.getAnswer().getMsgType()) {
+                    if (message.getOrderCardContent() != null) {
+                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                            return MSG_TYPE_ROBOT_ORDERCARD_R;
+                        } else {
+                            return MSG_TYPE_ROBOT_ORDERCARD_L;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_miniprogram_card == message.getAnswer().getMsgType()) {
+                    if (message.getMiniProgramModel() != null) {
+                        return MSG_TYPE_MINIPROGRAM_CARD_L;
+                    }
+                } else if (ZhiChiConstant.message_type_article_card_msg == message.getAnswer().getMsgType()) {
+                    return MSG_TYPE_ARTICLE_CARD_L;
+                } else if (ZhiChiConstant.message_type_muiti_leave_msg == message.getAnswer().getMsgType()) {
+                    return MSG_TYPE_MUITI_LEAVE_MSG_R;
+                } else if (ZhiChiConstant.message_type_card_msg == message.getAnswer().getMsgType()) {
+                    if (message.getCustomCard() != null) {
+                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                            return MSG_TYPE_CUSTOMER_CARD_R;
+                        } else {
+                            return MSG_TYPE_CUSTOMER_CARD_L;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_ai_card_msg == message.getAnswer().getMsgType()) {
+                    if (message.getCustomCard() != null) {
+                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                            return MSG_TYPE_AI_CARD_R;
+                        } else {
+                            return MSG_TYPE_AI_CARD_L;
+                        }
+                    }
+                } else if (ZhiChiConstant.message_type_appoint_msg == message.getAnswer().getMsgType()) {
+                    if (message.getAppointMessage() != null) {
+                        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                            return MSG_TYPE_APPOINT_R;
+                        } else {
+                            return MSG_TYPE_APPOINT_L;
+                        }
+                    }
+                }
+            } else {
+                return MSG_TYPE_ILLEGAL;
+            }
+        } else if (ZhiChiConstant.message_sender_type_system == senderType && null != message.getCustomCard()) {
+//                类型：11 横屏多个商品，22 竖屏单个商品卡片
+            if (message.getCustomCard().getType() == 11) {
+                return MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL;
+            } else if (message.getCustomCard().getType() == 22) {
+                return MSG_TYPE_CUSTOM_CARD_VERTICAL_SPECIAL;
+            } else {
+                if (message.getCustomCard().getCardForm() == 1) {
+                    //大模型卡片
+                    return MSG_TYPE_AI_CARD_L;
+                } else {
+                    //自定义卡片
+                    return MSG_TYPE_CUSTOMER_CARD_L;
+                }
+            }
+        } else if (ZhiChiConstant.message_sender_type_remide_info == senderType) {
+            //提醒的消息
+            return MSG_TYPE_TIP;
+        } else if (ZhiChiConstant.message_sender_type_consult_info == senderType) {
+            return MSG_TYPE_CONSULT;
+        } else if (ZhiChiConstant.message_sender_type_robot_guide == senderType) {
+            return MSG_TYPE_RICH;
+        } else if (ZhiChiConstant.message_sender_type_custom_evaluate == senderType) {
+            return MSG_TYPE_CUSTOM_EVALUATE;
+        } else if (ZhiChiConstant.message_sender_type_questionRecommend == senderType) {
+            return MSG_TYPE_ROBOT_QUESTION_RECOMMEND;
+        } else if (ZhiChiConstant.message_sender_type_robot_welcome_msg == senderType) {
+            return MSG_TYPE_RICH;
+        } else if (ZhiChiConstant.message_sender_type_robot_keyword_msg == senderType) {
+            return MSG_TYPE_ROBOT_KEYWORD_ITEMS;
+        } else if (ZhiChiConstant.message_sender_type_robot_semantics_keyword_msg == senderType) {
+            return MSG_TYPE_ROBOT_SEMANTICS_KEYWORD_ITEMS;
+        } else if (ZhiChiConstant.message_sender_type_change_languae == senderType) {
+            return MSG_TYPE_CHANGE_LANGUAE;
+        } else if (ZhiChiConstant.message_sender_type_sensitive_authorize == senderType) {
+            return MSG_TYPE_SENSITIVE_AUTHORIZE;
+        } else if (ZhiChiConstant.message_sender_type_notice == senderType) {
+            return MSG_TYPE_NOTICE;
+        } else if (ZhiChiConstant.message_sender_type_aiagent_button == senderType) {
+            //大模型按钮卡片消息
+            return MSG_TYPE_ROBOT_AIAGENT_BUTTON;
+        } else if (ZhiChiConstant.message_sender_type_ai_tobot_cai_card == senderType) {
+            //大模型点踩问答
+            return MSG_TYPE_AI_ROBOT_CAI;
+        } else if ((ZhiChiConstant.message_type_fraud_prevention + "").equals(message.getAction())) {
+            //防诈骗消息
+            return MSG_TYPE_FRAUD_PREVENTION;
+        } else if (ZhiChiConstant.action_sensitive_auth_agree.equals(message.getAction())) {
+            //发送消息触发隐私，同意后的系统消息
+            return MSG_TYPE_TIP;
+        } else if (ZhiChiConstant.action_sensitive_hot_issue.equals(message.getAction())) {
+            return MSG_TYPE_HOT_ISSUE;
+        } else if (ZhiChiConstant.action_mulit_postmsg_tip_can_click.equals(message.getAction())) {
+            //多轮收集节点提醒消息 可以点击
+            return MSG_TYPE_TIP;
+        } else if (ZhiChiConstant.action_mulit_postmsg_tip_nocan_click.equals(message.getAction())) {
+            //多轮收集节点提醒消息 不可以点击
+            return MSG_TYPE_TIP;
+        } else if (ZhiChiConstant.action_card_mind_msg.equals(message.getAction())) {
+            //多轮收集节点提醒消息 不可以点击
+            return MSG_TYPE_TIP;
+        } else if (!TextUtils.isEmpty(message.getAction()) && message.getAction().equals("25")) {
+            //点踩问答
+            return MSG_TYPE_CAI;
+        }
         return MSG_TYPE_ILLEGAL;
     }
 
@@ -685,6 +689,24 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 }
             } else {
                 base.setShowFaceAndNickname(true);
+            }
+            if (i != 0) {
+                //修改上一条消息的字段
+                //下一条消息是否显示头像昵称，如果不显示头像昵称，则和一条消息的间距需要调小，两条消息的圆角弧度都需要调整
+                ZhiChiMessageBase preMsg = msgLists.get(i - 1);
+                if (getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_FILE_L
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_FILE_R
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_CARD_L
+                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_CARD_R) {
+                    //下一条文章卡片
+                    preMsg.setNextIsCard(true);
+                } else {
+                    preMsg.setNextIsCard(false);
+                }
             }
             if (base.getT() != null) {
                 try {
@@ -731,6 +753,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 .action_remind_no_service, true);
 
         removeByAction(message, ZhiChiConstant.action_remind_info_paidui, ZhiChiConstant.action_remind_info_paidui, true);
+
+        removeByAction(message, ZhiChiConstant.action_remind_livemsg_new, ZhiChiConstant.action_remind_livemsg_new, true);
 
         removeByAction(message, ZhiChiConstant.action_remind_info_paidui, ZhiChiConstant.action_remind_info_post_msg, true);
 
@@ -847,6 +871,22 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         }
                     } else {
                         message.setShowFaceAndNickname(true);
+                    }
+                }
+                ZhiChiMessageBase preMsg = list.get(list.size() - 1);
+                if (preMsg != null) {
+                    if (getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_FILE_L
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_FILE_R
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_CARD_L
+                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_CARD_R) {
+                        //下一条文章卡片
+                        preMsg.setNextIsCard(true);
+                    } else {
+                        preMsg.setNextIsCard(false);
                     }
                 }
             }
@@ -1105,13 +1145,17 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     //处理markdown数据
     private static void doMarkDownData(String content, ZhiChiReplyAnswer answer) {
-        if (ChatUtils.isHasPictureInMarkdown(content) && ChatUtils.parseMarkdownToArr(content) != null) {
+        if ((ChatUtils.isHasPictureInMarkdown(content)||ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
             String[] temp = ChatUtils.parseMarkdownToArr(content);
             List<ChatMessageRichListModel> richList = new ArrayList<>();
             for (int i = 0; i < temp.length; i++) {
                 ChatMessageRichListModel model = new ChatMessageRichListModel();
                 if (StringUtils.isNoEmpty(temp[0])) {
-                    if (temp[i].startsWith("http")) {
+                    if (temp[i].startsWith("<table")) {
+                        //md 表格
+                        model.setMsg(temp[i]);
+                        model.setType(5);
+                    }else if (temp[i].startsWith("http")) {
                         //图片
                         model.setMsg(temp[i]);
                         model.setType(1);

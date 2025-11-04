@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--消息气泡背景 空心边框 文件订单、商品卡片等-->
+    <style name="sobot_msg_content_ll_hollow_bg_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:outlineSpotShadowColor">@color/sobot_color_shadow</item>
+        <item name="android:elevation">16dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:translationY">6dp</item>
+        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg</item>
+    </style>
+
+    <!--消息气泡背景 空心边框 文章 小程序 位置等-->
+    <style name="sobot_msg_content_ll_hollow_bg_no_padding_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:elevation">16dp</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:translationY">6dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:outlineSpotShadowColor">@color/sobot_color_shadow</item>
+        <item name="android:background">@drawable/sobot_chat_msg_hollow_bg</item>
+    </style>
+
+</resources>
