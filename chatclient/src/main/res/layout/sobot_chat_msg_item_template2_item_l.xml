@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sobot.chat.widget.SobotMaxSizeLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_template_item_ll"
+    app:sobot_max_width="@dimen/sobot_msg_content_max_width"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -26,4 +28,4 @@
         android:textColor="@color/sobot_template2_lable_text_color"
         android:textSize="@dimen/sobot_text_font_14" />
 
-</LinearLayout>
+</com.sobot.chat.widget.SobotMaxSizeLinearLayout>

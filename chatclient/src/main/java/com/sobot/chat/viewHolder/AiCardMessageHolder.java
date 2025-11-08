@@ -75,19 +75,19 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
             if (initMode != null && !isRight) {
                 if (initMode.getVisitorScheme().getShowFace() == 1) {
                     //显示头像
-                    imgHead.setVisibility(View.VISIBLE);
-                    imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
+                    headIV.setVisibility(View.VISIBLE);
+                    headIV.setImageUrl(CommonUtils.encode(message.getSenderFace()));
                 } else {
                     //隐藏头像
-                    imgHead.setVisibility(View.GONE);
+                    headIV.setVisibility(View.GONE);
                 }
                 if (initMode.getVisitorScheme().getShowStaffNick() == 1) {
                     //显示昵称
-                    name.setVisibility(View.VISIBLE);
-                    imgHead.setImageUrl(CommonUtils.encode(message.getSenderFace()));
+                    nameTv.setVisibility(View.VISIBLE);
+                    headIV.setImageUrl(CommonUtils.encode(message.getSenderFace()));
                 } else {
                     //隐藏昵称
-                    name.setVisibility(View.GONE);
+                    nameTv.setVisibility(View.GONE);
                 }
             }
             List<SobotChatCustomGoods> list = new ArrayList<>();
@@ -115,7 +115,7 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                     ll_expand.setVisibility(View.GONE);
                 }
             }
-            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight, isRight, message.getSugguestionsFontColor() == 1);
+            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight,  message.getSugguestionsFontColor() == 1);
             aiCardAdapter.setOnItemClickListener(new SobotAiCardAdapter.OnItemListener() {
                 @Override
                 public void onSendClick(String menuName, SobotChatCustomGoods goods) {

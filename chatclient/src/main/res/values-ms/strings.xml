@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">Anda tidak menghantar sebarang maklumat. Sila</string>
        <string name="sobot_re_write">Isi maklumat lagi</string>
        <string name="sobot_str_please_check_is_solve">Sila pilih sama ada isu anda telah diselesaikan</string>
-       <string name="sobot_evaluate_lab">Label:</string>
-       <string name="sobot_evaluate_issolve">Selesai:</string>
+       <string name="sobot_evaluate_lab">Label</string>
+       <string name="sobot_evaluate_issolve">Selesai</string>
        <string name="sobot_str_appoint">Petikan</string>
        <string name="sobot_str_my">Saya</string>
        <string name="sobot_str_robot">Robot</string>

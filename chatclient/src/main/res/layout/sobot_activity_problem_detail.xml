@@ -8,8 +8,6 @@
 
     <include layout="@layout/sobot_layout_common_titlebar" />
 
-    <include layout="@layout/sobot_layout_top_divider" />
-
     <TextView
         android:id="@+id/sobot_text_problem_title"
         android:layout_width="match_parent"

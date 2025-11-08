@@ -7,10 +7,14 @@
     android:orientation="vertical">
 
     <com.sobot.chat.widget.SobotMHLinearLayout
+        android:id="@+id/dialog_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@drawable/sobot_dialog_title_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="vertical"
         app:sobot_mhv_HeightRatio="0.9">
 
@@ -122,11 +126,11 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/sobot_button_solve_selector"
                             android:gravity="center"
+                            android:orientation="horizontal"
                             android:paddingStart="14dp"
-                            android:paddingEnd="14dp"
                             android:paddingTop="7dp"
-                            android:paddingBottom="7dp"
-                            android:orientation="horizontal">
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="7dp">
 
                             <ImageView
                                 android:id="@+id/iv_solved"
@@ -153,11 +157,11 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/sobot_button_solve_selector"
                             android:gravity="center"
+                            android:orientation="horizontal"
                             android:paddingStart="14dp"
-                            android:paddingEnd="14dp"
                             android:paddingTop="7dp"
-                            android:paddingBottom="7dp"
-                            android:orientation="horizontal">
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="7dp">
 
                             <ImageView
                                 android:id="@+id/iv_no_solve"
@@ -197,8 +201,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:gravity="center_horizontal"
-                        android:minWidth="292dp"
                         android:layoutDirection="ltr"
+                        android:minWidth="292dp"
                         android:orientation="vertical"
                         android:visibility="gone">
 
@@ -207,6 +211,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
                             android:gravity="center_horizontal"
                             android:layoutDirection="ltr"
                             android:orientation="vertical">
@@ -233,21 +239,28 @@
                         android:orientation="horizontal"
                         android:visibility="gone">
 
+
                         <LinearLayout
                             android:id="@+id/sobot_btn_satisfied"
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
+                            android:gravity="bottom"
                             android:orientation="vertical">
 
-                            <ImageView
-                                android:id="@+id/iv_satisfied"
+                            <LinearLayout
                                 android:layout_width="43dp"
                                 android:layout_height="43dp"
-                                android:background="@drawable/sobot_dialog_close_bg"
-                                android:padding="5dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/sobot_satisfie_btn" />
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/iv_satisfied"
+                                    android:layout_width="43dp"
+                                    android:layout_height="43dp"
+                                    android:background="@drawable/sobot_dialog_close_bg"
+                                    android:padding="5dp"
+                                    android:scaleType="fitCenter"
+                                    android:src="@drawable/sobot_satisfie_btn" />
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/tv_satisfied"
@@ -268,17 +281,23 @@
                             android:id="@+id/sobot_btn_dissatisfied"
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:gravity="center"
+                            android:gravity="bottom|center_horizontal"
                             android:orientation="vertical">
 
-                            <ImageView
-                                android:id="@+id/iv_dissatisfied"
+                            <LinearLayout
                                 android:layout_width="43dp"
                                 android:layout_height="43dp"
-                                android:background="@drawable/sobot_dialog_close_bg"
-                                android:padding="5dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/sobot_dissatisfied_btn" />
+                                android:gravity="center">
+
+                                <ImageView
+                                    android:id="@+id/iv_dissatisfied"
+                                    android:layout_width="43dp"
+                                    android:layout_height="43dp"
+                                    android:background="@drawable/sobot_dialog_close_bg"
+                                    android:padding="5dp"
+                                    android:scaleType="fitCenter"
+                                    android:src="@drawable/sobot_dissatisfied_btn" />
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/tv_dissatisfied"
@@ -331,8 +350,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:minHeight="20dp"
                         android:layout_marginTop="14dp"
+                        android:minHeight="20dp"
                         app:sobot_fillMode="1"
                         app:sobot_horizontalGap="8dp"
                         app:sobot_verticalGap="8dp" />
@@ -344,8 +363,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="24dp"
-                    android:background="@drawable/sobot_bg_evaluate_input"
-                    android:padding="1dp"
                     android:visibility="gone">
 
                     <EditText
@@ -353,7 +370,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:background="@drawable/sobot_evaluate_def_bg"
+                        android:background="@drawable/sobot_bg_dialog_input"
                         android:enabled="true"
                         android:gravity="top"
                         android:inputType="textMultiLine"
@@ -383,12 +400,12 @@
                 android:layout_gravity="bottom"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="16dp"
-                android:minHeight="40dp"
                 android:background="@drawable/sobot_btn_bg_28"
                 android:button="@null"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lines="1"
+                android:minHeight="40dp"
                 android:padding="10dp"
                 android:text=""
                 android:textAllCaps="false"

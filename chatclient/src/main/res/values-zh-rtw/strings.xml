@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">您未提交資訊，請</string>
        <string name="sobot_re_write">重新填寫資訊</string>
        <string name="sobot_str_please_check_is_solve">請選擇是否解决了您的問題</string>
-       <string name="sobot_evaluate_lab">標籤：</string>
-       <string name="sobot_evaluate_issolve">是否解决：</string>
+       <string name="sobot_evaluate_lab">標籤</string>
+       <string name="sobot_evaluate_issolve">是否解决</string>
        <string name="sobot_str_appoint">引用</string>
        <string name="sobot_str_my">我</string>
        <string name="sobot_str_robot">機器人</string>
@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">保存成功</string>
        <string name="sobot_time_zone">選擇時區</string>
        <string name="sobot_time_zone_hint">請選擇時區</string>
-       <string name="sobot_phone_hint">請填寫手機號碼</string>
+       <string name="sobot_phone_hint">請選擇手機號碼</string>
        <string name="sobot_select_chat_language">請選擇您要使用的聊天語言：</string>
        <string name="sobot_more_language">更多語言</string>
        <string name="sobot_select_language">選擇語言</string>

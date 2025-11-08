@@ -16,18 +16,18 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sobot_msg_margin_edge">
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge_card">
 
         <!--头像-->
         <com.sobot.chat.widget.image.SobotProgressImageView
             android:id="@+id/sobot_msg_face_iv"
-            style="@style/sobot_chatting_left_face_style"
+            style="@style/sobot_chatting_left_face_style_card"
             android:visibility="gone" />
 
         <!-- 昵称 -->
         <TextView
             android:id="@+id/sobot_msg_nike_name_tv"
-            style="@style/sobot_chatting_nickname"
+            style="@style/sobot_chatting_nickname_card"
             android:layout_toEndOf="@+id/sobot_msg_face_iv"
             android:visibility="gone" />
 

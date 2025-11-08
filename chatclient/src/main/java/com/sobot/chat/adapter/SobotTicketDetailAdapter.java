@@ -184,6 +184,11 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         } else if (getItemViewType(position) == MSG_TYPE_HEAD) {
             HeadViewHolder vh = (HeadViewHolder) viewHolder;
             displayInNotch(mActivity, vh.tv_time, 0);
+            if(position==list.size()-1){
+                vh.line.setVisibility(View.GONE);
+            }else{
+                vh.line.setVisibility(View.VISIBLE);
+            }
             if (list.get(position) instanceof StTicketDetailInfo) {
                 final StTicketDetailInfo data = (StTicketDetailInfo) list.get(position);
                 if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
@@ -231,17 +236,16 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         } else if (getItemViewType(position) == MSG_TYPE_EVALUATE) {
             EvaluateViewHolder vh = (EvaluateViewHolder) viewHolder;
             final StUserDealTicketReplyInfo mEvaluate = (StUserDealTicketReplyInfo) list.get(position);
-            vh.sobot_tv_name.setText(R.string.sobot_str_my);
+            vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
             vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
             vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, mEvaluate.getReplyTime()));
 
             //已评价
             // 创建加粗样式（Typeface.BOLD 表示加粗，Typeface.NORMAL 表示正常）
             StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
-
             if (mEvaluate.getQuestionFlag() >= 0) {
                 vh.sobot_tv_isSolve.setVisibility(View.VISIBLE);
-                String solve = mActivity.getResources().getText(R.string.sobot_evaluate_issolve).toString();
+                String solve = mActivity.getResources().getString(R.string.sobot_evaluate_issolve)+ ": ";
                 int solveLen = solve.length();
                 if (mEvaluate.getQuestionFlag() == 0) {
                     solve +=mActivity.getResources().getText(R.string.sobot_evaluate_no).toString();
@@ -257,7 +261,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             vh.sobot_ll_ratingBar.init(mEvaluate.getScore());
 
             if (StringUtils.isNoEmpty(mEvaluate.getRemark())) {
-               String remark = mActivity.getResources().getString(R.string.sobot_rating_dec) + "：";
+               String remark = mActivity.getResources().getString(R.string.sobot_rating_dec) + ": ";
                 int remarkLen = remark.length();
                 remark +=mEvaluate.getRemark();
                 vh.sobot_tv_remark.setVisibility(View.VISIBLE);
@@ -270,7 +274,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
             if (null != mEvaluate.getTags() && !mEvaluate.getTags().isEmpty()) {
                 vh.sobot_tv_lab.setVisibility(View.VISIBLE);
-                String leb = mActivity.getResources().getString(R.string.sobot_evaluate_lab);
+                String leb = mActivity.getResources().getString(R.string.sobot_evaluate_lab)+ ": ";
                 int lebLen = leb.length();
                 StringBuilder stringBuilder = new StringBuilder(leb);
                 for (int i = 0; i < mEvaluate.getTags().size(); i++) {
@@ -287,12 +291,12 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             }
         } else {
             DetailViewHolder vh = (DetailViewHolder) viewHolder;
-
+            vh.sobot_tv_content_detail.setText(mActivity.getResources().getString(R.string.sobot_see_detail));
             if (list.get(position) instanceof StUserDealTicketReplyInfo) {
                 final StUserDealTicketReplyInfo reply = (StUserDealTicketReplyInfo) list.get(position);
                 if (reply.getStartType() == 1) {
                     //我
-                    vh.sobot_tv_name.setText(R.string.sobot_str_my);
+                    vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
                     vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
                     vh.sobot_tv_content_detail.setVisibility(View.GONE);
                     vh.sobot_tv_content_detail.setOnClickListener(null);
@@ -382,9 +386,11 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         private TextView tv_ticket_title;
         private TextView tv_ticket_content;
         private RecyclerView recyclerView;
+        private View line;
 
         HeadViewHolder(View view) {
             super(view);
+            line = view.findViewById(R.id.line);
             tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
             recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
             tv_ticket_status = (TextView) view.findViewById(R.id.sobot_tv_ticket_status);
@@ -415,7 +421,6 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             sobot_tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
             sobot_tv_content = (TextView) view.findViewById(R.id.sobot_tv_content);
             sobot_tv_content_detail = (TextView) view.findViewById(R.id.sobot_tv_content_detail);
-            sobot_tv_content_detail.setText(R.string.sobot_see_detail);
             recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
             GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
@@ -457,7 +462,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
             sobot_ll_ratingBar = view.findViewById(R.id.sobot_ratingBar);
             sobot_tv_my_evaluate_score = (TextView) view.findViewById(R.id.sobot_tv_my_evaluate_score);
-            sobot_tv_my_evaluate_score.setText(mActivity.getResources().getString(R.string.sobot_rating_score) + "：");
+            sobot_tv_my_evaluate_score.setText(mActivity.getResources().getString(R.string.sobot_rating_score) + ": ");
         }
     }
 

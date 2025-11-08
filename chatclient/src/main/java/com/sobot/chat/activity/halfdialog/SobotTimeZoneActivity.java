@@ -146,6 +146,7 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
                 btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             }
         }
+        btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
     }
 
     /**

@@ -11,7 +11,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center"
-        app:backgroundColor="@color/sobot_color_loading_bg"
+        app:backgroundColor="#33FFFFFF"
         app:progressColor="@color/sobot_color"
         app:strokeWidth="2dp" />
 

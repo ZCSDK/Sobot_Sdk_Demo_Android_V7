@@ -120,16 +120,12 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
 
         private TextView categorySmallTitle;
         private ImageView categorySmallIshave;
-        //        private ImageView categorySmallCheckBox;
-//        private View categorySmallline;
         private Activity mActivity;
 
         MyViewHolder(Activity activity, View view) {
             this.mActivity = activity;
             categorySmallTitle = (TextView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
             categorySmallIshave = (ImageView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_ishave);
-//            categorySmallCheckBox = (ImageView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_checkbox);
-//            categorySmallline = view.findViewById(R.id.sobot_activity_cusfield_listview_items_line);
             displayInNotch(categorySmallTitle);
         }
 

@@ -89,6 +89,12 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
             @Override
             public void selectItem(SobotPhoneCode model) {
                 selectStauts = model;
+                if (selectStauts != null) {
+                    Intent intent = new Intent();
+                    intent.putExtra("selectCode", selectStauts.getPhone_code());
+                    setResult(4001, intent);
+                }
+                finish();
             }
         }
         );

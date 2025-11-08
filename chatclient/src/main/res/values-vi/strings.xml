@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">Bạn chưa gửi thông tin, vui lòng</string>
        <string name="sobot_re_write">Điền lại thông tin</string>
        <string name="sobot_str_please_check_is_solve">Vui lòng chọn nếu vấn đề của bạn được giải quyết</string>
-       <string name="sobot_evaluate_lab">Thẻ:</string>
-       <string name="sobot_evaluate_issolve">Giải quyết:</string>
+       <string name="sobot_evaluate_lab">Thẻ</string>
+       <string name="sobot_evaluate_issolve">Giải quyết</string>
        <string name="sobot_str_appoint">Trích dẫn</string>
        <string name="sobot_str_my">Tôi</string>
        <string name="sobot_str_robot">Người máy</string>

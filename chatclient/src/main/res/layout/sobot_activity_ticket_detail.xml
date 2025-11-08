@@ -48,14 +48,11 @@
         android:id="@+id/sobot_ticket_success_bottom_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sobot_color_bg_first"
+        android:background="@color/sobot_color_dialog_bg"
         android:orientation="vertical"
+        android:elevation="8dp"
+        android:outlineSpotShadowColor="@color/sobot_color_shadow"
         android:visibility="visible">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/sobot_ticket_detail_line" />
 
         <TextView
             android:layout_width="match_parent"
@@ -72,7 +69,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:background="@color/sobot_color_bg_first"
             android:gravity="center"
             android:orientation="horizontal"
             android:paddingStart="@dimen/sobot_msg_margin_edge"
@@ -203,7 +199,6 @@
                     android:textColor="@color/sobot_color_text_first"
                     android:textSize="@dimen/sobot_text_font_14" />
             </LinearLayout>
-
 
         </LinearLayout>
     </LinearLayout>

@@ -16,6 +16,7 @@ import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.robottemplate.RobotTemplate1ViewPager;
 
@@ -67,7 +68,8 @@ public class RobotTemplateMessageHolder1 extends MsgHolderBase {
                 List<Map<String, String>> interfaceRetList = multiDiaRespInfo.getInterfaceRetList();
                 if (interfaceRetList != null && !interfaceRetList.isEmpty()) {
                     resetMaxWidth();
-                    templatePageAdater = new SobotRobotTemplate1PageAdater(mContext, pvTemplateFirst,interfaceRetList, message, msgCallBack);
+                    //+10 左右阴影间距5
+                    templatePageAdater = new SobotRobotTemplate1PageAdater(mContext, msgMaxWidth + ScreenUtils.dip2px(mContext, 10), pvTemplateFirst, interfaceRetList, message, msgCallBack);
                     //绑定adapter 判断上一页下一页 使用 message  缓存当前页，下次加载时滚动上次选中页使用
                     pvTemplateFirst.setTemplatePageAdater(templatePageAdater, message);
                     pvTemplateFirst.setAdapter(templatePageAdater);

@@ -33,10 +33,6 @@
             android:id="@+id/tl_titlebar"
             layout="@layout/sobot_layout_common_titlebar"
             android:visibility="visible" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/sobot_dialog_line"/>
 
         <!--    内容-->
         <RelativeLayout
@@ -50,36 +46,54 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
                 android:minHeight="536dp" />
+
             <TextView
                 android:id="@+id/sobot_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="gone"
                 android:text="@string/sobot_no_content"
-                android:textColor="@color/sobot_color_text_first" />
+                android:textColor="@color/sobot_color_text_first"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/sobot_new_ticket"
+            <LinearLayout
+                android:id="@+id/ll_new_ticket"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="26dp"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow_four"
                 android:background="@drawable/sobot_bg_theme_color_20dp"
-                android:drawableStart="@drawable/sobot_ticket_add"
-                android:drawablePadding="8dp"
+                android:elevation="8dp"
+                android:gravity="center"
+                android:minWidth="130dp"
+                android:translationY="6dp"
+                android:orientation="horizontal"
                 android:paddingStart="30dp"
                 android:paddingTop="10dp"
                 android:paddingEnd="30dp"
                 android:paddingBottom="10dp"
-                android:text="@string/sobot_str_bottom_message"
-                android:textColor="@color/sobot_color_white"
-                android:textSize="@dimen/sobot_text_font_14"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_new_ticket"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/sobot_ticket_add" />
+
+                <TextView
+                    android:id="@+id/sobot_new_ticket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sobot_str_bottom_message"
+                    android:textColor="@color/sobot_color_white"
+                    android:textSize="@dimen/sobot_text_font_14"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
         </RelativeLayout>
     </LinearLayout>
 </LinearLayout>

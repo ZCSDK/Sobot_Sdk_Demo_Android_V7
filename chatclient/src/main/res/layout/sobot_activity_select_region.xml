@@ -27,11 +27,6 @@
             <!--搜索-->
             <include layout="@layout/sobot_dialog_search" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.6dp"
-                android:background="@color/sobot_dialog_line" />
-
             <LinearLayout
                 android:id="@+id/ll_search_data"
                 android:layout_width="match_parent"
@@ -113,7 +108,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/sobot_bg_theme_color_4dp"
                 android:text="@string/sobot_btn_submit" />
         </LinearLayout>
 

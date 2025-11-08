@@ -694,14 +694,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 //修改上一条消息的字段
                 //下一条消息是否显示头像昵称，如果不显示头像昵称，则和一条消息的间距需要调小，两条消息的圆角弧度都需要调整
                 ZhiChiMessageBase preMsg = msgLists.get(i - 1);
-                if (getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_FILE_L
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_FILE_R
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_CARD_L
-                        || getItemTypeByMsg(base) == SobotMsgAdapter.MSG_TYPE_CARD_R) {
+                if (ChatUtils.isMsgCard(getItemTypeByMsg(base))) {
                     //下一条文章卡片
                     preMsg.setNextIsCard(true);
                 } else {
@@ -875,14 +868,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 }
                 ZhiChiMessageBase preMsg = list.get(list.size() - 1);
                 if (preMsg != null) {
-                    if (getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_FILE_L
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_FILE_R
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_CARD_L
-                            || getItemTypeByMsg(message) == SobotMsgAdapter.MSG_TYPE_CARD_R) {
+                    if (ChatUtils.isMsgCard(getItemTypeByMsg(message))) {
                         //下一条文章卡片
                         preMsg.setNextIsCard(true);
                     } else {
@@ -1145,7 +1131,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     //处理markdown数据
     private static void doMarkDownData(String content, ZhiChiReplyAnswer answer) {
-        if ((ChatUtils.isHasPictureInMarkdown(content)||ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
+        if ((ChatUtils.isHasPictureInMarkdown(content) || ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
             String[] temp = ChatUtils.parseMarkdownToArr(content);
             List<ChatMessageRichListModel> richList = new ArrayList<>();
             for (int i = 0; i < temp.length; i++) {
@@ -1155,7 +1141,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         //md 表格
                         model.setMsg(temp[i]);
                         model.setType(5);
-                    }else if (temp[i].startsWith("http")) {
+                    } else if (temp[i].startsWith("http")) {
                         //图片
                         model.setMsg(temp[i]);
                         model.setType(1);

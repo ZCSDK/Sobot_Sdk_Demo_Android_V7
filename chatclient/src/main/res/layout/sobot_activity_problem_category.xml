@@ -8,7 +8,6 @@
 
     <include layout="@layout/sobot_layout_common_titlebar" />
 
-    <include layout="@layout/sobot_layout_top_divider" />
 
     <ListView
         android:id="@+id/sobot_listview"

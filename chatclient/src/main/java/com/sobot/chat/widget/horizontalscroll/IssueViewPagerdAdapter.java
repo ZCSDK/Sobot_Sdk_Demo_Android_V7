@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -34,12 +35,14 @@ public class IssueViewPagerdAdapter {
     private LayoutInflater mInflate;
     private List<BusinessLineRespVo> mDatas;
     private int selectIndex = 0;
+    private int businessSetType = 0;//0 图文，1 仅图
 
-    public IssueViewPagerdAdapter(Context context, List<BusinessLineRespVo> mDatas, int selectIndex) {
+    public IssueViewPagerdAdapter(Context context, List<BusinessLineRespVo> mDatas, int selectIndex,int businessSetType) {
         this.mContext = context;
         mInflate = LayoutInflater.from(context);
         this.mDatas = mDatas;
         this.selectIndex = selectIndex;
+        this.businessSetType = businessSetType;
     }
 
     public void setSelectIndex(int selectIndex) {
@@ -66,6 +69,7 @@ public class IssueViewPagerdAdapter {
             viewHolder.mImg = convertView.findViewById(R.id.sobot_hot_item_icon);
             viewHolder.mText = (TextView) convertView.findViewById(R.id.sobot_hot_item_title);
             viewHolder.mTempText = (TextView) convertView.findViewById(R.id.sobot_hot_item_title_zhanwei);
+            viewHolder.sobot_issue_text = convertView.findViewById(R.id.sobot_issue_text);
             viewHolder.line = convertView.findViewById(R.id.v_line);
             viewHolder.ll_issue = convertView.findViewById(R.id.ll_issue);
             convertView.setTag(viewHolder);
@@ -91,6 +95,15 @@ public class IssueViewPagerdAdapter {
         }
         viewHolder.mText.setText(StringUtils.checkStringIsNull(mDatas.get(position).getBusinessLineName()));
         viewHolder.mTempText.setText(StringUtils.checkStringIsNull(mDatas.get(position).getTempBusinessLineName()));
+        if(businessSetType==1){
+            //仅图片
+            viewHolder.sobot_issue_text.setVisibility(View.GONE);
+            viewHolder.ll_issue.getLayoutParams().height= ScreenUtils.dip2px(mContext, 72);
+            viewHolder.ll_issue.getLayoutParams().width= ScreenUtils.dip2px(mContext, 72);
+        }else{
+            viewHolder.sobot_issue_text.setVisibility(View.VISIBLE);
+
+        }
 
         viewHolder.line.setVisibility(View.VISIBLE);
         if (position < mDatas.size()) {
@@ -121,5 +134,6 @@ public class IssueViewPagerdAdapter {
         TextView mText;
         TextView mTempText;
         View line;
+        RelativeLayout sobot_issue_text;
     }
 }

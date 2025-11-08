@@ -16,6 +16,7 @@ import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.lablesview.SobotLablesViewModel;
 import com.sobot.chat.widget.robottemplate.RobotTemplateViewPager;
@@ -81,7 +82,8 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                         lablesViewModel.setAnchor(interfaceRet.get("anchor"));
                         label.add(lablesViewModel);
                     }
-                    templatePageAdater = new SobotRobotTemplate2PageAdater(mContext, pvTemplateSecond,"0", label, message, msgCallBack);
+                    //+10 左右阴影间距5
+                    templatePageAdater = new SobotRobotTemplate2PageAdater(mContext, msgMaxWidth + ScreenUtils.dip2px(mContext, 10), pvTemplateSecond, "0", label, message, msgCallBack);
                     //绑定adapter 判断上一页下一页 使用 message  缓存当前页，下次加载时滚动上次选中页使用
                     pvTemplateSecond.setTemplatePageAdater(templatePageAdater, message);
                     pvTemplateSecond.setAdapter(templatePageAdater);
@@ -102,7 +104,7 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                         lablesViewModel.setTitle(inputContent[i]);
                         label.add(lablesViewModel);
                     }
-                    templatePageAdater = new SobotRobotTemplate2PageAdater(mContext,pvTemplateSecond, multiDiaRespInfo.getTemplate(), label, message, msgCallBack);
+                    templatePageAdater = new SobotRobotTemplate2PageAdater(mContext, msgMaxWidth + ScreenUtils.dip2px(mContext, 10), pvTemplateSecond, multiDiaRespInfo.getTemplate(), label, message, msgCallBack);
                     //绑定adapter 判断上一页下一页 使用 message  缓存当前页，下次加载时滚动上次选中页使用
                     pvTemplateSecond.setTemplatePageAdater(templatePageAdater, message);
                     pvTemplateSecond.setAdapter(templatePageAdater);

@@ -234,13 +234,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/sobot_emoji_panel_height"
                 android:nestedScrollingEnabled="false"
-                android:scrollbars="none"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="@integer/sobot_emoji_span_count" />
+                android:scrollbars="none" />
 
             <!--删除表情按钮区域-->
             <LinearLayout
-                android:layout_width="110dp"
+                android:id="@+id/ll_del_emoji"
+                android:layout_width="100dp"
                 android:layout_height="92dp"
                 android:layout_gravity="end|bottom"
                 android:background="@color/sobot_color_bg_first"

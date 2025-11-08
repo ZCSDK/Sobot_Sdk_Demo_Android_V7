@@ -3,7 +3,6 @@ package com.sobot.chat.viewHolder;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -87,7 +86,6 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                 view_pager.setVisibility(View.GONE);
             }
         }
-        view_pager.setLayoutParams(new LinearLayout.LayoutParams(msgCardWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
         view_pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {

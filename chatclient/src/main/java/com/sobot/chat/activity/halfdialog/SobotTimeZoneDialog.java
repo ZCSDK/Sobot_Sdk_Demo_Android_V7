@@ -1,7 +1,6 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -18,7 +17,6 @@ import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotTimeZoneAdapter;
 import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,7 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
     private SobotTimeZoneAdapter adapter;
     private SobotTimezone selectStauts;
     private RecyclerView rv_list;
-    private TextView sobot_sureButton;
+//    private TextView sobot_sureButton;
 
     //搜索框
     private LinearLayout ll_search;
@@ -43,12 +41,13 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
 
     @Override
     public void onClick(View v) {
-        if (v == sobot_sureButton) {
-            Intent intent = new Intent();
-            intent.putExtra("selectStauts", selectStauts);
-            setResult(30003, intent);
-            finish();
-        } else if (v == iv_clear) {
+//        if (v == sobot_sureButton) {
+//            Intent intent = new Intent();
+//            intent.putExtra("selectStauts", selectStauts);
+//            setResult(30003, intent);
+//            finish();
+//        }
+        if (v == iv_clear) {
             et_search.setText("");
             showAll();
         }
@@ -71,6 +70,10 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
             @Override
             public void selectStatus(SobotTimezone model) {
                 selectStauts = model;
+                Intent intent = new Intent();
+                intent.putExtra("selectStauts", selectStauts);
+                setResult(30003, intent);
+                finish();
             }
         }
         );
@@ -96,15 +99,15 @@ public class SobotTimeZoneDialog extends SobotDialogBaseActivity implements View
         }
         rv_list = findViewById(R.id.rv_list);
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
-        sobot_sureButton = findViewById(R.id.btnSubmit);
-        if (ThemeUtils.isChangedThemeColor(this)) {
-            int themeColor = ThemeUtils.getThemeColor(this);
-            Drawable bg = sobot_sureButton.getBackground();
-            if (bg != null) {
-                sobot_sureButton.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
-            }
-        }
-        sobot_sureButton.setOnClickListener(this);
+//        sobot_sureButton = findViewById(R.id.btnSubmit);
+//        if (ThemeUtils.isChangedThemeColor(this)) {
+//            int themeColor = ThemeUtils.getThemeColor(this);
+//            Drawable bg = sobot_sureButton.getBackground();
+//            if (bg != null) {
+//                sobot_sureButton.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+//            }
+//        }
+//        sobot_sureButton.setOnClickListener(this);
         rv_list.setLayoutManager(new LinearLayoutManager(this));
 
         ll_search = findViewById(R.id.ll_search);

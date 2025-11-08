@@ -76,6 +76,7 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 imageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        v.requestFocus();
                         if (onClickItemListener != null) {
                             if (isCanChange) {
                                 updateUI(position);

@@ -34,12 +34,13 @@ import java.util.Map;
 //机器人 消息多轮模板2 PagerAdapter
 public class SobotRobotTemplate2PageAdater extends SobotBaseTemplateAdapter {
 
-    public SobotRobotTemplate2PageAdater(Context context, RobotTemplateViewPager pvTemplateSecond, String type, ArrayList<SobotLablesViewModel> label, ZhiChiMessageBase messageBase, final SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
+    public SobotRobotTemplate2PageAdater(Context context, int msgMaxWidth, RobotTemplateViewPager pvTemplateSecond, String type, ArrayList<SobotLablesViewModel> label, ZhiChiMessageBase messageBase, final SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
         super(context);
         if (context != null && label != null && !label.isEmpty() && messageBase != null && pvTemplateSecond != null) {
             ArrayList<View> tempArr = new ArrayList<>();
             for (int i = 0; i < label.size(); i++) {
                 View llRoot = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_item_template2_item_l, pvTemplateSecond, false);
+                llRoot.getLayoutParams().width = msgMaxWidth;
                 TextView textView = llRoot.findViewById(R.id.sobot_template_item_title);
                 if ("1".equals(type)) {
                     textView.setText((i + 1) + "、 " + label.get(i).getTitle());

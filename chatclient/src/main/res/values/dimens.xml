@@ -81,7 +81,8 @@
     <!--左、右侧消息 距屏幕边 间距 -->
     <dimen name="sobot_msg_margin_edge">20dp</dimen>
     <!--左、右侧消息 距屏幕边 间距 阴影卡片类使用 -->
-    <dimen name="sobot_msg_margin_edge_card">10dp</dimen>
+    <dimen name="sobot_msg_margin_edge_card">12dp</dimen>
+    <dimen name="sobot_msg_margin_edge_card_margin">8dp</dimen>
     <!--左、右侧消息 气泡左右内间距 -->
     <dimen name="sobot_msg_left_right_padding_edge">16dp</dimen>
     <!--左、右侧消息 气泡上下内间距 -->
@@ -104,8 +105,10 @@
     <dimen name="sobot_chat_msg_nick_face_margin_edge">8dp</dimen>
     <!--消息 昵称和气泡之间的间距 头像昵称和气泡上线布局-->
     <dimen name="sobot_chat_msg_nick_bubble_margin_edge">4dp</dimen>
-    <!--消息 （文章、文件等）最大宽度-->
-    <dimen name="sobot_msg_max_width">400dp</dimen>
+    <!--消息 （多轮等）最大宽度-->
+    <dimen name="sobot_msg_max_width">432dp</dimen>
+    <!--消息 （多轮内容等）最大宽度-->
+    <dimen name="sobot_msg_content_max_width">288dp</dimen>
     <!--消息 （文章、文件、多轮等）最小宽度-->
     <dimen name="sobot_msg_min_width">268dp</dimen>
 

@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -272,10 +273,9 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
-        if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable d = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
-            sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
-        }
+        Drawable d = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_theme_color_20dp,null);
+        sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
+        sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         sobot_post_customer_field.setVisibility(View.GONE);
 
         if (mConfig.isEmailShowFlag()) {

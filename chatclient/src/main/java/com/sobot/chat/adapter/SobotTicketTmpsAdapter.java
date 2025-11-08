@@ -59,6 +59,11 @@ public class SobotTicketTmpsAdapter extends RecyclerView.Adapter {
                 }
             });
         }
+        if(i==0){
+            vh.line.setVisibility(View.VISIBLE);
+        }else{
+            vh.line.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -68,11 +73,13 @@ public class SobotTicketTmpsAdapter extends RecyclerView.Adapter {
     class MyViewHolder extends RecyclerView.ViewHolder{
         private TextView sobot_tv_content;
         private TextView sobot_tv_content_detail;
+        private View line;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             sobot_tv_content = itemView.findViewById(R.id.sobot_tv_content);
             sobot_tv_content_detail = itemView.findViewById(R.id.sobot_tv_content_detail);
+            line = itemView.findViewById(R.id.line);
 
         }
     }

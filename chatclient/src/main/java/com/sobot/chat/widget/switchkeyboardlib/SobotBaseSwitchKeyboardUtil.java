@@ -488,7 +488,7 @@ public class SobotBaseSwitchKeyboardUtil {
                 onKeyboardMenuListener.onScrollToBottom();
             }
             keyboardIsShow = true;
-            etContent.post(() -> etContent.requestFocus());
+//            etContent.post(() -> etContent.requestFocus());
         }
 
         @Override

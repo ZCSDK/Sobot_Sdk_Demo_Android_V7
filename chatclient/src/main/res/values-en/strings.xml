@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">You have not submitted any information. Please</string>
        <string name="sobot_re_write">Fill in the information again</string>
        <string name="sobot_str_please_check_is_solve">Has your problem been solved?</string>
-       <string name="sobot_evaluate_lab">Label:</string>
-       <string name="sobot_evaluate_issolve">Resolved:</string>
+       <string name="sobot_evaluate_lab">Label</string>
+       <string name="sobot_evaluate_issolve">Resolved</string>
        <string name="sobot_str_appoint">Quote</string>
        <string name="sobot_str_my">Me</string>
        <string name="sobot_str_robot">Robot</string>
@@ -273,7 +273,7 @@
        <string name="sobot_already_save_to_picture">Saved</string>
        <string name="sobot_time_zone">Select Time Zone</string>
        <string name="sobot_time_zone_hint">Please select a time zone</string>
-       <string name="sobot_phone_hint">Please fill in your phone number</string>
+       <string name="sobot_phone_hint">Please fill in your phone number	</string>
        <string name="sobot_select_chat_language">Please select the chat language you want to use:</string>
        <string name="sobot_more_language">More Languages</string>
        <string name="sobot_select_language">Select Language</string>

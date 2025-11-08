@@ -29,7 +29,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/sobot_line_height_dp"
             android:background="@color/sobot_dialog_line" />
 
         <TextView
@@ -47,7 +47,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/sobot_line_height_dp"
             android:background="@color/sobot_dialog_line" />
 
 
@@ -67,7 +67,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/sobot_line_height_dp"
             android:background="@color/sobot_dialog_line" />
 
         <TextView

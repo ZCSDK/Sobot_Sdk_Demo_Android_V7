@@ -13,15 +13,16 @@
         android:layout_marginBottom="12dp"
         android:background="@drawable/sobot_item_hot_selector"
         android:elevation="16dp"
-        android:layout_marginStart="4dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
         android:outlineSpotShadowColor="@color/sobot_color_shadow"
+        android:translationY="6dp"
+        android:layout_marginStart="4dp"
+        android:gravity="center"
+        android:orientation="vertical"
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
         android:paddingBottom="14dp"
         android:paddingTop="14dp"
-        android:translationY="6dp">
+        >
 
         <com.sobot.chat.widget.image.SobotRCImageView
             android:id="@+id/sobot_hot_item_icon"
@@ -30,6 +31,7 @@
             app:sobot_round_corner="4dp" />
 
         <RelativeLayout
+            android:id="@+id/sobot_issue_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -43,6 +45,8 @@
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_12"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:visibility="invisible" />
 
             <TextView
@@ -53,6 +57,8 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_12" />
         </RelativeLayout>
@@ -60,6 +66,6 @@
 
     <View
         android:id="@+id/v_line"
-        android:layout_width="10dp"
+        android:layout_width="6dp"
         android:layout_height="1dp" />
 </LinearLayout>

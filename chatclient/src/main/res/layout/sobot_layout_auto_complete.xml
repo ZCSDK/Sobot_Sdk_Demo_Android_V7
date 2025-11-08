@@ -22,6 +22,7 @@
         android:overScrollMode="never"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
+        android:maxHeight="188dp"
         android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style"
         android:transformPivotY="6dp" />
 </LinearLayout>

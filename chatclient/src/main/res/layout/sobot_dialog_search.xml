@@ -1,11 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_search"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <!--搜索-->
     <LinearLayout
-        android:id="@+id/ll_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_dialog_margin"
@@ -53,5 +53,9 @@
             android:padding="9dp"
             android:src="@drawable/sobot_cur_search" />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.6dp"
+        android:background="@color/sobot_dialog_line" />
 
 </LinearLayout>

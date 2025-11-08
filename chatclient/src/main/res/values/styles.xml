@@ -139,6 +139,7 @@
         <item name="android:gravity">center</item>
         <item name="android:lineSpacingExtra">@dimen/sobot_text_line_spacing_extra</item>
     </style>
+
     <style name="sobot_rb_evaluate_style">
         <item name="android:textColor">@color/sobot_color_text_first</item>
         <item name="android:layout_width">wrap_content</item>
@@ -243,6 +244,12 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <!--聊天页面 左侧昵称 阴影卡片类型消息样式-->
+    <style name="sobot_chatting_nickname_card" parent="@style/sobot_chatting_nickname">
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginStart">@dimen/sobot_chat_msg_nick_face_margin_edge</item>
+    </style>
+
     <!--聊天页面 右侧昵称 样式-->
     <style name="sobot_chatting_right_nickname">
         <item name="android:layout_width">wrap_content</item>
@@ -270,6 +277,13 @@
         <item name="android:visibility">visible</item>
     </style>
 
+    <!--聊天页面 左侧头像 阴影卡片类型消息样式-->
+    <style name="sobot_chatting_left_face_style_card" parent="@style/sobot_chatting_left_face_style">
+        <item name="android:layout_marginStart">@dimen/sobot_msg_margin_edge_card_margin</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+    </style>
+
     <!--聊天页面 右侧头像 样式-->
     <style name="sobot_chatting_right_face_style">
         <item name="android:layout_width">@dimen/sobot_msg_face_width_heigth</item>
@@ -289,6 +303,17 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">48dp</item>
         <item name="android:background">@drawable/sobot_chat_msg_bg_left</item>
+        <item name="android:paddingStart">@dimen/sobot_msg_left_right_padding_edge</item>
+        <item name="android:paddingTop">@dimen/sobot_msg_top_bottom_padding_edge</item>
+        <item name="android:paddingEnd">@dimen/sobot_msg_left_right_padding_edge</item>
+        <item name="android:paddingBottom">@dimen/sobot_msg_top_bottom_padding_edge</item>
+    </style>
+
+    <!--聊天消息左侧气泡 没有背景 图片 4个圆角是一样-->
+    <style name="sobot_msg_left_content_ll_no_bg_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">48dp</item>
         <item name="android:paddingStart">@dimen/sobot_msg_left_right_padding_edge</item>
         <item name="android:paddingTop">@dimen/sobot_msg_top_bottom_padding_edge</item>
         <item name="android:paddingEnd">@dimen/sobot_msg_left_right_padding_edge</item>
@@ -419,6 +444,11 @@
         <item name="android:visibility">gone</item>
     </style>
 
+    <!--发送消息 已读未读样式 阴影卡片样式-->
+    <style name="sobot_msg_read_status_style_card" parent="@style/sobot_msg_read_status_style">
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
+
     <!-- PagerSlidingTab -->
     <declare-styleable name="sobot_PagerSlidingTab">
         <attr name="indicatorColor" format="color" />
@@ -485,9 +515,9 @@
 
     <style name="sobot_dialog_bottom_btn">
         <item name="android:textColor">@color/sobot_color_white</item>
-        <item name="android:textSize">@dimen/sobot_text_font_18</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">@dimen/sobot_text_font_14</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:layout_marginStart">@dimen/sobot_msg_margin_edge</item>
@@ -495,5 +525,7 @@
         <item name="android:layout_marginBottom">@dimen/sobot_msg_margin_edge</item>
         <item name="android:lineSpacingExtra">@dimen/sobot_text_line_spacing_extra</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/sobot_bg_theme_color_20dp</item>
     </style>
 </resources>

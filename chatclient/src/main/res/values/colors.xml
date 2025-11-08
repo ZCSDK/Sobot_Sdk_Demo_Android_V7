@@ -242,6 +242,7 @@
     <color name="sobot_color_shadow">#0F000000</color>
     <color name="sobot_color_shadow_second">#26000000</color>
     <color name="sobot_color_shadow_third">#40000000</color>
+    <color name="sobot_color_shadow_four">#4D000000</color>
 
     <!--提示弹窗界面 背景色 -->
     <color name="sobot_color_dialog_bg">#FFFFFF</color>
@@ -356,6 +357,8 @@
     <color name="sobot_common_btn_bg">@color/sobot_color_transparent</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之二十透明度 -->
     <color name="sobot_common_btn_bg_second">@color/sobot_color_transparent</color>
+    <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之三十透明度 -->
+    <color name="sobot_common_btn_bg_three">#4DFFFFFF</color>
 
     <!--    对话框相关-->
     <!--    对话框关背景色-->
@@ -392,5 +395,8 @@
     <!--    80% 黑色 加载框背景色-->
     <color name="sobot_loading_bg">#CC000000</color>
     <color name="sobot_color_ten_point">@color/sobot_color_bg_second</color>
+
+    <!--    常见问题-->
+    <color name="sobot_color_issue_text">#777474</color>
 
 </resources>

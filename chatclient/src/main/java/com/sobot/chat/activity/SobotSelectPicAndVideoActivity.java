@@ -9,6 +9,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -98,11 +99,12 @@ public class SobotSelectPicAndVideoActivity extends SobotChatBaseActivity {
         });
 
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_4dp);
+            Drawable bg = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_theme_color_20dp,null);
             if (bg != null) {
                 sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
         }
+        sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         sobot_btn_submit.setAlpha(0.5f);
         sobot_btn_submit.setClickable(false);
     }

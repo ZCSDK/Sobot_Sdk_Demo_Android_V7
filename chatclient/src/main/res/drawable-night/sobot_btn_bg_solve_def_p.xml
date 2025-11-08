@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--点踩原因 卡片 选择标签 背景色-->
+    <solid android:color="@color/sobot_common_btn_bg_second" />
+    <corners android:radius="20dp" />
+</shape>

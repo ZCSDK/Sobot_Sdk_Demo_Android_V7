@@ -61,7 +61,7 @@ public class SobotAiCardMoreActivity extends SobotDialogBaseActivity implements 
         sobot_tv_title.setText(StringUtils.isNoEmpty(showCustomCard.getCardGuide())?showCustomCard.getCardGuide():"");
         customCard = (SobotChatCustomCard) getIntent().getSerializableExtra("customCard");
         mDatas.addAll(showCustomCard.getCustomCards());
-        mListAdapter = new SobotAiCardAdapter(this, mDatas,false, true,isHistoy );
+        mListAdapter = new SobotAiCardAdapter(this, mDatas,false, isHistoy );
         mListAdapter.setOnItemClickListener(new SobotAiCardAdapter.OnItemListener() {
             @Override
             public void onSendClick(String menuName, SobotChatCustomGoods goods) {

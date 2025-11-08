@@ -115,8 +115,6 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 }
             }
             requestWindowFeature(Window.FEATURE_NO_TITLE);
-            //修改国际化语言
-            changeAppLanguage();
             super.onCreate(savedInstanceState);
             initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
@@ -265,6 +263,9 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
 
     protected ImageView getLeftMenu() {
         return findViewById(R.id.sobot_iv_left);
+    }
+    protected View getTitleLine() {
+        return findViewById(R.id.title_line);
     }
 
     protected ImageView getRightImageMenu() {
@@ -887,6 +888,26 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        Context context = null;
+        try {
+            //修改语言
+            Locale language = (Locale) SharedPreferencesUtil.getObject(newBase, ZhiChiConstant.SOBOT_LANGUAGE);
+            context = newBase;
+            if (language != null) {
+                Configuration config = newBase.getResources().getConfiguration();
+                // 更新配置信息
+                config = new Configuration(config);
+                config.setLocale(language);
+                // 创建新的上下文
+                context = newBase.createConfigurationContext(config);
+            }
+            super.attachBaseContext(context);
+        } catch (Exception e) {
+        }
+    }
+
     /**
      * 导航栏渐变逻辑
      * 先判断客户开发是否设置，如果设置了 直接使用；如果没有修改（和系统默认一样），就就绪判断后端接口返回的颜色；
@@ -903,17 +924,13 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             if (getToolBar() == null) {
                 return;
             }
-//            if (initModel.getVisitorScheme() != null) {
-//                //导航条显示1 开启 0 关闭
-//                if (initModel.getVisitorScheme().getTopBarFlag() == 1) {
-//                    getToolBar().setVisibility(View.VISIBLE);
-//                } else {
-//                    getToolBar().setVisibility(View.GONE);
-//                }
-//            }
             if (initModel.getVisitorScheme() != null) {
                 //服务端返回的导航条背景颜色
                 if (initModel.getVisitorScheme().getTopBarBackStyle() == 0) {
+                    //导航条无颜色,显示线
+                    if(getTitleLine()!=null){
+                        getTitleLine().setVisibility(View.VISIBLE);
+                    }
                     //导航条无颜色,修改导航栏昵称和描述的颜色
                     if (getTitleView() != null) {
                         updateTitleColor(R.color.sobot_color_text_first);
@@ -1002,12 +1019,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             if (configModel == null) {
                 return;
             }
-            //导航条显示1 开启 0 关闭
-            if (configModel.getTopBarFlag() == 1) {
-                getToolBar().setVisibility(View.VISIBLE);
-            } else {
-                getToolBar().setVisibility(View.GONE);
-            }
+
             //服务端返回的导航条背景颜色
             if (configModel.getTopBarBackStyle() == 0) {
                 //导航条无颜色,修改导航栏昵称和描述的颜色

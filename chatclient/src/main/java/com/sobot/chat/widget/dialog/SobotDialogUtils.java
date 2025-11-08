@@ -7,10 +7,8 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.TextView;
 
-import com.sobot.chat.R;
-
 /**
- * Created by jinxl on 2017/4/10.
+ * Created by gqf
  */
 
 public class SobotDialogUtils {

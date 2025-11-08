@@ -36,7 +36,6 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
     private int Size_Content = 18;//内容字体大小
     private SobotCusFieldConfig cusFieldConfig;//当前自定义字段
     private int themeColor;
-    private boolean changeThemeColor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,16 +113,12 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
         } else if (startDate == null && endDate != null) {
             setRangDate();
         }
-        changeThemeColor = ThemeUtils.isChangedThemeColor(this);
-        if (changeThemeColor) {
-            themeColor = ThemeUtils.getThemeColor(this);
+        themeColor = ThemeUtils.getThemeColor(this);
+        Drawable bg = btnSubmit.getBackground();
+        if (bg != null) {
+            btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
         }
-        if (changeThemeColor) {
-            Drawable bg = btnSubmit.getBackground();
-            if (bg != null) {
-                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
-            }
-        }
+        btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
     }
 
     /**

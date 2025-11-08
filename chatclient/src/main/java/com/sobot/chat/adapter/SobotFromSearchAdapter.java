@@ -1,8 +1,9 @@
 package com.sobot.chat.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.FormNodeInfo;
+import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.List;
 
@@ -26,15 +28,13 @@ import java.util.List;
  */
 public class SobotFromSearchAdapter extends RecyclerView.Adapter {
     private List<FormNodeInfo> list;
-    private Context mContext;
+    private Activity mActivity;
     private SobotListener listener;
-    private FormNodeInfo chatStatus;
     private String select = "";
-    public SobotFromSearchAdapter(Context context, List<FormNodeInfo> list, FormNodeInfo chatStatus, SobotListener listener){
-        this.mContext = context;
+    public SobotFromSearchAdapter(Activity context, List<FormNodeInfo> list,  SobotListener listener){
+        this.mActivity = context;
         this.list = list;
         this.listener = listener;
-        this.chatStatus=chatStatus;
     }
     public void setDate(String select) {
         this.select = select;
@@ -51,8 +51,8 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.sobot_item_from_search, viewGroup, false);
-        return  new MyViewHolder(v);
+        View v = LayoutInflater.from(mActivity).inflate(R.layout.sobot_item_cusfield_listview, viewGroup, false);
+        return  new MyViewHolder(mActivity,v);
     }
 
     @Override
@@ -65,18 +65,25 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
             if (name.contains(select)) {
                 spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#09AEB0")), name.indexOf(select), name.indexOf(select) + select.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
-            vh.tv_title.setText(spannableString);
-            if(null!= chatStatus && chatStatus.getId().equals(checkin.getId())){
-                vh.iv_img.setVisibility(View.VISIBLE);
-                vh.tv_title.setTypeface(null, Typeface.BOLD);
+            vh.categorySmallTitle.setText(spannableString);
+            if(checkin.isChecked()){
+                vh.categorySmallIshave.setVisibility(View.VISIBLE);
+                if (ThemeUtils.isChangedThemeColor(mActivity)) {
+                    int themeColor = ThemeUtils.getThemeColor(mActivity);
+                    Drawable bg = mActivity.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
+                    if (bg != null) {
+                        vh.categorySmallIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                    }
+                }
+                vh.categorySmallTitle.setTypeface(null, Typeface.BOLD);
             }else{
-                vh.tv_title.setTypeface(null, Typeface.NORMAL);
-                vh.iv_img.setVisibility(View.GONE);
+                vh.categorySmallTitle.setTypeface(null, Typeface.NORMAL);
+                vh.categorySmallIshave.setVisibility(View.GONE);
             }
             vh.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    chatStatus = checkin;
+                    checkin.setChecked(true);
                     notifyDataSetChanged();
                     if(listener!=null){
                         listener.select(checkin);
@@ -91,13 +98,15 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
         return list.size();
     }
     class MyViewHolder extends RecyclerView.ViewHolder{
-        private ImageView iv_img;
-        private TextView tv_title;
+        private TextView categorySmallTitle;
+        private ImageView categorySmallIshave;
+        private Activity mActivity;
 
-        public MyViewHolder(@NonNull View itemView) {
+        public MyViewHolder(Activity activity,@NonNull View itemView) {
             super(itemView);
-            tv_title = itemView.findViewById(R.id.tv_title);
-            iv_img = itemView.findViewById(R.id.iv_img);
+            this.mActivity = activity;
+            categorySmallTitle = (TextView) itemView.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
+            categorySmallIshave = (ImageView) itemView.findViewById(R.id.sobot_activity_cusfield_listview_items_ishave);
 
         }
     }

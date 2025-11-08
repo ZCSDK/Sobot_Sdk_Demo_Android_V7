@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -48,14 +49,20 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     private List<FormNodeRelInfo> relationshipList;//数据关系
     private FormInfoModel formInfoModel;//原数据
     private LinearLayout ll_list;
+    private TextView topView,bottomView;
     private ScrollView sobot_scroll_v;
-    private TextView tv_start_tip, tv_permission_tip, btnSubmit, tv_nodata;
+    private TextView btnSubmit, tv_nodata;
     private String formExplain = "";
     /// /表单说明
     private String cid, uid, schemeId;//
     private SobotConnCusParam param;//用于返回后转人工
     private SobotTransferOperatorParam tparam;//用于返回后转人工
     private boolean isInit;//是否是进入会话的询前表单
+
+    @Override
+    protected int getContentViewResId() {
+        return R.layout.sobot_activity_form_info;
+    }
 
     @Override
     public void onClick(View v) {
@@ -98,38 +105,40 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     }
                 }
                 if (allData.size() > 0 && StringUtils.isNoEmpty(allData.get(0).getTips())) {
-                    tv_start_tip.setText(allData.get(0).getTips());
+                    topView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
+                    topView.setText(allData.get(0).getTips());
                     //第一个节点是开始
                     showStartData(allData.get(0).getId());
                 }
             }
 
         }
-        //获取多语言的的隐私引导语
-        zhiChiApi.queryFormConfig(this, uid, new StringResultCallBack<SobotQueryFormModel>() {
-            @Override
-            public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
-                if (sobotQueryFormModel != null && StringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
-                    formExplain = sobotQueryFormModel.getFormSafety();
+        //隐私引导语不为空
+        if (StringUtils.isNoEmpty(formExplain)) {
+            //获取多语言的的隐私引导语
+            zhiChiApi.queryFormConfig(this, uid, new StringResultCallBack<SobotQueryFormModel>() {
+                @Override
+                public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
+                    if (sobotQueryFormModel != null && StringUtils.isNoEmpty(sobotQueryFormModel.getFormSafety())) {
+                        formExplain = sobotQueryFormModel.getFormSafety();
+                    }
+                    if (StringUtils.isNoEmpty(formExplain)) {
+                        bottomView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
+                        bottomView.setText(formExplain);
+                        bottomView.setTextColor(getResources().getColor(R.color.sobot_color_text_third));
+                    }
                 }
-                if (StringUtils.isNoEmpty(formExplain)) {
-                    tv_permission_tip.setVisibility(View.VISIBLE);
-                    tv_permission_tip.setText(formExplain);
-                } else {
-                    tv_permission_tip.setVisibility(View.GONE);
-                }
-            }
 
-            @Override
-            public void onFailure(Exception e, String s) {
-                if (StringUtils.isNoEmpty(formExplain)) {
-                    tv_permission_tip.setVisibility(View.VISIBLE);
-                    tv_permission_tip.setText(formExplain);
-                } else {
-                    tv_permission_tip.setVisibility(View.GONE);
+                @Override
+                public void onFailure(Exception e, String s) {
+                    if (StringUtils.isNoEmpty(formExplain)) {
+                        bottomView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
+                        bottomView.setText(formExplain);
+                        bottomView.setTextColor(getResources().getColor(R.color.sobot_color_text_third));
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -145,24 +154,30 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         return true;
     }
 
-    @Override
-    protected int getContentViewResId() {
-        return R.layout.sobot_activity_form_info;
-    }
 
     @Override
     protected void initView() {
         super.initView();
-        //根布局
-        if (coustom_pop_layout == null) {
-            coustom_pop_layout = findViewById(R.id.sobot_container);
-        }
+        coustom_pop_layout = findViewById(R.id.sobot_container);
+        coustom_pop_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            // 隐藏软键盘并清除所有输入框的焦点
+                hideAllEditTextFocus();
+            }
+        });
         sobot_scroll_v = findViewById(R.id.sobot_scroll_v);
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
         sobot_tv_title.setText(R.string.sobot_from_title);
         ll_list = findViewById(R.id.ll_list);
-        tv_start_tip = findViewById(R.id.tv_start_tip);
-        tv_permission_tip = findViewById(R.id.tv_permission_tip);
+        ll_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 隐藏软键盘并清除所有输入框的焦点
+                hideAllEditTextFocus();
+            }
+        });
+//        tv_permission_tip = findViewById(R.id.tv_permission_tip);
         btnSubmit = findViewById(R.id.btnSubmit);
         tv_nodata = findViewById(R.id.tv_nodata);
         btnSubmit.setOnClickListener(this);
@@ -187,6 +202,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             if (bg != null) {
                 btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             }
+            btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
     }
 
@@ -194,6 +210,12 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         tv_nodata.setVisibility(View.GONE);
         ll_list.setVisibility(View.VISIBLE);
         ll_list.removeAllViews();
+        if(topView !=null){
+            ll_list.addView(topView,0);
+        }
+        if(bottomView !=null){
+            ll_list.addView(bottomView);
+        }
         addList(datas);
 
     }
@@ -203,7 +225,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         int index = 0;
         for (int i = 0; i < ll_list.getChildCount(); i++) {
             View view1 = ll_list.getChildAt(i);
-            if (view1.getTag().toString().equals(pid)) {
+            if (view1.getTag()!=null && view1.getTag().toString().equals(pid)) {
                 index = i;
             }
         }
@@ -267,7 +289,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
     private FormNodeInfo selectNode;
 
-    private void showDialog(FormNodeInfo nodeInfo) {
+    private void showDialog(FormNodeInfo nodeInfo, String defualtValue) {
         selectNode = nodeInfo;
         ArrayList<FormNodeInfo> list = new ArrayList();
         try {
@@ -287,6 +309,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
         Intent intent = new Intent(this, SobotFromSearchDialog.class);
         intent.putExtra("List", list);
+        intent.putExtra("defualtValue", defualtValue);
         intent.putExtra("type", nodeInfo.getFieldType());
         intent.putExtra("title", nodeInfo.getName());
         startActivityForResult(intent, 30005);
@@ -305,6 +328,9 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         SobotInputView view = ll_list.findViewWithTag(selectNode.getId());
                         //删除选项之后的view
                         delectList(selectNode.getId());
+                        if(bottomView!=null){
+                            ll_list.addView(bottomView);
+                        }
                         //找到下个节点的线
                         if (view != null) {
                             view.setInputValue(formNodeInfo.getName());//
@@ -472,6 +498,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
     /**
      * 新版UI
+     *
      * @param tmpDatas
      */
     private void addList(List<FormNodeInfo> tmpDatas) {
@@ -494,7 +521,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     public void onClick(View view) {
                         hideKeyboard();
                         //显示对话框
-                        showDialog(nodeInfo);
+                        showDialog(nodeInfo, v.getSelectValue());
                     }
                 });
             } else {
@@ -511,54 +538,41 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     v.setViweType("phone");
                 }
             }
-            ll_list.addView(v);
+            if(bottomView!=null){
+                ll_list.addView(v,ll_list.getChildCount()-1);
+            }else {
+                ll_list.addView(v);
+            }
+        }
+    }
+    /**b
+     * 隐藏所有EditText的焦点并收起软键盘
+     */
+    private void hideAllEditTextFocus() {
+        try {
+            // 获取当前具有焦点的视图
+            View currentFocus = getCurrentFocus();
+            if (currentFocus != null) {
+                // 清除焦点
+                currentFocus.clearFocus();
+                // 隐藏软键盘
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                }
+            }
+
+            // 遍历ll_list中的所有子视图，确保所有SobotInputView失去焦点
+            if (ll_list != null) {
+                for (int i = 0; i < ll_list.getChildCount(); i++) {
+                    View child = ll_list.getChildAt(i);
+                    if (child instanceof SobotInputView) {
+                        child.clearFocus();
+                    }
+                }
+            }
+        } catch (Exception e) {
         }
     }
 
-    /*private void addList(List<FormNodeInfo> tmpDatas) {
-        tv_nodata.setVisibility(View.GONE);
-        ll_list.setVisibility(View.VISIBLE);
-        for (int i = 0; i < tmpDatas.size(); i++) {
-            View v;
-            final FormNodeInfo nodeInfo = tmpDatas.get(i);
-            if (nodeInfo.getFieldType() == 8) {
-                v = LayoutInflater.from(this).inflate(R.layout.sobot_item_form_info_select, ll_list, false);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        hideKeyboard();
-                        //显示对话框
-                        showDialog(nodeInfo);
-                    }
-                });
-                TextView value = v.findViewById(R.id.work_order_customer_field_text_single);
-                if (StringUtils.isNoEmpty(nodeInfo.getTips())) {
-                    value.setHint(nodeInfo.getTips());
-                }
-            } else {
-                v = LayoutInflater.from(this).inflate(R.layout.sobot_item_form_info_text, ll_list, false);
-                EditText value = v.findViewById(R.id.work_order_customer_field_text_single);
-                if (StringUtils.isNoEmpty(nodeInfo.getTips())) {
-                    value.setHint(nodeInfo.getTips());
-                }
-                //类型
-                if (nodeInfo.getLimitOptions().contains("5")) {
-                    value.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
-                }
-                if (nodeInfo.getLimitOptions().contains("7")) {
-                    value.setInputType(EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                }
-                if (nodeInfo.getLimitOptions().contains("8")) {
-                    value.setInputType(EditorInfo.TYPE_CLASS_PHONE);
-                }
-                // 设置为单行模式，自然屏蔽换行，保留完成功能
-                value.setSingleLine(true);
-            }
-            v.setTag(nodeInfo.getId());
-            TextView lable = v.findViewById(R.id.work_order_customer_field_text_lable);
-            lable.setText(nodeInfo.getFieldName());
-            lable.setTag(nodeInfo);
-            ll_list.addView(v);
-        }
-    }*/
 }

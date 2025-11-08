@@ -27,6 +27,7 @@
             android:id="@+id/iv_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:padding="10dp"
             android:layout_margin="16dp"
             android:src="@drawable/sobot_icon_close"
             android:visibility="gone" />

@@ -2,11 +2,13 @@ package com.sobot.chat.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.api.model.customcard.SobotChatCustomMenu;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
@@ -35,16 +38,14 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private List<SobotChatCustomGoods> mData;
     private Context context;
     private boolean isRight;
-    private boolean isDialog;
     private boolean isHistory;
     private int themeColor;
 
 
-    public SobotAiCardAdapter(Context context, List<SobotChatCustomGoods> list, boolean isRight, boolean isDialog, boolean isHistory) {
+    public SobotAiCardAdapter(Context context, List<SobotChatCustomGoods> list, boolean isRight, boolean isHistory) {
         this.context = context;
         themeColor = ThemeUtils.getThemeColor(context);
         this.isRight = isRight;
-        this.isDialog = isDialog;
         this.isHistory = isHistory;
         if (mData == null) {
             mData = new ArrayList<>();
@@ -57,12 +58,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view;
-        if (isDialog) {
-            view = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_item_ai_card_more, viewGroup, false);
-        } else {
-            view = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_item_ai_card, viewGroup, false);
-        }
+        View view = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_item_ai_card, viewGroup, false);
         return new MyHolder(view);
     }
 
@@ -140,14 +136,14 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 holder.sobot_goods_des.setVisibility(View.GONE);
             }
             if (StringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
-                holder.sobot_count.setText(context.getResources().getString(R.string.sobot_goods_count) + "：" + customGoods.getCustomCardNum());
+                holder.sobot_count.setText("X" + customGoods.getCustomCardNum());
                 holder.sobot_count.setVisibility(View.VISIBLE);
             } else {
                 holder.sobot_count.setVisibility(View.GONE);
             }
             //
             if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
-                String price = context.getResources().getString(R.string.sobot_order_total_money) + "：";
+                String price = "";
                 if (!StringUtils.isEmpty(customGoods.getCustomCardAmountSymbol())) {
                     price += customGoods.getCustomCardAmountSymbol();
                 }
@@ -175,21 +171,32 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             //自定义
             if (customGoods.getCustomField() != null && customGoods.getCustomField().size() > 0) {
-                StringBuilder stringBuilder = new StringBuilder();
+                holder.cusrLayout.setColumnCount(2);
+                holder.cusrLayout.setRowCount(customGoods.getCustomField().size());
                 for (String key :
                         customGoods.getCustomField().keySet()) {
-                    if (stringBuilder.length() > 0) {
-                        stringBuilder.append("\n");
-                    }
-                    stringBuilder.append(key);
-                    stringBuilder.append(":");
-                    stringBuilder.append(customGoods.getCustomField().get(key));
+                    TextView title = new TextView(context);
+                    title.setText(key);
+                    title.setMaxLines(3);
+                    title.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
+                    title.setTextSize(12);
+                    title.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                    title.setPadding(0, ScreenUtils.dip2px(context, 8), ScreenUtils.dip2px(context, 8), 0);
+                    title.setMaxWidth(ScreenUtils.dip2px(context, 150));
+                    holder.cusrLayout.addView(title);
+
+                    TextView value = new TextView(context);
+                    value.setMaxLines(3);
+                    value.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
+                    value.setTextSize(12);
+                    value.setPadding(0, 0, 0, 0);
+                    value.setText(customGoods.getCustomField().get(key));
+                    holder.cusrLayout.addView(value);
                 }
-                holder.sobot_tv_curs.setText(stringBuilder.toString());
-                holder.sobot_tv_curs.setVisibility(View.VISIBLE);
+                holder.cusrLayout.setVisibility(View.VISIBLE);
                 holder.line.setVisibility(View.VISIBLE);
             } else {
-                holder.sobot_tv_curs.setVisibility(View.GONE);
+                holder.cusrLayout.setVisibility(View.GONE);
                 holder.line.setVisibility(View.GONE);
             }
 
@@ -235,13 +242,13 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 }
             } else {
-                if (holder.sobot_tv_curs.getVisibility() == View.VISIBLE) {
+                if (holder.cusrLayout.getVisibility() == View.VISIBLE) {
                     holder.sobot_ll_btns.setVisibility(View.INVISIBLE);
                 } else {
                     holder.sobot_ll_btns.setVisibility(View.GONE);
                 }
             }
-            if (holder.sobot_tv_curs.getVisibility() == View.GONE && holder.sobot_ll_btns.getVisibility() == View.GONE) {
+            if (holder.cusrLayout.getVisibility() == View.GONE && holder.sobot_ll_btns.getVisibility() == View.GONE) {
                 holder.line.setVisibility(View.INVISIBLE);
             }
         }
@@ -273,8 +280,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         private TextView sobot_count;
         private TextView sobot_price;
         private LinearLayout sobot_ll_btns;
-        private TextView sobot_tv_curs;
         private View line;
+        private GridLayout cusrLayout;
 
         public MyHolder(@NonNull View itemView) {
             super(itemView);
@@ -285,8 +292,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             sobot_goods_des = itemView.findViewById(R.id.sobot_goods_des);
             sobot_count = itemView.findViewById(R.id.sobot_count);
             sobot_price = itemView.findViewById(R.id.sobot_price);
-            sobot_tv_curs = itemView.findViewById(R.id.sobot_tv_curs);
             line = itemView.findViewById(R.id.v_line_bottom);
+            cusrLayout = itemView.findViewById(R.id.curs_grid_layout);
         }
     }
 

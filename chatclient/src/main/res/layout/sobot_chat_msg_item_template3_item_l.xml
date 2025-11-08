@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sobot.chat.widget.SobotMaxSizeLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    app:sobot_max_width="@dimen/sobot_msg_content_max_width">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/sobot_help_center_item_bg"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/sobot_help_center_item_bg"
         android:elevation="12dp"
         android:outlineSpotShadowColor="@color/sobot_color_shado"
-        android:layout_marginBottom="5dp"
         android:padding="16dp">
 
         <com.sobot.chat.widget.image.SobotProgressImageView
@@ -90,4 +91,4 @@
 
     </RelativeLayout>
 
-</LinearLayout>
+</com.sobot.chat.widget.SobotMaxSizeLinearLayout>

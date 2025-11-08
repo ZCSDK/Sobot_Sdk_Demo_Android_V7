@@ -103,10 +103,13 @@ public class SobotTenRatingLayout extends LinearLayout {
                     textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
                     textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
                 }
+                textView.setFocusable(true);
+                textView.setClickable(true);
                 final int position = i;
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        v.requestFocus();
                         if (onClickItemListener != null) {
                             if (isCanChange) {
                                 updateUI(position);
@@ -139,10 +142,13 @@ public class SobotTenRatingLayout extends LinearLayout {
                     textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_first));
                     textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
                 }
+                textView.setFocusable(true);
+                textView.setClickable(true);
                 final int position = i;
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        v.requestFocus();
                         if (onClickItemListener != null) {
                             if (isCanChange) {
                                 updateUI(position);
@@ -167,6 +173,8 @@ public class SobotTenRatingLayout extends LinearLayout {
                     lp.rightMargin = 0;
                 }
                 textView.setLayoutParams(lp);
+                textView.setFocusable(true);
+                textView.setClickable(true);
                 if (i == defScore) {
                     textView.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_white));
                     textView.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_sel);
@@ -178,6 +186,7 @@ public class SobotTenRatingLayout extends LinearLayout {
                 textView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        v.requestFocus();
                         if (onClickItemListener != null) {
                             if (isCanChange) {
                                 updateUI(position);

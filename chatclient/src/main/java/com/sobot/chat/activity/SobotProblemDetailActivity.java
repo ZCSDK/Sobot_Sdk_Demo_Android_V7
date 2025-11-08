@@ -404,31 +404,32 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                 return;
             }
             if (resultCode != RESULT_OK) {
-                //一定要返回null,否则<input file> 就是没有反应
-                if (uploadMessageAboveL != null) {
-                    uploadMessageAboveL.onReceiveValue(null);
-                    uploadMessageAboveL = null;
+                // 一定要返回null,否则<input file> 就是没有反应
+                uploadMessageAboveL.onReceiveValue(null);
+                uploadMessageAboveL = null;
+                return;
+            }
+
+            Uri imageUri = null;
+            if (requestCode == REQUEST_CODE_ALBUM) {
+                if (data != null) {
+                    imageUri = data.getData();
+                }
+            } else if (requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
+                if (cameraFile != null && cameraFile.exists()) {
+                    imageUri = ChatUtils.getUri(getSobotBaseActivity(), cameraFile);
                 }
             }
-            if (resultCode == RESULT_OK) {
-                Uri imageUri = null;
-                if (requestCode == REQUEST_CODE_ALBUM) {
-                    if (data != null) {
-                        imageUri = data.getData();
-                    }
-                } else if (requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
-                    if (cameraFile != null && cameraFile.exists()) {
-                        imageUri = ChatUtils.getUri(getSobotBaseActivity(), cameraFile);
-                    }
-                }
-                if (imageUri != null) {
-                    //上传文件
-                    if (uploadMessageAboveL != null) {
-                        uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
-                        uploadMessageAboveL = null;
-                    }
-                }
+
+            // 添加空值检查
+            if (imageUri != null) {
+                // 上传文件
+                uploadMessageAboveL.onReceiveValue(new Uri[]{imageUri});
+            } else {
+                // 如果imageUri为null，也返回null
+                uploadMessageAboveL.onReceiveValue(null);
             }
+            uploadMessageAboveL = null;
         }
     }
 

@@ -53,8 +53,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge"
+        android:paddingStart="@dimen/sobot_msg_margin_edge_card"
+        android:paddingEnd="@dimen/sobot_msg_margin_edge_card"
         app:sobot_max_width="500dp">
 
         <LinearLayout
@@ -63,6 +63,9 @@
             android:layout_gravity="top"
             android:background="@drawable/sobot_chat_msg_hollow_bg"
             android:elevation="16dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="16dp"
             android:orientation="vertical"
             android:outlineSpotShadowColor="@color/sobot_color_shadow"
             android:paddingTop="20dp"

@@ -425,6 +425,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         TextView sobot_file_size = (TextView) view.findViewById(R.id.sobot_file_size);
                         SobotSectorProgressView sobot_progress = (SobotSectorProgressView) view.findViewById(R.id.sobot_progress);
                         sobot_file_name.setText(richListModel.getName());
+                        sobot_file_name.setMaxWidth(msgMaxWidth-ScreenUtils.dip2px(mContext, 42));
                         sobot_file_size.setText(TextUtils.isEmpty(richListModel.getFileSize()) ? "" : richListModel.getFileSize());
                         SobotBitmapUtil.display(mContext, ChatUtils.getFileIcon(mContext, FileTypeConfig.getFileType(FileUtil.checkFileEndWith(richListModel.getMsg()))), sobot_progress);
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);

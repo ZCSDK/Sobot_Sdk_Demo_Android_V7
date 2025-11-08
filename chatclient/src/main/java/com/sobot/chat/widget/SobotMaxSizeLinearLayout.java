@@ -70,4 +70,8 @@ public class SobotMaxSizeLinearLayout extends LinearLayout {
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+
+    public int getMaxWidth() {
+        return mMaxWidth;
+    }
 }

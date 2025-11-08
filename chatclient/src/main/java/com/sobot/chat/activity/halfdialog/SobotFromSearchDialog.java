@@ -30,6 +30,7 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
     private ArrayList<FormNodeInfo> list;
     private SobotFromSearchAdapter adapter;
     private FormNodeInfo selectStauts;
+    private String defualtValue;
     private RecyclerView rv_list;
     private TextView sobot_tv_title;
 
@@ -62,13 +63,23 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
         list = (ArrayList<FormNodeInfo>) getIntent().getSerializableExtra("List");
         String title = getIntent().getStringExtra("title");
         type = getIntent().getIntExtra("type",0);
+        defualtValue = getIntent().getStringExtra("defualtValue");
         sobot_tv_title.setText(title);
         if (list == null) {
             list = new ArrayList<>();
         }
         List<FormNodeInfo> temList = new ArrayList();
+        if(StringUtils.isNoEmpty(defualtValue)){
+            for (int i = 0; i < list.size(); i++) {
+               if(list.get(i).getName().equals(defualtValue)) {
+                   list.get(i).setChecked(true);
+               }else{
+                   list.get(i).setChecked(false);
+               }
+            }
+        }
         temList.addAll(list);
-        adapter = new SobotFromSearchAdapter(this, temList, selectStauts, new SobotFromSearchAdapter.SobotListener() {
+        adapter = new SobotFromSearchAdapter(this, temList,  new SobotFromSearchAdapter.SobotListener() {
             @Override
             public void select(FormNodeInfo model) {
                 selectStauts = model;

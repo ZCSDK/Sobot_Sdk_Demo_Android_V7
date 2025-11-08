@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:background="@drawable/sobot_normal_btn_bg"
+                android:background="@drawable/sobot_demo_btn_bg"
                 android:gravity="center"
                 android:padding="10dp"
                 android:text="多轮会话"

@@ -47,7 +47,7 @@
                 <!-- 消息已读未读 -->
                 <ImageView
                     android:id="@+id/sobot_msg_read_status"
-                    style="@style/sobot_msg_read_status_style" />
+                    style="@style/sobot_msg_read_status_style_card" />
                 <!-- 消息的状态 -->
                 <ImageView
                     android:id="@+id/sobot_msgStatus"
@@ -65,7 +65,6 @@
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_content_ll_hollow_bg_style"
-                android:background="@drawable/sobot_bg_line_12"
                 android:orientation="horizontal">
 
                 <RelativeLayout

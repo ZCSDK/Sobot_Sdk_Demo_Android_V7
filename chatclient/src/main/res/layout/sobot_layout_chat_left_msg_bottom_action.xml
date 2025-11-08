@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天页面 消息列表 气泡底部 顶踩和转人工-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/sobot_iv_bottom_likeBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
+        android:gravity="center"
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaluate_btn_zan_selector"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/sobot_iv_bottom_dislikeBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_btn_zan_cai_bg_selector"
+        android:gravity="center"
+        android:padding="8dp"
+        android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
+
+    <LinearLayout
+        android:id="@+id/sobot_ll_transferBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@drawable/sobot_chat_msg_transfer_hollow_bg"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/sobot_icon_transfer" />
+
+        <TextView
+            android:id="@+id/sobot_tv_transferBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_12" />
+    </LinearLayout>
+</merge>

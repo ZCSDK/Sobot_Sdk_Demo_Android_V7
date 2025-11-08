@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -89,7 +91,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private boolean flag_exit_sdk;
     private int flag_exit_type = -1;
 
-
+    private View title_line;
     //新建工单完成
     private LinearLayout mLlCompleted;
     private TextView mTvTicket;
@@ -170,6 +172,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_sv_root = findViewById(R.id.sobot_sv_root);
         mllLoading = findViewById(R.id.ll_loading);
         loading = findViewById(R.id.iv_loading);
+        title_line = findViewById(R.id.title_line);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
         mllContainer = (LinearLayout) findViewById(R.id.sobot_ll_container);
         mLlCompleted = findViewById(R.id.sobot_ll_completed);
@@ -184,6 +187,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         mIvLeaveMsgCreateSuccessDes = (ImageView) findViewById(R.id.sobot_iv_leaveMsg_create_success);
         mTvTicket.setOnClickListener(this);
         mTvCompleted.setOnClickListener(this);
+        mTvCompleted.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         initReceiver();
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTvCompleted.getLayoutParams();
@@ -255,8 +259,39 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         });
 
         updateUIByThemeColor();
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            sobot_sv_root.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+                @Override
+                public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                    // 当ScrollView向上滚动并且软键盘可见时隐藏软键盘
+                    if (scrollY > oldScrollY) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if (imm != null && imm.isActive()) {
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                        }
+                    }
+                }
+            });
+        }
+        View rootView = findViewById(R.id.view_root);
+        rootView.setOnClickListener(hideKeyboardOnClickListener);
+        ll_upload_file.setOnClickListener(hideKeyboardOnClickListener);
+        sobot_post_title.setOnClickListener(hideKeyboardOnClickListener);
+        sobot_post_type.setOnClickListener(hideKeyboardOnClickListener);
+        sobot_post_customer_field.setOnClickListener(hideKeyboardOnClickListener);
     }
+
+    /**
+     * 创建统一的点击监听器，用于隐藏软键盘并清除输入框焦点
+     */
+    private View.OnClickListener hideKeyboardOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // 隐藏软键盘并清除所有输入框的焦点
+            hideAllEditTextFocus();
+        }
+    };
+
 
     private void clearFocus(){
         View view = getCurrentFocus();
@@ -526,12 +561,19 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
      * 显示留言记录
      */
     private void showTicketInfo() {
+        //创建完查询，查询不到新建的数据，需要延迟
         Intent intent = new Intent(SobotTicketNewActivity.this, SobotTicketListActivity.class);
+//        intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TICKET_LIST, datas);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+        intent.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
+        intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+        intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
+        intent.putExtra("delayRefresh", true);
         startActivity(intent);
         finish();
+
     }
 
     private void initReceiver() {
@@ -896,12 +938,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         if (ThemeUtils.isChangedThemeColor(getSobotBaseContext())) {
 
             int color = ThemeUtils.getThemeColor(getSobotBaseContext());
-            mTvTicket.setTextColor(color);
             Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
                 sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
                 mTvCompleted.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
             }
+            sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
             mIvLeaveMsgCreateSuccessDes.setImageDrawable(ThemeUtils.applyColorToDrawable(getResources().getDrawable(R.drawable.sobot_icon_completed), color));
         }
     }
@@ -1168,6 +1210,36 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 default:
                     break;
             }
+        }
+    }
+
+    /**
+     * 隐藏所有EditText的焦点并收起软键盘
+     */
+    private void hideAllEditTextFocus() {
+        try {
+            // 获取当前具有焦点的视图
+            View currentFocus = getCurrentFocus();
+            if (currentFocus != null) {
+                // 清除焦点
+                currentFocus.clearFocus();
+                // 隐藏软键盘
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                }
+            }
+
+            // 遍历ll_list中的所有子视图，确保所有SobotInputView失去焦点
+            if (sobot_post_customer_field != null) {
+                for (int i = 0; i < sobot_post_customer_field.getChildCount(); i++) {
+                    View child = sobot_post_customer_field.getChildAt(i);
+                    if (child instanceof SobotInputView) {
+                        child.clearFocus();
+                    }
+                }
+            }
+        } catch (Exception e) {
         }
     }
 }

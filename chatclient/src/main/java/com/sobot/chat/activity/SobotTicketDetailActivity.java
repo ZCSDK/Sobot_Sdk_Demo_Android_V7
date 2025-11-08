@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.View;
@@ -31,9 +30,8 @@ import com.sobot.chat.api.model.StTicketDetailInfo;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
-import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -200,11 +198,15 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
     }
 
     public void requestDate() {
+        SobotDialogUtils.startProgressDialog(this);
         zhiChiApi.getUserTicketDetail(SobotTicketDetailActivity.this, mUid, mCompanyId, mTicketId, new StringResultCallBack<StTicketDetailInfo>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onSuccess(StTicketDetailInfo datas) {
+                SobotDialogUtils.stopProgressDialog(getSobotBaseContext());
+                //工单回复标记已读
                 zhiChiApi.updateUserTicketReplyInfo(SobotTicketDetailActivity.this, mCompanyId, information.getPartnerid(), mTicketId);
+                //留言详情
                 if (datas != null) {
                     mTicketInfo = datas;
                     mEvaluate = datas.getCusNewSatisfactionVO();
@@ -212,8 +214,8 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                     mList.add(datas);
                     if (datas.getReplyList() != null && !datas.getReplyList().isEmpty()) {
                         mList.addAll(datas.getReplyList());
-                    } else {
-                        mList.add(true);
+//                    } else {
+//                        mList.add(true);
                     }
 
                     int type = 0;//只显示回复
@@ -226,8 +228,8 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                         }
                     }
                     showBottom(type);
-                } else {
-                    mList.add(true);
+//                } else {
+//                    mList.add(true);
                 }
                 mAdapter.notifyDataSetChanged();
                 // 数据更新后滚动到底部
@@ -239,6 +241,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
 
             @Override
             public void onFailure(Exception e, String des) {
+                SobotDialogUtils.stopProgressDialog(getSobotBaseContext());
                 ToastUtil.showToast(getApplicationContext(), des);
             }
         });
@@ -352,6 +355,7 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                     requestDate();
                 }
             } else if (requestCode == ZCSobotConstant.EXTRA_TICKET_EVALUATE_REQUEST_CODE) {
+                //提交评价
                 submitEvaluate(data.getIntExtra("score", 0), data.getStringExtra("content"), data.getStringExtra("labelTag"), data.getIntExtra("defaultQuestionFlag", -1));
             } else if (requestCode == ZCSobotConstant.EXTRA_TICKET_EVALUATE_REQUEST_FINISH_CODE && null != data) {
                 final int score = data.getIntExtra("score", 0);
@@ -376,25 +380,6 @@ public class SobotTicketDetailActivity extends SobotChatBaseActivity implements 
                 });
             }
 
-        }
-    }
-
-    //评价成功后移除工单id
-    public void removeTicketId() {
-        List ticketIds = (List) SharedPreferencesUtil.getObject(SobotTicketDetailActivity.this, "showBackEvaluateTicketIds");
-        if (StringUtils.isNoEmpty(mTicketId) && ticketIds != null)
-            ticketIds.remove(mTicketId);
-        SharedPreferencesUtil.saveObject(SobotTicketDetailActivity.this, "showBackEvaluateTicketIds", ticketIds);
-
-    }
-
-    public void updateUIByThemeColor(TextView view) {
-        if (ThemeUtils.isChangedThemeColor(getSobotBaseContext())) {
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
-            if (bg != null) {
-                view.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseActivity())));
-                view.setTextColor(getResources().getColor(R.color.sobot_color_white));
-            }
         }
     }
 

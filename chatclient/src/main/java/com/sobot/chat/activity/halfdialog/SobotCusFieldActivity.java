@@ -188,10 +188,11 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         changeThemeColor = ThemeUtils.isChangedThemeColor(this);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(this);
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
                 sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
             }
+            sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
     }
 

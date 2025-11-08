@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><!--聊天页面 消息列表 气泡底部 顶踩和转人工-->
+<com.sobot.chat.widget.SobotAntoLineLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_chat_more_action"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/sobot_msg_ll"
+    android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
+    android:layout_marginStart="@dimen/sobot_msg_margin_edge_card_margin"
+    android:layout_alignStart="@+id/sobot_msg_ll"
+    android:orientation="horizontal"
+    android:visibility="gone"
+    app:sobot_fillMode="1"
+    app:sobot_horizontalGap="8dp"
+    app:sobot_verticalGap="8dp">
+
+    <include layout="@layout/sobot_layout_chat_left_msg_bottom_action" />
+
+</com.sobot.chat.widget.SobotAntoLineLayout>

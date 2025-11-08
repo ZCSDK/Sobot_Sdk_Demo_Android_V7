@@ -11,7 +11,6 @@ import com.sobot.chat.api.model.MiniProgramModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
-import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.pictureframe.SobotBitmapUtil;
 

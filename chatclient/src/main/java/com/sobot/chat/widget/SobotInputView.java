@@ -24,7 +24,7 @@ import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.listener.ISobotCusField;
-import com.sobot.chat.listener.SobotInputCallBack;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
@@ -129,15 +129,21 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         manyLineInput = view.findViewById(R.id.sobot_many_line);
         tvSelect = view.findViewById(R.id.sobot_select);
         bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_line_4,null);
-        singleLineInput.setBackground(bgDrawable);
+
+        Drawable selectD = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_select_icon,null);
+        selectD.setBounds(0, 0, ScreenUtils.dip2px(getContext(), 14), ScreenUtils.dip2px(getContext(), 14));
+        tvSelect.setCompoundDrawables(null, null, selectD, null);
 
         sobot_select_two = view.findViewById(R.id.sobot_select_two);
         sobot_input_two = view.findViewById(R.id.sobot_input_two);
         v_select_line = view.findViewById(R.id.v_select_line);
         v_input_line = view.findViewById(R.id.v_input_line);
         tv_select_two_left = view.findViewById(R.id.tv_select_two_left);
+        tv_select_two_left.setCompoundDrawables(null, null, selectD, null);
         tv_select_two_right = view.findViewById(R.id.tv_select_two_right);
+        tv_select_two_right.setCompoundDrawables(null, null, selectD, null);
         tv_input_two_left = view.findViewById(R.id.tv_input_two_left);
+        tv_input_two_left.setCompoundDrawables(null, null, selectD, null);
         et_input_two_right = view.findViewById(R.id.et_input_two_right);
         tv_input_two_left.setOnClickListener(this);
         tv_select_two_left.setOnClickListener(this);
@@ -167,7 +173,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 if (b) {
                     singleLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
-                    singleLineInput.setBackground(mContext.getResources().getDrawable(R.drawable.sobot_bg_line_4));
+                    singleLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
                 }
             }
         });
@@ -188,7 +194,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 if (b) {
                     manyLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
-                    manyLineInput.setBackground(mContext.getResources().getDrawable(R.drawable.sobot_bg_line_4));
+                    manyLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
                 }
             }
         });

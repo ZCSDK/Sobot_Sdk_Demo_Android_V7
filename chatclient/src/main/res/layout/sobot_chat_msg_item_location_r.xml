@@ -16,30 +16,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+        android:layout_marginEnd="@dimen/sobot_msg_margin_edge_card"
         android:gravity="end">
 
-    <!--头像-->
-    <com.sobot.chat.widget.image.SobotProgressImageView
-        android:id="@+id/sobot_msg_face_iv"
-        style="@style/sobot_chatting_right_face_style"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone" />
+        <!--头像-->
+        <com.sobot.chat.widget.image.SobotProgressImageView
+            android:id="@+id/sobot_msg_face_iv"
+            style="@style/sobot_chatting_right_face_style"
+            android:layout_alignParentEnd="true"
+            android:visibility="gone" />
 
-    <!-- 昵称 -->
-    <TextView
-        android:id="@+id/sobot_msg_nike_name_tv"
-        style="@style/sobot_chatting_right_nickname"
-        android:layout_toStartOf="@id/sobot_msg_face_iv"
-        android:visibility="gone" />
+        <!-- 昵称 -->
+        <TextView
+            android:id="@+id/sobot_msg_nike_name_tv"
+            style="@style/sobot_chatting_right_nickname"
+            android:layout_toStartOf="@id/sobot_msg_face_iv"
+            android:visibility="gone" />
 
-    <LinearLayout
-        android:id="@+id/ll_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:gravity="center_vertical|end"
-        android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/ll_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:gravity="center_vertical|end"
+            android:orientation="horizontal">
 
             <FrameLayout
                 android:id="@+id/sobot_frame_layout"
@@ -47,7 +47,7 @@
                 <!-- 消息已读未读 -->
                 <ImageView
                     android:id="@+id/sobot_msg_read_status"
-                    style="@style/sobot_msg_read_status_style" />
+                    style="@style/sobot_msg_read_status_style_card" />
                 <!-- 消息的状态 -->
                 <ImageView
                     android:id="@+id/sobot_msgStatus"
@@ -106,11 +106,9 @@
 
                     <com.sobot.chat.widget.image.SobotRCImageView
                         android:id="@+id/st_snapshot"
-                        android:layout_width="252dp"
-                        android:layout_height="120dp"
+                        android:layout_width="260dp"
+                        android:layout_height="124dp"
                         android:layout_below="@+id/st_localLabel"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
                         android:scaleType="centerCrop"
                         app:sobot_round_corner_bottom_left="@dimen/sobot_msg_corner_radius_second"
                         app:sobot_round_corner_bottom_right="@dimen/sobot_msg_corner_radius_second"
@@ -119,6 +117,6 @@
 
                 </RelativeLayout>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

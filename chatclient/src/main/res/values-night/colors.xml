@@ -319,6 +319,8 @@
     <color name="sobot_common_btn_bg">#1AFFFFFF</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之二十透明度 -->
     <color name="sobot_common_btn_bg_second">#33FFFFFF</color>
+    <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之三十透明度 -->
+    <color name="sobot_common_btn_bg_three">#33FFFFFF</color>
     <color name="sobot_dialog_btn_line">@color/sobot_dialog_item_default_color</color>
     <!--表单-->
     <color name="sobot_ticket_item_press">#353535</color>
@@ -333,4 +335,7 @@
     <color name="sobot_item_hot_bg_line">#404040</color>
     <color name="sobot_item_issuse_press">@color/sobot_common_btn_bg</color>
     <color name="sobot_color_ten_point">@color/sobot_common_btn_bg</color>
+
+    <!--    常见问题-->
+    <color name="sobot_color_issue_text">#ADB0B3</color>
 </resources>

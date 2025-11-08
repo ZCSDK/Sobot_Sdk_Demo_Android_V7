@@ -63,12 +63,11 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
     private boolean isFinish;
     private boolean isExitSession;
     private boolean isSessionOver;//当前会话是否结束
-    private boolean canBackWithNotEvaluation;//是否显示暂不评价
+    private boolean canBackWithNotEvaluation;//是否显示暂不评价"customName"
     private boolean isBackShowEvaluate;//是否是 返回时弹出评价框
     private ZhiChiInitModeBase initModel;
     private Information information;
     private int commentType;/*commentType 评价类型 主动评价1 邀请评价0*/
-    private String customName;
     private String templateId;//模板id
     private List<SobotOrderScoreModel> satisFactionList;//不同分值下的配置
     private List<String> checkLables;//选中的标签
@@ -141,7 +140,6 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         this.isExitSession = getIntent().getBooleanExtra("isExitSession", false);
         this.initModel = (ZhiChiInitModeBase) getIntent().getSerializableExtra("initModel");
         this.commentType = getIntent().getIntExtra("commentType", 0);
-        this.customName = getIntent().getStringExtra("customName");
         this.isSolve = getIntent().getIntExtra("isSolve", -1);
         this.isBackShowEvaluate = getIntent().getBooleanExtra("isBackShowEvaluate", false);
         this.canBackWithNotEvaluation = getIntent().getBooleanExtra("canBackWithNotEvaluation", false);
@@ -202,17 +200,16 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         if (ScreenUtils.isFullScreen(this)) {
             getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
+        Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_line_4,null);
         maxWidth = (ScreenUtils.getScreenWidth(this) - ScreenUtils.dip2px(this, 40)) / 2;
         sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Drawable db = ResourcesCompat.getDrawable( getResources(),R.drawable.sobot_bg_evaluate_input,null);
-                if(hasFocus) {
-                    if (db != null) {
-                        setl_submit_content.setBackground(ThemeUtils.applyColorToDrawable(db, themeColor));
-                    }
-                }else{
-                    setl_submit_content.setBackground(db);
+                LogUtils.d("======是否失去焦点=====" + hasFocus);
+                if (hasFocus) {
+                    sobot_add_content.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, themeColor));
+                } else {
+                    sobot_add_content.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_dialog_input,null));
                 }
             }
         });
@@ -318,8 +315,10 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                             //默认满意
                             iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 43);
                             iv_satisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 43);
+                            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
                             iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);
                             iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 35);
+                            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
                             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
                             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
                             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -330,8 +329,10 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                             //默认不满意
                             iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);
                             iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(getContext(), 35);
+                            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
                             iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 43);
                             iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 43);
+                            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
                             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
                             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
                             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
@@ -346,7 +347,9 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                         isSolve = 1;
                         //(1)-解决
                         iv_solved.setSelected(true);
+                        sobot_ll_ok_robot.setSelected(true);
                         iv_no_solve.setSelected(false);
+                        sobot_ll_no_robot.setSelected(false);
                         // 获取系统默认的加粗字体
                         sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
                         sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
@@ -354,7 +357,9 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                         isSolve = 0;
                         //(0)-未解决
                         iv_solved.setSelected(false);
-                        iv_no_solve.setSelected(true);
+                        iv_no_solve.setSelected(false);
+                        sobot_ll_ok_robot.setSelected(true);
+                        sobot_ll_no_robot.setSelected(true);
                         sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
                         sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
                     }
@@ -389,15 +394,14 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
                             sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_ten_evaluate_select));
                         }
                     } else if (ratingType == 2) {
+                        sobot_ratingBar_title.setVisibility(View.GONE);
                         if (-1 == score) {
                             changeCommitButtonUi(false);
-                            sobot_ratingBar_title.setVisibility(View.GONE);
 //                                sobot_ratingBar_title.setText(R.string.sobot_evaluate_zero_score_des);
 //                                sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_third));
                         } else {
                             changeCommitButtonUi(true);
                             if (satisfactionSetBase != null) {
-                                sobot_ratingBar_title.setVisibility(View.VISIBLE);
                                 sobot_ratingBar_title.setText(satisfactionSetBase.getScoreExplain());
                             }
                             sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_ten_evaluate_select));
@@ -531,7 +535,7 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
             sobot_tv_evaluate_title_hint.setVisibility(View.GONE);
         }
 
-        sobot_robot_center_title.setText(String.format(sobot_question,customName));
+        sobot_robot_center_title.setText(String.format(sobot_question,initModel.getRobotName()));
         sobot_robot_relative.setVisibility(View.GONE);
         sobot_custom_relative.setVisibility(View.VISIBLE);
     }
@@ -897,8 +901,10 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
             score = 5;
             iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 43);
             iv_satisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 43);
+            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
             iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);
             iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 35);
+            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -909,8 +915,10 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         } else if (v.getId() == R.id.sobot_btn_dissatisfied) {
             iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 35);
             iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(getContext(), 35);
+            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
             iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(getContext(), 43);
             iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(getContext(), 43);
+            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
@@ -923,14 +931,18 @@ public class SobotAIEvaluateActivity extends SobotDialogBaseActivity implements 
         if (v.getId() == R.id.sobot_ll_ok_robot) {
             isSolve = 1;
             iv_solved.setSelected(true);
+            sobot_ll_ok_robot.setSelected(true);
             iv_no_solve.setSelected(false);
+            sobot_ll_no_robot.setSelected(false);
             // 获取系统默认的加粗字体
             sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
             sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         } else if (v.getId() == R.id.sobot_ll_no_robot) {
             isSolve = 0;
             iv_solved.setSelected(false);
+            sobot_ll_ok_robot.setSelected(false);
             iv_no_solve.setSelected(true);
+            sobot_ll_no_robot.setSelected(true);
             sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
             sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         }

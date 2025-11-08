@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">Non hai inviato alcuna informazione. Per favore</string>
        <string name="sobot_re_write">Compila nuovamente le informazioni</string>
        <string name="sobot_str_please_check_is_solve">Scegliere se il problema è stato risolto</string>
-       <string name="sobot_evaluate_lab">Etichetta:</string>
-       <string name="sobot_evaluate_issolve">Risolto:</string>
+       <string name="sobot_evaluate_lab">Etichetta</string>
+       <string name="sobot_evaluate_issolve">Risolto</string>
        <string name="sobot_str_appoint">Citazione</string>
        <string name="sobot_str_my">Me</string>
        <string name="sobot_str_robot">Robot</string>

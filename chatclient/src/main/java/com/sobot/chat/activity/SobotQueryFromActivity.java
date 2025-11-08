@@ -3,7 +3,6 @@ package com.sobot.chat.activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -91,8 +90,9 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
         sobot_btn_submit.setText(R.string.sobot_btn_queryfrom_submit_text);
         sobot_btn_submit.setOnClickListener(this);
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable d = getResources().getDrawable(R.drawable.sobot_normal_btn_bg);
+            Drawable d = getResources().getDrawable(R.drawable.sobot_btn_bg_28);
             sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
+            sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
         sobot_container = (LinearLayout) findViewById(R.id.sobot_container);
         sobot_tv_doc = (TextView) findViewById(R.id.sobot_tv_doc);

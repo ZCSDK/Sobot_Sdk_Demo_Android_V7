@@ -79,10 +79,12 @@ public class SobotLoadingDialog extends Dialog {
         }
         loading = findViewById(R.id.progress_loading);
         loading.setProgressColor(ThemeUtils.getThemeColor(getContext()));
+        loading.startSpinning();
     }
 
     @Override
     public void dismiss() {
+        loading.stopSpinning();
         super.dismiss();
     }
 
@@ -108,4 +110,10 @@ public class SobotLoadingDialog extends Dialog {
             tv_loading.setVisibility(SobotLoadingView.GONE);
         }
     }
+//    public void startLoading(){
+//        loading.startSpinning();
+//    }
+//    public void stopLoading(){
+//        loading.stopSpinning();
+//    }
 }

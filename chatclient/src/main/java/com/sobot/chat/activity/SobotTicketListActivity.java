@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,14 +31,12 @@ import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.presenter.StPostMsgPresenter;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
-import com.sobot.chat.widget.refresh.layout.util.SmartUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -60,9 +61,12 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     private LinearLayout mllContent,mllLoading;
     private RecyclerView recyclerView;
     private TextView mNewTicket;
+    private LinearLayout ll_new_ticket;
+    private ImageView iv_new_ticket;
     private TextView sobotEmpty;
     private SobotLoadingView loading;
     private SobotTicketInfoAdapter mAdapter;
+    private View title_line;
 
     //选择模板
     private SobotTicketTmpsAdapter tmpAdapter;
@@ -135,20 +139,24 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
             });
         }
         mllContent = findViewById(R.id.ll_content);
+        title_line = findViewById(R.id.title_line);
         mllLoading = findViewById(R.id.ll_loading);
         mllContent.setVisibility(View.GONE);
         recyclerView = findViewById(R.id.sobot_listview);
         mNewTicket = findViewById(R.id.sobot_new_ticket);
+        ll_new_ticket = findViewById(R.id.ll_new_ticket);
+        iv_new_ticket = findViewById(R.id.iv_new_ticket);
         sobotEmpty = findViewById(R.id.sobot_empty);
         loading = findViewById(R.id.iv_loading);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
-        Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
+        Drawable bg = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_theme_color_20dp,null);
         if (bg != null) {
-            mNewTicket.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
+            ll_new_ticket.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
         }
-        mNewTicket.setOnClickListener(this);
+        ll_new_ticket.setOnClickListener(this);
         mNewTicket.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
-//        mNewTicket.setCompoundDrawables();
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_ticket_add,null);
+        iv_new_ticket.setImageDrawable(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeTextAndIconColor(this)));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         recyclerView.setLayoutManager(layoutManager);
@@ -180,9 +188,9 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     mllContent.setVisibility(View.VISIBLE);
                     if(isOnlyShowTicket){
                         //仅显示留言记录，不显示新建
-                        mNewTicket.setVisibility(View.GONE);
+                        ll_new_ticket.setVisibility(View.GONE);
                     }else {
-                        mNewTicket.setVisibility(View.VISIBLE);
+                        ll_new_ticket.setVisibility(View.VISIBLE);
                     }
                     recyclerView.setVisibility(View.VISIBLE);
                     //直接显示数据
@@ -197,12 +205,22 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     recyclerView.setAdapter(mAdapter);
                 }else {
                     loading.startSpinning();
-                    requestDate();
+                    //新建完需要延迟刷新
+                    boolean delayRefresh = getIntent().getBooleanExtra("delayRefresh", false);
+                    if(delayRefresh){
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                requestDate();
+                            }
+                        }, 1000);
+                    }else {
+                        requestDate();
+                    }
                 }
             }
         }else{
             setTitle(R.string.sobot_please_leave_a_message);
-            recyclerView.setPadding(0, SmartUtil.dp2px(12), 0, 0);
             if(null != templates && !templates.isEmpty()) {
                 loading.stopSpinning();
                 mllLoading.setVisibility(View.GONE);
@@ -218,7 +236,7 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
             }else{
                 loading.startSpinning();
                 //新建请求模板
-                requestTemps();
+                requestTemps(false);
             }
         }
 
@@ -226,31 +244,44 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     /**
      * 请求模板
      */
-    private void requestTemps() {
+    private void requestTemps(boolean isNewBtn) {
         zhiChiApi.getWsTemplate(REQUEST_TAG, mUid, mGroupId, new StringResultCallBack<ArrayList<SobotPostMsgTemplate>>() {
             @Override
             public void onSuccess(ArrayList<SobotPostMsgTemplate> datas) {
+                isClickAble = true;
                 loading.stopSpinning();
                 mllLoading.setVisibility(View.GONE);
                 mllContent.setVisibility(View.VISIBLE);
-                recyclerView.setPadding(ScreenUtils.dip2px(SobotTicketListActivity.this, 20),ScreenUtils.dip2px(SobotTicketListActivity.this, 16),ScreenUtils.dip2px(SobotTicketListActivity.this, 20),ScreenUtils.dip2px(SobotTicketListActivity.this, 24));
                 if (datas != null && datas.size() > 0) {
                     if (datas.size() == 1) {
                         //只有一个 自动点选，跳转到留言页面
                         gotoNewTicket(datas.get(0).getTemplateId());
                         finish();
                     } else {
-                        //显示列表
-                        templates.clear();
-                        templates.addAll(datas);
-                        tmpAdapter = new SobotTicketTmpsAdapter(getSobotBaseActivity(), templates, new SobotTicketTmpsAdapter.ItemOnClick() {
-                            @Override
-                            public void onItemClick(SobotPostMsgTemplate itemBeen) {
-                                //跳转到留言页面
-                                gotoNewTicket(itemBeen.getTemplateId());
-                            }
-                        });
-                        recyclerView.setAdapter(tmpAdapter);
+                        if(isNewBtn){
+                            //打开下一个页面
+                            Intent intent2 = new Intent(SobotTicketListActivity.this, SobotTicketListActivity.class);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                            intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
+                            intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TEMP_LIST, datas);
+                            startActivity(intent2);
+                        }else {
+                            //显示列表
+                            templates.clear();
+                            templates.addAll(datas);
+                            tmpAdapter = new SobotTicketTmpsAdapter(getSobotBaseActivity(), templates, new SobotTicketTmpsAdapter.ItemOnClick() {
+                                @Override
+                                public void onItemClick(SobotPostMsgTemplate itemBeen) {
+                                    //跳转到留言页面
+                                    gotoNewTicket(itemBeen.getTemplateId());
+                                }
+                            });
+                            recyclerView.setAdapter(tmpAdapter);
+                        }
                     }
                 }else{
                     //跳转到新建工单页面
@@ -261,6 +292,7 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
 
             @Override
             public void onFailure(Exception e, String des) {
+                isClickAble = true;
                 //请求失败
                 showHint(des);
             }
@@ -284,9 +316,9 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     mllContent.setVisibility(View.VISIBLE);
                     if(isOnlyShowTicket){
                         //仅显示留言记录，不显示新建
-                        mNewTicket.setVisibility(View.GONE);
+                        ll_new_ticket.setVisibility(View.GONE);
                     }else {
-                        mNewTicket.setVisibility(View.VISIBLE);
+                        ll_new_ticket.setVisibility(View.VISIBLE);
                     }
                     recyclerView.setVisibility(View.VISIBLE);
                     mList.clear();
@@ -312,7 +344,7 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     }else{
                         //新建请求模板
                         setTitle(R.string.sobot_please_leave_a_message);
-                        requestTemps();
+                        requestTemps(false);
                     }
                 }
             }
@@ -346,23 +378,15 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
         }
         super.onDestroy();
     }
-    long submitTime;//防止重复点击
+    boolean isClickAble=true;//防止重复点击
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.sobot_new_ticket) {
-            if((System.currentTimeMillis()-submitTime)<5000){
-                submitTime = System.currentTimeMillis();
-            }else {
-                submitTime = System.currentTimeMillis();
-                //跳转到新建工单
-                Intent intent2 = new Intent(this, SobotTicketListActivity.class);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
-                intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
-                intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
-                startActivity(intent2);
+        if (view.getId() == R.id.ll_new_ticket) {
+            if(isClickAble){
+                isClickAble = false;
+                //跳转到新建工单,请求模板，根据返回的模板个数判断是显示模板还是新建
+                loading.startSpinning();
+                requestTemps(true);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.sobot.chat.viewHolder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -38,6 +39,13 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
 
     @Override
     public void bindData(Context context, ZhiChiMessageBase message) {
+        int msgPaddingStartRight = (int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge);//气泡内间距
+        int msgEdgeStartRight = (int) mContext.getResources().getDimension(R.dimen.sobot_msg_margin_edge);//气泡到边沿的间距
+        int msgRightEmptyWidth = (int) mContext.getResources().getDimension(R.dimen.sobot_chat_msg_boundary_to_empty_width);//气泡右侧空白宽度
+
+        //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20
+        msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight ;
+
         tvStripe.setMaxWidth(msgMaxWidth);
         resetMaxWidth();
         if (message.getLanguaeModels() != null && !message.getLanguaeModels().isEmpty()) {

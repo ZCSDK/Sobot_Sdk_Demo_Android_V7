@@ -17,80 +17,47 @@
 
         <include layout="@layout/sobot_dialog_title" />
 
+        <ScrollView
+            android:id="@+id/sobot_scroll_v"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/ll_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/sobot_color_transparent"
+                android:orientation="vertical" />
+        </ScrollView>
+
         <TextView
-            android:id="@+id/tv_start_tip"
+            android:id="@+id/tv_nodata"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_marginStart="@dimen/sobot_dialog_margin"
+            android:layout_marginEnd="@dimen/sobot_dialog_margin"
+            android:layout_marginBottom="117dp"
+            android:gravity="center"
+            android:text="@string/sobot_no_data_string"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/sobot_dialog_bg_color"
-            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:paddingStart="@dimen/sobot_dialog_margin"
-            android:paddingTop="16dp"
-            android:paddingEnd="@dimen/sobot_dialog_margin"
-            android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_12" />
-
-        <LinearLayout
-            android:id="@+id/view_root"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@color/sobot_dialog_bg_color"
-            android:orientation="vertical">
-
-            <ScrollView
-                android:id="@+id/sobot_scroll_v"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:id="@+id/ll_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/sobot_color_transparent"
-                    android:orientation="vertical" />
-            </ScrollView>
-
-            <TextView
-                android:id="@+id/tv_nodata"
-                android:layout_width="match_parent"
-                android:layout_height="110dp"
-                android:layout_marginStart="@dimen/sobot_dialog_margin"
-                android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:layout_marginBottom="117dp"
-                android:gravity="center"
-                android:text="@string/sobot_no_data_string"
-                android:textColor="@color/sobot_color_text_third"
-                android:textSize="@dimen/sobot_text_font_14"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tv_permission_tip"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sobot_dialog_margin"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:textColor="@color/sobot_color_text_third"
-                android:textSize="@dimen/sobot_text_font_12" />
-
-            <TextView
-                android:id="@+id/btnSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/sobot_dialog_margin"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/sobot_bg_theme_color_4dp"
-                android:gravity="center"
-                android:padding="9dp"
-                android:singleLine="true"
-                android:text="@string/sobot_btn_submit_text"
-                android:textAllCaps="false"
-                android:textColor="@color/sobot_white"
-                android:textSize="@dimen/sobot_text_font_14" />
-        </LinearLayout>
+            android:layout_marginStart="@dimen/sobot_dialog_margin"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="@dimen/sobot_dialog_margin"
+            android:background="@drawable/sobot_btn_bg_28"
+            android:gravity="center"
+            android:padding="9dp"
+            android:singleLine="true"
+            android:text="@string/sobot_btn_submit_text"
+            android:textAllCaps="false"
+            android:textColor="@color/sobot_white"
+            android:textSize="@dimen/sobot_text_font_14" />
     </com.sobot.chat.widget.SobotMHLinearLayout>
 </LinearLayout>

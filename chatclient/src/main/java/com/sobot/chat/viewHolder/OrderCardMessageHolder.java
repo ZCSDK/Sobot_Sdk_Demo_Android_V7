@@ -3,13 +3,12 @@ package com.sobot.chat.viewHolder;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.GridLayout;
 import android.widget.TextView;
-
-import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotConstant;
@@ -39,10 +38,6 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
     private SobotProgressImageView mPic;
     private TextView mTitle;
     private TextView mGoodsCount;
-    private TextView mOrderStatus;
-    private TextView mOrderNumber;
-    private TextView mOrderCreatetime;
-    private LinearLayout mOrderExtentFieldsLL;
     private View mGoodsOrderSplit;
     private View mSeeAllSplitTV;
     private TextView mSeeAllTV;
@@ -50,6 +45,7 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
     // 延迟显示 发送中（旋转菊花）效果
     private Runnable loadingRunnable;
     private final Handler handler = new Handler();
+    private GridLayout cusrLayout;
 
 
     public OrderCardMessageHolder(Context context, View convertView) {
@@ -58,12 +54,9 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
         mTitle = (TextView) convertView.findViewById(R.id.sobot_goods_title);
         mGoodsCount = (TextView) convertView.findViewById(R.id.sobot_goods_count);
         mGoodsOrderSplit = (View) convertView.findViewById(R.id.sobot_goods_order_split);
-        mOrderStatus = (TextView) convertView.findViewById(R.id.sobot_order_status);
-        mOrderNumber = (TextView) convertView.findViewById(R.id.sobot_order_number);
-        mOrderExtentFieldsLL = convertView.findViewById(R.id.sobot_order_ll_extent_fields);
-        mOrderCreatetime = (TextView) convertView.findViewById(R.id.sobot_order_createtime);
         mSeeAllSplitTV = convertView.findViewById(R.id.sobot_see_all_split);
         mSeeAllTV = convertView.findViewById(R.id.sobot_order_see_all);
+        cusrLayout = convertView.findViewById(R.id.curs_grid_layout);
     }
 
     @SuppressLint("SetTextI18n")
@@ -99,43 +92,6 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                 mGoodsOrderSplit.setVisibility(View.GONE);
             }
 
-            if (orderCardContent.getOrderStatus() == 0) {
-                if (!TextUtils.isEmpty(orderCardContent.getStatusCustom())) {
-                    mOrderStatus.setVisibility(View.VISIBLE);
-                    mOrderStatus.setText(orderCardContent.getStatusCustom());
-                } else {
-                    mOrderStatus.setVisibility(View.GONE);
-                }
-            } else {
-                mOrderStatus.setVisibility(View.VISIBLE);
-                //待付款: 1   待发货: 2   运输中: 3   派送中: 4   已完成: 5   待评价: 6   已取消: 7
-                String statusStr = "";
-                switch (orderCardContent.getOrderStatus()) {
-                    case 1:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_1);
-                        break;
-                    case 2:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_2);
-                        break;
-                    case 3:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_3);
-                        break;
-                    case 4:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_4);
-                        break;
-                    case 5:
-                        statusStr = context.getResources().getString(R.string.sobot_completed);
-                        break;
-                    case 6:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_6);
-                        break;
-                    case 7:
-                        statusStr = context.getResources().getString(R.string.sobot_order_status_7);
-                        break;
-                }
-                mOrderStatus.setText(statusStr);
-            }
-
             StringBuilder s = new StringBuilder();
             StringBuilder s1 = new StringBuilder();
             if (!TextUtils.isEmpty(orderCardContent.getGoodsCount())) {
@@ -162,39 +118,64 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                 }
             });
 
-            if (!TextUtils.isEmpty(orderCardContent.getOrderCode())) {
-                mOrderNumber.setText(context.getResources().getString(R.string.sobot_order_code_lable) + "：" + orderCardContent.getOrderCode());
-                mOrderNumber.setVisibility(View.VISIBLE);
+
+            cusrLayout.setColumnCount(2);
+            cusrLayout.removeAllViews();
+
+            if (orderCardContent.getOrderStatus() == 0) {
+                if (!TextUtils.isEmpty(orderCardContent.getStatusCustom())) {
+                    cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_status_lable)));
+                    cusrLayout.addView(getRightText(orderCardContent.getStatusCustom()));
+                }
             } else {
-                mOrderNumber.setVisibility(View.GONE);
+                //待付款: 1   待发货: 2   运输中: 3   派送中: 4   已完成: 5   待评价: 6   已取消: 7
+                String statusStr = "";
+                switch (orderCardContent.getOrderStatus()) {
+                    case 1:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_1);
+                        break;
+                    case 2:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_2);
+                        break;
+                    case 3:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_3);
+                        break;
+                    case 4:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_4);
+                        break;
+                    case 5:
+                        statusStr = context.getResources().getString(R.string.sobot_completed);
+                        break;
+                    case 6:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_6);
+                        break;
+                    case 7:
+                        statusStr = context.getResources().getString(R.string.sobot_order_status_7);
+                        break;
+                }
+                cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_status_lable)));
+                TextView status=getRightText(statusStr);
+                status.setTextColor(mContext.getResources().getColor(R.color.sobot_order_status_text_color));
+                cusrLayout.addView(status);
+            }
+
+            if (!TextUtils.isEmpty(orderCardContent.getOrderCode())) {
+                cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_code_lable)));
+                cusrLayout.addView(getRightText(orderCardContent.getOrderCode()));
             }
 
             if (!TextUtils.isEmpty(orderCardContent.getCreateTime())) {
                 Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
                 String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
-                mOrderCreatetime.setText(context.getResources().getString(R.string.sobot_order_time_lable) + "：" + DateUtil.longStrToDateStr(orderCardContent.getCreateTime(), formatString, locale));
-                mOrderCreatetime.setVisibility(View.VISIBLE);
-            } else {
-                mOrderCreatetime.setVisibility(View.GONE);
+                cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_time_lable)));
+                cusrLayout.addView(getRightText( DateUtil.longStrToDateStr(orderCardContent.getCreateTime(), formatString, locale)));
             }
 
             if (orderCardContent.getExtendFields() != null) {
-                mOrderExtentFieldsLL.removeAllViews();
                 for (int i = 0; i < orderCardContent.getExtendFields().size(); i++) {
-                    TextView textView = new TextView(mContext);
-                    textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimensionPixelOffset(R.dimen.sobot_text_font_12));
-                    LinearLayout.LayoutParams wlayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                    wlayoutParams.setMargins(0, ScreenUtils.dip2px(context, 2), 0, 0);
-                    textView.setLayoutParams(wlayoutParams);
-                    textView.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_order_label_text_color));
-                    textView.setText(orderCardContent.getExtendFields().get(i).getFieldName() + "：" + orderCardContent.getExtendFields().get(i).getFieldValue());
-                    mOrderExtentFieldsLL.addView(textView);
+                    cusrLayout.addView(getLeftText(orderCardContent.getExtendFields().get(i).getFieldName()));
+                    cusrLayout.addView(getRightText(orderCardContent.getExtendFields().get(i).getFieldValue()));
                 }
-                mOrderExtentFieldsLL.setVisibility(View.VISIBLE);
-
-            } else {
-                mOrderExtentFieldsLL.setVisibility(View.GONE);
             }
             if (!TextUtils.isEmpty(orderCardContent.getOrderUrl())) {
                 mSeeAllSplitTV.setVisibility(View.VISIBLE);
@@ -247,6 +228,36 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
             ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
             ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
         }
+    }
+
+    /**
+     * 自定义字段左侧的view
+     * @param textStr 显示的文字
+     */
+    private TextView getLeftText(String textStr){
+        TextView title = new TextView(mContext);
+        title.setText(textStr);
+        title.setMaxLines(3);
+        title.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_first));
+        title.setTextSize(12);
+        title.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        title.setPadding(0, ScreenUtils.dip2px(mContext, 8), ScreenUtils.dip2px(mContext, 8), 0);
+        title.setMaxWidth(ScreenUtils.dip2px(mContext, 150));
+        return title;
+    }
+
+    /**
+     * 自定义字段右侧的view
+     * @param textStr 文本
+     */
+    private TextView getRightText(String textStr){
+        TextView value = new TextView(mContext);
+        value.setMaxLines(3);
+        value.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_first));
+        value.setTextSize(12);
+        value.setPadding(0, 0, 0, 0);
+        value.setText(textStr);
+        return value;
     }
 
     @Override

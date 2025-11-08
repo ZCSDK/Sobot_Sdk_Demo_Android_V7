@@ -75,9 +75,12 @@ public class SobotSessionServer extends Service {
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        LogUtils.i("SobotSessionServer  ---> onCreate");
-        initBrocastReceiver();
+        try {
+            super.onCreate();
+            LogUtils.i("SobotSessionServer  ---> onCreate");
+            initBrocastReceiver();
+        } catch (Exception ignored) {
+        }
     }
 
     /* 初始化广播接受者 */

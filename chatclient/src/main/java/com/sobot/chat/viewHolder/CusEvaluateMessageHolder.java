@@ -98,16 +98,14 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         setl_submit_content = convertView.findViewById(R.id.setl_submit_content);
         sobot_add_content = convertView.findViewById(R.id.sobot_add_content);
         sobot_add_content.setHint(R.string.sobot_edittext_hint);
+        Drawable bgDrawable  = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_line_4,null);
         sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Drawable db = ResourcesCompat.getDrawable( mContext.getResources(),R.drawable.sobot_bg_evaluate_input,null);
-                if(hasFocus) {
-                    if (db != null) {
-                        setl_submit_content.setBackground(ThemeUtils.applyColorToDrawable(db, themeColor));
-                    }
-                }else{
-                    setl_submit_content.setBackground(db);
+                if (hasFocus) {
+                    sobot_add_content.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
+                } else {
+                    sobot_add_content.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
                 }
             }
         });
@@ -125,7 +123,6 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
 
         sobot_tv_star_title = (TextView) convertView.findViewById(R.id.sobot_tv_star_title);
-        sobot_tv_star_title.setText(R.string.sobot_please_evaluate);
         sobot_ratingBar =  convertView.findViewById(R.id.sobot_ratingBar);
         sobot_ten_root_ll = convertView.findViewById(R.id.sobot_ten_root_ll);
 
@@ -318,7 +315,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             score = (mSatisfactionSet.getDefaultType() == 0) ? 5 : 0;
             deftaultScore = score;
             sobotEvaluateModel.setScore(deftaultScore);
-            sobot_ratingBar.init(score,false,35);
+            sobot_ratingBar.init(score,true,35);
             sobot_ten_root_ll.setVisibility(View.GONE);
             ll_2_type.setVisibility(View.GONE);
             sobot_ratingBar.setVisibility(View.VISIBLE);
@@ -492,7 +489,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             setLableViewVisible(null);
         }
 
-        sobot_tv_star_title.setText(message.getSenderName() + " " + mContext.getResources().getString(R.string.sobot_please_evaluate));
+        sobot_tv_star_title.setText(String.format(mContext.getString(R.string.sobot_question),message.getSenderName()));
 
         checkQuestionFlag();
         refreshItem();
@@ -531,6 +528,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             sobot_btn_ok_robot.setVisibility(View.VISIBLE);
             sobot_btn_no_robot.setVisibility(View.VISIBLE);
             sobot_ratingBar_split_view.setVisibility(View.VISIBLE);
+//            if()
 
         } else {
 //            是否已解决关闭
@@ -557,18 +555,6 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
     }
 
     private void setEvaluatedLayout() {
-//        if (sobot_readiogroup.getVisibility() == View.VISIBLE) {
-//            sobot_btn_ok_robot.setVisibility(View.VISIBLE);
-//            sobot_btn_no_robot.setVisibility(View.VISIBLE);
-//            if (sobotEvaluateModel.getIsResolved() == 0) {
-//                sobot_btn_ok_robot.setChecked(false);
-//                sobot_btn_no_robot.setChecked(true);
-//            } else if (sobotEvaluateModel.getIsResolved() == 1) {
-//                sobot_btn_ok_robot.setChecked(true);
-//                sobot_btn_no_robot.setChecked(false);
-//            }
-//        }
-//        sobot_ratingBar.setRating(sobotEvaluateModel.getScore());
         sobot_ratingBar.setEnabled(false);
     }
 
@@ -578,20 +564,26 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         }
         sobot_btn_ok_robot.setVisibility(View.VISIBLE);
         sobot_btn_no_robot.setVisibility(View.VISIBLE);
-        //是否解决问题 0:已解决，1：未解决，-1：都不选
-        if (sobotEvaluateModel.getIsResolved() == 0) {
+        //是否解决问题 0:未解决，1：已解决，-1：都不选
+        if (sobotEvaluateModel.getIsResolved() == 1) {
             iv_solved.setSelected(true);
             iv_no_solve.setSelected(false);
+            sobot_ll_ok_robot.setSelected(true);
+            sobot_ll_no_robot.setSelected(false);
             sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
             sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
-        } else if (sobotEvaluateModel.getIsResolved() == 1) {
+        } else if (sobotEvaluateModel.getIsResolved() == 0) {
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
+            sobot_ll_ok_robot.setSelected(false);
+            sobot_ll_no_robot.setSelected(true);
             sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
             sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         } else if (sobotEvaluateModel.getIsResolved() == -1) {
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(false);
+            sobot_ll_ok_robot.setSelected(false);
+            sobot_ll_no_robot.setSelected(true);
             sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
             sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         }
@@ -738,20 +730,26 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             sobotEvaluateModel.setScore(5);
             iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
             iv_satisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
+            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
+
+            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
+            iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 35);
+            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
-            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);;
-            iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 35);;
             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
             tv_satisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_common_hese));
             tv_dissatisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
         } else if (v.getId() == R.id.sobot_btn_dissatisfied) {
-            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);;
-            iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);;
+            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
+            iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);
+            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
+            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
+
             iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
             iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
-            iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
+            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
             tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
             tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -760,16 +758,21 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             sobotEvaluateModel.setScore(1);
         }
         if (v.getId()  == R.id.sobot_ll_ok_robot) {
-            sobotEvaluateModel.setIsResolved(0);
+            sobotEvaluateModel.setIsResolved(1);
             // 获取系统默认的加粗字体
             iv_solved.setSelected(true);
             iv_no_solve.setSelected(false);
+            sobot_ll_ok_robot.setSelected(true);
+            sobot_ll_no_robot.setSelected(false);
+
             sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
             sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         } else if (v.getId()  == R.id.sobot_ll_no_robot) {
-            sobotEvaluateModel.setIsResolved(1);
+            sobotEvaluateModel.setIsResolved(0);
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
+            sobot_ll_ok_robot.setSelected(false);
+            sobot_ll_no_robot.setSelected(true);
             sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
             sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         }

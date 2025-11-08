@@ -12,7 +12,7 @@
        <string name="sobot_unable_transfer_to_customer_service">Maaf, agen sedang sibuk saat ini</string>
        <string name="sobot_unable_to_evaluate">Tidak dapat mengevaluasi sementara</string>
        <string name="sobot_try_again">Kesalahan jaringan, mohon periksa jaringan dan coba lagi</string>
-       <string name="sobot_transfer_to_customer_service">Chat Agen</string>
+       <string name="sobot_transfer_to_customer_service">Agen</string>
        <string name="sobot_title_time">Waktu</string>
        <string name="sobot_title_date">Tanggal</string>
        <string name="sobot_title">Judul</string>
@@ -48,7 +48,7 @@
        <string name="sobot_receive_new_message">Anda menerima pesan baru</string>
        <string name="sobot_rating_score">Skor</string>
        <string name="sobot_rating_dec">Komentar</string>
-       <string name="sobot_question">Apakah %s telah menyelesaikan masalah Anda?</string>
+       <string name="sobot_question">Apakah %s memecahkan masalah Anda?</string>
        <string name="sobot_processing">Sudah Diterima</string>
        <string name="sobot_problem_types">Kategori Pertanyaan</string>
        <string name="sobot_problem_detail_title">Detail Pertanyaan</string>
@@ -238,8 +238,8 @@
        <string name="sobot_re_commit">Anda tidak mengirim informasi apapun. Silakan</string>
        <string name="sobot_re_write">Isi informasi lagi</string>
        <string name="sobot_str_please_check_is_solve">Silakan pilih apakah masalah Anda telah diselesaikan</string>
-       <string name="sobot_evaluate_lab">Label:</string>
-       <string name="sobot_evaluate_issolve">Selesai:</string>
+       <string name="sobot_evaluate_lab">Label</string>
+       <string name="sobot_evaluate_issolve">Selesai</string>
        <string name="sobot_str_appoint">Kutipan</string>
        <string name="sobot_str_my">Aku</string>
        <string name="sobot_str_robot">Robot</string>

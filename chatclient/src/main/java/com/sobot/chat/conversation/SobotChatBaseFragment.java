@@ -33,7 +33,6 @@ import androidx.annotation.Nullable;
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
-import com.sobot.chat.activity.SobotQueryFromActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.ResultCallBack;
 import com.sobot.chat.api.apiUtils.GsonUtil;
@@ -52,7 +51,6 @@ import com.sobot.chat.api.model.SobotAiRobotRealuateConfigInfo;
 import com.sobot.chat.api.model.SobotConnCusParam;
 import com.sobot.chat.api.model.SobotFaqDetailModel;
 import com.sobot.chat.api.model.SobotLocationModel;
-import com.sobot.chat.api.model.SobotQueryFormModel;
 import com.sobot.chat.api.model.SobotQuestionRecommend;
 import com.sobot.chat.api.model.SobotRealuateConfigInfo;
 import com.sobot.chat.api.model.SobotSessionPhaseMode;
@@ -140,9 +138,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     protected int remindRobotMessageTimes = 0;//机器人的提醒次数
     protected boolean isRemindTicketInfo;//是否已经进行过工单状态提醒
 
-    //
     //防止询前表单接口重复执行
-    private boolean isQueryFroming = false;
+    protected boolean isQueryFroming = false;
     //防止重复弹出询前表单
     protected boolean isHasRequestQueryFrom = false;
 
@@ -2024,54 +2021,6 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
      */
     protected void clearCache() {
         SobotMsgManager.getInstance(getSobotApplicationContext()).clearAllConfig();
-    }
-
-    /**
-     * 检查是否有询前表单，这个方法在转人工时 会首先检查是否需要填写询前表单，
-     * 如果有那么将会弹出询前表单填写界面，之后会调用转人工
-     */
-    protected void requestQueryFrom(final SobotConnCusParam param, final boolean isCloseInquiryFrom) {
-        if (customerState == CustomerState.Queuing || isHasRequestQueryFrom) {
-            //如果在排队中就不需要填写询前表单 、或者之前弹过询前表单
-            connectCustomerService(param);
-            return;
-        }
-        if (isQueryFroming) {
-            return;
-        }
-        isHasRequestQueryFrom = true;
-        isQueryFroming = true;
-        zhiChiApi.queryFormConfig(SobotChatBaseFragment.this, getInitModel().getPartnerid(), new StringResultCallBack<SobotQueryFormModel>() {
-            @Override
-            public void onSuccess(SobotQueryFormModel sobotQueryFormModel) {
-                isQueryFroming = false;
-                if (!isActive()) {
-                    return;
-                }
-                if (sobotQueryFormModel.isOpenFlag() && !isCloseInquiryFrom && sobotQueryFormModel.getField() != null && sobotQueryFormModel.getField().size() > 0) {
-                    // 打开询前表单
-                    Intent intent = new Intent(getSobotApplicationContext(), SobotQueryFromActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_FIELD, sobotQueryFormModel);
-                    bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_UID, getInitModel().getPartnerid());
-                    bundle.putSerializable(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_CONNCUSPARAM, param);
-                    intent.putExtra(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA, bundle);
-                    startActivityForResult(intent, ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM);
-                } else {
-                    connectCustomerService(param);
-                }
-            }
-
-            @Override
-            public void onFailure(Exception e, String des) {
-                isQueryFroming = false;
-                if (!isActive()) {
-                    return;
-                }
-                ToastUtil.showToast(getSobotApplicationContext(), des);
-            }
-
-        });
     }
 
     public void remindRobotMessage(final Handler handler, final ZhiChiInitModeBase initModel, final Information info) {

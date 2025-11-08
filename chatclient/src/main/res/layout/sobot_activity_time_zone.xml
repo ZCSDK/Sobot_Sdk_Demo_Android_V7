@@ -104,7 +104,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/sobot_bg_theme_color_4dp"
                 android:text="@string/sobot_btn_submit" />
         </LinearLayout>
     </LinearLayout>

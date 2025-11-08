@@ -90,11 +90,19 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
                 //已解决
                 vh.tv_ticket_status.setTextColor(activity.getResources().getColor(R.color.sobot_ticket_resolved_text));
             }
+        }else{
+            vh.tv_ticket_status.setText((statusList==null)+"=="+data.getTicketStatus());
         }
         vh.sobot_tv_new.setVisibility(data.isNewFlag() ? View.VISIBLE : View.GONE);
         Locale locale = (Locale) SharedPreferencesUtil.getObject(activity, ZhiChiConstant.SOBOT_LANGUAGE);
         String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
         vh.tv_time.setText(DateUtil.longStrToDateStr(data.getTime(), formatString, locale));
+        if(i>3 && i==list.size()-1){
+            vh.v_end.setVisibility(View.VISIBLE);
+        }else{
+            vh.v_end.setVisibility(View.GONE);
+        }
+
 
         displayInNotch(vh.tv_time);
         displayInNotch(vh.tv_content);
@@ -120,6 +128,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
         private TextView tv_content,tv_title;
         private TextView tv_time;
         private ImageView sobot_tv_new;
+        private View v_end;
 
         TicketInfoViewHolder(View view) {
             super(view);
@@ -128,6 +137,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             tv_title = view.findViewById(R.id.sobot_tv_title);
             tv_time = view.findViewById(R.id.sobot_tv_time);
             sobot_tv_new = view.findViewById(R.id.sobot_tv_new);
+            v_end = view.findViewById(R.id.v_end);
         }
     }
 

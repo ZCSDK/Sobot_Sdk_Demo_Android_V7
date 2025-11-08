@@ -2,20 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
-    style="@style/sobot_msg_top_bottom_style"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/sobot_container"
+        style="@style/sobot_msg_content_ll_hollow_bg_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        style="@style/sobot_msg_content_ll_hollow_bg_style"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
 
         <com.sobot.chat.widget.image.SobotProgressImageView
             android:id="@+id/sobot_goods_pic"
@@ -68,9 +67,9 @@
                     android:layout_weight="1"
                     android:gravity="bottom"
                     android:singleLine="true"
-                    android:textStyle="bold"
                     android:textColor="@color/sobot_card_goods_price"
-                    android:textSize="@dimen/sobot_text_font_14" />
+                    android:textSize="@dimen/sobot_text_font_14"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/sobot_goods_sendBtn"
@@ -82,9 +81,9 @@
                     android:gravity="center"
                     android:lines="1"
                     android:paddingStart="16dp"
-                    android:paddingTop="9dp"
+                    android:paddingTop="6dp"
                     android:paddingEnd="16dp"
-                    android:paddingBottom="9dp"
+                    android:paddingBottom="6dp"
                     android:textColor="@color/sobot_color_white"
                     android:textSize="@dimen/sobot_text_font_14" />
 

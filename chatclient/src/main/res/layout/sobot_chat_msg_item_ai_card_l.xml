@@ -42,9 +42,13 @@
             <!--消息内容  列表 -->
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
-                style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:background="@drawable/sobot_chat_msg_bg_left"
                 android:orientation="vertical"
                 >
+
                 <!--标题-->
                 <TextView
                     android:id="@+id/tv_title"
@@ -52,7 +56,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
                     android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
+                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="12dp"
+                    android:textColor="@color/sobot_color_text_first"
                     android:orientation="vertical" />
 
                 <!--商品列表-->
@@ -60,8 +66,8 @@
                     android:id="@+id/rv_goods_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
-                    android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge" />
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp" />
 
                 <!--展开按钮-->
                 <LinearLayout
@@ -75,7 +81,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/sobot_line_height_dp"
-                        android:background="@color/sobot_color_line_divider" />
+                        android:layout_marginTop="20dp"
+                        android:background="@color/sobot_color_line_divider_3" />
 
                     <TextView
                         android:id="@+id/tv_expand"
@@ -83,9 +90,10 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:gravity="center"
-                        android:paddingTop="12dp"
+                        android:padding="12dp"
                         android:text="@string/sobot_see_more"
                         android:textColor="@color/sobot_common_green"
+                        android:textStyle="bold"
                         android:textSize="@dimen/sobot_text_font_14" />
                 </LinearLayout>
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>

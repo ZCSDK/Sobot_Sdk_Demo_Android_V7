@@ -139,6 +139,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
                 btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             }
         }
+        btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         et_search = findViewById(R.id.et_search);
         ll_search = findViewById(R.id.ll_search);
         tv_search_text_level = findViewById(R.id.tv_search_text_level);

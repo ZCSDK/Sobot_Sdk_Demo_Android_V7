@@ -115,6 +115,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
             if (bg != null) {
                 sobotBtnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
             }
+            sobotBtnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
 
         List<SobotFileModel> picTempList = (List<SobotFileModel>) getIntent().getSerializableExtra("picTempList");

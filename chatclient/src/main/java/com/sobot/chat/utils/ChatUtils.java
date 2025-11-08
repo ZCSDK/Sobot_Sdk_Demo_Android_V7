@@ -1557,7 +1557,7 @@ public class ChatUtils {
                 List<String> stringList = extractMultipleMarkdownTables(part);
                 if (stringList != null) {
                     result.addAll(stringList);
-                }else{
+                } else {
                     result.add(part);
                 }
             } else {
@@ -2024,5 +2024,23 @@ public class ChatUtils {
             uri = Uri.fromFile(file);
         }
         return uri;
+    }
+
+    //判断消息是否是阴影卡片类型
+    public static boolean isMsgCard(int itemType) {
+        return (itemType == SobotMsgAdapter.MSG_TYPE_ARTICLE_CARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_MINIPROGRAM_CARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_FILE_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_FILE_R
+                || itemType == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_ROBOT_ORDERCARD_R
+                || itemType == SobotMsgAdapter.MSG_TYPE_AI_CARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_AI_CARD_R
+                || itemType == SobotMsgAdapter.MSG_TYPE_CUSTOMER_CARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_CUSTOMER_CARD_R
+                || itemType == SobotMsgAdapter.MSG_TYPE_CARD_L
+                || itemType == SobotMsgAdapter.MSG_TYPE_CARD_R
+                || itemType == SobotMsgAdapter.MSG_TYPE_CONSULT
+                || itemType == SobotMsgAdapter.MSG_TYPE_LOCATION_R);
     }
 }

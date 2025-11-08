@@ -28,13 +28,14 @@ import java.util.Map;
 //机器人 消息多轮模板1 PagerAdapter
 public class SobotRobotTemplate1PageAdater extends SobotBaseTemplateAdapter {
 
-    public SobotRobotTemplate1PageAdater(Context context, RobotTemplate1ViewPager pvTemplateFirst, List<Map<String, String>> interfaceRetList, ZhiChiMessageBase messageBase, SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
+    public SobotRobotTemplate1PageAdater(Context context, int msgMaxWidth, RobotTemplate1ViewPager pvTemplateFirst, List<Map<String, String>> interfaceRetList, ZhiChiMessageBase messageBase, SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
         super(context);
         if (context != null && interfaceRetList != null && !interfaceRetList.isEmpty() && messageBase != null && pvTemplateFirst != null) {
             ArrayList<View> tempArr = new ArrayList<>();
             for (int i = 0; i < interfaceRetList.size(); i++) {
                 Map<String, String> interfaceRet = interfaceRetList.get(i);
                 View convertView = LayoutInflater.from(context).inflate(R.layout.sobot_chat_msg_item_template1_item_l, pvTemplateFirst, false);
+                convertView.getLayoutParams().width = msgMaxWidth;
                 SobotProgressImageView sobotThumbnail = (SobotProgressImageView) convertView.findViewById(R.id.sobot_template1_item_thumbnail);
                 TextView sobotTitle = (TextView) convertView.findViewById(R.id.sobot_template1_item_title);
                 TextView sobotSummary = (TextView) convertView.findViewById(R.id.sobot_template1_item_summary);

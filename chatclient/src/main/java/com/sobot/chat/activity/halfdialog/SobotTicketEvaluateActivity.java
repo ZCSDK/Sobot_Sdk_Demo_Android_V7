@@ -22,7 +22,6 @@ import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.SobotOrderScoreModel;
 import com.sobot.chat.api.model.SobotUserTicketEvaluate;
-import com.sobot.chat.notchlib.utils.ScreenUtil;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
@@ -76,6 +75,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     private List<CheckBox> checkBoxList = new ArrayList<>();
     private SobotUserTicketEvaluate mEvaluate;
     private SobotOrderScoreModel satisfactionSetBase;
+    private Drawable bgDrawable;
 
 
     @Override
@@ -185,6 +185,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 //(1)-解决
                 iv_solved.setSelected(true);
                 iv_no_solve.setSelected(false);
+                sobot_ll_ok_robot.setSelected(true);
+                sobot_ll_no_robot.setSelected(false);
                 // 获取系统默认的加粗字体
                 sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
                 sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
@@ -192,6 +194,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 //(0)-未解决
                 iv_solved.setSelected(false);
                 iv_no_solve.setSelected(true);
+                sobot_ll_ok_robot.setSelected(false);
+                sobot_ll_no_robot.setSelected(true);
                 sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
                 sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
             }
@@ -258,16 +262,14 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             if (mEvaluate.getIsDefaultButton() == 0 && !TextUtils.isEmpty(mEvaluate.getButtonDesc())) {
                 sobot_btn_submit.setText(mEvaluate.getButtonDesc());
             }
+            bgDrawable = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_line_4,null);
             sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    Drawable db = ResourcesCompat.getDrawable( getResources(),R.drawable.sobot_bg_evaluate_input,null);
-                    if(hasFocus) {
-                        if (db != null) {
-                            setl_submit_content.setBackground(ThemeUtils.applyColorToDrawable(db, themeColor));
-                        }
-                    }else{
-                        setl_submit_content.setBackground(db);
+                    if (hasFocus) {
+                        sobot_add_content.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, themeColor));
+                    } else {
+                        sobot_add_content.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_dialog_input,null));
                     }
                 }
             });
@@ -527,12 +529,16 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             // 获取系统默认的加粗字体
             iv_solved.setSelected(true);
             iv_no_solve.setSelected(false);
+            sobot_ll_ok_robot.setSelected(true);
+            sobot_ll_no_robot.setSelected(false);
             sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
             sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         } else if (v.getId()  == R.id.sobot_ll_no_robot) {
             isSolve = 0;
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
+            sobot_ll_ok_robot.setSelected(false);
+            sobot_ll_no_robot.setSelected(true);
             sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
             sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         }

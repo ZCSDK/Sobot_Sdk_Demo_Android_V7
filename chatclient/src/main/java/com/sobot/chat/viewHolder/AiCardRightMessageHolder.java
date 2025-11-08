@@ -1,9 +1,11 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +14,7 @@ import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
@@ -20,14 +23,14 @@ import com.sobot.pictureframe.SobotBitmapUtil;
 /**
  * 自定义卡片
  */
-public class AiCardRightMessageHolder extends MsgHolderBase  {
+public class AiCardRightMessageHolder extends MsgHolderBase {
     private TextView tv_head;
     private ImageView sobot_goods_pic;
     private TextView sobot_goods_title;
     private TextView sobot_goods_des;
     private TextView sobot_count;
     private TextView sobot_price;
-    private TextView sobot_tv_curs;
+    private GridLayout cusrLayout;
     private View line;
     private int themeColor;
     private SobotChatCustomCard customCard;
@@ -42,7 +45,7 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
         sobot_goods_des = itemView.findViewById(R.id.sobot_goods_des);
         sobot_count = itemView.findViewById(R.id.sobot_count);
         sobot_price = itemView.findViewById(R.id.sobot_price);
-        sobot_tv_curs = itemView.findViewById(R.id.sobot_tv_curs);
+        cusrLayout = itemView.findViewById(R.id.curs_grid_layout);
         line = itemView.findViewById(R.id.v_line_bottom);
     }
 
@@ -62,7 +65,6 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
                             stringBuilder.append("\n");
                         }
                         stringBuilder.append(key);
-                        stringBuilder.append(":");
                         stringBuilder.append(customGoods.getCustomCardHeader().get(key));
                     }
                     tv_head.setText(stringBuilder.toString());
@@ -91,14 +93,14 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
                     sobot_goods_des.setVisibility(View.GONE);
                 }
                 if (StringUtils.isNoEmpty(customGoods.getCustomCardNum())) {
-                    sobot_count.setText(context.getResources().getString(R.string.sobot_goods_count) + "：" + customGoods.getCustomCardNum());
+                    sobot_count.setText("X" + customGoods.getCustomCardNum());
                     sobot_count.setVisibility(View.VISIBLE);
                 } else {
                     sobot_count.setVisibility(View.GONE);
                 }
                 //
                 if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
-                    String price = context.getResources().getString(R.string.sobot_order_total_money) + "：";
+                    String price = "";
                     if (!StringUtils.isEmpty(customGoods.getCustomCardAmountSymbol())) {
                         price += customGoods.getCustomCardAmountSymbol();
                     }
@@ -125,22 +127,36 @@ public class AiCardRightMessageHolder extends MsgHolderBase  {
                     sobot_price.setVisibility(View.GONE);
                 }
                 //自定义
+
                 if (customGoods.getCustomField() != null && customGoods.getCustomField().size() > 0) {
-                    StringBuilder stringBuilder = new StringBuilder();
+                    cusrLayout.removeAllViews();
+                    cusrLayout.setColumnCount(2);
+
                     for (String key :
                             customGoods.getCustomField().keySet()) {
-                        if (stringBuilder.length() > 0) {
-                            stringBuilder.append("\n");
-                        }
-                        stringBuilder.append(key);
-                        stringBuilder.append(":");
-                        stringBuilder.append(customGoods.getCustomField().get(key));
+                        TextView title = new TextView(context);
+                        title.setText(key);
+                        title.setMaxLines(3);
+                        title.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
+                        title.setTextSize(12);
+                        title.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                        title.setPadding(0, ScreenUtils.dip2px(context, 8), ScreenUtils.dip2px(context, 8), 0);
+                        title.setMaxWidth(ScreenUtils.dip2px(context, 150));
+                        cusrLayout.addView(title);
+
+                        TextView value = new TextView(context);
+                        value.setMaxLines(3);
+                        value.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
+                        value.setTextSize(12);
+                        value.setPadding(0, 0, 0, 0);
+                        value.setText(customGoods.getCustomField().get(key));
+                        cusrLayout.addView(value);
                     }
-                    sobot_tv_curs.setText(stringBuilder.toString());
-                    sobot_tv_curs.setVisibility(View.VISIBLE);
+
+                    cusrLayout.setVisibility(View.VISIBLE);
                     line.setVisibility(View.VISIBLE);
                 } else {
-                    sobot_tv_curs.setVisibility(View.GONE);
+                    cusrLayout.setVisibility(View.GONE);
                     line.setVisibility(View.GONE);
                 }
             }

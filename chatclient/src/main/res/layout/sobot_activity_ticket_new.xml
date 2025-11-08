@@ -11,12 +11,7 @@
         android:id="@+id/tl_titlebar"
         layout="@layout/sobot_layout_common_titlebar"
         android:visibility="visible" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/sobot_dialog_line" />
-<!--    加载中 -->
+    <!--    加载中 -->
     <LinearLayout
         android:id="@+id/ll_loading"
         android:layout_width="match_parent"
@@ -88,7 +83,6 @@
                     android:id="@+id/sobot_post_customer_field"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/sobot_common_red"
                     android:orientation="vertical" />
                 <!--描述-->
                 <com.sobot.chat.widget.SobotInputView
@@ -148,10 +142,10 @@
                         android:id="@+id/sobot_reply_msg_pic"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="8dp"
-                        android:listSelector="@android:color/transparent" />
+                        android:listSelector="@android:color/transparent"
+                        android:visibility="gone" />
 
                 </LinearLayout>
                 <!--邮箱-->
@@ -182,6 +176,7 @@
             android:layout_margin="16dp"
             android:background="@drawable/sobot_bg_theme_color_20dp"
             android:gravity="center"
+            android:minWidth="130dp"
             android:padding="8dp"
             android:stateListAnimator="@null"
             android:textAllCaps="false"
