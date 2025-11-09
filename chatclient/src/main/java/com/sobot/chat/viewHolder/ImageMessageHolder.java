@@ -1,10 +1,13 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotConstant;
@@ -36,12 +39,12 @@ public class ImageMessageHolder extends MsgHolderBase {
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         isGif.setVisibility(View.GONE);
         image.setVisibility(View.VISIBLE);
-        if (msgMaxWidth> ScreenUtils.dip2px(mContext,320)){
-            image.setMaxWidth(ScreenUtils.dip2px(mContext,320));
-        }else {
+        if (msgMaxWidth > ScreenUtils.dip2px(mContext, 320)) {
+            image.setMaxWidth(ScreenUtils.dip2px(mContext, 320));
+        } else {
             image.setMaxWidth(msgMaxWidth);
         }
-        image.setMaxHeight(ScreenUtils.dip2px(mContext,320));
+        image.setMaxHeight(ScreenUtils.dip2px(mContext, 320));
 
         if (isRight) {
             if (ZhiChiConstant.MSG_SEND_STATUS_ERROR == message.getSendSuccessState()) {
@@ -95,12 +98,17 @@ public class ImageMessageHolder extends MsgHolderBase {
                 if (sobot_msg_content_ll != null) {
                     //图片、视频、文件、小程序根据关联问题数量动态判断气泡内间距
                     sobot_msg_content_ll.setPadding((int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge), (int) mContext.getResources().getDimension(R.dimen.sobot_msg_top_bottom_padding_edge));
+                    Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_chat_msg_bg_left, null);
+                    if (drawable != null) {
+                        sobot_msg_content_ll.setBackground(drawable);
+                    }
                 }
             } else {
                 hideAnswers();
                 if (sobot_msg_content_ll != null) {
                     //图片、视频、文件、小程序根据关联问题数量动态判断气泡内间距
                     sobot_msg_content_ll.setPadding(0, 0, 0, 0);
+                    sobot_msg_content_ll.setBackground(null);
                 }
             }
         }

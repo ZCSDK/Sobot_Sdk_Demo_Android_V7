@@ -325,7 +325,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         }
         listView.setSelection(0);
 
-//        measureListViewHeight(listView, list.size());
+        measureListViewHeight(listView, list.size());
     }
 
     private void measureListViewHeight(ListView listView, int count) {

@@ -177,7 +177,6 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                 hideAllEditTextFocus();
             }
         });
-//        tv_permission_tip = findViewById(R.id.tv_permission_tip);
         btnSubmit = findViewById(R.id.btnSubmit);
         tv_nodata = findViewById(R.id.tv_nodata);
         btnSubmit.setOnClickListener(this);
@@ -347,134 +346,136 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     public void submit() {
         List<FormNodeInfo> submitData = new ArrayList<>();
         for (int i = 0; i < ll_list.getChildCount(); i++) {
-            FormNodeInfo info = new FormNodeInfo();
-            SobotInputView view = (SobotInputView) ll_list.getChildAt(i);
-            FormNodeInfo oldInfo = (FormNodeInfo) view.getTvTitle().getTag();
-            info.setId(oldInfo.getId());
-            info.setName(oldInfo.getName());
-            info.setFieldId(oldInfo.getFieldId());
-            info.setFieldName(oldInfo.getFieldName());
-            info.setFieldType(oldInfo.getFieldType());
-            info.setFieldFrom(oldInfo.getFieldFrom());
-            if (oldInfo.getFieldType() == 8) {
-                //选择
-                info.setFieldValues(view.getSelectValue());
-                FormNodeInfo value = (FormNodeInfo) view.getTvTitle().getTag();
-                if (value != null) {
-                    info.setFieldId(value.getId());
+            if(ll_list.getChildAt(i) instanceof SobotInputView) {
+                FormNodeInfo info = new FormNodeInfo();
+                SobotInputView view = (SobotInputView) ll_list.getChildAt(i);
+                FormNodeInfo oldInfo = (FormNodeInfo) view.getTvTitle().getTag();
+                info.setId(oldInfo.getId());
+                info.setName(oldInfo.getName());
+                info.setFieldId(oldInfo.getFieldId());
+                info.setFieldName(oldInfo.getFieldName());
+                info.setFieldType(oldInfo.getFieldType());
+                info.setFieldFrom(oldInfo.getFieldFrom());
+                if (oldInfo.getFieldType() == 8) {
+                    //选择
+                    info.setFieldValues(view.getSelectValue());
+                    FormNodeInfo value = (FormNodeInfo) view.getTvTitle().getTag();
+                    if (value != null) {
+                        info.setFieldId(value.getId());
+                    }
+                } else {
+                    info.setFieldValues(view.getSingleValue());
                 }
-            } else {
-                info.setFieldValues(view.getSingleValue());
-            }
-            String value = info.getFieldValues();
-            String errorStr = "";
-            if (StringUtils.isNoEmpty(value)) {
-                submitData.add(info);
-            } else {
-                //都是必填
-                errorStr = oldInfo.getErrorTips();
-                view.showError(errorStr);
-                return;
-            }
-            if (oldInfo.getFieldFrom() == 12 && oldInfo.getFieldVariable() != null) {
-                ///固定字段校验内容是否合符标准
-                String match = "";
-                if (oldInfo.getFieldVariable().equals("uname")) {
-                    match = "^.+$";
-                } else if (oldInfo.getFieldVariable().equals("source")) {
-                    match = "^.+$";
-                } else if (oldInfo.getFieldVariable().equals("tel")) {
-                    match = "^[0-9+,]{3,16}$";
-                } else if (oldInfo.getFieldVariable().equals("email")) {
-                    match = "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
-                } else if (oldInfo.getFieldVariable().equals("qq")) {
-                    match = "^[1-9][0-9]{4,14}$";
-                } else if (oldInfo.getFieldVariable().equals("wx")) {
-                    match = "^[a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}$";
-                }
-                Pattern p = Pattern.compile(match);
-                Matcher m = p.matcher(info.getFieldValues());
-                if (StringUtils.isNoEmpty(match) && !m.matches()) {
+                String value = info.getFieldValues();
+                String errorStr = "";
+                if (StringUtils.isNoEmpty(value)) {
+                    submitData.add(info);
+                } else {
+                    //都是必填
                     errorStr = oldInfo.getErrorTips();
+                    view.showError(errorStr);
+                    return;
                 }
-            } else if (oldInfo.getFieldFrom() == 22 && oldInfo.getFieldVariable() != null) {
+                if (oldInfo.getFieldFrom() == 12 && oldInfo.getFieldVariable() != null) {
+                    ///固定字段校验内容是否合符标准
+                    String match = "";
+                    if (oldInfo.getFieldVariable().equals("uname")) {
+                        match = "^.+$";
+                    } else if (oldInfo.getFieldVariable().equals("source")) {
+                        match = "^.+$";
+                    } else if (oldInfo.getFieldVariable().equals("tel")) {
+                        match = "^[0-9+,]{3,16}$";
+                    } else if (oldInfo.getFieldVariable().equals("email")) {
+                        match = "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
+                    } else if (oldInfo.getFieldVariable().equals("qq")) {
+                        match = "^[1-9][0-9]{4,14}$";
+                    } else if (oldInfo.getFieldVariable().equals("wx")) {
+                        match = "^[a-zA-Z]{1}[-_a-zA-Z0-9]{5,19}$";
+                    }
+                    Pattern p = Pattern.compile(match);
+                    Matcher m = p.matcher(info.getFieldValues());
+                    if (StringUtils.isNoEmpty(match) && !m.matches()) {
+                        errorStr = oldInfo.getErrorTips();
+                    }
+                } else if (oldInfo.getFieldFrom() == 22 && oldInfo.getFieldVariable() != null) {
 
-                String match = "";
-                if (oldInfo.getFieldVariable().equals("enterpriseName")) {
-                    match = "^.+$";
-                } else if (oldInfo.getFieldVariable().equals("enterpriseDomain")) {
-                    match = "^.+$";
-                }
-                Pattern p = Pattern.compile(match);
-                Matcher m = p.matcher(info.getFieldValues());
-                if (StringUtils.isNoEmpty(match) && !m.matches()) {
-                    errorStr = oldInfo.getErrorTips();
-                }
-            } else if (StringUtils.isNoEmpty(oldInfo.getLimitOptions())) {
-                //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式  9 请输入 3～16 位数字、英文符号, +
-                String LimitOptions = oldInfo.getLimitOptions();
-                String LimitChar = oldInfo.getLimitChar();
-                if (LimitOptions.contains("1")) {
-                    if (value.contains(" ")) {
+                    String match = "";
+                    if (oldInfo.getFieldVariable().equals("enterpriseName")) {
+                        match = "^.+$";
+                    } else if (oldInfo.getFieldVariable().equals("enterpriseDomain")) {
+                        match = "^.+$";
+                    }
+                    Pattern p = Pattern.compile(match);
+                    Matcher m = p.matcher(info.getFieldValues());
+                    if (StringUtils.isNoEmpty(match) && !m.matches()) {
+                        errorStr = oldInfo.getErrorTips();
+                    }
+                } else if (StringUtils.isNoEmpty(oldInfo.getLimitOptions())) {
+                    //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式  9 请输入 3～16 位数字、英文符号, +
+                    String LimitOptions = oldInfo.getLimitOptions();
+                    String LimitChar = oldInfo.getLimitChar();
+                    if (LimitOptions.contains("1")) {
+                        if (value.contains(" ")) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("2")) {
+                        if (value.contains(".")) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("3")) {
+                        if (!StringUtils.isNumber(value) && value.length() <= 2) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("4")) {
+                        String regex = "^[a-zA-Z0-9\u4E00-\u9FA5]+$";
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher match = pattern.matcher(value);
+                        boolean b = match.matches();
+                        if (!b) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("5")) {
+                        String regex = "[0-9]*";
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher match = pattern.matcher(value);
+                        boolean b = match.matches();
+                        if (!b) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("7")) {
+                        if (!ScreenUtils.isEmail(value)) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("8")) {
+                        if (!ScreenUtils.isMobileNO(value)) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (LimitOptions.contains("9")) {
+                        String regex = "^[A-Za-z0-9+]{3,16}$";
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher match = pattern.matcher(value);
+                        boolean b = match.matches();
+                        if (!b) {
+                            errorStr = oldInfo.getErrorTips();
+                        }
+                    }
+                    if (!StringUtils.isEmpty(LimitChar) && value.length() > Integer.parseInt(LimitChar)) {
                         errorStr = oldInfo.getErrorTips();
                     }
                 }
-                if (LimitOptions.contains("2")) {
-                    if (value.contains(".")) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
+                if (StringUtils.isNoEmpty(errorStr)) {
+                    view.showError(errorStr);
+                    return;
+                } else {
+                    view.hideError();
                 }
-                if (LimitOptions.contains("3")) {
-                    if (!StringUtils.isNumber(value) && value.length() <= 2) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (LimitOptions.contains("4")) {
-                    String regex = "^[a-zA-Z0-9\u4E00-\u9FA5]+$";
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher match = pattern.matcher(value);
-                    boolean b = match.matches();
-                    if (!b) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (LimitOptions.contains("5")) {
-                    String regex = "[0-9]*";
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher match = pattern.matcher(value);
-                    boolean b = match.matches();
-                    if (!b) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (LimitOptions.contains("7")) {
-                    if (!ScreenUtils.isEmail(value)) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (LimitOptions.contains("8")) {
-                    if (!ScreenUtils.isMobileNO(value)) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (LimitOptions.contains("9")) {
-                    String regex = "^[A-Za-z0-9+]{3,16}$";
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher match = pattern.matcher(value);
-                    boolean b = match.matches();
-                    if (!b) {
-                        errorStr = oldInfo.getErrorTips();
-                    }
-                }
-                if (!StringUtils.isEmpty(LimitChar) && value.length() > Integer.parseInt(LimitChar)) {
-                    errorStr = oldInfo.getErrorTips();
-                }
-            }
-            if (StringUtils.isNoEmpty(errorStr)) {
-                view.showError(errorStr);
-                return;
-            } else {
-                view.hideError();
             }
         }
 

@@ -52,7 +52,7 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
             vh.tv_ext.setText(checkin.getName());
 
             if(checkin.isHasChild()){
-                vh.iv_exts.setImageResource(R.drawable.sobot_item_arrow);
+                vh.iv_exts.setImageResource(R.drawable.sobot_icon_right_arrow);
                 vh.iv_exts.setVisibility(View.VISIBLE);
                 if (selectId.equals(checkin.getId())) {
                     if(themeColor!=0) {

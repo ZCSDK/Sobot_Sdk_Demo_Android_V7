@@ -66,7 +66,6 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     private TextView sobotEmpty;
     private SobotLoadingView loading;
     private SobotTicketInfoAdapter mAdapter;
-    private View title_line;
 
     //选择模板
     private SobotTicketTmpsAdapter tmpAdapter;
@@ -139,7 +138,6 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
             });
         }
         mllContent = findViewById(R.id.ll_content);
-        title_line = findViewById(R.id.title_line);
         mllLoading = findViewById(R.id.ll_loading);
         mllContent.setVisibility(View.GONE);
         recyclerView = findViewById(R.id.sobot_listview);
@@ -264,7 +262,6 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
-                            intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_NEW);
                             intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TEMP_LIST, datas);

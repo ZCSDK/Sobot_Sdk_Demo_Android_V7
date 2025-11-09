@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -88,10 +87,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private String mGroupId = "";
     private String mCustomerId = "";
     private String mCompanyId = "";
-    private boolean flag_exit_sdk;
-    private int flag_exit_type = -1;
 
-    private View title_line;
     //新建工单完成
     private LinearLayout mLlCompleted;
     private TextView mTvTicket;
@@ -141,8 +137,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     //滚动
     private ScrollView sobot_sv_root;
 
-    //点击的view
-    private TextView selectView;
 
     @Override
     protected int getContentViewResId() {
@@ -157,8 +151,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             mCustomerId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID);
             mCompanyId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID);
             mTempId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_TEMPID);
-            flag_exit_type = getIntent().getIntExtra(ZhiChiConstant.FLAG_EXIT_TYPE, -1);
-            flag_exit_sdk = getIntent().getBooleanExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
         }
     }
 
@@ -172,7 +164,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_sv_root = findViewById(R.id.sobot_sv_root);
         mllLoading = findViewById(R.id.ll_loading);
         loading = findViewById(R.id.iv_loading);
-        title_line = findViewById(R.id.title_line);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
         mllContainer = (LinearLayout) findViewById(R.id.sobot_ll_container);
         mLlCompleted = findViewById(R.id.sobot_ll_completed);
@@ -212,7 +203,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         sobot_reply_msg_pic.setLayoutManager(layoutManager);
-        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4),false));
+        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false));
 
         sobot_post_phone = findViewById(R.id.sobot_post_phone);
         sobot_post_phone.setClickLister(new SobotInputView.InputListen() {
@@ -234,20 +225,20 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             }
         });
         sobot_tv_post_msg = (TextView) findViewById(R.id.sobot_tv_post_msg);
-        sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types),true);
+        sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types), true);
         sobot_post_customer_field = (LinearLayout) findViewById(R.id.sobot_post_customer_field);
 
         sobot_post_type.getTvSelect().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clearFocus();
-                if(null!=mConfig){
+                if (null != mConfig) {
                     if (mConfig.getType() != null && mConfig.getType().size() != 0) {
-                        ChatUtils.setTypeList( mConfig.getType());
+                        ChatUtils.setTypeList(mConfig.getType());
                         Intent intent = new Intent(SobotTicketNewActivity.this, SobotPostCategoryActivity.class);
                         Bundle bundle = new Bundle();
                         if (sobot_post_type.getValue() != null &&
-                                !TextUtils.isEmpty(sobot_post_type.getValue()) ) {
+                                !TextUtils.isEmpty(sobot_post_type.getValue())) {
                             bundle.putString("typeName", sobot_post_type.getValue());
                             bundle.putString("typeId", sobot_post_type.getValueId());
                         }
@@ -259,20 +250,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         });
 
         updateUIByThemeColor();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            sobot_sv_root.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-                @Override
-                public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                    // 当ScrollView向上滚动并且软键盘可见时隐藏软键盘
-                    if (scrollY > oldScrollY) {
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        if (imm != null && imm.isActive()) {
-                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                        }
-                    }
-                }
-            });
-        }
         View rootView = findViewById(R.id.view_root);
         rootView.setOnClickListener(hideKeyboardOnClickListener);
         ll_upload_file.setOnClickListener(hideKeyboardOnClickListener);
@@ -567,7 +544,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
-        intent.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
         intent.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
         intent.putExtra("delayRefresh", true);
@@ -877,7 +853,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         clearFocus();
         //清空获得焦点
         if (cusField == null) return;
-        selectView =view;
         final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
         switch (fieldConfig.getFieldType()) {
             case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE:

@@ -9248,7 +9248,6 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
-                    intent2.putExtra(ZhiChiConstant.FLAG_EXIT_SDK, false);
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_FROM, StPostMsgPresenter.TICKET_TO_LIST);
                     intent2.putExtra(StPostMsgPresenter.INTENT_KEY_TICKET_LIST, datas);

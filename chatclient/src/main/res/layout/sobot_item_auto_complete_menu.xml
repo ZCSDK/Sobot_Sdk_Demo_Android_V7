@@ -13,7 +13,7 @@
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:background="@drawable/sobot_suggest_title_selector"
-        android:maxLines="2"
+        android:maxLines="1"
         android:paddingStart="12dp"
         android:paddingTop="7dp"
         android:paddingEnd="12dp"
