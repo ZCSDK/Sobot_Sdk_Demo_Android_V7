@@ -22,19 +22,26 @@ import com.sobot.chat.api.apiUtils.GsonUtil;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.api.model.SobotProvinInfo;
+import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.listener.ISobotCusField;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotInputView;
 
 import org.json.JSONArray;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -62,6 +69,10 @@ public class StCusFieldPresenter {
                     model.put("value", field.get(i).getCusFieldConfig().getValue());
                     if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE) {
                         model.put("text", field.get(i).getCusFieldConfig().getText());
+                    }else if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE) {
+                        //时区
+                        model.put("text", field.get(i).getCusFieldConfig().getText());
+                        model.put("value", field.get(i).getCusFieldConfig().getText());
                     } else {
                         model.put("text", field.get(i).getCusFieldConfig().getShowName());
                     }
@@ -104,8 +115,6 @@ public class StCusFieldPresenter {
      * @param act
      */
     public static void openTimePicker(Activity act, Fragment fragment, SobotCusFieldConfig cusFieldConfig) {
-//        TextView textClick = (TextView) view.findViewById(R.id.work_order_customer_date_text_click);
-//        String content = textClick.getText().toString();
         Intent intent = new Intent(act, SobotDateTimeActivity.class);
         intent.putExtra("cusFieldConfig", cusFieldConfig);
         if (fragment != null) {
@@ -208,44 +217,68 @@ public class StCusFieldPresenter {
      */
     public static void onStCusFieldActivityResult(Context context, Intent data, ArrayList<SobotFieldModel> field, ViewGroup post_customer_field) {
         if (data != null && "CATEGORYSMALL".equals(data.getStringExtra("CATEGORYSMALL")) && -1 != data.getIntExtra("fieldType", -1)) {
-            String value = data.getStringExtra("category_typeName");
-            String id = data.getStringExtra("category_fieldId");
+            int fieldType = data.getIntExtra("fieldType", -1);//自定义类型
+            String id = data.getStringExtra("category_fieldId");//自定义变量
             if ("null".equals(id) || TextUtils.isEmpty(id)) {
                 return;
             }
-            String dataValue = data.getStringExtra("category_typeValue");
-            if (field != null && !StringUtils.isEmpty(value) && !StringUtils.isEmpty(dataValue)) {
-                for (int i = 0; i < field.size(); i++) {
-                    SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
-                    if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
-                        model.setChecked(true);
-                        model.setValue(dataValue);
-                        model.setId(id);
-                        model.setShowName(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                        SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
-                        view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                    }
-                }
-            } else {
-                //还原样式
-                SobotInputView view = post_customer_field.findViewWithTag(id);
-                if (view != null) {
-                    view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                }
-                if (StringUtils.isEmpty(dataValue)) {
+            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE){
+                //时区
+                SobotTimezone timezone = (SobotTimezone) data.getSerializableExtra("selectStauts");
+                if(null!=timezone){
                     for (int i = 0; i < field.size(); i++) {
-                        //清空上次选中
                         SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
                         if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
-                            model.setChecked(false);
-                            model.setValue(dataValue);
-                            model.setId(id);
-
+                            model.setChecked(true);
+                            model.setTimezone(timezone);
+                            SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
+                            view.setSelectLeftValue(timezone.getTimezoneValue());
                         }
                     }
                 }
-
-
+            }else {
+                String value = data.getStringExtra("category_typeName");//选项的名字
+                String dataValue = data.getStringExtra("category_typeValue");//选项的值
+                if (field != null && !StringUtils.isEmpty(value) && !StringUtils.isEmpty(dataValue)) {
+                    for (int i = 0; i < field.size(); i++) {
+                        SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
+                        if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
+                            model.setChecked(true);
+                            model.setValue(dataValue);
+                            model.setId(id);
+                            model.setShowName(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
+                            SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
+                            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE_TIME) {
+                                Date date1 = DateUtil.parse(value, new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()));
+                                //时区中的时间
+                                Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
+                                String fomamet = DateUtil.getDateTimeFormatByLanguage(locale);
+                                view.setSelectRightValue(DateUtil.dateToString(context, date1, fomamet));
+                                view.getTv_select_two_right().setTag(dataValue);
+                            }else{
+                                view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
+                            }
+                            view.getTvSelect().setSelected(true);
+                        }
+                    }
+                } else {
+                    //还原样式
+                    SobotInputView view = post_customer_field.findViewWithTag(id);
+                    if (view != null) {
+                        view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
+                    }
+                    if (StringUtils.isEmpty(dataValue)) {
+                        for (int i = 0; i < field.size(); i++) {
+                            //清空上次选中
+                            SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
+                            if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
+                                model.setChecked(false);
+                                model.setValue(dataValue);
+                                model.setId(id);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -285,6 +318,27 @@ public class StCusFieldPresenter {
                     } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_TYPE == field.get(j).getCusFieldConfig().getFieldType()
                             || ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE == field.get(j).getCusFieldConfig().getFieldType()) {
                         field.get(j).getCusFieldConfig().setValue(view.getSelectValue());
+                    } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE == field.get(j).getCusFieldConfig().getFieldType()) {
+                        SobotTimezone timezone = field.get(j).getCusFieldConfig().getTimezone();
+                        //时区
+                        String time = "";
+                        if(null!=view.getTv_select_two_right().getTag()){
+                            time = (String)view.getTv_select_two_right().getTag();
+                        }
+                        if(timezone !=null && StringUtils.isEmpty(time)){
+                            errorStr =context.getResources().getString(R.string.sobot_please_choice);//请选择时间
+                            errorStr = errorStr.replace(".", "");
+                        }else if(timezone == null && StringUtils.isNoEmpty(time)){
+                            errorStr =context.getResources().getString(R.string.sobot_time_zone_hint);//请选择时区
+                        }
+                        String value = "";
+                        if(timezone!=null){
+                            value= timezone.getTimezoneId();
+                        }
+                        if(StringUtils.isNoEmpty(time)){
+                            value = value+time;
+                        }
+                        field.get(j).getCusFieldConfig().setValue(value);
                     } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_NUMBER_TYPE == field.get(j).getCusFieldConfig().getFieldType()) {
                         field.get(j).getCusFieldConfig().setValue(view.getSingleValue());
                         if (StringUtils.isNumber(field.get(j).getCusFieldConfig().getLimitOptions()) && field.get(j).getCusFieldConfig().getLimitOptions().contains("3")) {
@@ -394,7 +448,7 @@ public class StCusFieldPresenter {
                         }
                     } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE == cusFieldConfig.getFieldType()) {
                         //时区
-                        view.setInputType("select");
+                        view.setInputType("timezone");
                         //赋值
                         if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
                             view.setInputValue(cusFieldConfig.getText());

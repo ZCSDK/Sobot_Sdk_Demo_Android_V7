@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotChatBaseActivity;
 import com.sobot.chat.activity.halfdialog.SobotPostRegionActivity;
+import com.sobot.chat.activity.halfdialog.SobotTimeZoneActivity;
+import com.sobot.chat.activity.halfdialog.SobotZoneActivity;
 import com.sobot.chat.api.model.CommonModel;
 import com.sobot.chat.api.model.SobotCityResult;
 import com.sobot.chat.api.model.SobotConnCusParam;
@@ -18,6 +20,7 @@ import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.api.model.SobotProvinInfo;
 import com.sobot.chat.api.model.SobotQueryFormModel;
+import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.listener.ISobotCusField;
@@ -25,14 +28,17 @@ import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotInputView;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
+import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Created by jinxl on 2018/1/4.
@@ -85,6 +91,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
 
     @Override
     protected void initView() {
+        list = new ArrayList<>();
         showLeftMenu(true);
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_queryfrom_submit_text);
@@ -264,6 +271,74 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
             default:
                 break;
         }
+    }
+
+    @Override
+    public void inputLeftOnclick() {
+
+    }
+
+    private ArrayList<SobotTimezone> list;
+    private int requestCount = 0;//请求的次数
+    @Override
+    public void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+        //时区
+        if (list == null || list.size() == 0) {
+            requestZone(true,fieldConfig);
+        } else {
+            showZoneDialog(fieldConfig);
+        }
+    }
+
+    @Override
+    public void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+        //时间
+        if (fieldConfig != null) {
+            Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("cusFieldConfig", fieldConfig);
+            intent.putExtras(bundle);
+            startActivityForResult(intent, fieldConfig.getFieldType());
+        }
+    }
+    /**
+     * 请求时区
+     * @param showDialog
+     */
+    private void requestZone(final boolean showDialog,SobotCusFieldConfig fieldConfig) {
+        if (requestCount > 5) {
+            //显示暂无数据
+            if (showDialog) {
+                showZoneDialog(fieldConfig);
+            }
+            return;
+        }
+        requestCount++;
+        String languageCode = SharedPreferencesUtil.getStringData(this, ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
+        zhiChiApi.getTimezone(this, languageCode, new SobotResultCallBack<List<SobotTimezone>>() {
+            @Override
+            public void onSuccess(List<SobotTimezone> placeModels) {
+                list.clear();
+                if (placeModels != null) {
+                    list.addAll(placeModels);
+                }
+                if (showDialog) {
+                    showZoneDialog(fieldConfig);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String s) {
+                requestZone(showDialog,fieldConfig);
+            }
+        });
+    }
+
+    private void showZoneDialog(SobotCusFieldConfig fieldConfig) {
+        Intent intent = new Intent(this, SobotZoneActivity.class);
+        intent.putExtra("cusFieldConfig", fieldConfig);
+        intent.putExtra("zoneList", list);
+        startActivityForResult(intent, fieldConfig.getFieldType());
     }
 
     @Override

@@ -611,6 +611,96 @@ public class DateUtil {
             return isFullFormat ? "MMM d, yyyy HH:mm" : "MMM d, HH:mm";
         }
     }
+    /**
+     * 根据语言环境获取日期时间格式化规则字符串
+     *
+     * @param locale       语言环境
+     * @return 格式化规则字符串
+     */
+    public static String getDateTimeFormatByLanguage(Locale locale) {
+        if (locale == null) {
+            return  "yyyy年M月d日 HH:mm" ;
+        }
 
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+
+        // 中文（简体和繁体）
+        if ("zh".equals(language)||"ja".equals(language)) {
+            if (!TextUtils.isEmpty(country) && ("TW".equals(country) || "HK".equals(country))) {
+                // 繁体中文
+                return "yyyy年M月d日 HH:mm";
+            } else {
+                // 简体中文
+                return "yyyy年M月d日 HH:mm";
+            }
+        }
+        // 英语
+        else if ("en".equals(language)) {
+            return "d MMM, yyyy HH:mm";
+        }
+        // 法语
+        else if ("fr".equals(language)) {
+            return "d MMM yyyy HH:mm";
+        }
+        // 葡萄牙语
+        else if ("pt".equals(language)) {
+            return  "d 'de' MMM 'de' yyyy HH:mm" ;
+        }
+        // 西班牙语
+        else if ("es".equals(language)) {
+            return "d 'de' MMM 'de' yyyy HH:mm";
+        }
+        // 俄语
+        else if ("ru".equals(language)) {
+            return "d MMM yyyy HH:mm" ;
+        }
+        // 意大利语
+        else if ("it".equals(language)) {
+            return "d MMM yyyy HH:mm";
+        }
+        // 日语
+
+        // 韩语
+        else if ("ko".equals(language)) {
+            return  "yyyy년 M월 d일 HH:mm" ;
+        }
+        // 德语
+        else if ("de".equals(language)) {
+            return "d. MMM yyyy HH:mm" ;
+        }
+        // 印度尼西亚语
+        else if ("in".equals(language) || "id".equals(language)) {
+            return  "d MMM yyyy HH:mm";
+        }
+        // 荷兰语
+        else if ("nl".equals(language)) {
+            return "d MMM yyyy HH:mm";
+        }
+        // 马来语
+        else if ("ms".equals(language)) {
+            return "d MMM yyyy HH:mm" ;
+        }
+        // 泰语
+        else if ("th".equals(language)) {
+            return "d MMM yyyy HH:mm" ;
+        }
+        // 越南语
+        else if ("vi".equals(language)) {
+            return  "d MMM yyyy HH:mm" ;
+        }
+        // 阿拉伯语
+        else if ("ar".equals(language)) {
+            return "d MMM yyyy HH:mm" ;
+        }
+        // 土耳其语
+        else if ("tr".equals(language)) {
+            return "d MMM yyyy HH:mm";
+        }
+        // 默认格式 英文
+        else {
+            return "d MMM, yyyy HH:mm";
+        }
+    }
 
 }

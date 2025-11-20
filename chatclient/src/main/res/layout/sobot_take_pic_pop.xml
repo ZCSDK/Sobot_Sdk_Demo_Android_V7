@@ -28,6 +28,7 @@
             android:textSize="@dimen/sobot_text_font_14" />
 
         <View
+            android:id="@+id/view_take_photo_split"
             android:layout_width="match_parent"
             android:layout_height="@dimen/sobot_line_height_dp"
             android:background="@color/sobot_dialog_line" />

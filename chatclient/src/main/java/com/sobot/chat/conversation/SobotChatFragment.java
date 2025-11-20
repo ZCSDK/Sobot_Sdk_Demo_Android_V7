@@ -31,6 +31,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -264,12 +265,17 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private TextView tvSatisfaction, notReadInfo, tvMessage,
             tvRestartTalk;
 
+    //重新加载
     private TextView textReConnect;
     private TextView textReConnectTip;
     private SobotLoadingView ivLoading;
     private TextView tvLoading;
     private ImageView ivIconNonet;
     private TextView btnReconnect;
+    //用户ip被拦截
+    private TextView tvInterceptAccessTip;
+    private TextView tvInterceptAccessDes;
+    private ImageView ivInterceptAccess;
 
     private TextView tvVoicRobotHint;//机器人语音转文字提示语
     private int mRobotOperatorCount;//机器人聊天模式下加号面板菜单功能的数量
@@ -355,6 +361,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     //底部新消息UI
     private View mViewNewmsg;
     private TextView tv_newmsg;
+    private TextView tvAigentCreateConent;//输入框底部如果是国内大模型机器人显示（内容由 AI 生成）
 
     //---------------UI控件 END---------------
 
@@ -711,6 +718,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         tv_newmsg = rootView.findViewById(R.id.tv_newmsg);
         mViewNewmsg.setOnClickListener(this);
 
+        tvAigentCreateConent = rootView.findViewById(R.id.tv_aigent_create_conent);
         //loading 层
         headerToolbar = rootView.findViewById(R.id.tl_titlebar);
         viewTitlebarDivider = rootView.findViewById(R.id.view_titlebar_divider);
@@ -753,6 +761,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             // 开始动画
             ivLoading.startSpinning();
             ivReLoading = rootView.findViewById(R.id.sobot_image_reloading);
+            ivInterceptAccess = rootView.findViewById(R.id.iv_intercept_access);
+            tvInterceptAccessTip = rootView.findViewById(R.id.tv_intercept_access_tip);
+            tvInterceptAccessDes = rootView.findViewById(R.id.tv_intercept_access_des);
             ivIconNonet = rootView.findViewById(R.id.sobot_icon_nonet);
             ivIconNonet.setImageDrawable(ThemeUtils.applyColorToDrawable(ivIconNonet.getDrawable(), ThemeUtils.getThemeColor(getSobotActivity())));
             btnReconnect = rootView.findViewById(R.id.sobot_btn_reconnect);
@@ -769,6 +780,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     textReConnect.setVisibility(View.GONE);
                     textReConnectTip.setVisibility(View.GONE);
                     ivIconNonet.setVisibility(View.GONE);
+                    ivInterceptAccess.setVisibility(View.GONE);
+                    tvInterceptAccessTip.setVisibility(View.GONE);
+                    tvInterceptAccessDes.setVisibility(View.GONE);
                     btnReconnect.setVisibility(View.GONE);
                     ivLoading.setVisibility(View.VISIBLE);
                     tvLoading.setVisibility(View.VISIBLE);
@@ -975,14 +989,16 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 //                tvAudio.setImageResource(R.drawable.ic_audio);
 //                ivFace.setImageResource(R.drawable.ic_face);
                 etSendContent.dismissPop();
+                isShowAigentTip(true);
             }
 
             @Override
             public void onKeyboardShow(int keyboardHeight) {
                 //当键盘显示后回调 输入区图标还原
+                isShowAigentTip(false);
                 ivEmoji.setImageResource(R.drawable.sobot_emoticon_normal);
                 ivAddOrClose.setImageResource(R.drawable.sobot_picture_add_normal);
-                ivModelEdit.setImageResource(R.drawable.sobot_icon_vioce_normal);
+                ivModelEdit.setImageResource(ChatUtils.isRtl(getSobotActivity()) ? R.drawable.sobot_icon_vioce_normal_rtl : R.drawable.sobot_icon_vioce_normal);
             }
 
 
@@ -995,7 +1011,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 llFunction.scrollToPage(0);
                 ivEmoji.setImageResource(layoutView == flEmoji ? R.drawable.sobot_keyboard_normal : R.drawable.sobot_emoticon_normal);
                 ivAddOrClose.setImageResource(layoutView == llFunction ? R.drawable.sobot_picture_add_close : R.drawable.sobot_picture_add_normal);
-                ivModelEdit.setImageResource(layoutView == btn_press_to_speak ? R.drawable.sobot_keyboard_normal : R.drawable.sobot_icon_vioce_normal);
+                ivModelEdit.setImageResource(layoutView == btn_press_to_speak ? R.drawable.sobot_keyboard_normal : (ChatUtils.isRtl(getSobotActivity()) ? R.drawable.sobot_icon_vioce_normal_rtl : R.drawable.sobot_icon_vioce_normal));
             }
 
             @Override
@@ -1004,7 +1020,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 //点击图标还原
                 ivEmoji.setImageResource(R.drawable.sobot_emoticon_normal);
                 ivAddOrClose.setImageResource(R.drawable.sobot_picture_add_normal);
-                ivModelEdit.setImageResource(R.drawable.sobot_icon_vioce_normal);
+                ivModelEdit.setImageResource(ChatUtils.isRtl(getSobotActivity()) ? R.drawable.sobot_icon_vioce_normal_rtl : R.drawable.sobot_icon_vioce_normal);
             }
         });
         //扩展菜单回调
@@ -1044,6 +1060,23 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         });
     }
 
+    /**
+     * 是否显示底部的大模型机器人回答提示语（内容由 AI 生成）
+     *
+     * @param isShow true:键盘收起显示;false键盘弹起 隐藏
+     */
+    private void isShowAigentTip(boolean isShow) {
+        if (tvAigentCreateConent != null) {
+            //先判断开关
+            if (getInitModel() != null && StringUtils.isNoEmpty(getInitModel().getSdkVer()) && getInitModel().isAiAgent()) {
+                //sdkVer 有值(国内版本)，并且aiAgent = YES;显示底部提醒，其它情况不处理
+                tvAigentCreateConent.setVisibility(isShow ? View.VISIBLE : View.GONE);
+            } else {
+                tvAigentCreateConent.setVisibility(View.GONE);
+            }
+        }
+    }
+
     //根据接待模式刷新功能菜单布局
     public void updateFunctionView() {
         if (llFunction != null) {
@@ -1065,11 +1098,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     updateFloatUnreadIcon();
                     break;
                 case ZhiChiConstant.hander_show_newmsg_tip:
-                    if(newMsgNum>0){
+                    if (newMsgNum > 0) {
                         mViewNewmsg.setVisibility(View.VISIBLE);
                         tv_newmsg.setText(newMsgNum + "");
                         tv_newmsg.setVisibility(View.VISIBLE);
-                    }else{
+                    } else {
                         mViewNewmsg.setVisibility(View.GONE);
                     }
                     break;
@@ -1200,10 +1233,25 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         } else {
                             //更新消息
                             messageAdapter.updateAIDataById(aiMsg.getMsgId(), aiMsg, false);
+                            int scrollHeight;
+                            if (StringUtils.isNoEmpty(aiMsg.getContent()) && aiMsg.getContent().contains("<img")) {
+                                scrollHeight = 500;//图片 延迟
+                            } else {
+                                scrollHeight = 40;
+                            }
                             // 只在用户接近底部时才滚动
                             messageRV.post(() -> {
                                 if (!isUserScrolling && shouldScrollToBottom()) { // 用户没有主动滚动
-                                    messageRV.smoothScrollBy(0, 40); // 小幅滚动而不是跳转
+                                    if (scrollHeight > 40) {
+                                        new Handler().postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                gotoLastItemWithOffset(true);
+                                            }
+                                        }, 200);
+                                    } else {
+                                        messageRV.smoothScrollBy(0, scrollHeight); // 小幅滚动而不是跳转
+                                    }
                                     hideNewmsgLayout();
                                 }
                             });
@@ -1920,8 +1968,14 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         morenPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         morenPopupWindow.setOutsideTouchable(true);
 
-        // 显示 PopupWindow
-        morenPopupWindow.showAsDropDown(ivRightMore);
+        // 修改 PopupWindow 的显示位置，确保在 RTL 布局下也是左下对齐
+        if (getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            // 在 RTL 布局下，使用 Gravity.START | Gravity.BOTTOM 实现左下对齐
+            morenPopupWindow.showAsDropDown(ivRightMore, -32, 0, Gravity.END | Gravity.BOTTOM);
+        } else {
+            // 在 LTR 布局下，正常使用默认位置
+            morenPopupWindow.showAsDropDown(ivRightMore);
+        }
     }
 
 
@@ -2648,15 +2702,15 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             @Override
             public void onSuccess(ZhiChiInitModeBase result) {
                 initModel = result;
+                updateInitModel();
                 if (getInitModel() != null) {
                     SharedPreferencesUtil.saveObject(mAppContext,
                             ZhiChiConstant.sobot_last_current_info, info);
-                    updateInitModel();
                     if (!TextUtils.isEmpty(getInitModel().getLanguage())) {
-                        //这个时服务端返回的语言
+                        //这个是服务端返回的语言
                         changeAppLanguage(getInitModel().getLanguage());
                     } else {
-                        //这个时服务端返回的接待方案里边的兜底语言
+                        //这个是服务端返回的接待方案里边的兜底语言
                         changeAppLanguage(getInitModel().getLan());
                     }
                     //只有创建新会话才会切换语言
@@ -2693,11 +2747,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         }
                         if (type == 1) {
                             //仅机器人
-                            setCustomerServiceName(StringUtils.checkStringIsNull(initModel.getRobotName()));
+                            setCustomerServiceName(StringUtils.checkStringIsNull(getInitModel().getRobotName()));
                             showLogicTitle(getInitModel().getRobotName(), getInitModel().getRobotLogo());
                         } else if (type == 3 || type == 4) {
                             //机器人优先
-                            setCustomerServiceName(StringUtils.checkStringIsNull(initModel.getRobotName()));
+                            setCustomerServiceName(StringUtils.checkStringIsNull(getInitModel().getRobotName()));
                             showLogicTitle(getInitModel().getRobotName(), getInitModel().getRobotLogo());
                         } else if (type == 2) {
                             //仅人工
@@ -2749,7 +2803,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         }
                     } else {
                         //先保存一次机器人昵称
-                        setCustomerServiceName(StringUtils.checkStringIsNull(initModel.getRobotName()));
+                        setCustomerServiceName(StringUtils.checkStringIsNull(getInitModel().getRobotName()));
                         onInitResult(getInitModel());
                     }
                 }
@@ -2765,13 +2819,12 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 if (!isActive()) {
                     return;
                 }
-//                if (e instanceof IllegalArgumentException && !TextUtils.isEmpty(des)) {
-//                    ToastUtil.showToast(mAppContext, des);
-//                    finish();
-//                } else {
-//
-//                }
-                showInitError();
+                if (StringUtils.isNoEmpty(des) && "110296".equals(des)) {
+                    //用户ip 被拦截了
+                    showInitInterceptAccess();
+                } else {
+                    showInitError();
+                }
                 isSessionOver = true;
             }
         });
@@ -2812,6 +2865,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         if (getInitModel() == null) {
             return;
         }
+        //是否显示底部大模型提示语
+        isShowAigentTip(true);
         //切换语言禁止下拉
         messageSrv.setEnableRefresh(true);
         isAppInitEnd = true;
@@ -3051,6 +3106,18 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
             }
         }
+        //清空离线消息数
+        zhiChiApi.clearofflineMsg(getSobotActivity(), getInitModel().getPartnerid(), new StringResultCallBack() {
+            @Override
+            public void onSuccess(Object o) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+
+            }
+        });
     }
 
     /**
@@ -3353,6 +3420,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
             }
         }
+        //是否显示底部大模型提示语
+        isShowAigentTip(true);
 
         //更加主题色，更新UI
         updateToolBarBg(true);
@@ -3526,6 +3595,18 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         updateFunctionView();
         resetBtnUploadAndSend();
         gotoLastItem();
+        //清空离线消息数
+        zhiChiApi.clearofflineMsg(getSobotActivity(), getInitModel().getPartnerid(), new StringResultCallBack() {
+            @Override
+            public void onSuccess(Object o) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+
+            }
+        });
     }
 
     /**
@@ -4623,7 +4704,30 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         textReConnect.setVisibility(View.VISIBLE);
         textReConnectTip.setVisibility(View.VISIBLE);
         ivIconNonet.setVisibility(View.VISIBLE);
+        ivInterceptAccess.setVisibility(View.GONE);
+        tvInterceptAccessTip.setVisibility(View.GONE);
+        tvInterceptAccessDes.setVisibility(View.GONE);
         btnReconnect.setVisibility(View.VISIBLE);
+        etSendContent.setVisibility(View.GONE);
+        flWelcome.setVisibility(View.VISIBLE);
+    }
+
+    //用户进线被拦截
+    private void showInitInterceptAccess() {
+        showLogicTitle("", null);
+        if (mAvatarIV != null) {
+            mAvatarIV.setVisibility(View.GONE);
+        }
+        tvDes.setText("");
+        ivLoading.setVisibility(View.GONE);
+        tvLoading.setVisibility(View.GONE);
+        textReConnect.setVisibility(View.GONE);
+        textReConnectTip.setVisibility(View.GONE);
+        ivIconNonet.setVisibility(View.GONE);
+        ivInterceptAccess.setVisibility(View.VISIBLE);
+        tvInterceptAccessTip.setVisibility(View.VISIBLE);
+        tvInterceptAccessDes.setVisibility(View.VISIBLE);
+        btnReconnect.setVisibility(View.GONE);
         etSendContent.setVisibility(View.GONE);
         flWelcome.setVisibility(View.VISIBLE);
     }
@@ -7182,7 +7286,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         hideRobotVoiceHint();
         etSendContent.setVisibility(View.VISIBLE);
         btn_press_to_speak.setVisibility(View.GONE);
-        ivModelEdit.setImageResource(R.drawable.sobot_icon_vioce_normal);
+        ivModelEdit.setImageResource(ChatUtils.isRtl(getSobotActivity()) ? R.drawable.sobot_icon_vioce_normal_rtl : R.drawable.sobot_icon_vioce_normal);
     }
 
     //开始录音
@@ -7917,18 +8021,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 tv_switch_robot.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        String language = SharedPreferencesUtil.getStringData(getContext(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
-                        if (StringUtils.isNoEmpty(language)) {
-                            //自动贴边
-//                                if (mLastRawX <= center) {
-                            if ("ar".equals(language)) {
-                                ll_switch_robot.animate()
-                                        .translationX(-tv_switch_robot.getWidth())
-                                        .setDuration(300);// 设置动画持续时间，单位毫秒
-                            } else {
-                                ll_switch_robot.animate()
-                                        .translationX(tv_switch_robot.getWidth())
-                                        .setDuration(300);// 设置动画持续时间，单位毫秒
+                        if (ChatUtils.isRtl(getSobotActivity())) {
+                            ll_switch_robot.animate()
+                                    .translationX(-tv_switch_robot.getWidth())
+                                    .setDuration(300);// 设置动画持续时间，单位毫秒
+                            Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_swith_robot_bg_rtl, null);
+                            if (background != null) {
+                                ll_switch_robot.setBackground(background);
                             }
                         } else {
                             ll_switch_robot.animate()
@@ -7936,7 +8035,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                                     .setDuration(300);// 设置动画持续时间，单位毫秒
                         }
                     }
-                }, 3000);
+                }, 10);
             }
         } else {
             ll_switch_robot.setVisibility(View.GONE);
@@ -8948,30 +9047,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     getInitModel().setManualCommentTitle(sobotlanguaeResultModel.getManualCommentTitle());
                     getInitModel().setRobotCommentTitle(sobotlanguaeResultModel.getRobotCommentTitle());
                     getInitModel().setServiceEndPushMsg(sobotlanguaeResultModel.getServiceEndPushMsg());
-                    String oldLanguage = SharedPreferencesUtil.getStringData(getContext(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
                     changeAppLanguage(language);
-                    try {
-                        if (StringUtils.isNoEmpty(oldLanguage) && StringUtils.isNoEmpty(sobotlanguaeModel.getCode()) && !oldLanguage.equals(sobotlanguaeModel.getCode()) && (("ar").equals(oldLanguage) || ("ar").equals(sobotlanguaeModel.getCode()))) {
-                            //两次语言不一致，同时有一个是阿语 ar 才刷新
-                            //保留当前界面状态，可通过 Intent 重新启动 Activity
-                            long delayMillis = 400;
-                            if (getInitModel().getSessionPhaseAndFaqIdRespVos() != null) {
-                                delayMillis = 1500;
-                            }
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (getSobotActivity() != null) {
-                                        Intent intent = getSobotActivity().getIntent();
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                        getSobotActivity().finish();
-                                        startActivity(intent);
-                                    }
-                                }
-                            }, delayMillis);
-                        }
-                    } catch (Exception e) {
-                    }
                     //展示后续的逻辑
                     onInitResult(getInitModel(), sobotlanguaeModel);
                     getAiAgentRobotConfigInfo();
@@ -9029,18 +9105,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 
     //修改成缓存的语言
     public void changeAppLanguage() {
-        Locale language = (Locale) SharedPreferencesUtil.getObject(getSobotActivity(), ZhiChiConstant.SOBOT_LANGUAGE);
-        try {
-            // 本地语言设置
-            Resources res = getResources();
-            DisplayMetrics dm = res.getDisplayMetrics();
-            Configuration conf = new Configuration();
-            if (language != null) {
-                conf.locale = language;
-            }
-            res.updateConfiguration(conf, dm);
-        } catch (Exception e) {
-            e.printStackTrace();
+        Locale locale = (Locale) SharedPreferencesUtil.getObject(getSobotActivity(), ZhiChiConstant.SOBOT_LANGUAGE);
+        if (locale != null) {
+            updateLayoutDirections(locale);
         }
     }
 
@@ -9066,20 +9133,74 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         SharedPreferencesUtil.saveBooleanData(getSobotActivity(), ZhiChiConstant.SOBOT_USE_LANGUAGE, true);
         SharedPreferencesUtil.saveObject(getSobotActivity(), ZhiChiConstant.SOBOT_LANGUAGE, locale);
         SharedPreferencesUtil.saveStringData(getSobotActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, langaueCode);
-        if (locale != null) {
-            try {
-                // 本地语言设置
-                Resources res = getResources();
-                DisplayMetrics dm = res.getDisplayMetrics();
-                Configuration conf = new Configuration();
-                conf.locale = locale;
-                res.updateConfiguration(conf, dm);
+        updateLayoutDirections(locale);
+    }
+
+    /**
+     * 更新布局方向以支持RTL/LTR语言
+     * 根据指定的locale更新应用的资源配置和视图布局方向
+     *
+     * @param locale 需要应用的语言区域设置
+     */
+    private void updateLayoutDirections(Locale locale) {
+        if (locale == null) {
+            return;
+        }
+        try {
+            // 更新资源配置
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = new Configuration();
+            conf.setLocale(locale);
+            if (!ChatUtils.isRtl(getSobotActivity())) {
+                //禁止镜像
+                conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
+            } else {
+                conf.setLayoutDirection(locale);
+            }
+            res.updateConfiguration(conf, dm);
+
+            // 更新Activity布局方向
+            if (getSobotActivity() != null && getSobotActivity().getWindow() != null) {
+                getSobotActivity().getWindow().getDecorView().setLayoutDirection(conf.getLayoutDirection());
+            }
+            // 更新Fragment根视图布局方向
+            if (getView() != null) {
+                getView().setLayoutDirection(conf.getLayoutDirection());
+            }
+            // 更新重要的子视图布局方向
+            updateImportantChildViewsLayoutDirection(conf.getLayoutDirection());
+        } catch (Exception e) {
+        }
+    }
 
 
-            } catch (Exception e) {
+    // 更新重要的子视图布局方向
+    private void updateImportantChildViewsLayoutDirection(int layoutDirection) {
+        if (layoutDirection == View.LAYOUT_DIRECTION_RTL && ChatUtils.isRtl(getSobotActivity())) {
+            //没有禁止镜像 同时语言对应布局是阿语镜像布局
+            if (ivLeftBack != null) {
+                ivLeftBack.setImageResource(R.drawable.sobot_icon_titlebar_back_rtl);
+            }
+            if (ivModelEdit != null) {
+                ivModelEdit.setImageResource(R.drawable.sobot_icon_vioce_normal_rtl);
+            }
+            if (iv_announcement_right_icon != null) {
+                iv_announcement_right_icon.setImageResource(R.drawable.sobot_icon_tonggao_arrow_ar);
+            }
+        } else {
+            if (ivLeftBack != null) {
+                ivLeftBack.setImageResource(R.drawable.sobot_icon_titlebar_back);
+            }
+            if (ivModelEdit != null) {
+                ivModelEdit.setImageResource(R.drawable.sobot_icon_vioce_normal);
+            }
+            if (iv_announcement_right_icon != null) {
+                iv_announcement_right_icon.setImageResource(R.drawable.sobot_icon_tonggao_arrow);
             }
         }
     }
+
 
     @Override
     public void chooseByAllLangaue(ArrayList<SobotlanguaeModel> sobotlanguaeModelList, ZhiChiMessageBase messageBase) {

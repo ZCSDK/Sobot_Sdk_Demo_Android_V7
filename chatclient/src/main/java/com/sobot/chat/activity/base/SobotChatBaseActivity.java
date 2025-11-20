@@ -114,6 +114,12 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     getDelegate().setLocalNightMode(local_night_mode); //切换模式
                 }
             }
+            if (!ChatUtils.isRtl(this)) {
+                //禁止布局镜像
+                Configuration config = getResources().getConfiguration();
+                config.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
+                getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+            }
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             super.onCreate(savedInstanceState);
             initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -124,7 +130,6 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 // 设置Activity全屏
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
-
             setContentView(getContentViewResId());
             String host = SharedPreferencesUtil.getStringData(getSobotBaseContext(), ZhiChiConstant.SOBOT_SAVE_HOST_AFTER_INITSDK, SobotBaseUrl.getApi_Host());
             if (!host.equals(SobotBaseUrl.getApi_Host())) {
@@ -209,14 +214,20 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     }
 
     public void changeAppLanguage() {
-        Locale language = (Locale) SharedPreferencesUtil.getObject(SobotChatBaseActivity.this, ZhiChiConstant.SOBOT_LANGUAGE);
-        if (language != null) {
+        Locale locale = (Locale) SharedPreferencesUtil.getObject(SobotChatBaseActivity.this, ZhiChiConstant.SOBOT_LANGUAGE);
+        if (locale != null) {
             try {
                 // 本地语言设置
                 Resources res = getResources();
                 DisplayMetrics dm = res.getDisplayMetrics();
                 Configuration conf = new Configuration();
-                conf.locale = language;
+                conf.setLocale(locale);
+                if (!ChatUtils.isRtl(getSobotBaseActivity())) {
+                    //禁止镜像
+                    conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
+                } else {
+                    conf.setLayoutDirection(locale);
+                }
                 res.updateConfiguration(conf, dm);
             } catch (Exception e) {
             }
@@ -238,6 +249,11 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
 
     protected void setUpToolBarLeftMenu() {
         if (getLeftMenu() != null) {
+            if (ChatUtils.isRtl(getSobotBaseActivity())) {
+                getLeftMenu().setImageResource(R.drawable.sobot_icon_titlebar_back_rtl);
+            } else {
+                getLeftMenu().setImageResource(R.drawable.sobot_icon_titlebar_back);
+            }
             //找到 Toolbar 的返回按钮,并且设置点击事件,点击关闭这个 Activity
             getLeftMenu().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -264,6 +280,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     protected ImageView getLeftMenu() {
         return findViewById(R.id.sobot_iv_left);
     }
+
     protected View getTitleLine() {
         return findViewById(R.id.title_line);
     }
@@ -317,9 +334,14 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * @param isShow
      */
     protected void showLeftMenu(boolean isShow) {
-        View tmpMenu = getLeftMenu();
+        ImageView tmpMenu = getLeftMenu();
         if (tmpMenu == null) {
             return;
+        }
+        if (ChatUtils.isRtl(getSobotBaseActivity())) {
+            tmpMenu.setImageResource(R.drawable.sobot_icon_titlebar_back_rtl);
+        } else {
+            tmpMenu.setImageResource(R.drawable.sobot_icon_titlebar_back);
         }
         if (isShow) {
             tmpMenu.setVisibility(View.VISIBLE);
@@ -928,7 +950,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 //服务端返回的导航条背景颜色
                 if (initModel.getVisitorScheme().getTopBarBackStyle() == 0) {
                     //导航条无颜色,显示线
-                    if(getTitleLine()!=null){
+                    if (getTitleLine() != null) {
                         getTitleLine().setVisibility(View.VISIBLE);
                     }
                     //导航条无颜色,修改导航栏昵称和描述的颜色

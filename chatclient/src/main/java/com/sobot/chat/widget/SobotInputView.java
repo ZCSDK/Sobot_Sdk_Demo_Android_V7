@@ -65,7 +65,6 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     private SobotCusFieldConfig cusFieldConfig;//字段配置
     private SobotFieldModel cusFields;//字段 包括选项
     private String valueId;
-    private InputListen clickLister;
 
     public String getValueId() {
         return valueId;
@@ -111,15 +110,6 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         array.recycle();//回收
         initView();
     }
-
-    public InputListen getClickLister() {
-        return clickLister;
-    }
-
-    public void setClickLister(InputListen clickLister) {
-        this.clickLister = clickLister;
-    }
-
     private void initView() {
         View view = View.inflate(getContext(), R.layout.sobot_item_input_view, null);
         tvTitle = view.findViewById(R.id.sobot_title_lable);
@@ -341,6 +331,8 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 sobot_input_two.setVisibility(View.GONE);
                 break;
         }
+        //点击选项，后背景颜色修改
+
         LinearLayout.LayoutParams lpUpdateText = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         view.setLayoutParams(lpUpdateText);
         addView(view);
@@ -373,24 +365,6 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 public void onClick(View v) {
                     tvSelect.requestFocus();
                     cusCallBack.onClickCusField(tvSelect, cusFieldConfig,cusFields);
-                }
-            });
-        }
-        if (tv_input_two_left != null) {
-            tv_input_two_left.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    tv_input_two_left.requestFocus();
-                    cusCallBack.onClickCusField(tv_input_two_left, cusFieldConfig,cusFields);
-                }
-            });
-        }
-        if (tv_select_two_left != null) {
-            tv_select_two_left.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    tv_select_two_left.requestFocus();
-                    cusCallBack.onClickCusField(tv_select_two_left, cusFieldConfig,cusFields);
                 }
             });
         }
@@ -636,6 +610,9 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             case "phone":
                 v = tv_input_two_left.getText().toString()+","+et_input_two_right.getText().toString();
                 break;
+            case "timezone":
+                v = tv_select_two_left.getText().toString()+","+tv_select_two_right.getText().toString();
+                break;
         }
         return v;
     }
@@ -646,22 +623,17 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if(v==tv_input_two_left){
-            if(clickLister!=null){
-                clickLister.inputLeftOnclick();
+            if(cusCallBack!=null){
+                cusCallBack.inputLeftOnclick();
             }
         }else if(v==tv_select_two_left){
-            if(clickLister!=null){
-                clickLister.selectLeftOnclick();
+            if(cusCallBack!=null){
+                cusCallBack.selectLeftOnclick(tv_select_two_left,cusFieldConfig);
             }
         }else if(v==tv_select_two_right){
-            if(clickLister!=null){
-                clickLister.selectRightOnclick();
+            if(cusCallBack!=null){
+                cusCallBack.selectRightOnclick(tv_select_two_right,cusFieldConfig);
             }
         }
-    }
-    public interface InputListen{
-        void inputLeftOnclick();
-        void selectLeftOnclick();
-        void selectRightOnclick();
     }
 }

@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Su ticket ha sido completado</string>
        <string name="sobot_ticket_reply">Responder…</string>
        <string name="sobot_customer_service_representative">Agente</string>
+       <string name="sobot_str_aiagent_tip">Contenido generado por IA</string>
+    <string name="sobot_str_intercept_access_tip">La verificación de la información de acceso no ha sido aprobada.</string>
+    <string name="sobot_str_intercept_access_des">La verificación de su información de acceso no ha sido exitosa, por lo que no puede conectarse al agente por el momento.</string>
 </resources>

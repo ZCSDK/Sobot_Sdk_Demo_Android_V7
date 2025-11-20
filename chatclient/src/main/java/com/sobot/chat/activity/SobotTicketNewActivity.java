@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +31,7 @@ import com.sobot.chat.activity.halfdialog.SobotPostCascadeActivity;
 import com.sobot.chat.activity.halfdialog.SobotPostCategoryActivity;
 import com.sobot.chat.activity.halfdialog.SobotPostRegionActivity;
 import com.sobot.chat.activity.halfdialog.SobotTimeZoneActivity;
+import com.sobot.chat.activity.halfdialog.SobotZoneActivity;
 import com.sobot.chat.adapter.SobotUploadFileAdapter;
 import com.sobot.chat.api.ResultCallBack;
 import com.sobot.chat.api.model.CommonModelBase;
@@ -41,6 +43,7 @@ import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.api.model.SobotFileModel;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.api.model.SobotLeaveMsgParamModel;
+import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.camera.util.FileUtil;
@@ -72,10 +75,12 @@ import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
 import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
 import com.sobot.chat.widget.toast.ToastUtil;
+import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 新建留言工单
@@ -107,7 +112,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private TextView sobot_btn_submit;
     private LinearLayout sobot_post_customer_field;
     private LinearLayout ll_upload_file;//上传附件
-    private TextView sobot_btn_file, sobot_file_hite,sobot_file_error;//上传按钮、提示、错误提示
+    private TextView sobot_btn_file, sobot_file_hite, sobot_file_error;//上传按钮、提示、错误提示
     private RecyclerView sobot_reply_msg_pic;
     private ArrayList<SobotFileModel> pic_list = new ArrayList<>();
     private SobotUploadFileAdapter adapter;
@@ -161,6 +166,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
     @Override
     protected void initView() {
+        list = new ArrayList<>();
         sobot_sv_root = findViewById(R.id.sobot_sv_root);
         mllLoading = findViewById(R.id.ll_loading);
         loading = findViewById(R.id.iv_loading);
@@ -169,6 +175,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         mLlCompleted = findViewById(R.id.sobot_ll_completed);
         mTvTicket = (TextView) findViewById(R.id.sobot_tv_ticket);
         mTvTicket.setText(R.string.sobot_leaveMsg_to_ticket);
+        if (ChatUtils.isRtl(getSobotBaseActivity())) {
+            Drawable rigthDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_right_arrow_rtl, null);
+            if (rigthDrawable != null) {
+                rigthDrawable.setBounds(0, 0, rigthDrawable.getMinimumWidth(), rigthDrawable.getMinimumHeight());
+                mTvTicket.setCompoundDrawables(rigthDrawable, null, null, null);
+            }
+        }
         mTvCompleted = (TextView) findViewById(R.id.sobot_tv_completed);
         mTvCompleted.setText(R.string.sobot_leaveMsg_create_complete);
         mTvLeaveMsgCreateSuccess = (TextView) findViewById(R.id.sobot_tv_leaveMsg_create_success);
@@ -206,24 +219,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false));
 
         sobot_post_phone = findViewById(R.id.sobot_post_phone);
-        sobot_post_phone.setClickLister(new SobotInputView.InputListen() {
-            @Override
-            public void inputLeftOnclick() {
-                //选择区号
-                Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhoneCodeDialog.class);
-                startActivityForResult(intent, 4001);
-            }
-
-            @Override
-            public void selectLeftOnclick() {
-
-            }
-
-            @Override
-            public void selectRightOnclick() {
-
-            }
-        });
+        sobot_post_phone.setCusCallBack(this);
         sobot_tv_post_msg = (TextView) findViewById(R.id.sobot_tv_post_msg);
         sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types), true);
         sobot_post_customer_field = (LinearLayout) findViewById(R.id.sobot_post_customer_field);
@@ -270,21 +266,22 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     };
 
 
-    private void clearFocus(){
+    private void clearFocus() {
         View view = getCurrentFocus();
         if (view != null) {
             // 失去焦点
             view.clearFocus();
         }
     }
+
     @Override
     protected void onLeftMenuClick(View view) {
-        if(mLlCompleted.getVisibility()==View.VISIBLE){
+        if (mLlCompleted.getVisibility() == View.VISIBLE) {
             //用广播关闭
             Intent intent = new Intent();
             intent.setAction(ChatUtils.SOBOT_ACTION_CLOSE_TIKET);
             CommonUtils.sendLocalBroadcast(SobotTicketNewActivity.this, intent);
-        }else {
+        } else {
             super.onLeftMenuClick(view);
         }
     }
@@ -309,9 +306,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         setTitle(R.string.sobot_please_leave_a_message);
 
         showLeftMenu(true);
-        if(mConfig!=null){
+        if (mConfig != null) {
             showTempConfig();
-        }else if(StringUtils.isNoEmpty(mTempId)){
+        } else if (StringUtils.isNoEmpty(mTempId)) {
             //请求模板配置
             requestTempConfig(mTempId);
         }
@@ -411,7 +408,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             //问题描述是否显示
             sobot_post_description.setVisibility(View.VISIBLE);
             //问题描述是否必填
-            sobot_post_description.setTitle(desText,mConfig.isTicketContentFillFlag());
+            sobot_post_description.setTitle(desText, mConfig.isTicketContentFillFlag());
         } else {
             sobot_post_description.setVisibility(View.GONE);
         }
@@ -426,10 +423,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
 
         if (mConfig.isTelShowFlag()) {
-            if(mConfig.getTelCheckRule()==1){
+            if (mConfig.getTelCheckRule() == 1) {
                 //显示区号
                 sobot_post_phone.setInputType("phone");
-            }else{
+            } else {
                 //显示普通输入
                 sobot_post_phone.setInputType("single_line");
             }
@@ -526,11 +523,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         });
         String mustFill = "<font color='#f9676f'>*&nbsp;</font>";
 
-        sobot_post_email.setTitle(getResources().getString(R.string.sobot_email),mConfig.isEmailFlag());
+        sobot_post_email.setTitle(getResources().getString(R.string.sobot_email), mConfig.isEmailFlag());
 
-        sobot_post_phone.setTitle( getResources().getString(R.string.sobot_phone),mConfig.isTelFlag());
+        sobot_post_phone.setTitle(getResources().getString(R.string.sobot_phone), mConfig.isTelFlag());
         if (mConfig.isTicketTitleShowFlag()) {
-            sobot_post_title.setTitle(getResources().getString(R.string.sobot_title),true);
+            sobot_post_title.setTitle(getResources().getString(R.string.sobot_title), true);
         }
     }
 
@@ -571,6 +568,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         SobotDialogUtils.stopProgressDialog(this);
         super.onDestroy();
     }
+
     @Override
     public void onClick(View v) {
         clearFocus();
@@ -580,17 +578,17 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             CommonUtils.sendLocalBroadcast(SobotTicketNewActivity.this, intent);
             //前往留言记录
             showTicketInfo();
-        }else if (v == mTvCompleted) {
+        } else if (v == mTvCompleted) {
             Intent intent = new Intent();
             intent.setAction(ChatUtils.SOBOT_ACTION_CLOSE_TIKET);
             CommonUtils.sendLocalBroadcast(SobotTicketNewActivity.this, intent);
             //完成
             onBackPressed();
-        }else if(v == sobot_btn_file){
-            if(pic_list.size()>=15){
+        } else if (v == sobot_btn_file) {
+            if (pic_list.size() >= 15) {
                 //图片上限15张
                 ToastUtil.showToast(this, getResources().getString(R.string.sobot_ticket_update_file_max_hite));
-            }else {
+            } else {
                 menuWindow = new SobotSelectPicDialog(this, itemsOnClick);
                 menuWindow.show();
             }
@@ -616,7 +614,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
         if (mConfig.isTicketTitleShowFlag()) {
             if (TextUtils.isEmpty(sobot_post_title.getSingleValue())) {
-                sobot_post_title.showError(getResources().getString(R.string.sobot_title) + "  " +getResources().getString(R.string.sobot__is_null));
+                sobot_post_title.showError(getResources().getString(R.string.sobot_title) + "  " + getResources().getString(R.string.sobot__is_null));
                 return;
             } else {
                 sobot_post_title.hideError();
@@ -628,12 +626,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             if (TextUtils.isEmpty(sobot_post_type.getSelectValue())) {
                 sobot_post_type.showError(getResources().getString(R.string.sobot_problem_types) + "  " + getResources().getString(R.string.sobot__is_null));
                 return;
-            }else{
+            } else {
                 sobot_post_type.hideError();
             }
         }
 
-         if (mFields != null && mFields.size() != 0) {
+        if (mFields != null && mFields.size() != 0) {
             for (int i = 0; i < mFields.size(); i++) {
                 if (1 == mFields.get(i).getCusFieldConfig().getFillFlag()) {
                     if (TextUtils.isEmpty(mFields.get(i).getCusFieldConfig().getValue())) {
@@ -648,7 +646,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             if (TextUtils.isEmpty(sobot_post_description.getManyValue())) {
                 sobot_post_description.showError(getResources().getString(R.string.sobot_problem_description) + "  " + getResources().getString(R.string.sobot__is_null));
                 return;
-            }else{
+            } else {
                 sobot_post_description.hideError();
             }
         }
@@ -658,7 +656,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 sobot_file_error.setText(getResources().getString(R.string.sobot_please_load));
                 sobot_file_error.setVisibility(View.VISIBLE);
                 return;
-            }else{
+            } else {
                 sobot_file_error.setVisibility(View.GONE);
             }
         }
@@ -671,7 +669,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     //滚到到底部
                     sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                     return;
-                }else{
+                } else {
                     sobot_post_email.hideError();
                 }
                 if (!TextUtils.isEmpty(emailStr)
@@ -700,10 +698,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
         //是否显示手机号
         if (mConfig.isTelShowFlag()) {
-            if(mConfig.getTelCheckRule()==1){
+            if (mConfig.getTelCheckRule() == 1) {
                 //获取区号
                 phoneCode = sobot_post_phone.getTv_input_two_left().getText().toString();
-                String phone =sobot_post_phone.getPhontValue();
+                String phone = sobot_post_phone.getPhontValue();
                 //是否必填
                 if (mConfig.isTelFlag()) {
                     //验证区号
@@ -727,7 +725,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                         return;
-                    }else if(StringUtils.isEmpty(phoneCode) && StringUtils.isNoEmpty(phone)){
+                    } else if (StringUtils.isEmpty(phoneCode) && StringUtils.isNoEmpty(phone)) {
                         sobot_post_phone.showError(getResources().getString(R.string.sobot_phone_code_hint));
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
@@ -738,13 +736,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     }
                     sobot_post_phone.hideError();
                 }
-            }else{
+            } else {
                 //不显示区号
-                phoneCode="";
-                userPhone =sobot_post_phone.getSingleValue();
+                phoneCode = "";
+                userPhone = sobot_post_phone.getSingleValue();
                 //是否必填
                 if (mConfig.isTelFlag()) {
-                    if(StringUtils.isEmpty(userPhone)){
+                    if (StringUtils.isEmpty(userPhone)) {
                         sobot_post_phone.showError(getResources().getString(R.string.sobot_phone_hint));
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
@@ -756,6 +754,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
         postMsg(userPhone, userEamil, title);
     }
+
     private void postMsg(String userPhone, String userEamil, String title) {
         sobot_btn_submit.setAlpha(0.5f);
         sobot_btn_submit.setEnabled(false);
@@ -829,6 +828,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             }
         });
     }
+
     // 为弹出窗口popupwindow实现监听类
     private View.OnClickListener itemsOnClick = new View.OnClickListener() {
         public void onClick(View v) {
@@ -848,6 +848,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
         }
     };
+
     @Override
     public void onClickCusField(TextView view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
         clearFocus();
@@ -886,18 +887,16 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     startActivityForResult(intent, cusFieldConfig.getFieldType());
                 }
                 break;
-            case ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE:
-                if (cusFieldConfig != null) {
-                    Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("cusFieldConfig", cusFieldConfig);
-                    intent.putExtras(bundle);
-                    startActivityForResult(intent, cusFieldConfig.getFieldType());
-                }
-                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void inputLeftOnclick() {
+        //选择区号
+        Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhoneCodeDialog.class);
+        startActivityForResult(intent, 4001);
     }
 
     public class MessageReceiver extends BroadcastReceiver {
@@ -966,9 +965,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                             if (v.getId() == R.id.btn_pick_photo) {
                                 Log.e("onClick: ", seleteMenuWindow.getPosition() + "");
                                 pic_list.remove(fileModel);
-                                if(pic_list.size()>0) {
+                                if (pic_list.size() > 0) {
                                     sobot_reply_msg_pic.setVisibility(View.VISIBLE);
-                                }else{
+                                } else {
                                     sobot_reply_msg_pic.setVisibility(View.GONE);
                                 }
                                 adapter.notifyDataSetChanged();
@@ -1002,6 +1001,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             ToastUtil.showToast(getSobotBaseContext(), content);
         }
     }
+
     private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
         @Override
         public void onSuccess(final String filePath) {
@@ -1013,8 +1013,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                         SobotFileModel item = new SobotFileModel();
                         item.setFileUrl(zhiChiMessage.getData().getUrl());
                         item.setFileLocalPath(filePath);
-                        String fileName = filePath.substring(filePath.lastIndexOf("/")+1);
-                        String fileType = fileName.substring(fileName.lastIndexOf(".")+1);
+                        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+                        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
                         item.setFileName(fileName);
                         item.setFileType(fileType);
                         addPicView(item);
@@ -1039,18 +1039,20 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
         }
     };
+
     public void addPicView(SobotFileModel item) {
-        if(sobot_reply_msg_pic.getVisibility()==View.GONE){
+        if (sobot_reply_msg_pic.getVisibility() == View.GONE) {
             sobot_reply_msg_pic.setVisibility(View.VISIBLE);
         }
         pic_list.add(item);
-        if(pic_list.size()>0) {
+        if (pic_list.size() > 0) {
             sobot_reply_msg_pic.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             sobot_reply_msg_pic.setVisibility(View.GONE);
         }
         adapter.notifyDataSetChanged();
     }
+
     public String getFileStr() {
         String tmpStr = "";
         if (!mConfig.isEnclosureShowFlag()) {
@@ -1216,5 +1218,68 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             }
         } catch (Exception e) {
         }
+    }
+
+    private ArrayList<SobotTimezone> list;
+    private int requestCount = 0;//请求的次数
+    @Override
+    public void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+        //时区
+        if (list == null || list.size() == 0) {
+            requestZone(true,fieldConfig);
+        } else {
+            showZoneDialog(fieldConfig);
+        }
+    }
+
+    @Override
+    public void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+        //时间
+        if (fieldConfig != null) {
+            Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("cusFieldConfig", fieldConfig);
+            intent.putExtras(bundle);
+            startActivityForResult(intent, fieldConfig.getFieldType());
+        }
+    }
+    /**
+     * 请求时区
+     * @param showDialog
+     */
+    private void requestZone(final boolean showDialog,SobotCusFieldConfig fieldConfig) {
+        if (requestCount > 5) {
+            //显示暂无数据
+            if (showDialog) {
+                showZoneDialog(fieldConfig);
+            }
+            return;
+        }
+        requestCount++;
+        String languageCode = SharedPreferencesUtil.getStringData(this, ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
+        zhiChiApi.getTimezone(this, languageCode, new SobotResultCallBack<List<SobotTimezone>>() {
+            @Override
+            public void onSuccess(List<SobotTimezone> placeModels) {
+                list.clear();
+                if (placeModels != null) {
+                    list.addAll(placeModels);
+                }
+                if (showDialog) {
+                    showZoneDialog(fieldConfig);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String s) {
+                requestZone(showDialog,fieldConfig);
+            }
+        });
+    }
+
+    private void showZoneDialog(SobotCusFieldConfig fieldConfig) {
+        Intent intent = new Intent(this, SobotZoneActivity.class);
+        intent.putExtra("cusFieldConfig", fieldConfig);
+        intent.putExtra("zoneList", list);
+        startActivityForResult(intent, fieldConfig.getFieldType());
     }
 }

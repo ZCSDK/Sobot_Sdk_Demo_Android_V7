@@ -184,7 +184,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
         <activity
-            android:name=".activity.halfdialog.SobotTimeZoneDialog"
+            android:name=".activity.halfdialog.SobotZoneActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
         <activity

@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Twoje zgłoszenie zostało zakończone</string>
        <string name="sobot_ticket_reply">Odpowiedź na…</string>
        <string name="sobot_customer_service_representative">Agent</string>
+       <string name="sobot_str_aiagent_tip">Treść wygenerowana przez AI</string>
+    <string name="sobot_str_intercept_access_tip">Nie można zweryfikować informacji o dostępie.</string>
+    <string name="sobot_str_intercept_access_des">Informacja o Twojej wizycie nie została zweryfikowana, tymczasowo nie możesz uzyskać dostępu do obsługi klienta.</string>
 </resources>

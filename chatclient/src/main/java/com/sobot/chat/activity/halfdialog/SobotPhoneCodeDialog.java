@@ -1,7 +1,6 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -20,7 +19,6 @@ import com.sobot.chat.api.model.SobotPhoneCode;
 import com.sobot.chat.utils.SobotPhoneCodeUtil;
 import com.sobot.chat.utils.SobotSoftKeyboardUtils;
 import com.sobot.chat.utils.StringUtils;
-import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,6 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
     private SobotPhoneCodeAdapter adapter;
     private SobotPhoneCode selectStauts;
     private RecyclerView rv_list;
-    private TextView sobot_sureButton;
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
@@ -43,22 +40,11 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        if (v == sobot_sureButton) {
-            if (selectStauts != null) {
-                Intent intent = new Intent();
-                intent.putExtra("selectCode", selectStauts.getPhone_code());
-                setResult(4001, intent);
-            }
-            finish();
-        } else if (v == iv_clear) {
+        if (v == iv_clear) {
             et_search.setText("");
             //显示全部数据
             adapter.setList(list, "");
             showList();
-//        } else if (v == iv_search) {
-//            et_search.clearFocus();
-//            //搜索
-//            setIv_search();
         }
     }
 
@@ -116,15 +102,6 @@ public class SobotPhoneCodeDialog extends SobotDialogBaseActivity implements Vie
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
         sobot_tv_title.setText(R.string.sobot_phone_code);
         rv_list = findViewById(R.id.rv_list);
-        sobot_sureButton = findViewById(R.id.btnSubmit);
-        sobot_sureButton.setOnClickListener(this);
-        if (ThemeUtils.isChangedThemeColor(this)) {
-            int themeColor = ThemeUtils.getThemeColor(this);
-            Drawable bg = sobot_sureButton.getBackground();
-            if (bg != null) {
-                sobot_sureButton.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
-            }
-        }
         rv_list.setLayoutManager(new LinearLayoutManager(this));
 
         ll_search = findViewById(R.id.ll_search);

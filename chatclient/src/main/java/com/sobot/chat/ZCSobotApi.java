@@ -1173,27 +1173,26 @@ public class ZCSobotApi {
      *
      * @param context   上下文  必填
      * @param appkey    用户的appkey  必填 如果是平台用户需要传总公司的appkey
-     * @param partnerid 用户的唯一标识不能传一样的值
+     * @param partnerid 用户的唯一标识不能传一样的值,如果为空返回的值可能存在误差
      * @param callBack  返回内容为map类型，key的描述：offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空，message 收到最后一条消息内容 （eg:您收到了一条新消息），time  收到最后一条消息的时间戳 （未读消息、离线消息、未确认消息 三者比较取时间为最后的一条消息），object 接口返回的全部数据
      */
     public static void offlineMsgSize(final Context context, final String appkey, final String partnerid, StringResultCallBack<NureadMsgModel> callBack) {
-
+        //必填验证
+        if(context==null){
+            callBack.onFailure(new Exception(), "context 不能为空");
+            return;
+        }
+        if(StringUtils.isEmpty(appkey)){
+            callBack.onFailure(new Exception(), "appkey 不能为空");
+            return;
+        }
         SobotMsgManager.getInstance(context).getZhiChiApi().offlineMsgSize(context, partnerid, appkey, new StringResultCallBack<NureadMsgModel>() {
 
             @Override
             public void onSuccess(NureadMsgModel stringObjectMap) {
                 int mUnreadNum = SobotMsgManager.getInstance(context).getUnreadCount(appkey, false, partnerid);
                 stringObjectMap.setUnReadSize(mUnreadNum);
-                List<ZhiChiMessageBase> tmpList = SobotMsgManager.getInstance(context).getConfig(appkey).getMessageList();
-                if (tmpList != null && tmpList.size() > 0) {
-                    ZhiChiMessageBase zhiChiMessageBase = tmpList.get(tmpList.size() - 1);
-                    if (zhiChiMessageBase != null && StringUtils.isEmpty(zhiChiMessageBase.getT())) {
-                        long t = Long.parseLong(zhiChiMessageBase.getT());
-                        if (t > stringObjectMap.getTime()) {
-                            stringObjectMap.setTime(t);
-                        }
-                    }
-                }
+
                 stringObjectMap.setMessage(context.getResources().getString(R.string.sobot_receive_new_message));
                 if (callBack != null) {
                     callBack.onSuccess(stringObjectMap);

@@ -60,7 +60,6 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
     protected void initView() {
         super.initView();
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
-        findViewById(R.id.tv_time_zone).setVisibility(View.GONE);
         btnSubmit = findViewById(R.id.btnSubmit);
         v_top = findViewById(R.id.v_top);
         v_top.setOnClickListener(this);
@@ -165,9 +164,6 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
             date = endDate;
         }
     }
-
-    private int requestCount = 0;//请求的次数
-
 
     @Override
     public void onClick(View v) {

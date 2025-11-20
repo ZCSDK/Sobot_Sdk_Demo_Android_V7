@@ -252,8 +252,6 @@
     <string name="sobot_str_my">我</string>
     <string name="sobot_str_robot">机器人</string>
     <string name="sobot_str_article">文章</string>
-    <string name="sobot_msg_no_read">未读</string>
-    <string name="sobot_msg_read">已读</string>
     <string name="sobot_str_link">链接</string>
     <!--   4.1.4   -->
     <string name="sobot_str_select_pic_video">选择照片和视频</string>
@@ -284,6 +282,7 @@
     <!-- 4.1.8 时区   -->
     <string name="sobot_time_zone">选择时区</string>
     <string name="sobot_time_zone_hint">请选择时区</string>
+    <string name="sobot_timezone">时区</string>
     <!--    4.1.8 区号-->
     <string name="sobot_phone_code_hint">请选择区号</string>
     <string name="sobot_phone_hint">请填写手机号码</string>
@@ -322,4 +321,8 @@
     <string name="sobot_ticket_finish">您的工单已完成</string>
     <string name="sobot_ticket_reply">回复…</string>
     <string name="sobot_customer_service_representative">人工客服</string>
+    <!--    4.3.0 -->
+    <string name="sobot_str_aiagent_tip">内容由 AI 生成</string>
+    <string name="sobot_str_intercept_access_tip">访问信息验证不通过</string>
+    <string name="sobot_str_intercept_access_des">您的访问信息验证不通过，暂时不能接入客服中心</string>
 </resources>

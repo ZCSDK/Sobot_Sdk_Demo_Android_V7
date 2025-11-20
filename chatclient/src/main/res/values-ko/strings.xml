@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">귀하의 티켓이 완료되었습니다</string>
        <string name="sobot_ticket_reply">답변…</string>
        <string name="sobot_customer_service_representative">상담원</string>
+       <string name="sobot_str_aiagent_tip">AI가 생성한 콘텐츠</string>
+    <string name="sobot_str_intercept_access_tip">액세스 정보 확인 실패</string>
+    <string name="sobot_str_intercept_access_des">귀하의 방문 정보 확인이 실패하여 현재 고객 서비스에 연결할 수 없습니다.</string>
 </resources>

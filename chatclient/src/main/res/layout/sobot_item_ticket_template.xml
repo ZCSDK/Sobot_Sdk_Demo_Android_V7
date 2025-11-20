@@ -6,38 +6,40 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:visibility="visible">
+
     <View
         android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="12dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:padding="16dp"
-        android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="20dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/sobot_item_hot_selector"
         android:elevation="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:outlineSpotShadowColor="@color/sobot_color_shadow"
-        android:translationY="6dp"
-        android:orientation="horizontal">
+        android:padding="16dp"
+        android:translationY="6dp">
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/sobot_temp_class"/>
+            android:src="@drawable/sobot_temp_class" />
 
         <TextView
             android:id="@+id/sobot_tv_content"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:lineSpacingExtra="4dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:lineSpacingExtra="4dp"
             android:textColor="@color/sobot_color_text_first"
             android:textSize="@dimen/sobot_text_font_14" />
 
@@ -45,8 +47,7 @@
             android:id="@+id/iv_select"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:src="@drawable/sobot_icon_right_arrow"
-             />
+            android:src="@drawable/sobot_icon_right_arrow" />
     </LinearLayout>
 
 </LinearLayout>

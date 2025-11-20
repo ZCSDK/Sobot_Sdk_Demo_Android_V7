@@ -17,9 +17,9 @@
             android:id="@+id/iv_loading"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:visibility="gone"
             app:backgroundColor="@color/sobot_color_loading_bg"
             app:progressColor="@color/sobot_color"
-            android:visibility="gone"
             app:strokeWidth="2dp" />
 
         <!-- 显示加载文字的动画 -->
@@ -40,13 +40,44 @@
             android:src="@drawable/sobot_icon_timeout"
             android:visibility="gone" />
 
+        <ImageView
+            android:id="@+id/iv_intercept_access"
+            android:layout_width="80dp"
+            android:layout_height="48dp"
+            android:contentDescription="@null"
+            android:src="@drawable/sobot_icon_intercept_access"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_intercept_access_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:text="@string/sobot_str_intercept_access_tip"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_16"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_intercept_access_des"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:text="@string/sobot_str_intercept_access_des"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/sobot_textReConnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
             android:layout_marginTop="24dp"
-            android:layout_marginEnd="15dp"
+            android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_timeout"
             android:textColor="@color/sobot_color_text_first"
@@ -57,9 +88,8 @@
             android:id="@+id/sobot_textReConnect_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="15dp"
+            android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_timeout_reloading"
             android:textColor="@color/sobot_color_text_third"
@@ -70,13 +100,13 @@
             android:id="@+id/sobot_btn_reconnect"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:gravity="center"
             android:layout_marginTop="40dp"
             android:background="@drawable/sobot_button_style"
+            android:gravity="center"
+            android:includeFontPadding="false"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:minWidth="240dp"
             android:paddingStart="15dp"
-            android:includeFontPadding="false"
             android:paddingEnd="15dp"
             android:text="@string/sobot_reunicon"
             android:textAllCaps="false"

@@ -17,7 +17,7 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.StDocModel;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
-import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.ChatUtils;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class SobotCategoryAdapter extends SobotBaseAdapter<StDocModel> {
             tv_title.setText(data.getQuestionTitle());
             displayInNotch(tv_title);
             if (mActivity != null) {
-                if (CommonUtils.checkSDKIsAr(mActivity)) {
+                if (ChatUtils.isRtl(mActivity)) {
                     iv_arrow.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
                 } else {
                     iv_arrow.setImageResource(R.drawable.sobot_icon_right_arrow);

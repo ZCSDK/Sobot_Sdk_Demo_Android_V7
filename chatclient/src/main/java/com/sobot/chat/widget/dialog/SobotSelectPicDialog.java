@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.api.model.Information;
 import com.sobot.chat.utils.ScreenUtils;
 
 /**
@@ -25,7 +26,7 @@ import com.sobot.chat.utils.ScreenUtils;
 
 public class SobotSelectPicDialog extends Dialog {
 
-    private View mView;
+    private View view_take_photo_split;//拍照分割线
     private TextView btn_take_photo, btn_pick_photo, btn_pick_vedio, btn_cancel;
     private LinearLayout coustom_pop_layout;
     private View.OnClickListener itemsOnClick;
@@ -82,8 +83,19 @@ public class SobotSelectPicDialog extends Dialog {
     }
 
     private void initView() {
+        view_take_photo_split= findViewById(R.id.btn_take_photo);
         btn_take_photo = findViewById(R.id.btn_take_photo);
         btn_take_photo.setText(R.string.sobot_attach_take_pic);
+        try {
+            Information information=ZCSobotApi.getCurrentInfoSetting(getContext());
+            if (information!=null&&information.isHideTicketCameraBtn()){
+                btn_take_photo.setVisibility(View.GONE);
+                if (view_take_photo_split!=null){
+                    view_take_photo_split.setVisibility(View.GONE);
+                }
+            }
+        } catch (Exception e) {
+        }
         btn_pick_photo =findViewById(R.id.btn_pick_photo);
         btn_pick_photo.setText(R.string.sobot_choice_form_picture);
         btn_pick_vedio =findViewById(R.id.btn_pick_vedio);

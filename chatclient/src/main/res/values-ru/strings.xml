@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Ваш тикет завершен</string>
        <string name="sobot_ticket_reply">Ответить на…</string>
        <string name="sobot_customer_service_representative">Агент</string>
+       <string name="sobot_str_aiagent_tip">Содержимое сгенерировано ИИ.</string>
+    <string name="sobot_str_intercept_access_tip">Проверка доступа не пройдена</string>
+    <string name="sobot_str_intercept_access_des">Проверка вашей информации о посещении не пройдена, временно невозможно подключиться к агенту.</string>
 </resources>

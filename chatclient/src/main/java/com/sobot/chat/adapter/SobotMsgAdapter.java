@@ -1136,7 +1136,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             List<ChatMessageRichListModel> richList = new ArrayList<>();
             for (int i = 0; i < temp.length; i++) {
                 ChatMessageRichListModel model = new ChatMessageRichListModel();
-                if (StringUtils.isNoEmpty(temp[0])) {
+                if (StringUtils.isNoEmpty(temp[i])) {
                     if (temp[i].startsWith("<table")) {
                         //md 表格
                         model.setMsg(temp[i]);

@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">あなたのチケットは完了しました</string>
        <string name="sobot_ticket_reply">返信する…</string>
        <string name="sobot_customer_service_representative">オペレーター</string>
+       <string name="sobot_str_aiagent_tip">内容は AI によって生成されました。</string>
+    <string name="sobot_str_intercept_access_tip">アクセス情報の検証に失敗しました</string>
+    <string name="sobot_str_intercept_access_des">ご訪問の情報が確認できませんでした。一時的にエージェントに接続できません。</string>
 </resources>

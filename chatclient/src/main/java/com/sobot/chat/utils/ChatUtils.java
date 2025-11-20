@@ -3,6 +3,8 @@ package com.sobot.chat.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -24,6 +26,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.adapter.SobotMsgAdapter;
@@ -1542,7 +1545,7 @@ public class ChatUtils {
         // 处理图片
         markdownText = convertMarkdownPicToHtml(markdownText);
         if (markdownText.contains("<img src")) {
-            markdownText = convertHtmlPic(markdownText);
+            markdownText = extractAndReplaceImages(markdownText);
         }
         String newContent = convertMarkdownPicToHtml(markdownText);
 
@@ -1903,39 +1906,6 @@ public class ChatUtils {
         return sb.toString();
     }
 
-    //处理图片
-    public static String convertHtmlPic(String markdownText) {
-        try {
-            if (StringUtils.isEmpty(markdownText)) {
-                return "";
-            }
-            // 正则表达式匹配Markdown格式的超链接
-            String regex = "<img\\s+src=(\"([^\"]*)\"|'([^']*)'|([^\\s>]+))[^>]*/?>";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(markdownText);
-            StringBuffer sb = new StringBuffer();
-            while (matcher.find()) {
-                // 获取图片的文本和URL
-                String imgUrl = matcher.group(1);
-                // 移除可能存在的首尾引号
-                if (imgUrl != null && imgUrl.length() > 1) {
-                    if ((imgUrl.startsWith("\"") && imgUrl.endsWith("\"")) ||
-                            (imgUrl.startsWith("'") && imgUrl.endsWith("'"))) {
-                        imgUrl = imgUrl.substring(1, imgUrl.length() - 1);
-                    }
-                }
-                // 使用StringBuilder构建新的<img>标签
-                StringBuilder replacement = new StringBuilder();
-                replacement.append("<img>").append(imgUrl).append("<img>");
-                matcher.appendReplacement(sb, replacement.toString());
-            }
-            matcher.appendTail(sb);
-            return sb.toString();
-        } catch (Exception e) {
-        }
-        return "";
-    }
-
     //处理超链接
     public static String convertMarkdownLinkToHtml(String markdownText) {
         // 正则表达式匹配Markdown格式的超链接
@@ -2042,5 +2012,117 @@ public class ChatUtils {
                 || itemType == SobotMsgAdapter.MSG_TYPE_CARD_R
                 || itemType == SobotMsgAdapter.MSG_TYPE_CONSULT
                 || itemType == SobotMsgAdapter.MSG_TYPE_LOCATION_R);
+    }
+
+    public static void main(String[] args) {
+        // 测试数据
+        String data1 = "dsfdsj士大夫精神发<img src=\\\"https://img-hk.sobot.com/5fb7495819ee4b7dbba8ec41ae3af49e/common/cca16bb0f95578bbefc71f85c374be1e_1762398835585.jpeg\\\"/> jsaldjfksjd ;f";
+        String data2 = "撒旦范德萨分<img src=https://img.zhichidata.com/12f6404c8f0a4dbd93327a559bc3a424/aigc/2c9e5cbf9339415d8a6b628d642ba4c8/image5.png>";
+
+        System.out.println("原始数据1: " + data1);
+        System.out.println("处理结果1: " + extractAndReplaceImages(data1));
+        System.out.println();
+        System.out.println("原始数据2: " + data2);
+        System.out.println("处理结果2: " + extractAndReplaceImages(data2));
+    }
+
+    /**
+     * 从文本中提取并替换图片地址
+     *
+     * @param text 输入文本
+     * @return 处理后的文本
+     */
+    public static String extractAndReplaceImages(String text) {
+        // 步骤1：正则匹配<img />标签
+        try {
+            String imgTagRegex = "<img\\s+[^>]*src\\s*=\\s*[\"']?([^\"'\\s>]+)[\"']?[^>]*>";
+            Pattern imgTagPattern = Pattern.compile(imgTagRegex, Pattern.CASE_INSENSITIVE);
+            Matcher imgTagMatcher = imgTagPattern.matcher(text);
+            StringBuffer result = new StringBuffer();
+            while (imgTagMatcher.find()) {
+                String imgTag = imgTagMatcher.group(0); // 完整的<img>标签
+                // 步骤2：从src值中提取图片URL
+                String imageUrl = extractImageUrl(imgTag);
+                if (imageUrl != null) {
+                    // 步骤3：替换为新的<img>标签
+                    String replacement = "<img>" + imageUrl + "<img>";
+                    imgTagMatcher.appendReplacement(result, replacement);
+                } else {
+                    // 如果没有找到有效的图片URL，保留原标签
+                    imgTagMatcher.appendReplacement(result, imgTag);
+                }
+            }
+            imgTagMatcher.appendTail(result);
+            return result.toString();
+        } catch (Exception e) {
+        }
+        return text;
+    }
+
+    /**
+     * 从src属性值中提取图片URL
+     *
+     * @param srcContent src完整数据
+     * @return 提取的图片URL，如果没有找到返回null
+     */
+    public static String extractImageUrl(String srcContent) {
+        // 正则匹配图片URL
+        try {
+            String imageUrlRegex = "https?://[^\\\"']*\\.(png|jpg|jpeg|gif|bmp|webp|svg|ico|tiff|tif|heic|heif|raw|psd|ai)";
+            Pattern imageUrlPattern = Pattern.compile(imageUrlRegex, Pattern.CASE_INSENSITIVE);
+            Matcher imageUrlMatcher = imageUrlPattern.matcher(srcContent);
+            if (imageUrlMatcher.find()) {
+                return imageUrlMatcher.group(0);
+            }
+        } catch (Exception e) {
+        }
+        return srcContent;
+    }
+
+    /**
+     * 判断当前是否是阿拉伯语
+     * 注意：如果用户禁止了镜像，也返回不是阿语
+     *
+     * @param context
+     * @return
+     */
+    public static final boolean isRtl(Context context) {
+        if (context == null) {
+            return false;
+        }
+        if (!isSupportsRtl(context)) {
+            LogUtils.d("用户主项目不支持布局镜像");
+            return false;
+        }
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.IS_CLOSE_SYSTEMRTL)) {
+            LogUtils.d("用户调用SDK方法禁止了布局镜像");
+            return false;
+        }
+        //是否使用国际化语言
+        try {
+            Locale language = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
+            if (language != null) {
+                String languageCode = language.getLanguage();
+                //希伯来语(he), 波斯语(fa)
+                if ("ar".equals(languageCode) || "he".equals(languageCode) || "fa".equals(languageCode)) {
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    // 获取 Application 清单文件 属性值 supportsRtl，是否支持镜像RTL
+    public static boolean isSupportsRtl(Context context) {
+        try {
+            ApplicationInfo appInfo = context.getPackageManager()
+                    .getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            // 检查 ApplicationInfo 的 flags 是否包含 FLAG_SUPPORTS_RTL
+            return (appInfo.flags & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0;
+        } catch (PackageManager.NameNotFoundException e) {
+            // 默认情况下，如果未明确设置或发生错误，可以假设不支持或根据API级别处理
+            return false;
+        }
     }
 }

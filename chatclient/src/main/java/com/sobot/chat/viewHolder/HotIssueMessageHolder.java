@@ -21,6 +21,7 @@ import com.sobot.chat.api.model.FaqDocRespVo;
 import com.sobot.chat.api.model.GroupRespVo;
 import com.sobot.chat.api.model.SobotFaqDetailModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
@@ -68,7 +69,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
         lin_question_list = convertView.findViewById(R.id.lin_question_list);
         sobot_ll_switch_list = convertView.findViewById(R.id.sobot_ll_switch_list);
         sobot_ll_switch_list.setVisibility(View.GONE);
-        if (CommonUtils.checkSDKIsAr(mContext)) {
+        if (ChatUtils.isRtl(mContext)) {
             sobot_hot_pic.setTopRightRadius(ScreenUtils.dip2px(mContext, 12));
             sobot_hot_pic.setBottomRightRadius(ScreenUtils.dip2px(mContext, 12));
             sobot_hot_pic.setTopLeftRadius(0);
@@ -166,6 +167,11 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             }
             for (int i = startNum; i < endNum && i < faqDocRespVoList.size(); i++) {
                 View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_hot_fad, null);
+                if (ChatUtils.isRtl(mContext)) {
+                    ImageView arrowIV = view.findViewById(R.id.sobot_im_icon_right);
+                    if (arrowIV != null)
+                        arrowIV.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                }
                 TextView answer = view.findViewById(R.id.sobot_tv_name);
                 final FaqDocRespVo info = faqDocRespVoList.get(i);
                 answer.setText(info.getQuestionName());
@@ -191,6 +197,10 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                     View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_hot_fad, null);
                     TextView answer = view.findViewById(R.id.sobot_tv_name);
                     ImageView rightIV = view.findViewById(R.id.sobot_im_icon_right);
+                    if (ChatUtils.isRtl(mContext)) {
+                        if (rightIV != null)
+                            rightIV.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                    }
                     answer.setText("");
                     rightIV.setVisibility(View.GONE);
                     view.setBackgroundResource(R.drawable.sobot_item_issue_selector);
@@ -226,6 +236,11 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             }
             for (int i = startNum; i < endNum && i < faqList.size(); i++) {
                 View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_hot_fad, null);
+                if (ChatUtils.isRtl(mContext)) {
+                    ImageView arrowIV = view.findViewById(R.id.sobot_im_icon_right);
+                    if (arrowIV != null)
+                        arrowIV.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                }
                 TextView answer = view.findViewById(R.id.sobot_tv_name);
                 final FaqDocRespVo info = faqList.get(i);
                 answer.setText(info.getQuestionName());

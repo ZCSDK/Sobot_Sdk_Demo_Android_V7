@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
@@ -73,6 +74,11 @@ public class RemindMessageHolder extends MsgHolderBase {
     public void bindData(Context context, ZhiChiMessageBase message) {
         rl_connect_service_card.setVisibility(View.GONE);
         iv_notice_left.setVisibility(View.GONE);
+        if (ChatUtils.isRtl(mContext)){
+            iv_notice_right.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+        }else {
+            iv_notice_right.setImageResource(R.drawable.sobot_icon_right_arrow);
+        }
         if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsg())) {
             if (message.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_nomore) {
                 rl_not_read.setVisibility(View.GONE);

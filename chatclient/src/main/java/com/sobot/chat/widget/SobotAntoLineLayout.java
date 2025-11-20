@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sobot.chat.R;
-import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.ChatUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +86,7 @@ public class SobotAntoLineLayout extends ViewGroup {
                 measureChild(childItem, widthMeasureSpec, heightMeasureSpec);
             }
             int childHeight = childItem.getMeasuredHeight();
-            int childWidth = childItem.getMeasuredWidth()+6;
+            int childWidth = childItem.getMeasuredWidth() + 6;
             if (childItem.getVisibility() == GONE) {
                 //测量时如果控件隐藏 修改宽高 为 0
                 childHeight = 0;
@@ -116,7 +116,7 @@ public class SobotAntoLineLayout extends ViewGroup {
 
     // 添加RTL判断方法
     private boolean isRtl() {
-        return CommonUtils.checkSDKIsAr(getContext());
+        return ChatUtils.isRtl(getContext());
     }
 
     // 修改 layoutWrapContent 方法以支持RTL
@@ -221,6 +221,7 @@ public class SobotAntoLineLayout extends ViewGroup {
             curHeight += maxHeight + mVerticalGap;
         }
     }
+
     @Override
     public void addView(View child) {
         super.addView(child);
