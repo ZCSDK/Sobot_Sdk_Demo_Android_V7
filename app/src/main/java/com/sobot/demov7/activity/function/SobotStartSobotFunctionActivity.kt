@@ -74,6 +74,7 @@ class SobotStartSobotFunctionActivity : SobotDemoBaseActivity(), View.OnClickLis
                 if(StringUtils.isNoEmpty(information!!.sign)){
                     information!!.sign = MD5Util.encode(information!!.app_key + information!!.partnerid + information!!.sign + System.currentTimeMillis())
                 }
+                information!!.isHideTicketCameraBtn = true
                 ZCSobotApi.openZCChat(context, information)
             }
         }
