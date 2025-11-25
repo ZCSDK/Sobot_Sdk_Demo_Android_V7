@@ -92,3 +92,5 @@ Thumbs.db
 
 *.apk
 *.dm
+.idea/
+app/release/output-metadata.json
