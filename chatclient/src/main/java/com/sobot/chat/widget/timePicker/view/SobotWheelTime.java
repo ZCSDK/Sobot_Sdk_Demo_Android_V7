@@ -3,6 +3,7 @@ package com.sobot.chat.widget.timePicker.view;
 import android.view.View;
 
 import com.sobot.chat.R;
+import com.sobot.chat.widget.timePicker.adapter.SobotMonthAdapter;
 import com.sobot.chat.widget.timePicker.adapter.SobotNumericWheelAdapter;
 import com.sobot.chat.widget.timePicker.lib.SobotWheelView;
 import com.sobot.chat.widget.timePicker.listener.SobotOnItemSelectedListener;
@@ -50,6 +51,7 @@ public class SobotWheelTime {
     int dividerColor;
     // 条目间距倍数
     float lineSpacingMultiplier = 1.6F;
+    boolean isMonth = false;
 
     private SobotWheelView.DividerType dividerType;
 
@@ -66,6 +68,15 @@ public class SobotWheelTime {
         this.type = type;
         this.gravity = gravity;
         this.textSize = textSize;
+        setView(view);
+    }
+    public SobotWheelTime(View view, boolean[] type, int gravity, int textSize,boolean isMonth) {
+        super();
+        this.view = view;
+        this.type = type;
+        this.gravity = gravity;
+        this.textSize = textSize;
+        this.isMonth = isMonth;
         setView(view);
     }
 
@@ -92,18 +103,34 @@ public class SobotWheelTime {
         // 月
         wv_month = (SobotWheelView) view.findViewById(R.id.month);
         if (startYear == endYear) {//开始年等于终止年
-            wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, endMonth));
+            if(isMonth) {
+                wv_month.setAdapter(new SobotMonthAdapter());
+            }else{
+                wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, endMonth));
+            }
             wv_month.setCurrentItem(month + 1 - startMonth);
         } else if (year == startYear) {
             //起始日期的月份控制
-            wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, 12));
+            if(isMonth) {
+                wv_month.setAdapter(new SobotMonthAdapter());
+            }else {
+                wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, 12));
+            }
             wv_month.setCurrentItem(month + 1 - startMonth);
         } else if (year == endYear) {
             //终止日期的月份控制
-            wv_month.setAdapter(new SobotNumericWheelAdapter(1, endMonth));
+            if(isMonth) {
+                wv_month.setAdapter(new SobotMonthAdapter());
+            }else {
+                wv_month.setAdapter(new SobotNumericWheelAdapter(1, endMonth));
+            }
             wv_month.setCurrentItem(month);
         } else {
-            wv_month.setAdapter(new SobotNumericWheelAdapter(1, 12));
+            if(isMonth) {
+                wv_month.setAdapter(new SobotMonthAdapter());
+            }else {
+                wv_month.setAdapter(new SobotNumericWheelAdapter(1, 12));
+            }
             wv_month.setCurrentItem(month);
         }
         /*   wv_month.setLabel(context.getString(R.string.pickerview_month));*/

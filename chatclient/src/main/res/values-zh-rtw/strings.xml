@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">您的工單已完成</string>
        <string name="sobot_ticket_reply">回覆…</string>
        <string name="sobot_customer_service_representative">人工客服</string>
+       <string name="sobot_str_aiagent_tip">內容由 AI 生成</string>
+    <string name="sobot_str_intercept_access_tip">訪問信息驗證不通過</string>
+    <string name="sobot_str_intercept_access_des">您的訪問信息驗證不通過，暫時不能接入客服</string>
 </resources>

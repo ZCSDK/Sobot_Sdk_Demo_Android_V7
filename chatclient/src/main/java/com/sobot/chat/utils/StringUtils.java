@@ -465,19 +465,19 @@ public final class StringUtils {
             staticLayout = new StaticLayout(content, textPaint, viewWidth,
                     Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
         }
-        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
+//        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
         return staticLayout.getLineCount();
     }
 
     /**
      * 计算TextView内容显示的行数（考虑行间距）
      *
-     * @param textSize 字号（sp单位）
-     * @param content 显示内容
-     * @param viewWidth 控件宽度（像素单位）
-     * @param lineSpacingExtra 额外行间距（像素单位）
+     * @param textSize              字号（sp单位）
+     * @param content               显示内容
+     * @param viewWidth             控件宽度（像素单位）
+     * @param lineSpacingExtra      额外行间距（像素单位）
      * @param lineSpacingMultiplier 行间距倍数
-     * @param context 上下文
+     * @param context               上下文
      * @return 显示行数
      */
     public static int calculateTextLinesWithSpacing(float textSize, String content, int viewWidth,
@@ -510,7 +510,7 @@ public final class StringUtils {
             staticLayout = new StaticLayout(content, textPaint, viewWidth,
                     Layout.Alignment.ALIGN_NORMAL, lineSpacingMultiplier, lineSpacingExtra, false);
         }
-        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
+//        LogUtils.d(content + " 行数：" + staticLayout.getLineCount());
         return staticLayout.getLineCount();
     }
 

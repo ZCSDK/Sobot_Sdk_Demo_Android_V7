@@ -29,11 +29,8 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Response;
 
 /**
  * io工具类
@@ -547,49 +544,6 @@ public class IOUtils {
         return true;
     }
 
-    /**
-     * 根据响应头或者url获取文件名
-     */
-    public static String getNetFileName(Response response, String url) {
-        String fileName = getHeaderFileName(response);
-        if (TextUtils.isEmpty(fileName)) fileName = getUrlFileName(url);
-        if (TextUtils.isEmpty(fileName)) fileName = "unknownfile_" + System.currentTimeMillis();
-        try {
-            fileName = URLDecoder.decode(fileName, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-//            OkLogger.printStackTrace(e);
-        }
-        return fileName;
-    }
-
-    /**
-     * 解析文件头
-     * Content-Disposition:attachment;filename=FileName.txt
-     * Content-Disposition: attachment; filename*="UTF-8''%E6%9B%BF%E6%8D%A2%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.pdf"
-     */
-    private static String getHeaderFileName(Response response) {
-        String dispositionHeader = response.header("Content-Disposition");
-        if (dispositionHeader != null) {
-            //文件名可能包含双引号，需要去除
-            dispositionHeader = dispositionHeader.replaceAll("\"", "");
-            String split = "filename=";
-            int indexOf = dispositionHeader.indexOf(split);
-            if (indexOf != -1) {
-                return dispositionHeader.substring(indexOf + split.length(), dispositionHeader.length());
-            }
-            split = "filename*=";
-            indexOf = dispositionHeader.indexOf(split);
-            if (indexOf != -1) {
-                String fileName = dispositionHeader.substring(indexOf + split.length(), dispositionHeader.length());
-                String encode = "UTF-8''";
-                if (fileName.startsWith(encode)) {
-                    fileName = fileName.substring(encode.length(), fileName.length());
-                }
-                return fileName;
-            }
-        }
-        return null;
-    }
 
     /**
      * 通过 ‘？’ 和 ‘/’ 判断文件名
@@ -630,8 +584,9 @@ public class IOUtils {
 //        ContentValues values = new ContentValues();
 //        //设置文件名
 //        values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-////        //设置文件描述，这里以文件名为例子
-//////        values.put(MediaStore.Downloads.DESCRIPTION, fileName);
+
+    /// /        //设置文件描述，这里以文件名为例子
+    /// ///        values.put(MediaStore.Downloads.DESCRIPTION, fileName);
 //        //设置文件类型
 //        values.put(MediaStore.Downloads.MIME_TYPE,fileType);
 //        //注意RELATIVE_PATH需要targetVersion=29
@@ -664,7 +619,6 @@ public class IOUtils {
 
 
 //    }
-
     public static boolean copyFile(Context context, String sourceFilePath, final Uri insertUri) {
         if (insertUri == null) {
             return false;

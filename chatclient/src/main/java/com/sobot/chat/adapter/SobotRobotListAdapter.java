@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotRobot;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
@@ -75,7 +76,12 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
                 vh.sobot_tv_content.setTypeface(Typeface.DEFAULT_BOLD);
             } else {
                 vh.sobot_ll_content.setBackgroundResource(R.drawable.sobot_bg_dialog_item);
-                vh.iv_select.setVisibility(View.GONE);
+                if (ChatUtils.isRtl(mContext)) {
+                    vh.iv_select.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                } else {
+                    vh.iv_select.setImageResource(R.drawable.sobot_icon_right_arrow);
+                }
+                vh.iv_select.setVisibility(View.VISIBLE);
             }
             vh.sobot_tv_content.setText(data.getOperationRemark());
             vh.itemView.setOnClickListener(new View.OnClickListener() {

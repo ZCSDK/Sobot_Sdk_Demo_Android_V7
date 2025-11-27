@@ -277,7 +277,6 @@
     </LinearLayout>
 
     <!-- 开始新会话布局 -->
-
     <RelativeLayout
         android:id="@+id/sobot_ll_restart_talk"
         android:layout_width="match_parent"
@@ -397,6 +396,18 @@
             android:gravity="center_vertical"
             android:visibility="gone" />
     </RelativeLayout>
-    <!-- 按住说话  end -->
+
+    <TextView
+        android:id="@+id/tv_aigent_create_conent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge"
+        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+        android:layout_marginBottom="8dp"
+        android:text="@string/sobot_str_aiagent_tip"
+        android:textColor="@color/sobot_color_text_third"
+        android:textSize="@dimen/sobot_text_font_11"
+        android:visibility="gone" />
 
 </LinearLayout>

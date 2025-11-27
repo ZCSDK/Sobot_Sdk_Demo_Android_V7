@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Uw ticket is voltooid</string>
        <string name="sobot_ticket_reply">Reageren op…</string>
        <string name="sobot_customer_service_representative">Agent</string>
+       <string name="sobot_str_aiagent_tip">Inhoud gegenereerd door AI</string>
+    <string name="sobot_str_intercept_access_tip">Toegangsgegevensverificatie mislukt</string>
+    <string name="sobot_str_intercept_access_des">Uw toegangsgegevens zijn niet geverifieerd, u kunt tijdelijk geen contact opnemen met de klantenservice.</string>
 </resources>

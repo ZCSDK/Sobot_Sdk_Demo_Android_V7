@@ -26,7 +26,9 @@ import android.widget.TextView;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotPhotoActivity;
 import com.sobot.chat.adapter.SobotMsgAdapter;
 import com.sobot.chat.api.apiUtils.ZhiChiConstants;
@@ -372,6 +374,17 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 }
             }
             nameTv.setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 36));
+            float msgSmallRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius); // 小圆角
+            float msgBigRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius); // 大圆角
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.IS_CLOSE_SYSTEMRTL)) {
+                //禁止镜像 四个圆角不变
+            } else {
+                if (ChatUtils.isRtl(mContext)) {
+                    //是阿语，圆角需要镜像
+                    msgSmallRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius); // 小圆角
+                    msgBigRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius); // 大圆角
+                }
+            }
             if (isRight()) {
                 boolean isTextAudioMsgType = (itemType == SobotMsgAdapter.MSG_TYPE_TXT_R || itemType == SobotMsgAdapter.MSG_TYPE_APPOINT_R || itemType == SobotMsgAdapter.MSG_TYPE_AUDIO_R || itemType == SobotMsgAdapter.MSG_TYPE_MULTI_ROUND_R);
                 //右侧文本、语音气泡=渐变主题色背景
@@ -400,36 +413,36 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                                         if (message.isNextIsShowFaceAndNickname()) {
                                             //本条显示头像昵称，下条也显示 圆角弧度正常 只有右上角是4dp
                                             cornerRadii = new float[]{
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                                    msgBigRadius, msgBigRadius, // 左上角
+                                                    msgSmallRadius, msgSmallRadius, // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius)    // 左下角
                                             };
                                         } else {
                                             //本条显示头像昵称，下条不显示 左侧圆角弧度正常，右侧弧度都是小的 4dp
                                             cornerRadii = new float[]{
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右下角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                                    msgBigRadius, msgBigRadius, // 左上角
+                                                    msgSmallRadius, msgSmallRadius, // 右上角
+                                                    msgSmallRadius, msgSmallRadius, // 右下角
+                                                    msgBigRadius, msgBigRadius    // 左下角
                                             };
                                         }
                                     } else {
                                         if (message.isNextIsShowFaceAndNickname()) {
                                             //本条不显示头像昵称，下条也显示 相当于连续消息结束 只有右上角是4dp
                                             cornerRadii = new float[]{
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                                    msgBigRadius, msgBigRadius, // 左上角
+                                                    msgSmallRadius, msgSmallRadius, // 右上角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), // 右下角
+                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius)    // 左下角
                                             };
                                         } else {
                                             //本条不显示头像昵称，下条也不显示 还是连续消息，右侧弧度都是小的 4dp
                                             cornerRadii = new float[]{
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 左上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右上角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 右下角
-                                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                                    msgBigRadius, msgBigRadius, // 左上角
+                                                    msgSmallRadius, msgSmallRadius, // 右上角
+                                                    msgSmallRadius, msgSmallRadius, // 右下角
+                                                    msgBigRadius, msgBigRadius    // 左下角
                                             };
                                         }
                                     }
@@ -455,36 +468,36 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                             //本条显示头像昵称，下条也显示 圆角弧度正常
                             //文本语音气泡 左上角是小角度 4dp
                             cornerRadii = new float[]{
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                    msgSmallRadius, msgSmallRadius, // 左上角
+                                    msgBigRadius, msgBigRadius, // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius)    // 左下角
                             };
                         } else {
                             //本条显示头像昵称，下条不显示 左侧圆角弧度都是小的 4dp
                             cornerRadii = new float[]{
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius)    // 左下角
+                                    msgSmallRadius, msgSmallRadius, // 左上角
+                                    msgBigRadius, msgBigRadius, // 右上角
+                                    msgBigRadius, msgBigRadius, // 右下角
+                                    msgSmallRadius, msgSmallRadius    // 左下角
                             };
                         }
                     } else {
                         if (message.isNextIsShowFaceAndNickname()) {
                             //本条不显示头像昵称，下条也显示 相当于连续消息结束,只有左上角弧度是4dp
                             cornerRadii = new float[]{
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius)    // 左下角
+                                    msgSmallRadius, msgSmallRadius, // 左上角
+                                    msgBigRadius, msgBigRadius, // 右上角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), // 右下角
+                                    mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_def_corner_radius)    // 左下角
                             };
                         } else {
                             //本条不显示头像昵称，下条也不显示 还是连续消息，左侧圆角弧度都需要调小
                             cornerRadii = new float[]{
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), // 左上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右上角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius), // 右下角
-                                    mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius), mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius)    // 左下角
+                                    msgSmallRadius, msgSmallRadius, // 左上角
+                                    msgBigRadius, msgBigRadius, // 右上角
+                                    msgBigRadius, msgBigRadius, // 右下角
+                                    msgSmallRadius, msgSmallRadius    // 左下角
                             };
                         }
                     }

@@ -53,7 +53,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="6dp"
-                android:background="@drawable/sobot_icon_tonggao_arrow"
+                android:src="@drawable/sobot_icon_tonggao_arrow"
                 android:visibility="gone" />
         </RelativeLayout>
         <!--消息列表-->

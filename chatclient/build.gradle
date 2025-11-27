@@ -27,5 +27,4 @@ dependencies {
     api("com.sobot.library:picture_x:1.2.6")
     api("com.sobot.library:net:1.2.9.3")
     api("com.sobot.library:gson:1.2.0")
-    api("com.squareup.okhttp3:okhttp-sse:4.9.1")
 }

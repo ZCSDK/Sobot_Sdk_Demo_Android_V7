@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Biletiniz tamamlandı</string>
        <string name="sobot_ticket_reply">Yanıtla…</string>
        <string name="sobot_customer_service_representative">Ajan</string>
+       <string name="sobot_str_aiagent_tip">İçerik AI tarafından oluşturulmuştur</string>
+    <string name="sobot_str_intercept_access_tip">Erişim bilgisi doğrulanamadı.</string>
+    <string name="sobot_str_intercept_access_des">Giriş bilgileriniz doğrulanamadı, şu anda müşteri hizmetlerine bağlanamıyorsunuz.</string>
 </resources>

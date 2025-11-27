@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">تذاكركเสร็จสมบูรณ์แล้ว</string>
        <string name="sobot_ticket_reply">الرد على…</string>
        <string name="sobot_customer_service_representative">دعم العملاء</string>
+       <string name="sobot_str_aiagent_tip">المحتوى تم إنشاؤه بواسطة الذكاء الاصطناعي</string>
+       <string name="sobot_str_intercept_access_tip">لم يتم التحقق من صحة معلومات الوصول</string>
+       <string name="sobot_str_intercept_access_des">لم يتم التحقق من معلومات زيارتك، ولا يمكنك الاتصال بخدمة العملاء مؤقتاً.</string>
 </resources>

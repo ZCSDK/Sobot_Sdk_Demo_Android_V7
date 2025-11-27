@@ -17,4 +17,20 @@ public interface ISobotCusField {
      * @param cusField 点击这个字段的bean
      */
     void onClickCusField(TextView view , SobotCusFieldConfig fieldConfig, SobotFieldModel cusField);
+
+    /**
+     * 手机区号
+     */
+    void inputLeftOnclick();
+    /**
+     * 时区
+     * @param fieldConfig
+     */
+    void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig);
+
+    /**
+     * 时区+时间
+     * @param fieldConfig
+     */
+    void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig);
 }

@@ -38,6 +38,7 @@
                 android:src="@drawable/sobot_help_bottom_chat" />
 
             <TextView
+                android:id="@+id/tv_open_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
@@ -113,6 +114,7 @@
                 android:src="@drawable/sobot_help_bottom_chat" />
 
             <TextView
+                android:id="@+id/tv_open_chat_v"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
@@ -146,7 +148,6 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                android:text="@string/sobot_help_center_online_service"
                 android:textColor="@color/sobot_color_text_first"
                 android:textSize="@dimen/sobot_text_font_14" />
         </LinearLayout>

@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Tiket Anda telah selesai</string>
        <string name="sobot_ticket_reply">Menjawab…</string>
        <string name="sobot_customer_service_representative">Agen</string>
+       <string name="sobot_str_aiagent_tip">Konten oleh Generasi AI</string>
+    <string name="sobot_str_intercept_access_tip">Verifikasi informasi akses tidak berhasil</string>
+    <string name="sobot_str_intercept_access_des">Informasi kunjungan Anda tidak lolos verifikasi, untuk sementara tidak dapat mengakses agen.</string>
 </resources>

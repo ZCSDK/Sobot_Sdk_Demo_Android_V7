@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Ihr Ticket wurde abgeschlossen</string>
        <string name="sobot_ticket_reply">Antworten auf…</string>
        <string name="sobot_customer_service_representative">Agent</string>
+       <string name="sobot_str_aiagent_tip">Inhalt von KI-Generierung</string>
+    <string name="sobot_str_intercept_access_tip">Zugriffsüberprüfung fehlgeschlagen</string>
+    <string name="sobot_str_intercept_access_des">Ihre Besucherinformationen konnten nicht verifiziert werden, daher ist ein Zugriff auf den Agenten vorübergehend nicht möglich.</string>
 </resources>

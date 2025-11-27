@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Tiket anda telah selesai</string>
        <string name="sobot_ticket_reply">Balas kepada…</string>
        <string name="sobot_customer_service_representative">Ejen</string>
+       <string name="sobot_str_aiagent_tip">Kandungan dihasilkan oleh AI</string>
+    <string name="sobot_str_intercept_access_tip">Pengesahan maklumat capaian tidak berjaya</string>
+    <string name="sobot_str_intercept_access_des">Maklumat lawatan anda tidak lulus pengesahan, untuk sementara tidak dapat menghubungi khidmat pelanggan.</string>
 </resources>

@@ -93,6 +93,8 @@
     <dimen name="sobot_msg_corner_radius">4dp</dimen>
     <!--左、右侧消息 气泡 大圆角弧度 -->
     <dimen name="sobot_msg_big_corner_radius">20dp</dimen>
+    <!--左、右侧消息 气泡 圆角弧度 阿语也不会变 -->
+    <dimen name="sobot_msg_def_corner_radius">20dp</dimen>
     <!--左、右侧消息 气泡 圆角大小 卡片消息 文章 小程序 位置 图片 视频 文件 -->
     <dimen name="sobot_msg_corner_radius_second">12dp</dimen>
     <!--左、右侧消息 气泡 图片\视频消息 圆角弧度 -->

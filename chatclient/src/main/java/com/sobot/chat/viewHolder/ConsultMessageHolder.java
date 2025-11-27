@@ -42,11 +42,7 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
             }
         } catch (Resources.NotFoundException e) {
         }
-        if (CommonUtils.checkSDKIsZh(mContext)) {
-            btn_sendBtn.setText(R.string.sobot_send_cus_service);
-        } else {
-            btn_sendBtn.setText(R.string.sobot_button_send);
-        }
+        btn_sendBtn.setText(R.string.sobot_button_send);
         btn_sendBtn.setTextColor(ThemeUtils.getThemeTextAndIconColor(context));
         sobot_container = convertView.findViewById(R.id.sobot_container);
         iv_pic = (SobotProgressImageView) convertView.findViewById(R.id.sobot_goods_pic);

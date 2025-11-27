@@ -22,6 +22,13 @@ public class MarkConfig {
      */
     public static final int DISPLAY_INNOTCH = 0b100;
 
+    /**
+     * 是否禁止布局镜像
+     * false：跟随系统；true：禁用界面布局镜像（仅禁用SDK内部界面布局RTL，不影响用户界面）
+     * 默认false,跟随系统效果
+     */
+    public static final int IS_CLOSE_SYSTEMRTL = 0b1000;
+
 
     /**
      * 获取开关位

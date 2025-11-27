@@ -1,7 +1,10 @@
 package com.sobot.chat.activity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -21,12 +24,14 @@ import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotAutoGridView;
 import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -41,7 +46,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
     private TextView tvNoData;
     private TextView tvNoDataDescribe;
     public LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
-    public TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v;
+    public TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v,tv_open_chat_v,tv_open_chat;
     public View view_split_online_tel;
     public TextView tvOnlineService;
     public String tel;
@@ -74,6 +79,8 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         ll_sobot_layout_online_tel_v = findViewById(R.id.ll_sobot_layout_online_tel_v);
         tv_sobot_layout_online_tel = findViewById(R.id.tv_sobot_layout_online_tel);
         tv_sobot_layout_online_tel_v = findViewById(R.id.tv_sobot_layout_online_tel_v);
+        tv_open_chat_v= findViewById(R.id.tv_open_chat_v);
+        tv_open_chat= findViewById(R.id.tv_open_chat);
         view_split_online_tel = findViewById(R.id.view_split_online_tel);
         mGridView = findViewById(R.id.sobot_gv);
         mGridView.setSelector(android.R.color.transparent);
@@ -88,6 +95,13 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         mGridView.setOnItemClickListener(this);
         configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
         if (configModel != null) {
+            if (!TextUtils.isEmpty(configModel.getLanguage())) {
+                //这个是服务端返回的语言
+                changeAppLanguage(configModel.getLanguage());
+            } else {
+                //这个是服务端返回的接待方案里边的兜底语言
+                changeAppLanguage(configModel.getLan());
+            }
             setToolBarDefBg();
             setBottomBtnUI();
         }
@@ -112,12 +126,27 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         if (!TextUtils.isEmpty(mInfo.getCustomer_fields())) {
             param.put("customerFields", mInfo.getCustomer_fields());
         }
+        if (!TextUtils.isEmpty(mInfo.getSystemLanguage())) {
+            param.put("language", mInfo.getSystemLanguage());
+        }
+        if (!TextUtils.isEmpty(mInfo.getLocale())) {
+            param.put("locale", mInfo.getLocale());
+        }
+
         SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
 
             @Override
             public void onSuccess(HelpConfigModel o) {
+                configModel = o;
                 if (configModel != null) {
                     try {
+                        if (!TextUtils.isEmpty(configModel.getLanguage())) {
+                            //这个是服务端返回的语言
+                            changeAppLanguage(configModel.getLanguage());
+                        } else {
+                            //这个是服务端返回的接待方案里边的兜底语言
+                            changeAppLanguage(configModel.getLan());
+                        }
                         int rebotThemeStyle = configModel.getRebotThemeStyle();
                         int appCompatDelegate;
                         //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
@@ -135,7 +164,6 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                     }
                 }
                 SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", o);
-                configModel = o;
                 setToolBarDefBg();
                 setBottomBtnUI();
             }
@@ -258,6 +286,57 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         super.onDestroy();
         if (SobotOption.functionClickListener != null) {
             SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_CloseHelpCenter);
+        }
+    }
+
+    //修改成指定语言
+    public void changeAppLanguage(String langaueCode) {
+        if (StringUtils.isEmpty(langaueCode)) {
+            return;
+        }
+        Locale locale = null;
+        if ("he".equals(langaueCode)) {
+            //添加sdk语言，设置成希伯来文
+            locale = new Locale("iw");
+        } else if ("zh-Hans".equals(langaueCode)) {
+            //添加sdk语言，设置成中文
+            locale = new Locale("zh");
+        } else if ("zh-Hant".equals(langaueCode)) {
+            //添加sdk语言，设置成中文繁体
+            locale = new Locale("zh", "TW");
+        } else {
+            //添加sdk语言，设置成指定语言
+            locale = new Locale(langaueCode);
+        }
+        SharedPreferencesUtil.saveBooleanData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_USE_LANGUAGE, true);
+        SharedPreferencesUtil.saveObject(getSobotBaseActivity(), ZhiChiConstant.SOBOT_LANGUAGE, locale);
+        SharedPreferencesUtil.saveStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, langaueCode);
+        if (locale != null) {
+            try {
+                // 本地语言设置
+                Resources res = getResources();
+                DisplayMetrics dm = res.getDisplayMetrics();
+                Configuration conf = new Configuration();
+                conf.setLocale(locale);
+                if (!ChatUtils.isRtl(getSobotBaseActivity())) {
+                    //禁止镜像
+                    conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
+                } else {
+                    conf.setLayoutDirection(locale);
+                }
+                res.updateConfiguration(conf, dm);
+                // 更新Activity布局方向
+                if (getWindow() != null) {
+                    getWindow().getDecorView().setLayoutDirection(conf.getLayoutDirection());
+                }
+                setTitle(R.string.sobot_help_center_title);
+                showLeftMenu(true);
+                tvNoData.setText(R.string.sobot_help_center_no_data);
+                tvNoDataDescribe.setText(R.string.sobot_help_center_no_data_describe);
+                tv_open_chat_v.setText(R.string.sobot_help_center_online_service);
+                tv_open_chat.setText(R.string.sobot_help_center_online_service);
+            } catch (Exception e) {
+            }
         }
     }
 }

@@ -9,8 +9,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/sobot_text_title"
@@ -33,8 +32,8 @@
             android:id="@+id/sobot_iv_left"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_marginStart="12dp"
             android:padding="8dp"
             android:scaleType="centerCrop"
@@ -63,12 +62,13 @@
             android:layout_marginEnd="12dp"
             android:src="@drawable/sobot_icon_toolbar_more"
             android:visibility="gone" />
+
         <View
             android:id="@+id/title_line"
             android:layout_width="match_parent"
             android:layout_height="0.6dp"
-            android:visibility="gone"
             android:layout_alignParentBottom="true"
-            android:background="@color/sobot_dialog_line" />
+            android:background="@color/sobot_dialog_line"
+            android:visibility="gone" />
     </RelativeLayout>
 </androidx.appcompat.widget.Toolbar>

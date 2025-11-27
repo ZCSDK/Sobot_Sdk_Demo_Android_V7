@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">Vé của bạn đã hoàn thành</string>
        <string name="sobot_ticket_reply">Trả lời…</string>
        <string name="sobot_customer_service_representative">Đại lý</string>
+       <string name="sobot_str_aiagent_tip">Nội dung được tạo bởi AI</string>
+    <string name="sobot_str_intercept_access_tip">Xác minh thông tin truy cập không thành công</string>
+    <string name="sobot_str_intercept_access_des">Thông tin truy cập của bạn không được xác minh, tạm thời không thể kết nối với dịch vụ khách hàng.</string>
 </resources>

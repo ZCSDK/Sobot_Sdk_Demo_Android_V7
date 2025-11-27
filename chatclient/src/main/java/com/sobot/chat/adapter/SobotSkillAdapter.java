@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiGroupBase;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
@@ -112,6 +114,13 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
                 }
             } else {
                 //纯文本
+                if (viewHolder.iv_select != null) {
+                    if (ChatUtils.isRtl(mContext)) {
+                        viewHolder.iv_select.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                    } else {
+                        viewHolder.iv_select.setImageResource(R.drawable.sobot_icon_right_arrow);
+                    }
+                }
                 viewHolder.sobot_tv_group_name.setText(zhiChiSkillIModel.getGroupName());
                 if ("true".equals(zhiChiSkillIModel.isOnline())) {
                     viewHolder.sobot_tv_group_desc.setVisibility(View.GONE);
@@ -119,7 +128,7 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
                 } else {
                     String content;
                     if (msgFlag == ZhiChiConstant.sobot_msg_flag_open) {
-                        content = mContext.getString(R.string.sobot_skill_no_service) ;
+                        content = mContext.getString(R.string.sobot_skill_no_service);
                     } else {
                         content = mContext.getString(R.string.sobot_no_access);
                     }
@@ -137,6 +146,7 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
         private TextView sobot_tv_group_name;
         private TextView sobot_tv_group_desc;
         private LinearLayout sobot_ll_content;
+        private ImageView iv_select;
 
         public ViewHolder(Context context, View itemView) {
             super(itemView);
@@ -144,9 +154,9 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
             this.sobot_tv_group_name = itemView.findViewById(R.id.sobot_tv_group_name);
             this.sobot_tv_group_desc = itemView.findViewById(R.id.sobot_tv_group_desc);
             this.sobot_ll_content = itemView.findViewById(R.id.sobot_ll_content);
+            this.iv_select = itemView.findViewById(R.id.iv_select);
         }
     }
-
 
 
     @Override

@@ -306,4 +306,7 @@
        <string name="sobot_ticket_finish">ตั๋วของคุณเสร็จสมบูรณ์แล้ว</string>
        <string name="sobot_ticket_reply">ตอบกลับ…</string>
        <string name="sobot_customer_service_representative">เอเจนต์</string>
+       <string name="sobot_str_aiagent_tip">เนื้อหาสร้างขึ้นโดย AI</string>
+    <string name="sobot_str_intercept_access_tip">การตรวจสอบข้อมูลการเข้าถึงไม่ผ่าน</string>
+    <string name="sobot_str_intercept_access_des">ข้อมูลการเข้าเยี่ยมของคุณไม่ผ่านการตรวจสอบชั่วคราว จึงไม่สามารถติดต่อฝ่ายบริการลูกค้าได้</string>
 </resources>
