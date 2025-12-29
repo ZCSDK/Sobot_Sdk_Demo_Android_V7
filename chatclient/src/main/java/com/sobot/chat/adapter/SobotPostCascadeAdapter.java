@@ -20,6 +20,7 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
@@ -44,7 +45,7 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
 
     private SobotCallBack callBack;
 
-    public SobotPostCascadeAdapter(Activity activity, Context context, List list,SobotCallBack callBack) {
+    public SobotPostCascadeAdapter(Activity activity, Context context, List list, SobotCallBack callBack) {
         super(context, list);
         this.mContext = context;
         this.mActivity = activity;
@@ -74,7 +75,7 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
         } else {
             myViewHolder = (ViewHolder) convertView.getTag();
         }
-        String data = StringUtils.isNoEmpty(searchText)?list.get(position).getPathName():list.get(position).getDataName();
+        String data = StringUtils.isNoEmpty(searchText) ? list.get(position).getPathName() : list.get(position).getDataName();
         if (StringUtils.isNoEmpty(data)) {
             SpannableString spannableString = new SpannableString(data);
             if (StringUtils.isNoEmpty(searchText)) {
@@ -98,12 +99,16 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
             myViewHolder.categoryIshave.setVisibility(View.GONE);
         } else {
             myViewHolder.categoryIshave.setVisibility(View.VISIBLE);
-            myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow);
+            if (ChatUtils.isRtl(mContext)) {
+                myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+            } else {
+                myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow);
+            }
         }
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(callBack!=null){
+                if (callBack != null) {
                     callBack.itemClick(list.get(position));
                 }
             }
@@ -193,6 +198,7 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
             }
         }
     }
+
     public interface SobotCallBack {
         void itemClick(SobotCusFieldDataInfo info);
     }

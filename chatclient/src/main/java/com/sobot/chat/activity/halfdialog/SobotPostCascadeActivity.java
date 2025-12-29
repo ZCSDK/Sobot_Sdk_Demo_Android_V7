@@ -21,6 +21,7 @@ import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotPostCascadeAdapter;
 import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.api.model.SobotFieldModel;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -120,14 +121,14 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
 
             }
         });
-        Drawable bgDrawable =  ContextCompat.getDrawable(this,R.drawable.sobot_bg_line_4);
+        Drawable bgDrawable = ContextCompat.getDrawable(this, R.drawable.sobot_bg_line_4);
         sobot_et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     sobot_ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(SobotPostCascadeActivity.this)));
                 } else {
-                    sobot_ll_search.setBackground(ContextCompat.getDrawable(SobotPostCascadeActivity.this,R.drawable.sobot_bg_line_4));
+                    sobot_ll_search.setBackground(ContextCompat.getDrawable(SobotPostCascadeActivity.this, R.drawable.sobot_bg_line_4));
                 }
             }
         });
@@ -157,31 +158,32 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
         currentLevel = 0;
         List<SobotCusFieldDataInfo> fristList = getNextLevelList("");
         //初始化搜索的数据
-        initSearchMap("","",fristList);
+        initSearchMap("", "", fristList);
         tmpMap.put(0, fristList);
         if (cusFieldDataInfoList != null && !cusFieldDataInfoList.isEmpty()) {
             showDataWithLevel(-1, "");
         }
     }
 
-    private void initSearchMap(String pathName,String pathId,List<SobotCusFieldDataInfo> fristList){
+    private void initSearchMap(String pathName, String pathId, List<SobotCusFieldDataInfo> fristList) {
         //遍历全量数据，整合到map中
         List<SobotCusFieldDataInfo> list = new ArrayList<>();
         for (int i = 0; i < fristList.size(); i++) {
-            fristList.get(i).setPathName((StringUtils.isNoEmpty(pathName)?(pathName+" / "):"")+fristList.get(i).getDataName());
-            fristList.get(i).setPathId((StringUtils.isNoEmpty(pathId)?(pathId+","):"")+fristList.get(i).getDataId());
-            if(fristList.get(i).isHasNext()){
+            fristList.get(i).setPathName((StringUtils.isNoEmpty(pathName) ? (pathName + " / ") : "") + fristList.get(i).getDataName());
+            fristList.get(i).setPathId((StringUtils.isNoEmpty(pathId) ? (pathId + ",") : "") + fristList.get(i).getDataId());
+            if (fristList.get(i).isHasNext()) {
                 list.add(fristList.get(i));
-            }else{
+            } else {
                 searchList.add(fristList.get(i));
             }
         }
-        if(!list.isEmpty()){
+        if (!list.isEmpty()) {
             for (int i = 0; i < list.size(); i++) {
-                initSearchMap(list.get(i).getPathName(),list.get(i).getPathId(), getNextLevelList(list.get(i).getDataId()));
+                initSearchMap(list.get(i).getPathName(), list.get(i).getPathId(), getNextLevelList(list.get(i).getDataId()));
             }
         }
     }
+
     private void showDataWithLevel(int position, String dataId) {
         if (position >= 0) {
             tmpMap.put(currentLevel, getNextLevelList(dataId));
@@ -203,7 +205,7 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
                 @Override
                 public void itemClick(SobotCusFieldDataInfo info) {
                     sobot_et_search.clearFocus();
-                    if(StringUtils.isNoEmpty(sobot_et_search.getText().toString())){
+                    if (StringUtils.isNoEmpty(sobot_et_search.getText().toString())) {
                         sobot_et_search.setText("");
                         //回显回去
                         Intent intent = new Intent();
@@ -215,7 +217,7 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
                         intent.putExtra("category_typeValue", info.getPathId());
                         setResult(ZhiChiConstant.work_order_list_display_type_category, intent);
                         finish();
-                    }else {
+                    } else {
                         selectCusFieldDataInfos.add(info);
                         if (getNextLevelList(info.getDataId()).size() > 0) {
                             currentLevel++;
@@ -254,7 +256,6 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
         }
         updateIndicator();
     }
-
 
 
     //获取下一级显示数据
@@ -300,6 +301,11 @@ public class SobotPostCascadeActivity extends SobotDialogBaseActivity {
                 View view = View.inflate(this, R.layout.sobot_item_cus_level, null);
                 TextView titleTv = view.findViewById(R.id.tv_level);
                 ImageView iv_right = view.findViewById(R.id.iv_right);
+                if (ChatUtils.isRtl(getSobotBaseActivity())) {
+                    iv_right.setImageResource(R.drawable.sobot_icon_right_arrow_gray_rtl);
+                } else {
+                    iv_right.setImageResource(R.drawable.sobot_icon_right_arrow_gray);
+                }
 
                 if (i == selectCusFieldDataInfos.size() - 1) {
                     //最后一项

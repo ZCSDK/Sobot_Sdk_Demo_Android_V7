@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="sobot_srl_content_empty">Không tìm thấy nội dung. Bạn có quên thêm vào tệp xml layout không?</string>
+    <string name="sobot_srl_content_empty">Đang yêu cầu quyền sử dụng microphone. Sau khi được phép, bạn có thể gửi/tải lên video đã ghi khi liên hệ với bộ phận hỗ trợ khách hàng và để lại tin nhắn.</string>
     <string name="sobot_srl_header_pulling">Kéo xuống để làm mới</string>
     <string name="sobot_srl_header_refreshing">Đang làm mới...</string>
     <string name="sobot_srl_header_loading">Chờ tải xong phần dưới...</string>

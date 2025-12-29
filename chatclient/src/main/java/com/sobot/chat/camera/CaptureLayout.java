@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.sobot.chat.R;
 import com.sobot.chat.camera.listener.StCaptureListener;
 import com.sobot.chat.camera.listener.StClickListener;
@@ -138,7 +140,7 @@ public class CaptureLayout extends FrameLayout {
         btn_capture = new CaptureButton(getContext(), button_size);
         LayoutParams btn_capture_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         btn_capture_param.gravity = Gravity.CENTER;
-        btn_capture_param.topMargin=20;
+        btn_capture_param.topMargin = 20;
         btn_capture.setLayoutParams(btn_capture_param);
         btn_capture.setCaptureLisenter(new StCaptureListener() {
             @Override
@@ -153,7 +155,7 @@ public class CaptureLayout extends FrameLayout {
                 if (captureLisenter != null) {
                     captureLisenter.recordShort(time);
                 }
-                startAlphaAnimation();
+//                startAlphaAnimation();
             }
 
             @Override
@@ -161,7 +163,7 @@ public class CaptureLayout extends FrameLayout {
                 if (captureLisenter != null) {
                     captureLisenter.recordStart();
                 }
-                startAlphaAnimation();
+//                startAlphaAnimation();
             }
 
             @Override
@@ -169,7 +171,7 @@ public class CaptureLayout extends FrameLayout {
                 if (captureLisenter != null) {
                     captureLisenter.recordEnd(time);
                 }
-                startAlphaAnimation();
+                hideAlphaAnimation();
                 startTypeBtnAnimator();
             }
 
@@ -216,7 +218,7 @@ public class CaptureLayout extends FrameLayout {
                 if (typeLisenter != null) {
                     typeLisenter.cancel();
                 }
-                startAlphaAnimation();
+                showAlphaAnimation();
 //                resetCaptureLayout();
             }
         });
@@ -233,7 +235,7 @@ public class CaptureLayout extends FrameLayout {
                 if (typeLisenter != null) {
                     typeLisenter.confirm();
                 }
-                startAlphaAnimation();
+                hideAlphaAnimation();
 //                resetCaptureLayout();
             }
         });
@@ -285,11 +287,11 @@ public class CaptureLayout extends FrameLayout {
         txt_tip = new TextView(getContext());
         LayoutParams txt_param = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         txt_param.gravity = Gravity.CENTER_HORIZONTAL;
-        txt_param.setMargins(15, 0, 15, 0);
+        txt_param.setMargins(15, 0, 15, 10);
         txt_tip.setText(R.string.sobot_tap_hold_camera);
         txt_tip.setTextColor(0xFFFFFFFF);
         txt_tip.setGravity(Gravity.CENTER);
-        txt_tip.setPadding(15,0,15,0);
+        txt_tip.setPadding(15, 0, 15, 0);
         txt_tip.setLayoutParams(txt_param);
 
         this.addView(btn_capture);
@@ -319,20 +321,53 @@ public class CaptureLayout extends FrameLayout {
     }
 
 
-    public void startAlphaAnimation() {
-        if (isFirst) {
-            ObjectAnimator animator_txt_tip = ObjectAnimator.ofFloat(txt_tip, "alpha", 1f, 0f);
-            animator_txt_tip.setDuration(500);
-            animator_txt_tip.start();
-            isFirst = false;
-        }
+    //隐藏提示（清除拍照，长按录制）
+    public void hideAlphaAnimation() {
+        ObjectAnimator animator_txt_tip = ObjectAnimator.ofFloat(txt_tip, "alpha", 1f, 0f);
+        animator_txt_tip.setDuration(10);
+        animator_txt_tip.start();
     }
 
-    public void setTextWithAnimation(String tip) {
-        txt_tip.setText(tip);
-        ObjectAnimator animator_txt_tip = ObjectAnimator.ofFloat(txt_tip, "alpha", 0f, 1f, 1f, 0f);
-        animator_txt_tip.setDuration(2500);
+    //显示提示（清除拍照，长按录制）
+    public void showAlphaAnimation() {
+        ObjectAnimator animator_txt_tip = ObjectAnimator.ofFloat(txt_tip, "alpha", 1f);
+        animator_txt_tip.setDuration(10);
         animator_txt_tip.start();
+    }
+
+    /**
+     * 显示录制事件过短提示
+     *
+     * @param tip        录制过短提示语 ，临时的
+     * @param endFromTip 结束后显示的提示
+     */
+    public void setTextWithAnimation(String tip, String endFromTip) {
+        txt_tip.setText(tip);
+        ObjectAnimator animator_txt_tip = ObjectAnimator.ofFloat(txt_tip, "alpha", 1f);
+        animator_txt_tip.setDuration(1500);
+        animator_txt_tip.start();
+        animator_txt_tip.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(@NonNull Animator animation) {
+                txt_tip.setText(endFromTip);
+                showAlphaAnimation();
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animation) {
+
+            }
+        });
     }
 
     public void setDuration(int duration) {
@@ -347,8 +382,20 @@ public class CaptureLayout extends FrameLayout {
         txt_tip.setText(tip);
     }
 
+    public String getTipStr() {
+        return txt_tip.getText().toString();
+    }
+
     public void showTip() {
         txt_tip.setVisibility(VISIBLE);
+    }
+
+    public void hideTip() {
+        txt_tip.setVisibility(GONE);
+    }
+
+    public TextView getTipTv() {
+        return txt_tip;
     }
 
     public void setIconSrc(int iconLeft, int iconRight) {

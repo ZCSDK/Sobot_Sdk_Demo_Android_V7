@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.sobot.chat.R;
 import com.sobot.chat.widget.timePicker.adapter.SobotWheelAdapter;
 import com.sobot.chat.widget.timePicker.listener.SobotOnItemSelectedListener;
 import com.sobot.chat.widget.timePicker.model.SobotIPickerViewData;
@@ -124,9 +125,9 @@ public class SobotWheelView extends View {
 
     public SobotWheelView(Context context, AttributeSet attrs) {
         super(context, attrs);
-       /* textColorOut = getResources().getColor(R.color.pickerview_wheelview_textcolor_out);
-        textColorCenter =getResources().getColor(R.color.pickerview_wheelview_textcolor_center);
-        dividerColor = getResources().getColor(R.color.pickerview_wheelview_textcolor_out);*/
+//        textColorOut = getResources().getColor(R.color.pickerview_wheelview_textcolor_out);
+        textColorCenter =getResources().getColor(R.color.sobot_color_text_first);
+//        dividerColor = getResources().getColor(R.color.pickerview_wheelview_textcolor_out);
 
         textSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getResources().getDisplayMetrics());//默认大小
 

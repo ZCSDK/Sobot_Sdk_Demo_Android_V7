@@ -3,8 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
     android:background="@color/sobot_color_bg_first">
 
     <LinearLayout
@@ -28,7 +26,9 @@
             android:id="@+id/sobot_txt_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:textSize="20sp" />
 
 
@@ -52,7 +52,9 @@
             android:id="@+id/tv_intercept_access_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_intercept_access_tip"
@@ -64,7 +66,9 @@
             android:id="@+id/tv_intercept_access_des"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="4dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_intercept_access_des"
@@ -76,7 +80,9 @@
             android:id="@+id/sobot_textReConnect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_timeout"
@@ -88,7 +94,9 @@
             android:id="@+id/sobot_textReConnect_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:text="@string/sobot_str_timeout_reloading"
@@ -100,7 +108,9 @@
             android:id="@+id/sobot_btn_reconnect"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="40dp"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/sobot_button_style"
             android:gravity="center"
             android:includeFontPadding="false"

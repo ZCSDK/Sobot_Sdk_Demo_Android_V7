@@ -168,7 +168,30 @@
             </LinearLayout>
 
         </ScrollView>
-
+        <LinearLayout
+            android:id="@+id/sobot_ll_policy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/iv_policy"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="16dp"
+                android:checked="true"
+                android:src="@drawable/sobot_checkbox_btn"
+                />
+            <TextView
+                android:id="@+id/sobot_tv_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="@string/sobot_agree_agreement"
+                android:textColor="@color/sobot_policy_text"
+                android:textSize="12sp" />
+        </LinearLayout>
         <TextView
             android:id="@+id/sobot_btn_submit"
             android:layout_width="match_parent"

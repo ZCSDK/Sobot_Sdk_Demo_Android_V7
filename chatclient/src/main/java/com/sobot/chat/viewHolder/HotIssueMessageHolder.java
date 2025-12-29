@@ -54,6 +54,9 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private int blockIndex = 0, groupIndex = 0;
     private int PAGE_NUM = 5;
     private int curPageNum = 0;
+    private int imagW= 72;
+    private int imagMaxH= 284;
+    private int imagMinH= 242;
 
     private List<FaqDocRespVo> faqDocRespVoList = new ArrayList<>();
 
@@ -132,8 +135,8 @@ public class HotIssueMessageHolder extends MsgHolderBase {
 
             if (!TextUtils.isEmpty(bean.getImgUrl())) {
                 ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
-                params.width = (int) ScreenUtils.dpToPixel(mContext, 80);
-                params.height = (int) ScreenUtils.dpToPixel(mContext, 294);
+                params.width = (int) ScreenUtils.dpToPixel(mContext, imagW);
+                params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
                 sobot_hot_pic.setLayoutParams(params);
                 sobot_hot_pic.setVisibility(View.VISIBLE);
                 SobotBitmapUtil.display(mContext, CommonUtils.encode(bean.getImgUrl()), sobot_hot_pic);
@@ -195,14 +198,15 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             if (childCount < PAGE_NUM && faqDocRespVoList.size() > PAGE_NUM) {
                 for (int i = childCount; i < PAGE_NUM; i++) {
                     View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_hot_fad, null);
+                    if (ChatUtils.isRtl(mContext)) {
+                        ImageView arrowIV = view.findViewById(R.id.sobot_im_icon_right);
+                        if (arrowIV != null)
+                            arrowIV.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
+                    }
                     TextView answer = view.findViewById(R.id.sobot_tv_name);
                     ImageView rightIV = view.findViewById(R.id.sobot_im_icon_right);
-                    if (ChatUtils.isRtl(mContext)) {
-                        if (rightIV != null)
-                            rightIV.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
-                    }
-                    answer.setText("");
-                    rightIV.setVisibility(View.GONE);
+                    answer.setText("  ");
+                    rightIV.setVisibility(View.INVISIBLE);
                     view.setBackgroundResource(R.drawable.sobot_item_issue_selector);
                     lin_question_list.addView(view, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 }
@@ -347,15 +351,15 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                             ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
 //                            params.width = (int) ScreenUtils.dpToPixel(mContext,80);
 //                            params.width = (int) ScreenUtils.dpToPixel(mContext,70);
-                            params.width = (int) ScreenUtils.dpToPixel(mContext, 80);
+                            params.width = (int) ScreenUtils.dpToPixel(mContext, imagW);
                             if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
                                 //有tab，设置高度，为(44+10)+(150+10)+28=242
 //                                params.height = (int)ScreenUtils.dpToPixel(mContext,294);
-                                params.height = (int) ScreenUtils.dpToPixel(mContext, 294);
+                                params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
                             } else {
                                 //无tab,设置高度为(150+10)+28=188
 //                                params.height = (int)ScreenUtils.dpToPixel(mContext,252);
-                                params.height = (int) ScreenUtils.dpToPixel(mContext, 252);
+                                params.height = (int) ScreenUtils.dpToPixel(mContext, imagMinH);
                             }
                             sobot_hot_pic.setLayoutParams(params);
                             sobot_hot_pic.setVisibility(View.VISIBLE);
@@ -393,13 +397,13 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 //图片
                 if (!TextUtils.isEmpty(businessLineRespVoList.get(blockIndex).getImgUrl())) {
                     ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
-                    params.width = (int) ScreenUtils.dpToPixel(mContext, 80);
+                    params.width = (int) ScreenUtils.dpToPixel(mContext, imagW);
                     if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
                         //有tab，设置高度，为(44+10)+(150+10)+28=242
-                        params.height = (int) ScreenUtils.dpToPixel(mContext, 294);
+                        params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
                     } else {
                         //无tab,设置高度为(150+10)+28=188
-                        params.height = (int) ScreenUtils.dpToPixel(mContext, 252);
+                        params.height = (int) ScreenUtils.dpToPixel(mContext, imagMinH);
                     }
                     sobot_hot_pic.setLayoutParams(params);
                     sobot_hot_pic.setVisibility(View.VISIBLE);

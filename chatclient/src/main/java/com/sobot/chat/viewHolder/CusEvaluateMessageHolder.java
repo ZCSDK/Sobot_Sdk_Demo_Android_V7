@@ -153,22 +153,6 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
             sobot_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
         }
-        if (!TextUtils.isEmpty(initMode.getVisitorScheme().getRebotTheme())) {
-            String themeColorStr = initMode.getVisitorScheme().getRebotTheme();
-            if (!themeColorStr.contains(",")) {
-                //单色 需要变成两个一样
-                themeColorStr = themeColorStr + "," + themeColorStr;
-            }
-            String themeColorArr[] = themeColorStr.split(",");
-            if (themeColorArr.length > 1) {
-                int[] colors = new int[themeColorArr.length];
-                for (int i = 0; i < themeColorArr.length; i++) {
-                    colors[i] = Color.parseColor(themeColorArr[i]);
-                }
-                GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
-                aDrawable.setCornerRadius(mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius));
-            }
-        }
 
         sobot_submit.setOnClickListener(new View.OnClickListener() {
             @Override

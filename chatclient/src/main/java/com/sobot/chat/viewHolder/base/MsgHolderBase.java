@@ -353,7 +353,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     //只带有客服头像 左右布局
                     //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20*2 — 头像大小16 -头像到气泡间距 8
                     msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight - msgFaceWidth - msgFaceMarginEnd;
-                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 40);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 44);
                 } else {
                     //不带客服头像和昵称 或者都带
                     //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20*2
@@ -365,7 +365,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     //只带有客服头像 左右布局
                     //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20*2 — 头像大小16 -头像到气泡间距 8
                     msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight - msgFaceWidth - msgFaceMarginEnd;
-                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 40);
+                    msgCardWidth = ScreenUtils.dip2px(mContext, 288 - 44);
                 } else {
                     //不带客服头像和昵称 或者都带
                     //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20*2

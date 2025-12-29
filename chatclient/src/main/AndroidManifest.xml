@@ -28,6 +28,13 @@
 
     <application>
         <activity
+            android:name=".activity.SobotPrivacyAgreementActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_activity_def_theme"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".conversation.SobotChatActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:launchMode="singleTask"

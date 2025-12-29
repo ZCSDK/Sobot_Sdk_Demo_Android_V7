@@ -1,9 +1,6 @@
 package com.sobot.chat.activity.base;
 
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.utils.ChatUtils;
@@ -12,7 +9,6 @@ import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.io.Serializable;
-import java.util.Locale;
 
 /**
  * 帮助中心基类
@@ -59,4 +55,11 @@ public abstract class SobotBaseHelpCenterActivity extends SobotChatBaseActivity 
         outState.putBundle(ZhiChiConstant.SOBOT_BUNDLE_INFORMATION, mInformationBundle);
         super.onSaveInstanceState(outState);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeAppLanguage();
+    }
+
 }

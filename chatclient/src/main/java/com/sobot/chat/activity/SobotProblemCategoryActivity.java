@@ -76,6 +76,15 @@ public class SobotProblemCategoryActivity extends SobotBaseHelpCenterActivity im
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mEmpty.setText(R.string.sobot_no_content);
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     protected void initData() {
         configModel = (HelpConfigModel) getIntent().getSerializableExtra("configModel");
         if (configModel != null) {

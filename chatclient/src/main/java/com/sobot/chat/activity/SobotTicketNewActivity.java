@@ -8,7 +8,12 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -142,6 +147,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     //滚动
     private ScrollView sobot_sv_root;
 
+    //隐私协议
+    private TextView sobot_tv_policy;
+    private ImageView cb_policy;
+    private LinearLayout sobot_ll_policy;
+    private boolean flag_policy = false;
 
     @Override
     protected int getContentViewResId() {
@@ -167,6 +177,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     @Override
     protected void initView() {
         list = new ArrayList<>();
+        sobot_ll_policy = findViewById(R.id.sobot_ll_policy);
+        sobot_tv_policy = findViewById(R.id.sobot_tv_policy);
+        cb_policy = findViewById(R.id.iv_policy);
+        sobot_ll_policy.setOnClickListener(this);
+
         sobot_sv_root = findViewById(R.id.sobot_sv_root);
         mllLoading = findViewById(R.id.ll_loading);
         loading = findViewById(R.id.iv_loading);
@@ -442,7 +457,46 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         } else {
             sobot_post_title.setVisibility(View.GONE);
         }
+        if (mConfig.getSubmitTicket() == 1 && StringUtils.isNoEmpty(mConfig.getPolicyName())) {
+            String agreementText = getResources().getString(R.string.sobot_agree_agreement);
+            SpannableString spannableString = new SpannableString(String.format(agreementText, mConfig.getPolicyName()));
 
+            // 设置可点击部分
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    // 处理点击事件，例如跳转到用户协议页面
+                    Intent intent = new Intent(SobotTicketNewActivity.this, SobotPrivacyAgreementActivity.class);
+                    intent.putExtra("policyContent", mConfig.getPolicyContent());
+                    intent.putExtra("policyName", mConfig.getPolicyName());
+                    startActivityForResult(intent, ZhiChiConstant.work_order_list_display_type_policy);
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setColor(ThemeUtils.getLinkColor(SobotTicketNewActivity.this)); // 设置链接颜色
+                    ds.setUnderlineText(true); // 设置下划线
+                }
+            };
+
+            // 计算"《用户协议》"在字符串中的位置
+            int start = agreementText.indexOf("%s");
+            int end = start + mConfig.getPolicyName().length();
+
+            spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            // 应用到TextView
+            sobot_tv_policy.setText(spannableString);
+            sobot_tv_policy.setMovementMethod(LinkMovementMethod.getInstance());
+
+            sobot_ll_policy.setVisibility(View.VISIBLE);
+            sobot_btn_submit.setClickable(false);
+            sobot_btn_submit.setEnabled(false);
+            sobot_btn_submit.getBackground().setAlpha(102);
+        } else {
+            sobot_ll_policy.setVisibility(View.GONE);
+        }
 
         String sobotUserPhone = (information != null ? information.getUser_tels() : "");
         if (mConfig.isTelShowFlag() && !TextUtils.isEmpty(sobotUserPhone)) {
@@ -592,6 +646,19 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 menuWindow = new SobotSelectPicDialog(this, itemsOnClick);
                 menuWindow.show();
             }
+        } else if (v == sobot_ll_policy) {
+            //隐私协议
+            flag_policy = !flag_policy;
+            cb_policy.setSelected(flag_policy);
+            if(flag_policy){
+                sobot_btn_submit.setEnabled(true);
+                sobot_btn_submit.setClickable(true);
+                sobot_btn_submit.getBackground().setAlpha(255);
+            }else{
+                sobot_btn_submit.setClickable(false);
+                sobot_btn_submit.setEnabled(false);
+                sobot_btn_submit.getBackground().setAlpha(102);
+            }
         } else if (v == sobot_btn_submit) {
             setCusFieldValue();
         }
@@ -701,7 +768,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             if (mConfig.getTelCheckRule() == 1) {
                 //获取区号
                 phoneCode = sobot_post_phone.getTv_input_two_left().getText().toString();
-                String phone = sobot_post_phone.getPhontValue();
+                userPhone = sobot_post_phone.getPhontValue();
                 //是否必填
                 if (mConfig.isTelFlag()) {
                     //验证区号
@@ -711,28 +778,24 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                         return;
                     }
-                    if (TextUtils.isEmpty(phone)) {
+                    if (TextUtils.isEmpty(userPhone)) {
                         sobot_post_phone.showError(getResources().getString(R.string.sobot_phone_hint));
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                         return;
                     }
-                    userPhone = phoneCode + phone;
                     sobot_post_phone.hideError();
                 } else {
-                    if (StringUtils.isNoEmpty(phoneCode) && StringUtils.isEmpty(phone)) {
+                    if (StringUtils.isNoEmpty(phoneCode) && StringUtils.isEmpty(userPhone)) {
                         sobot_post_phone.showError(getResources().getString(R.string.sobot_phone_hint));
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                         return;
-                    } else if (StringUtils.isEmpty(phoneCode) && StringUtils.isNoEmpty(phone)) {
+                    } else if (StringUtils.isEmpty(phoneCode) && StringUtils.isNoEmpty(userPhone)) {
                         sobot_post_phone.showError(getResources().getString(R.string.sobot_phone_code_hint));
                         //滚到到底部
                         sobot_sv_root.fullScroll(ScrollView.FOCUS_DOWN);
                         return;
-                    }
-                    if (!TextUtils.isEmpty(phone)) {
-                        userPhone = phoneCode + phone;
                     }
                     sobot_post_phone.hideError();
                 }
@@ -752,10 +815,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 sobot_post_phone.hideError();
             }
         }
-        postMsg(userPhone, userEamil, title);
+        postMsg(userPhone, userEamil, title,flag_policy);
     }
 
-    private void postMsg(String userPhone, String userEamil, String title) {
+    private void postMsg(String userPhone, String userEamil, String title,boolean authorizeAgree ) {
         sobot_btn_submit.setAlpha(0.5f);
         sobot_btn_submit.setEnabled(false);
         sobot_btn_submit.setClickable(false);
@@ -766,11 +829,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         postParam.setTicketContent(sobot_post_description.getManyValue());
         postParam.setCustomerEmail(userEamil);
         postParam.setCustomerPhone(userPhone);
+        postParam.setRegionCode(phoneCode);
         postParam.setTicketTitle(title);
         postParam.setCompanyId(mConfig.getCompanyId());
         postParam.setFileStr(getFileStr());
         postParam.setGroupId(mGroupId);
         postParam.setTicketFrom("4");
+        postParam.setAuthorizeAgree(authorizeAgree);
         if (information != null && information.getLeaveParamsExtends() != null) {
             postParam.setParamsExtends(SobotJsonUtils.toJson(information.getLeaveParamsExtends()));
         }
@@ -1084,8 +1149,19 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK && requestCode == ZhiChiConstant.work_order_list_display_type_policy) {
+            flag_policy = data.getBooleanExtra("policyAgree", false);
+            cb_policy.setSelected(flag_policy);
+            if(flag_policy){
+                sobot_btn_submit.setEnabled(true);
+                sobot_btn_submit.setClickable(true);
+                sobot_btn_submit.getBackground().setAlpha(255);
+            }else{
+                sobot_btn_submit.setClickable(false);
+                sobot_btn_submit.setEnabled(false);
+                sobot_btn_submit.getBackground().setAlpha(102);
+            }
+        } else  if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ZhiChiConstant.REQUEST_CODE_picture) { // 发送本地图片
                 sobot_file_error.setVisibility(View.GONE);
                 if (data != null && data.getData() != null) {

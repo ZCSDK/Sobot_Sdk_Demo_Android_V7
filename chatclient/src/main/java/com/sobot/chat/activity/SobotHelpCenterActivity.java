@@ -46,7 +46,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
     private TextView tvNoData;
     private TextView tvNoDataDescribe;
     public LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
-    public TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v,tv_open_chat_v,tv_open_chat;
+    public TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v, tv_open_chat_v, tv_open_chat;
     public View view_split_online_tel;
     public TextView tvOnlineService;
     public String tel;
@@ -79,8 +79,8 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         ll_sobot_layout_online_tel_v = findViewById(R.id.ll_sobot_layout_online_tel_v);
         tv_sobot_layout_online_tel = findViewById(R.id.tv_sobot_layout_online_tel);
         tv_sobot_layout_online_tel_v = findViewById(R.id.tv_sobot_layout_online_tel_v);
-        tv_open_chat_v= findViewById(R.id.tv_open_chat_v);
-        tv_open_chat= findViewById(R.id.tv_open_chat);
+        tv_open_chat_v = findViewById(R.id.tv_open_chat_v);
+        tv_open_chat = findViewById(R.id.tv_open_chat);
         view_split_online_tel = findViewById(R.id.view_split_online_tel);
         mGridView = findViewById(R.id.sobot_gv);
         mGridView.setSelector(android.R.color.transparent);
@@ -95,12 +95,19 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         mGridView.setOnItemClickListener(this);
         configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
         if (configModel != null) {
-            if (!TextUtils.isEmpty(configModel.getLanguage())) {
-                //这个是服务端返回的语言
-                changeAppLanguage(configModel.getLanguage());
+            //进线初始化后的语言
+            String initLanguageCode = SharedPreferencesUtil.getStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "");
+            if (StringUtils.isEmpty(mInfo.getLocale()) && StringUtils.isNoEmpty(initLanguageCode)) {
+                //没有指定，同时用户进过线了，则使用用户进线前的语言
+                changeAppLanguage(initLanguageCode);
             } else {
-                //这个是服务端返回的接待方案里边的兜底语言
-                changeAppLanguage(configModel.getLan());
+                if (!TextUtils.isEmpty(configModel.getLanguage())) {
+                    //这个是服务端返回的语言
+                    changeAppLanguage(configModel.getLanguage());
+                } else {
+                    //这个是服务端返回的接待方案里边的兜底语言
+                    changeAppLanguage(configModel.getLan());
+                }
             }
             setToolBarDefBg();
             setBottomBtnUI();
@@ -132,47 +139,55 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         if (!TextUtils.isEmpty(mInfo.getLocale())) {
             param.put("locale", mInfo.getLocale());
         }
+        if (ChatUtils.checkConfigChange(getSobotBaseActivity(), mInfo.getApp_key(), mInfo)) {
+            SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
 
-        SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
-
-            @Override
-            public void onSuccess(HelpConfigModel o) {
-                configModel = o;
-                if (configModel != null) {
-                    try {
-                        if (!TextUtils.isEmpty(configModel.getLanguage())) {
-                            //这个是服务端返回的语言
-                            changeAppLanguage(configModel.getLanguage());
-                        } else {
-                            //这个是服务端返回的接待方案里边的兜底语言
-                            changeAppLanguage(configModel.getLan());
+                @Override
+                public void onSuccess(HelpConfigModel o) {
+                    configModel = o;
+                    if (configModel != null) {
+                        try {
+                            String initLanguageCode = SharedPreferencesUtil.getStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
+                            if (StringUtils.isEmpty(mInfo.getLocale()) && StringUtils.isNoEmpty(initLanguageCode)) {
+                                //没有指定，同时用户进过线了，则使用用户进线前的语言
+                                changeAppLanguage(initLanguageCode);
+                            } else {
+                                if (!TextUtils.isEmpty(configModel.getLanguage())) {
+                                    //这个是服务端返回的语言
+                                    changeAppLanguage(configModel.getLanguage());
+                                } else {
+                                    //这个是服务端返回的接待方案里边的兜底语言
+                                    changeAppLanguage(configModel.getLan());
+                                }
+                            }
+                            int rebotThemeStyle = configModel.getRebotThemeStyle();
+                            int appCompatDelegate;
+                            //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
+                            if (rebotThemeStyle == 2) {
+                                appCompatDelegate = -1;
+                            } else if (rebotThemeStyle == 0) {
+                                appCompatDelegate = 1;
+                            } else if (rebotThemeStyle == 1) {
+                                appCompatDelegate = 2;
+                            } else {
+                                appCompatDelegate = -1;
+                            }
+                            SharedPreferencesUtil.saveIntData(getSobotBaseActivity(), "local_night_mode", appCompatDelegate);
+                        } catch (Exception e) {
                         }
-                        int rebotThemeStyle = configModel.getRebotThemeStyle();
-                        int appCompatDelegate;
-                        //后台返回的主题模式RebotThemeStyle 0-浅色，1-深色，2-跟随系统
-                        if (rebotThemeStyle == 2) {
-                            appCompatDelegate = -1;
-                        } else if (rebotThemeStyle == 0) {
-                            appCompatDelegate = 1;
-                        } else if (rebotThemeStyle == 1) {
-                            appCompatDelegate = 2;
-                        } else {
-                            appCompatDelegate = -1;
-                        }
-                        SharedPreferencesUtil.saveIntData(getSobotBaseActivity(), "local_night_mode", appCompatDelegate);
-                    } catch (Exception e) {
                     }
+                    SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", o);
+                    setToolBarDefBg();
+                    setBottomBtnUI();
                 }
-                SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", o);
-                setToolBarDefBg();
-                setBottomBtnUI();
-            }
 
-            @Override
-            public void onFailure(Exception e, String s) {
+                @Override
+                public void onFailure(Exception e, String s) {
 
-            }
-        });
+                }
+            });
+        }
+
         displayInNotch(mGridView);
         displayInNotch(ll_bottom);
     }
@@ -289,6 +304,25 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateText();
+    }
+
+    private void updateText() {
+        setTitle(R.string.sobot_help_center_title);
+        showLeftMenu(true);
+        tvNoData.setText(R.string.sobot_help_center_no_data);
+        tvNoDataDescribe.setText(R.string.sobot_help_center_no_data_describe);
+        tv_open_chat_v.setText(R.string.sobot_help_center_online_service);
+        tv_open_chat.setText(R.string.sobot_help_center_online_service);
+        if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
+            tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
+            tv_sobot_layout_online_tel_v.setText(mInfo.getHelpCenterTelTitle());
+        }
+    }
+
     //修改成指定语言
     public void changeAppLanguage(String langaueCode) {
         if (StringUtils.isEmpty(langaueCode)) {
@@ -329,12 +363,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                 if (getWindow() != null) {
                     getWindow().getDecorView().setLayoutDirection(conf.getLayoutDirection());
                 }
-                setTitle(R.string.sobot_help_center_title);
-                showLeftMenu(true);
-                tvNoData.setText(R.string.sobot_help_center_no_data);
-                tvNoDataDescribe.setText(R.string.sobot_help_center_no_data_describe);
-                tv_open_chat_v.setText(R.string.sobot_help_center_online_service);
-                tv_open_chat.setText(R.string.sobot_help_center_online_service);
+                updateText();
             } catch (Exception e) {
             }
         }

@@ -65,8 +65,8 @@
                     android:visibility="gone" />
                 <ImageView
                     android:id="@+id/sobot_iv_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_margin="10dp"
                     android:src="@drawable/sobot_cur_search" />
             </LinearLayout>

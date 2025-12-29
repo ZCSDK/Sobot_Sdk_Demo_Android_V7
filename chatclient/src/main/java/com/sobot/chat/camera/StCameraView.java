@@ -74,7 +74,7 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
     private StClickListener rightClickListener;
 
     private VideoView mVideoView;
-    private ImageView mPhoto;
+    private ImageView mPhoto;//预览图
     private ImageView mSwitchCamera;
     //    private ImageView mFlashLamp;
     private CaptureLayout mCaptureLayout;
@@ -194,12 +194,14 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
 
             @Override
             public void recordShort(final long time) {
-                mCaptureLayout.setTextWithAnimation(getContext().getResources().getString(R.string.sobot_voice_time_short));
+                String tempTip = mCaptureLayout.getTipStr();
+                mCaptureLayout.setTextWithAnimation(getContext().getResources().getString(R.string.sobot_voice_time_short), tempTip);
                 mSwitchCamera.setVisibility(VISIBLE);
 //                mFlashLamp.setVisibility(VISIBLE);
                 postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        mCaptureLayout.setTip(tempTip);
                         machine.stopRecord(true, time);
                     }
                 }, 1500 - time);
@@ -499,7 +501,7 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
         captureBitmap = bitmap;
         mPhoto.setImageBitmap(bitmap);
         mPhoto.setVisibility(VISIBLE);
-        mCaptureLayout.startAlphaAnimation();
+        mCaptureLayout.hideAlphaAnimation();
         mCaptureLayout.startTypeBtnAnimator();
     }
 
@@ -566,6 +568,26 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
     public void startPreviewCallback() {
         StCmeraLog.i("startPreviewCallback");
         handlerFoucs(mFoucsView.getWidth() / 2, mFoucsView.getHeight() / 2);
+    }
+
+    @Override
+    public void setGotoSettingVisible(boolean isVisible) {
+        if (mCaptureLayout != null && mCaptureLayout.getTipTv() != null) {
+            if (isVisible) {
+                mCaptureLayout.setTip(getResources().getString(R.string.sobot_audio_go_setting));
+//                mCaptureLayout.getTipTv().setOnClickListener(new OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Uri packageURI = Uri.parse("package:" + getContext().getPackageName());
+//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
+//                        getContext().startActivity(intent);
+//                    }
+//                });
+            } else {
+                mCaptureLayout.setTip(getResources().getString(R.string.sobot_tap_hold_camera));
+//                mCaptureLayout.getTipTv().setOnClickListener(null);
+            }
+        }
     }
 
     @Override

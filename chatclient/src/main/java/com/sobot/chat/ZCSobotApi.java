@@ -460,7 +460,8 @@ public class ZCSobotApi {
             LogUtils.e("getLastLeaveReplyMessage partnerId 不能为空");
             return;
         }
-        if (System.currentTimeMillis() - requestReplyMsgTime <= 60 * 1000) {
+        //同未读消息数一起改为5分钟内请求
+        if (System.currentTimeMillis() - requestReplyMsgTime <= 60 * 1000*5) {
             return;
         }
         requestReplyMsgTime = System.currentTimeMillis();

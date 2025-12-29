@@ -282,8 +282,12 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             sobot_rich_ll.addView(textView);
                             if (richListModel.getShowType() == 1) {
                                 //超链接，并且是卡片形式才显示卡片
+                                int minWidth = ScreenUtils.dip2px(mContext, 240);
+                                int maxWidth = ScreenUtils.dip2px(mContext, 400);
+                                int constrainedWidth = Math.min(maxWidth, msgMaxWidth);
+                                int cardWidth = Math.min(minWidth, constrainedWidth);
                                 final View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth - 12, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
                                 layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, ScreenUtils.dip2px(mContext, 4));
                                 view.setLayoutParams(layoutParams);
                                 TextView tv_title = view.findViewById(R.id.tv_title);
@@ -425,10 +429,17 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         TextView sobot_file_size = (TextView) view.findViewById(R.id.sobot_file_size);
                         SobotSectorProgressView sobot_progress = (SobotSectorProgressView) view.findViewById(R.id.sobot_progress);
                         sobot_file_name.setText(richListModel.getName());
-                        sobot_file_name.setMaxWidth(msgMaxWidth-ScreenUtils.dip2px(mContext, 42));
                         sobot_file_size.setText(TextUtils.isEmpty(richListModel.getFileSize()) ? "" : richListModel.getFileSize());
                         SobotBitmapUtil.display(mContext, ChatUtils.getFileIcon(mContext, FileTypeConfig.getFileType(FileUtil.checkFileEndWith(richListModel.getMsg()))), sobot_progress);
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        float textWidth = sobot_file_name.getPaint().measureText(richListModel.getName());
+                        int minWidth = ScreenUtils.dip2px(mContext, 240);
+                        int maxWidth = ScreenUtils.dip2px(mContext, 400);
+                        int constrainedWidth = Math.min(maxWidth, msgMaxWidth);
+                        int finalWidth = Math.max(minWidth, Math.min((int) Math.ceil(textWidth), constrainedWidth));
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                                finalWidth,
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+                        );
                         if (i != 0) {
                             layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
                         }

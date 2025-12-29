@@ -24,6 +24,7 @@ import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
 import com.sobot.chat.listener.ISobotCusField;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
@@ -31,7 +32,7 @@ import com.sobot.chat.utils.ThemeUtils;
 /**
  * 带标题，输入框 错误提示
  */
-public class SobotInputView extends LinearLayout implements View.OnClickListener{
+public class SobotInputView extends LinearLayout implements View.OnClickListener {
 
     //标题
     private TextView tvTitle;
@@ -110,6 +111,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         array.recycle();//回收
         initView();
     }
+
     private void initView() {
         View view = View.inflate(getContext(), R.layout.sobot_item_input_view, null);
         tvTitle = view.findViewById(R.id.sobot_title_lable);
@@ -118,23 +120,31 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         singleLineInput = view.findViewById(R.id.sobot_single_line);
         manyLineInput = view.findViewById(R.id.sobot_many_line);
         tvSelect = view.findViewById(R.id.sobot_select);
-        bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_line_4,null);
+        bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_line_4, null);
 
-        Drawable selectD = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_select_icon,null);
+        Drawable selectD = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_select_icon, null);
         selectD.setBounds(0, 0, ScreenUtils.dip2px(getContext(), 14), ScreenUtils.dip2px(getContext(), 14));
-        tvSelect.setCompoundDrawables(null, null, selectD, null);
-
         sobot_select_two = view.findViewById(R.id.sobot_select_two);
         sobot_input_two = view.findViewById(R.id.sobot_input_two);
         v_select_line = view.findViewById(R.id.v_select_line);
         v_input_line = view.findViewById(R.id.v_input_line);
         tv_select_two_left = view.findViewById(R.id.tv_select_two_left);
-        tv_select_two_left.setCompoundDrawables(null, null, selectD, null);
         tv_select_two_right = view.findViewById(R.id.tv_select_two_right);
-        tv_select_two_right.setCompoundDrawables(null, null, selectD, null);
         tv_input_two_left = view.findViewById(R.id.tv_input_two_left);
-        tv_input_two_left.setCompoundDrawables(null, null, selectD, null);
         et_input_two_right = view.findViewById(R.id.et_input_two_right);
+        if (selectD != null) {
+            if (ChatUtils.isRtl(mContext)) {
+                tvSelect.setCompoundDrawables(selectD, null, null, null);
+                tv_select_two_left.setCompoundDrawables(selectD, null, null, null);
+                tv_select_two_right.setCompoundDrawables(selectD, null, null, null);
+                tv_input_two_left.setCompoundDrawables(selectD, null, null, null);
+            } else {
+                tvSelect.setCompoundDrawables(null, null, selectD, null);
+                tv_select_two_left.setCompoundDrawables(null, null, selectD, null);
+                tv_select_two_right.setCompoundDrawables(null, null, selectD, null);
+                tv_input_two_left.setCompoundDrawables(null, null, selectD, null);
+            }
+        }
         tv_input_two_left.setOnClickListener(this);
         tv_select_two_left.setOnClickListener(this);
         tv_select_two_right.setOnClickListener(this);
@@ -163,7 +173,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 if (b) {
                     singleLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
-                    singleLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
+                    singleLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
                 }
             }
         });
@@ -184,7 +194,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 if (b) {
                     manyLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
-                    manyLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
+                    manyLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
                 }
             }
         });
@@ -199,7 +209,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if(tvError.getVisibility()==View.VISIBLE) {
+                    if (tvError.getVisibility() == View.VISIBLE) {
                         tvError.setVisibility(GONE);
                     }
                 }
@@ -221,7 +231,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if(tvError.getVisibility()==View.VISIBLE) {
+                    if (tvError.getVisibility() == View.VISIBLE) {
                         tvError.setVisibility(GONE);
                     }
                 }
@@ -233,7 +243,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                     }
                 }
             });
-        }else{
+        } else {
             singleLineInput.addTextChangedListener(new TextWatcher() {
 
                 @Override
@@ -247,7 +257,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(tvError.getVisibility()==View.VISIBLE) {
+                    if (tvError.getVisibility() == View.VISIBLE) {
                         tvError.setVisibility(GONE);
                     }
                 }
@@ -265,7 +275,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(tvError.getVisibility()==View.VISIBLE) {
+                    if (tvError.getVisibility() == View.VISIBLE) {
                         tvError.setVisibility(GONE);
                     }
                 }
@@ -274,7 +284,11 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         if (null != selectIcon) {
             selectIcon.setBounds(0, 0, selectIcon.getMinimumWidth(), selectIcon.getMinimumHeight());
             //设置右侧图标
-            tvSelect.setCompoundDrawables(null, null, selectIcon, null);
+            if (ChatUtils.isRtl(mContext)) {
+                tvSelect.setCompoundDrawables(selectIcon, null, null, null);
+            } else {
+                tvSelect.setCompoundDrawables(null, null, selectIcon, null);
+            }
         }
 
 
@@ -341,20 +355,26 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     public void setCusFieldConfig(SobotCusFieldConfig cusFieldConfig) {
         this.cusFieldConfig = cusFieldConfig;
     }
-    public String getSingleValue(){
+
+    public String getSingleValue() {
         return singleLineInput.getText().toString().trim();
     }
-    public String getPhontValue(){
+
+    public String getPhontValue() {
         return et_input_two_right.getText().toString().trim();
     }
-    public String getManyValue(){
+
+    public String getManyValue() {
         return manyLineInput.getText().toString().trim();
     }
-    public String getSelectValue(){
+
+    public String getSelectValue() {
         return tvSelect.getText().toString().trim();
     }
+
     /**
      * 设置回调
+     *
      * @param callBack
      */
     public void setCusCallBack(ISobotCusField callBack) {
@@ -364,7 +384,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 @Override
                 public void onClick(View v) {
                     tvSelect.requestFocus();
-                    cusCallBack.onClickCusField(tvSelect, cusFieldConfig,cusFields);
+                    cusCallBack.onClickCusField(tvSelect, cusFieldConfig, cusFields);
                 }
             });
         }
@@ -372,6 +392,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
     /**
      * 设置标题
+     *
      * @param title
      * @param isMust
      */
@@ -421,6 +442,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
     /**
      * 设置右侧图标
+     *
      * @param selectIcon
      */
     public void setSelectIcon(Drawable selectIcon) {
@@ -428,12 +450,17 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         if (null != tvSelect && null != selectIcon) {
             selectIcon.setBounds(0, 0, selectIcon.getMinimumWidth(), selectIcon.getMinimumHeight());
             //设置右侧图标
-            tvSelect.setCompoundDrawables(null, null, selectIcon, null);
+            if (ChatUtils.isRtl(mContext)) {
+                tvSelect.setCompoundDrawables(selectIcon, null, null, null);
+            } else {
+                tvSelect.setCompoundDrawables(null, null, selectIcon, null);
+            }
         }
     }
 
     /**
      * 设置输入的最大值
+     *
      * @param inputLengthLimit
      */
     public void setInputLengthLimit(int inputLengthLimit) {
@@ -464,6 +491,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
     /**
      * 设置输入类型
+     *
      * @param inputType
      */
     public void setInputType(String inputType) {
@@ -527,6 +555,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
     /**
      * 设置提示语
+     *
      * @param hint 提示语
      */
     public void setInputHint(String hint) {
@@ -545,33 +574,37 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         manyLineInput.setText(value);
         tvSelect.setText(value);
     }
+
     /**
      * 设置选择后结果显示
      */
     public void setInputLeftValue(String value) {
-        if(tv_input_two_left!=null) {
+        if (tv_input_two_left != null) {
             tv_input_two_left.setText(value);
         }
     }
+
     /**
      * 设置选择后结果显示
      */
     public void setSelectLeftValue(String value) {
-        if(tv_select_two_left!=null) {
+        if (tv_select_two_left != null) {
             tv_select_two_left.setText(value);
         }
     }
+
     /**
      * 设置选择后结果显示
      */
     public void setSelectRightValue(String value) {
-        if(tv_select_two_right!=null) {
+        if (tv_select_two_right != null) {
             tv_select_two_right.setText(value);
         }
     }
 
     /**
      * 设置错误提示
+     *
      * @param error 错误
      */
     public void showError(String error) {
@@ -608,31 +641,32 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 v = tvSelect.getText().toString();
                 break;
             case "phone":
-                v = tv_input_two_left.getText().toString()+","+et_input_two_right.getText().toString();
+                v = tv_input_two_left.getText().toString() + "," + et_input_two_right.getText().toString();
                 break;
             case "timezone":
-                v = tv_select_two_left.getText().toString()+","+tv_select_two_right.getText().toString();
+                v = tv_select_two_left.getText().toString() + "," + tv_select_two_right.getText().toString();
                 break;
         }
         return v;
     }
+
     public SobotCusFieldConfig getCusFieldConfig() {
         return cusFieldConfig;
     }
 
     @Override
     public void onClick(View v) {
-        if(v==tv_input_two_left){
-            if(cusCallBack!=null){
+        if (v == tv_input_two_left) {
+            if (cusCallBack != null) {
                 cusCallBack.inputLeftOnclick();
             }
-        }else if(v==tv_select_two_left){
-            if(cusCallBack!=null){
-                cusCallBack.selectLeftOnclick(tv_select_two_left,cusFieldConfig);
+        } else if (v == tv_select_two_left) {
+            if (cusCallBack != null) {
+                cusCallBack.selectLeftOnclick(tv_select_two_left, cusFieldConfig);
             }
-        }else if(v==tv_select_two_right){
-            if(cusCallBack!=null){
-                cusCallBack.selectRightOnclick(tv_select_two_right,cusFieldConfig);
+        } else if (v == tv_select_two_right) {
+            if (cusCallBack != null) {
+                cusCallBack.selectRightOnclick(tv_select_two_right, cusFieldConfig);
             }
         }
     }

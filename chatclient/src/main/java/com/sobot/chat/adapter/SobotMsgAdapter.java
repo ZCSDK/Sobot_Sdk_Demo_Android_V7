@@ -1075,8 +1075,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             return;
         }
         ZhiChiMessageBase msgInfo = getMsgInfo(id);
-        msgInfo.setAiAgentReceiveMsgEnd(isEnd);
         if (msgInfo != null) {
+            msgInfo.setAiAgentReceiveMsgEnd(isEnd);
             if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
                 //SENSITIVE_WORD 是敏感词，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
@@ -1196,11 +1196,11 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
     }
 
-    public void cancelVoiceUiById(String id) {
-        if (list != null) {
-            ZhiChiMessageBase info = getMsgInfo(id);
+    public void cancelVoiceUiById(String msgId) {
+        if (list != null && StringUtils.isNoEmpty(msgId)) {
+            ZhiChiMessageBase info = getMsgInfo(msgId);
             if (info != null && info.getSendSuccessState() == ZhiChiConstant.MSG_SEND_STATUS_ANIM) {
-                int position = getMsgInfoPosition(id);
+                int position = getMsgInfoPosition(msgId);
                 list.remove(position);
                 notifyItemRemoved(position);
             }
@@ -1209,11 +1209,11 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
 
     //通过msgid 移除该消息
-    public void removeByMsgId(String id) {
-        if (list != null) {
-            ZhiChiMessageBase info = getMsgInfo(id);
+    public void removeByMsgId(String msgId) {
+        if (list != null && StringUtils.isNoEmpty(msgId)) {
+            ZhiChiMessageBase info = getMsgInfo(msgId);
             if (info != null) {
-                int position = getMsgInfoPosition(id);
+                int position = getMsgInfoPosition(msgId);
                 list.remove(position);
                 notifyItemRemoved(position);
             }
@@ -1760,5 +1760,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         void chooseLangaue(SobotlanguaeModel sobotlanguaeModel, ZhiChiMessageBase messageBase);
 
         void chooseByAllLangaue(ArrayList<SobotlanguaeModel> sobotlanguaeModelList, ZhiChiMessageBase messageBase);
+
+        void goToLastIndexItem();
     }
 }

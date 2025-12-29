@@ -106,7 +106,11 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             if (!TextUtils.isEmpty(content) && HtmlTools.isHasPatterns(content)) {
                 //只有一个，是超链接，并且是卡片形式才显示卡片
                 View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 288), ViewGroup.LayoutParams.WRAP_CONTENT);
+                int minWidth = ScreenUtils.dip2px(mContext, 240);
+                int maxWidth = ScreenUtils.dip2px(mContext, 400);
+                int constrainedWidth = Math.min(maxWidth, msgMaxWidth);
+                int cardWidth = Math.min(minWidth, constrainedWidth);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, ScreenUtils.dip2px(mContext, 4));
                 view.setLayoutParams(layoutParams);
                 showLinkUI(context, message, content, view);
@@ -985,7 +989,11 @@ public class AppointTextMessageHolder extends MsgHolderBase {
         if (!TextUtils.isEmpty(content) && HtmlTools.isHasPatterns(content)) {
             //只有一个，是超链接，并且是卡片形式才显示卡片
             View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(context, 288), ViewGroup.LayoutParams.WRAP_CONTENT);
+            int minWidth = ScreenUtils.dip2px(mContext, 240);
+            int maxWidth = ScreenUtils.dip2px(mContext, 400);
+            int constrainedWidth = Math.min(maxWidth, msgMaxWidth);
+            int cardWidth = Math.min(minWidth, constrainedWidth);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.setMarginStart(ScreenUtils.dip2px(context, 5));
             showLinkUI(context, message, content, view);
             sobot_rich_ll.addView(view);

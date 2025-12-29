@@ -28,25 +28,28 @@ public abstract class SobotDialogBaseActivity extends SobotChatBaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-            if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
-            } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
+        try {
+            if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+                if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);//竖屏
+                } else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//横屏
 
+                }
             }
-        }
-        //去掉dialog 的标题栏（不然弹窗会显示app名字）
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
+            //去掉dialog 的标题栏（不然弹窗会显示app名字）
+            supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+            super.onCreate(savedInstanceState);
 
-        //窗口对齐屏幕宽度
-        Window win = this.getWindow();
-        WindowManager.LayoutParams lp = win.getAttributes();
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        lp.gravity = Gravity.BOTTOM;
-        win.setAttributes(lp);
+            //窗口对齐屏幕宽度
+            Window win = this.getWindow();
+            WindowManager.LayoutParams lp = win.getAttributes();
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            lp.gravity = Gravity.BOTTOM;
+            win.setAttributes(lp);
+        } catch (Exception e) {
+        }
     }
 
     @Override
