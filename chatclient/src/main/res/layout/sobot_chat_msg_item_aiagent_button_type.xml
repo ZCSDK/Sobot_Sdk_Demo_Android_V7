@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
@@ -57,49 +58,6 @@
                     android:textSize="@dimen/sobot_text_font_14"
                     android:visibility="visible" />
 
-                <com.sobot.chat.widget.RobotAiAgentButtonViewPager
-                    android:id="@+id/view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp" />
-
-                <LinearLayout
-                    android:id="@+id/ll_pre_next_page"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
-
-                    <ImageView
-                        android:id="@+id/iv_previous_page"
-                        android:layout_width="76dp"
-                        android:layout_height="16dp"
-                        android:paddingStart="30dp"
-                        android:paddingEnd="30dp"
-                        android:src="@drawable/sobot_pre_page" />
-
-                    <TextView
-                        android:id="@+id/tv_cus_page_count"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:textColor="@color/sobot_color_text_third"
-                        android:textSize="@dimen/sobot_text_font_14" />
-
-                    <ImageView
-                        android:id="@+id/iv_next_page"
-                        android:layout_width="76dp"
-                        android:layout_height="16dp"
-                        android:paddingStart="30dp"
-                        android:paddingEnd="30dp"
-                        android:src="@drawable/sobot_last_page"
-                        android:visibility="visible" />
-                </LinearLayout>
-
                 <!-- 关联问题 提示语 -->
                 <TextView
                     android:id="@+id/sobot_stripe"
@@ -124,5 +82,53 @@
         </LinearLayout>
 
         <include layout="@layout/sobot_layout_chat_left_msg_bottom" />
+
+        <LinearLayout
+            android:id="@+id/ll_button_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sobot_chat_more_action"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/sobot_msg_margin_edge_card"
+            android:layout_marginBottom="10dp"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <com.sobot.chat.widget.SobotRightAlignLineLayout
+                android:id="@+id/al_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/ll_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/sobot_aiagent_button_more_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/tv_more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="@string/sobot_str_more"
+                    android:textColor="@color/sobot_color"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <ImageView
+                    android:id="@+id/iv_more"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="5dp"
+                    android:src="@drawable/sobot_notice_arrow_down" />
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

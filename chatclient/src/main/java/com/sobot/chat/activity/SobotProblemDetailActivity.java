@@ -52,7 +52,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     private LinearLayout ll_bottom, ll_bottom_h, ll_bottom_v;
     private LinearLayout ll_sobot_layout_online_service, ll_sobot_layout_online_service_v;
     private LinearLayout ll_sobot_layout_online_tel, ll_sobot_layout_online_tel_v;
-    private TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v;
+    private TextView tv_sobot_layout_online_tel, tv_sobot_layout_online_tel_v, tv_open_chat_v, tv_open_chat;
     private View view_split_online_tel;
 
     private TextView mProblemTitle;
@@ -97,6 +97,8 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         ll_bottom = findViewById(R.id.ll_bottom);
         ll_bottom_h = findViewById(R.id.ll_bottom_h);
         ll_bottom_v = findViewById(R.id.ll_bottom_v);
+        tv_open_chat_v = findViewById(R.id.tv_open_chat_v);
+        tv_open_chat = findViewById(R.id.tv_open_chat);
         ll_sobot_layout_online_service = findViewById(R.id.ll_sobot_layout_online_service);
         ll_sobot_layout_online_service_v = findViewById(R.id.ll_sobot_layout_online_service_v);
         ll_sobot_layout_online_tel = findViewById(R.id.ll_sobot_layout_online_tel);
@@ -178,7 +180,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     private void setBottomBtnUi(HelpConfigModel configModel) {
         this.configModel = configModel;
         if (configModel != null) {
-             if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
+            if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
                 tel = mInfo.getHelpCenterTel();
                 tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
                 ll_sobot_layout_online_tel.setVisibility(View.VISIBLE);
@@ -456,6 +458,13 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     @Override
     protected void onResume() {
         super.onResume();
+        setTitle(R.string.sobot_problem_detail_title);
+        tv_open_chat_v.setText(R.string.sobot_help_center_online_service);
+        tv_open_chat.setText(R.string.sobot_help_center_online_service);
+        if (mInfo != null && StringUtils.isNoEmpty(mInfo.getHelpCenterTelTitle()) && StringUtils.isNoEmpty(mInfo.getHelpCenterTel())) {
+            tv_sobot_layout_online_tel.setText(mInfo.getHelpCenterTelTitle());
+            tv_sobot_layout_online_tel_v.setText(mInfo.getHelpCenterTelTitle());
+        }
         if (mWebView != null) {
             mWebView.onResume();
         }

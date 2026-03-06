@@ -93,12 +93,14 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_textview_text_color" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3.3 设置密钥"
                 android:textColor="@color/sobot_textview_text_color"
                 android:textSize="16sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -106,6 +108,7 @@
                 android:text="[说明:安全校验]"
                 android:textColor="@color/sobot_textview_text_color"
                 android:textSize="14sp" />
+
             <EditText
                 android:id="@+id/sobot_et_sign"
                 android:layout_width="match_parent"
@@ -120,12 +123,14 @@
                 android:textColor="@color/sobot_textview_text_color"
                 android:textColorHint="@color/sobot_textview_text_color_third"
                 android:textSize="14sp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_textview_text_color" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -161,14 +166,16 @@
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_textview_text_color" />
+                android:background="@color/sobot_textview_text_color"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3.3.2 设置电商版平台标识"
                 android:textColor="@color/sobot_textview_text_color"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -176,7 +183,8 @@
                 android:layout_marginTop="6dp"
                 android:text="[说明:仅电商版版本需要]"
                 android:textColor="@color/sobot_textview_text_color"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/sobot_et_pingtaibiaoshi"
@@ -191,21 +199,24 @@
                 android:scrollbars="none"
                 android:textColor="@color/sobot_textview_text_color"
                 android:textColorHint="@color/sobot_textview_text_color_third"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.4dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/sobot_textview_text_color" />
+                android:background="@color/sobot_textview_text_color"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3.3.2 设置电商版平台秘钥"
                 android:textColor="@color/sobot_textview_text_color"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:visibility="gone" />
 
             <TextView
                 style="@style/TextAppearance.AppCompat"
@@ -214,7 +225,8 @@
                 android:layout_marginTop="6dp"
                 android:text="[说明:仅电商版版需要]"
                 android:textColor="@color/sobot_textview_text_color"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/sobot_et_pingtaimiyao"
@@ -229,7 +241,8 @@
                 android:scrollbars="none"
                 android:textColor="@color/sobot_textview_text_color"
                 android:textColorHint="@color/sobot_textview_text_color_third"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
@@ -237,6 +250,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_textview_text_color" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -266,6 +280,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@color/sobot_textview_text_color" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

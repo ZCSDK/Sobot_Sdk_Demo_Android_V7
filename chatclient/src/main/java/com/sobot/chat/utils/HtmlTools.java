@@ -1,6 +1,7 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.HttpUtils.FileCallBack;
 import com.sobot.chat.widget.LinkMovementClickMethod;
+import com.sobot.chat.widget.emoji.InputHelper;
 import com.sobot.chat.widget.html.SobotCustomTagHandler;
 import com.sobot.chat.widget.rich.EmailSpan;
 import com.sobot.chat.widget.rich.MyURLSpan;
@@ -189,6 +191,9 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
+        content=content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
+        content = HtmlUnescaper.unescapeHtml4(content);//转义符还原
+        content = content.trim();
         while (!TextUtils.isEmpty(content) && content.length() > 5 && "<br/>".equals(content.substring(0, 5))) {
             content = content.substring(5, content.length());
         }
@@ -197,7 +202,7 @@ public class HtmlTools {
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
         widget.setFocusable(false);
-        Spanned span = formatRichTextWithPic(widget, content.replace("&", "&amp;").replace("\n", "<br/>"), color);
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"));
         // 显示链接
         parseLinkText(context, widget, span, color, showBottomLine);
     }
@@ -213,6 +218,9 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
+        content=content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
+        content = HtmlUnescaper.unescapeHtml4(content);//转义符还原
+        content = content.trim();
         if (content.contains("&nbsp;")) {
             content = content.replaceAll("&nbsp;", " ");
         }
@@ -225,46 +233,13 @@ public class HtmlTools {
         if (content.startsWith("<br/>") && content.length() >= 5) {
             content = content.substring(5);// 去掉开头的<br/>
         }
-        if (content.startsWith("&")) {
-            content = Html.fromHtml(content).toString();// 去掉开头的<br/>
-        }
-
         while (content.length() > 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
             content = content.substring(0, content.length() - 5);// 去掉结尾的<br/>
         }
-
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
-        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), color);
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"));
         // 显示链接
         parseLinkText(context, widget, span, color, false);
-    }
-
-    /**
-     * 获取处理后的富文本
-     *
-     * @param content
-     */
-    public String getRichContent(String content) {
-        if (TextUtils.isEmpty(content)) {
-            return "";
-        }
-        if (content.contains("<p>")) {
-            content = content.replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
-        }
-        while (content.length() > 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
-            content = content.substring(0, content.length() - 5);
-        }
-        if (!TextUtils.isEmpty(content) && content.length() > 0 && "\n".equals(content.substring(content.length() - 1, content.length()))) {
-            for (int i = 0; i < content.length(); i++) {
-                int aa = content.lastIndexOf("\n");
-                if (aa == (content.length() - 1)) {
-                    content = content.substring(0, content.length() - 1);
-                } else {
-                    break;
-                }
-            }
-        }
-        return content;
     }
 
     /**
@@ -279,11 +254,12 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
+        content = HtmlUnescaper.unescapeHtml4(content);//转义符还原
         if (content.contains("\n")) {
             content = content.replaceAll("\n", "<br/>");
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
-        Spanned span = formatRichTextWithPic(widget,content.replace("&", "&amp;").replace("\n", "<br/>"), color);
+        Spanned span = formatRichTextWithPic(widget,content.replace("\n", "<br/>"));
         // 显示链接
         parseLinkText(context, widget, span, color, false);
     }
@@ -293,10 +269,9 @@ public class HtmlTools {
      *
      * @param textView
      * @param htmlContent
-     * @param color
      * @return
      */
-    public Spanned formatRichTextWithPic(final TextView textView, final String htmlContent, final int color) {
+    public Spanned formatRichTextWithPic(final TextView textView,  String htmlContent) {
         return Html.fromHtml(("<span>"+htmlContent+"</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors()));
     }
 

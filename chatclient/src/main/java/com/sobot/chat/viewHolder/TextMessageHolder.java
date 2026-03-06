@@ -64,7 +64,11 @@ public class TextMessageHolder extends MsgHolderBase {
             if (!TextUtils.isEmpty(content) && HtmlTools.isHasPatterns(content)) {
                 //只有一个，是超链接，并且是卡片形式才显示卡片
                 final View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_link_card, null);
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(msgCardWidth - 12, ViewGroup.LayoutParams.WRAP_CONTENT);
+                int minWidth = ScreenUtils.dip2px(mContext, 240);
+                int maxWidth = ScreenUtils.dip2px(mContext, 400);
+                int constrainedWidth = Math.min(maxWidth, msgMaxWidth);
+                int cardWidth = Math.min(minWidth, constrainedWidth);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
                 layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, ScreenUtils.dip2px(mContext, 4));
                 view.setLayoutParams(layoutParams);
                 TextView tv_title = view.findViewById(R.id.tv_title);
@@ -216,6 +220,15 @@ public class TextMessageHolder extends MsgHolderBase {
         // msg.setMinHeight(ScreenUtils.dip2px(mContext, 52));
         if (!isRight) {
             refreshItem();//左侧消息刷新顶和踩布局
+            try {
+                if (dingcaiIsShowRight() && message.getRevaluateState() == 1) {
+                    //有顶和踩时显示信息显示两行 64-12-12=40 总高度减去上下内间距
+                    msg.setMinHeight(ScreenUtils.dip2px(mContext, 44));
+                } else {
+                    msg.setMinHeight(ScreenUtils.dip2px(mContext, 0));
+                }
+            } catch (Exception ignored) {
+            }
             checkShowTransferBtn();//检查转人工逻辑
             //关联问题显示逻辑
             if (message != null && message.getSugguestions() != null && message.getSugguestions().length > 0) {

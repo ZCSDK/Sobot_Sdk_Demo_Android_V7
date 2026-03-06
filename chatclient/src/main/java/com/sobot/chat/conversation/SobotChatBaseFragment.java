@@ -713,8 +713,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             Message message = handler.obtainMessage();
             message.what = ZhiChiConstant.hander_ai_robot_message_start;
             message.obj = "aiagent" + msgId;
-            boolean b = handler.sendMessage(message);
-            LogUtils.d("显示带有三个点得空气泡消息===" + b);
+            handler.sendMessage(message);
             sendTextMessageToHandler(msgId, null, handler, 1, UPDATE_TEXT);
             zhiChiApi.AiRobotAsk(getSobotActivity(), params, questionFlag, fromEnum, msgId, requestText, "", cid, getInitModel().getRobotid() + "", uid, getInitModel().getAiAgentCid(), new SobotEventListener() {
                         @Override
@@ -749,6 +748,10 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                 msg.setSenderFace(getInitModel().getRobotLogo());
                                 msg.setSenderType(ZhiChiConstant.message_sender_type_robot);
                                 if (!"0".equals(msg.getSendStatus())) {
+                                    if (msg.getRobotAnswerMessageType() != null && msg.getRobotAnswerMessageType().contains("ROBOT_STOP_SERVICE")) {
+                                        //进入异步待分配池中，大模型停止接待了，只能发，不显示答案
+                                        return;
+                                    }
                                     //开始返回有内容的数据
                                     if (handler != null) {
                                         Message message = handler.obtainMessage();
@@ -888,16 +891,20 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 // 机械人的回答语
                 sendTextMessageToHandler(msgId, null, simpleMessage.getDesensitizationWord(), handler, 1, UPDATE_TEXT, 0, "");
                 isAboveZero = true;
-                simpleMessage.setId(id);
-                simpleMessage.setSenderName(getInitModel().getRobotName());
-                simpleMessage.setSender(getInitModel().getRobotName());
-                simpleMessage.setSenderFace(getInitModel().getRobotLogo());
-                simpleMessage.setT(System.currentTimeMillis() + "");
-                simpleMessage.setSenderType(ZhiChiConstant.message_sender_type_robot);
-                Message message = handler.obtainMessage();
-                message.what = ZhiChiConstant.hander_robot_message;
-                message.obj = simpleMessage;
-                handler.sendMessage(message);
+                if (simpleMessage.isRobotStopService()) {
+                    //停止接待后，不显示答案，能继续发
+                } else {
+                    simpleMessage.setId(id);
+                    simpleMessage.setSenderName(getInitModel().getRobotName());
+                    simpleMessage.setSender(getInitModel().getRobotName());
+                    simpleMessage.setSenderFace(getInitModel().getRobotLogo());
+                    simpleMessage.setT(System.currentTimeMillis() + "");
+                    simpleMessage.setSenderType(ZhiChiConstant.message_sender_type_robot);
+                    Message message = handler.obtainMessage();
+                    message.what = ZhiChiConstant.hander_robot_message;
+                    message.obj = simpleMessage;
+                    handler.sendMessage(message);
+                }
             }
         }
     }
@@ -2738,12 +2745,14 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
 
     //删除引用缓存
     public void clearAppointUI() {
-        appointMessage = null;
-        if (ll_appoint != null) {
-            ll_appoint.setVisibility(View.GONE);
+        if (appointMessage != null) {
+            appointMessage = null;
         }
-        if (tv_appoint_temp_content != null) {
-            tv_appoint_temp_content.setText("");
+        if (ll_appoint != null && ll_appoint.getVisibility() == View.VISIBLE) {
+            ll_appoint.setVisibility(View.GONE);
+            if (StringUtils.isNoEmpty(tv_appoint_temp_content.getText().toString())) {
+                tv_appoint_temp_content.setText("");
+            }
         }
     }
 

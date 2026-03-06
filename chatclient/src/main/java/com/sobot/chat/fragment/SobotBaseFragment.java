@@ -196,7 +196,7 @@ public abstract class SobotBaseFragment extends Fragment {
                     if (permissionListener != null) {
                         permissionListener.onPermissionSuccessListener();
                     }
-                    hidePerssionUi();
+                    removePerssionUi();
                 } catch (Exception e) {
 //                    e.printStackTrace();
                 }
@@ -300,8 +300,9 @@ public abstract class SobotBaseFragment extends Fragment {
     public void showPerssionUi(int type) {
         overlay = LayoutInflater.from(getSobotActivity()).inflate(R.layout.sobot_layout_overlay, null);
         if (overlay != null) {
-            final LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
-            final LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
+            overlay.setVisibility(View.VISIBLE);
+            LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
+            LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
             TextView tv_content = overlay.findViewById(R.id.tv_content);
             Button btn_left = overlay.findViewById(R.id.btn_left);
             Button btn_right = overlay.findViewById(R.id.btn_right);
@@ -324,8 +325,12 @@ public abstract class SobotBaseFragment extends Fragment {
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_camera));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_camera));
             }
-            viewGroup = getSobotActivity().findViewById(android.R.id.content);
-            viewGroup.addView(overlay);
+            if (getSobotActivity() != null) {
+                viewGroup = getSobotActivity().findViewById(android.R.id.content);
+                if (viewGroup != null) {
+                    viewGroup.addView(overlay);
+                }
+            }
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -337,19 +342,19 @@ public abstract class SobotBaseFragment extends Fragment {
             overlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
                 }
             });
             btn_left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
                 }
             });
             btn_right.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
                     Uri packageURI = Uri.parse("package:" + getSobotActivity().getPackageName());
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
                     getSobotActivity().startActivity(intent);
@@ -362,6 +367,7 @@ public abstract class SobotBaseFragment extends Fragment {
     public void showPerssionSettingUi() {
         String permissionTitle = "";
         if (overlay != null) {
+            overlay.setVisibility(View.VISIBLE);
             LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
             LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
             TextView tv_content = overlay.findViewById(R.id.tv_content);
@@ -377,7 +383,7 @@ public abstract class SobotBaseFragment extends Fragment {
     }
 
     //移除权限提示蒙层
-    public void hidePerssionUi() {
+    public void removePerssionUi() {
         if (overlay != null) {
             if (viewGroup == null) {
                 viewGroup = getSobotActivity().findViewById(android.R.id.content);
@@ -385,6 +391,14 @@ public abstract class SobotBaseFragment extends Fragment {
             viewGroup.removeView(overlay);
         }
     }
+
+    //隐藏权限提示蒙层
+    public void hidePerssionUi() {
+        if (overlay != null) {
+            overlay.setVisibility(View.GONE);
+        }
+    }
+
 
     /**
      * 申请存储权限
@@ -472,7 +486,7 @@ public abstract class SobotBaseFragment extends Fragment {
      */
     private void openSelectPic(int selectType) {
         //隐藏权限提示蒙层
-        hidePerssionUi();
+        removePerssionUi();
         Intent intent = new Intent(getSobotActivity(), SobotSelectPicAndVideoActivity.class);
         intent.putExtra("selectType", selectType);
         startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);

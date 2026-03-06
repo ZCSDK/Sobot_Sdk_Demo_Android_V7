@@ -96,6 +96,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     //是否横屏
     public boolean isLandscapeScreen = false;
     public String REQUEST_TAG = "Sobot";
+    public boolean isContinueShooting = false;//是否点击过继续拍摄
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -217,19 +218,58 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         Locale locale = (Locale) SharedPreferencesUtil.getObject(SobotChatBaseActivity.this, ZhiChiConstant.SOBOT_LANGUAGE);
         if (locale != null) {
             try {
-                // 本地语言设置
-                Resources res = getResources();
-                DisplayMetrics dm = res.getDisplayMetrics();
-                Configuration conf = new Configuration();
-                conf.setLocale(locale);
-                if (!ChatUtils.isRtl(getSobotBaseActivity())) {
-                    //禁止镜像
-                    conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
-                } else {
-                    conf.setLayoutDirection(locale);
-                }
-                res.updateConfiguration(conf, dm);
+                updateLayoutDirections(locale);
             } catch (Exception e) {
+            }
+        }
+    }
+
+    /**
+     * 更新布局方向以支持RTL/LTR语言
+     * 根据指定的locale更新应用的资源配置和视图布局方向
+     *
+     * @param locale 需要应用的语言区域设置
+     */
+    private void updateLayoutDirections(Locale locale) {
+        if (locale == null) {
+            return;
+        }
+        try {
+            // 更新资源配置
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = new Configuration();
+            conf.setLocale(locale);
+            if (!ChatUtils.isRtl(getSobotBaseActivity())) {
+                //禁止镜像
+                conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
+            } else {
+                conf.setLayoutDirection(locale);
+            }
+            res.updateConfiguration(conf, dm);
+
+            // 更新Activity布局方向
+            if (getSobotBaseActivity() != null && getSobotBaseActivity().getWindow() != null) {
+                getSobotBaseActivity().getWindow().getDecorView().setLayoutDirection(conf.getLayoutDirection());
+            }
+            // 更新重要的子视图布局方向
+            updateImportantChildViewsLayoutDirection(conf.getLayoutDirection());
+        } catch (Exception e) {
+        }
+    }
+
+
+    // 更新重要的子视图布局方向
+    private void updateImportantChildViewsLayoutDirection(int layoutDirection) {
+        if (layoutDirection == View.LAYOUT_DIRECTION_RTL && ChatUtils.isRtl(getSobotBaseActivity())) {
+            //没有禁止镜像 同时语言对应布局是阿语镜像布局
+            if (getLeftMenu() != null) {
+                getLeftMenu().setImageResource(R.drawable.sobot_icon_titlebar_back_rtl);
+            }
+
+        } else {
+            if (getLeftMenu() != null) {
+                getLeftMenu().setImageResource(R.drawable.sobot_icon_titlebar_back);
             }
         }
     }
@@ -466,7 +506,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     if (permissionListener != null) {
                         permissionListener.onPermissionSuccessListener();
                     }
-                    hidePerssionUi();
+                    removePerssionUi();
                 } catch (Exception e) {
 //                    e.printStackTrace();
                 }
@@ -558,6 +598,25 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     requestCameraPermission();
                 }
             }
+        } else if (type == 4) {
+            isHasPermission = checkAudioPermission();
+            if (!isHasPermission) {
+                showPerssionUi(4);
+                if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+                    //横屏
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hidePerssionUi();
+                            //申请麦克风权限
+                            requestAudioPermission();
+                        }
+                    }, 2000);
+                } else {
+                    //申请麦克风权限
+                    requestAudioPermission();
+                }
+            }
         }
         return isHasPermission;
     }
@@ -568,34 +627,54 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * @param type 0：照片和视频 1：文件 2：麦克风 3：相机
      */
     public void showPerssionUi(int type) {
+        isContinueShooting = false;
         overlay = LayoutInflater.from(getSobotBaseActivity()).inflate(R.layout.sobot_layout_overlay, null);
         if (overlay != null) {
-            final LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
-            final LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
+            overlay.setVisibility(View.VISIBLE);
+            LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
+            LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
             TextView tv_content = overlay.findViewById(R.id.tv_content);
             Button btn_left = overlay.findViewById(R.id.btn_left);
             Button btn_right = overlay.findViewById(R.id.btn_right);
             TextView tv_setting_title = overlay.findViewById(R.id.tv_setting_title);
             TextView tv_setting_content = overlay.findViewById(R.id.tv_setting_content);
             if (type == 0) {
-                tv_content.setText("\"" + CommonUtils.getAppName(getSobotBaseActivity()) + "\" " + getResources().getString(R.string.sobot_album_permission_yongtu));
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_album_permission_yongtu));
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_album));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_album));
             } else if (type == 1) {
-                tv_content.setText("\"" + CommonUtils.getAppName(getSobotBaseActivity()) + "\" " + getResources().getString(R.string.sobot_storage_permission_yongtu));
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_storage_permission_yongtu));
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_storage));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_storage));
             } else if (type == 2) {
-                tv_content.setText("\"" + CommonUtils.getAppName(getSobotBaseActivity()) + "\" " + getResources().getString(R.string.sobot_microphone_permission_yongtu));
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_microphone_permission_yongtu));
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_microphone));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_microphone));
             } else if (type == 3) {
-                tv_content.setText("\"" + CommonUtils.getAppName(getSobotBaseActivity()) + "\" " + getResources().getString(R.string.sobot_camera_permission_yongtu));
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_camera_permission_yongtu));
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_camera));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_camera));
+            } else if (type == 4) {
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_microphone_permission_yongtu_camera));
+                tv_setting_title.setText(getResources().getString(R.string.sobot_no_microphone));
+                String tempStr = getResources().getString(R.string.sobot_no_microphone_des);
+                try {
+                    if (tempStr.contains("%s")) {
+                        tv_setting_content.setText(String.format(tempStr, CommonUtils.getAppName(getSobotBaseActivity())));
+                    } else {
+                        tv_setting_content.setText(tempStr);
+                    }
+                } catch (Exception e) {
+                    // 记录错误并使用默认文本
+                    LogUtils.e("格式化字符串出错: " + e.getMessage());
+                    tv_setting_content.setText(tempStr);
+                }
+                btn_left.setText(getResources().getString(R.string.sobot_continue_shooting));
             }
-            viewGroup = getSobotBaseActivity().findViewById(android.R.id.content);
-            viewGroup.addView(overlay);
+            viewGroup = findViewById(android.R.id.content);
+            if (viewGroup != null) {
+                viewGroup.addView(overlay);
+            }
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -607,19 +686,22 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             overlay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
                 }
             });
             btn_left.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
+                    if (getResources().getString(R.string.sobot_continue_shooting).equals(btn_left.getText().toString())) {
+                        isContinueShooting = true;
+                    }
                 }
             });
             btn_right.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    hidePerssionUi();
+                    removePerssionUi();
                     Uri packageURI = Uri.parse("package:" + getSobotBaseActivity().getPackageName());
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
                     startActivity(intent);
@@ -628,10 +710,20 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 获取app 名字
+     *
+     * @return
+     */
+    private String getAppName() {
+        return CommonUtils.getAppName(getSobotBaseActivity());
+    }
+
     //拒绝权限后显示 去设置UI
     public void showPerssionSettingUi() {
         String permissionTitle = "";
         if (overlay != null) {
+            overlay.setVisibility(View.VISIBLE);
             LinearLayout ll_info = overlay.findViewById(R.id.ll_info);
             LinearLayout ll_setting = overlay.findViewById(R.id.ll_setting);
             TextView tv_content = overlay.findViewById(R.id.tv_content);
@@ -647,12 +739,19 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     }
 
     //移除权限提示蒙层
-    public void hidePerssionUi() {
+    public void removePerssionUi() {
         if (overlay != null) {
             if (viewGroup == null) {
                 viewGroup = findViewById(android.R.id.content);
             }
             viewGroup.removeView(overlay);
+        }
+    }
+
+    //隐藏权限提示蒙层
+    public void hidePerssionUi() {
+        if (overlay != null) {
+            overlay.setVisibility(View.GONE);
         }
     }
 
@@ -744,7 +843,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      */
     private void openSelectPic(int selectType) {
         //隐藏权限提示蒙层
-        hidePerssionUi();
+        removePerssionUi();
         Intent intent = new Intent(getSobotBaseActivity(), SobotSelectPicAndVideoActivity.class);
         intent.putExtra("selectType", selectType);
         startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);

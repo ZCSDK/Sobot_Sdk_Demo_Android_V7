@@ -321,8 +321,16 @@
     <string name="sobot_ticket_finish">您的工单已完成</string>
     <string name="sobot_ticket_reply">回复…</string>
     <string name="sobot_customer_service_representative">人工客服</string>
-    <!--    4.3.0 -->
+    <!--    4.4.0 -->
     <string name="sobot_str_aiagent_tip">内容由 AI 生成</string>
     <string name="sobot_str_intercept_access_tip">访问信息验证不通过</string>
     <string name="sobot_str_intercept_access_des">您的访问信息验证不通过，暂时不能接入客服中心</string>
+    <string name="sobot_str_more">更多</string>
+    <string name="sobot_no_microphone">麦克风权限未开启</string>
+    <string name="sobot_no_microphone_des">无法录制声音，前往\“设置 > 应用 > %s > 权限\”中打开麦克风权限</string>
+    <string name="sobot_continue_shooting">继续拍摄</string>
+    <string name="sobot_audio_go_setting">未开启麦克风，无法录制声音</string>
+    <string name="sobot_microphone_permission_yongtu_camera">正在申请麦克风使用权限。允许后，咨询客服和留言时可以发送/上传录制的视频。</string>
+    <string name="sobot_agree_agreement">我已阅读并同意 %s。</string>
+    <string name="sobot_agree">同意</string>
 </resources>

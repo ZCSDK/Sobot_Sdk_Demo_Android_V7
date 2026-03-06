@@ -18,4 +18,6 @@ public interface StICameraView {
     void startPreviewCallback();
 
     boolean handlerFoucs(float x, float y);
+
+    void setGotoSettingVisible(boolean isVisible);
 }

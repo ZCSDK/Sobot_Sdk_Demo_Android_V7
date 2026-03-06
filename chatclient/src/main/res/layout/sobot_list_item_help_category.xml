@@ -24,6 +24,6 @@
         android:id="@+id/iv_arrow"
         android:layout_width="14dp"
         android:layout_height="14dp"
-        android:src="@drawable/sobot_icon_right_arrow_rtl"
+        android:src="@drawable/sobot_icon_right_arrow"
         android:scaleType="fitXY" />
 </LinearLayout>

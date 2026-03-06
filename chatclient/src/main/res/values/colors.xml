@@ -398,5 +398,6 @@
 
     <!--    常见问题-->
     <color name="sobot_color_issue_text">#777474</color>
-
+    <!-- 工单授权   -->
+    <color name="sobot_policy_text">@color/sobot_color_text_second</color>
 </resources>

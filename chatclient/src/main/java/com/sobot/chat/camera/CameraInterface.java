@@ -2,9 +2,11 @@ package com.sobot.chat.camera;
 
 import static android.graphics.Bitmap.createBitmap;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -24,6 +26,8 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 import android.widget.ImageView;
+
+import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.camera.listener.StErrorListener;
 import com.sobot.chat.camera.util.AngleUtil;
@@ -446,7 +450,7 @@ public class CameraInterface implements Camera.PreviewCallback {
 //                destroyCameraInterface();
                 Log.i(TAG, "=== Destroy Camera ===");
             } catch (Exception e) {
-                if(null!=errorLisenter){
+                if (null != errorLisenter) {
                     errorLisenter.onError();
                 }
                 destroyCameraInterface();
@@ -481,7 +485,7 @@ public class CameraInterface implements Camera.PreviewCallback {
             mCamera.takePicture(null, null, new Camera.PictureCallback() {
                 @Override
                 public void onPictureTaken(byte[] data, Camera camera) {
-                    Bitmap bitmap = compressBitmap(data,mContext);
+                    Bitmap bitmap = compressBitmap(data, mContext);
                     Matrix matrix = new Matrix();
                     if (SELECTED_CAMERA == CAMERA_POST_POSITION) {
                         matrix.setRotate(nowAngle);
@@ -506,7 +510,7 @@ public class CameraInterface implements Camera.PreviewCallback {
     }
 
     //启动录像
-    public void startRecord(Surface surface, float screenProp, ErrorCallback callback,Context mContext) {
+    public void startRecord(Surface surface, float screenProp, ErrorCallback callback, Context mContext) {
         if (mCamera == null) {
             openCamera(SELECTED_CAMERA);
             if (mCamera == null) {
@@ -521,7 +525,7 @@ public class CameraInterface implements Camera.PreviewCallback {
         final int nowAngle = (angle + 90) % 360;
         //获取第一帧图片
         Camera.Parameters parameters = mCamera.getParameters();
-        if(parameters == null){
+        if (parameters == null) {
             return;
         }
         int width = parameters.getPreviewSize().width;
@@ -568,12 +572,24 @@ public class CameraInterface implements Camera.PreviewCallback {
         mediaRecorder.reset();
         mediaRecorder.setCamera(mCamera);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(mContext.getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                //有权限
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            }
+        }
 
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        if (Build.VERSION.SDK_INT >= 23 && CommonUtils.getTargetSdkVersion(mContext.getApplicationContext()) >= 23) {
+            if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                //有权限
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            }
+        }
 
 
         Camera.Size videoSize;
@@ -721,7 +737,7 @@ public class CameraInterface implements Camera.PreviewCallback {
         }
         try {
             final Camera.Parameters params = mCamera.getParameters();
-            if(params==null) return;
+            if (params == null) return;
             Rect focusRect = calculateTapArea(x, y, 1f, context);
             mCamera.cancelAutoFocus();
             if (params.getMaxNumFocusAreas() > 0) {
@@ -801,7 +817,8 @@ public class CameraInterface implements Camera.PreviewCallback {
         void focusSuccess();
 
     }
-    interface DestoryLinsten{
+
+    interface DestoryLinsten {
         void onDestory();
     }
 
@@ -832,7 +849,7 @@ public class CameraInterface implements Camera.PreviewCallback {
     private Bitmap compressBitmap(byte[] data, Context context) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;// 设置后decode图片不会返回一个bitmap对象，但是会将图片的信息封装到Options中
-        BitmapFactory.decodeByteArray(data, 0, data.length,options);
+        BitmapFactory.decodeByteArray(data, 0, data.length, options);
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = 0;
         int height = 0;
@@ -844,7 +861,7 @@ public class CameraInterface implements Camera.PreviewCallback {
         options.inJustDecodeBounds = false;
 //        options.inPreferredConfig = Bitmap.Config.RGB_565;
 
-        return BitmapFactory.decodeByteArray(data, 0, data.length,options);
+        return BitmapFactory.decodeByteArray(data, 0, data.length, options);
     }
 
     /**

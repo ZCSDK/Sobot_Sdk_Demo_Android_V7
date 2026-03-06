@@ -28,6 +28,7 @@ import com.sobot.chat.api.model.RegionModel;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.widget.dialog.DialogItemOnClick;
@@ -51,6 +52,7 @@ import java.util.Map;
 public class SobotPostRegionActivity extends SobotDialogBaseActivity implements View.OnClickListener {
 
     private LinearLayout ll_level;
+    private ImageView iv_back;
     private TextView sobot_tv_title;
     private TextView btnSubmit;
     private String[] selectedIdArr;
@@ -152,6 +154,12 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
         loading_layout = findViewById(R.id.sobot_loading_layout);
         loading_layout.setEmpty(R.layout.sobot_list_no_data);
         ll_level = findViewById(R.id.ll_level);
+        iv_back = findViewById(R.id.iv_back);
+        if (ChatUtils.isRtl(getSobotBaseActivity())) {
+            iv_back.setImageResource(R.drawable.sobot_icon_right_arrow_gray);
+        } else {
+            iv_back.setImageResource(R.drawable.sobot_icon_right_arrow_gray_rtl);
+        }
         rv_list = findViewById(R.id.rv_list);
         search_list = findViewById(R.id.search_list);
         if (cusFieldConfig != null) {
@@ -341,6 +349,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
     //升级
     private void addLevelText() {
         ll_level.setVisibility(View.VISIBLE);
+        iv_back.setVisibility(View.VISIBLE);
         ll_level.removeAllViews();
         TextView view = (TextView) View.inflate(SobotPostRegionActivity.this, R.layout.sobot_item_select_level, null);
         StringBuilder title = new StringBuilder("");
@@ -377,8 +386,10 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
         LogUtils.d("=====checkList====" + checkList.size());
         if (curLevel == 0) {
             ll_level.setVisibility(View.GONE);
+            iv_back.setVisibility(View.GONE);
         } else {
             ll_level.setVisibility(View.VISIBLE);
+            iv_back.setVisibility(View.VISIBLE);
             TextView view = (TextView) View.inflate(SobotPostRegionActivity.this, R.layout.sobot_item_select_level, null);
             StringBuilder title = new StringBuilder("");
             for (int key : checkList.keySet()) {
