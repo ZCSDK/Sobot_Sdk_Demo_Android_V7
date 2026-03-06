@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_template6_msg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                     android:textColor="@color/sobot_left_msg_text_color"
                     android:textSize="@dimen/sobot_text_font_14" />
 
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_template6_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
                     android:textColor="@color/sobot_left_msg_text_color"
                     android:textSize="@dimen/sobot_text_font_14" />
                 <!-- 关联问题 提示语 -->
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_stripe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

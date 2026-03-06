@@ -6,35 +6,35 @@
     android:layout_height="wrap_content"
     android:background="@drawable/sobot_bg_gray_4dp"
     android:gravity="center_vertical"
-    android:padding="8dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="8dp">
 
     <com.sobot.chat.widget.image.SobotProgressImageView
         android:id="@+id/sobot_file_thumbnail"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        app:image_width="20dp"
-        app:image_height="20dp"
+        android:layout_gravity="center_vertical"
         android:layout_marginEnd="8dp"
-        android:layout_gravity="center_vertical"/>
+        app:image_height="20dp"
+        app:image_width="20dp" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_file_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
             android:ellipsize="end"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:layout_marginEnd="16dp"
+            android:singleLine="true"
             android:textColor="@color/sobot_color_text_first"
-            android:textSize="@dimen/sobot_text_font_14"
-            android:singleLine="true" />
+            android:textSize="@dimen/sobot_text_font_14" />
 
         <TextView
             android:id="@+id/sobot_file_size"
@@ -42,10 +42,11 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="17dp"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-            android:visibility="gone"
             android:textColor="@color/sobot_color_text_third"
-            android:textSize="@dimen/sobot_text_font_12" />
+            android:textSize="@dimen/sobot_text_font_12"
+            android:visibility="gone" />
     </LinearLayout>
+
     <ImageView
         android:id="@+id/sobot_file_delete"
         android:layout_width="20dp"

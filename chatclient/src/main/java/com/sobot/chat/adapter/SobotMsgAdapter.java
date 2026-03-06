@@ -19,6 +19,8 @@ import com.sobot.chat.api.model.SobotAiRobotRealuateInfo;
 import com.sobot.chat.api.model.SobotEvaluateModel;
 import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
 import com.sobot.chat.api.model.SobotRealuateInfo;
+import com.sobot.chat.api.model.SobotRobot;
+import com.sobot.chat.api.model.SobotVariableModel;
 import com.sobot.chat.api.model.SobotlanguaeModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.ZhiChiReplyAnswer;
@@ -72,6 +74,7 @@ import com.sobot.chat.viewHolder.SobotChatMsgItemSDKHistoryR;
 import com.sobot.chat.viewHolder.SobotMuitiLeavemsgMessageHolder;
 import com.sobot.chat.viewHolder.SystemMessageHolder;
 import com.sobot.chat.viewHolder.TextMessageHolder;
+import com.sobot.chat.viewHolder.VariableFromMessageHolder;
 import com.sobot.chat.viewHolder.VideoMessageHolder;
 import com.sobot.chat.viewHolder.VoiceMessageHolder;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
@@ -83,8 +86,7 @@ import java.util.Locale;
 
 public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
-    private static final int[] layoutRes = {
-            R.layout.sobot_chat_msg_item_txt_l,//0文本消息左边的布局文件
+    private static final int[] layoutRes = {R.layout.sobot_chat_msg_item_txt_l,//0文本消息左边的布局文件
             R.layout.sobot_chat_msg_item_txt_r,//1文本消息右边的布局文件
             R.layout.sobot_chat_msg_item_tip,//2消息提醒的布局文件
             R.layout.sobot_chat_msg_item_rich,//3富文本消息布局文件
@@ -133,7 +135,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             R.layout.sobot_chat_msg_item_cai_reason_card,//46大模型机器人 点踩 原因卡片
             R.layout.sobot_chat_msg_item_skill_group,//47 转人工--技能组
             R.layout.sobot_chat_msg_item_consult,//48 自定义卡片 列表 单个商品
-            R.layout.sobot_chat_msg_item_custom_cards//49 自定义卡片 横向 多个商品
+            R.layout.sobot_chat_msg_item_custom_cards,//49 自定义卡片 横向 多个商品
+            R.layout.sobot_chat_msg_item_variable_from//50 进线变量收集
     };
 
     /**
@@ -356,6 +359,10 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
      * 自定义卡片 横向 多个商品
      */
     public static final int MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL = 49;
+    /**
+     * 进线变量收集表单
+     */
+    public static final int MSG_TYPE_VARIABLE_FROM = 50;
     private SobotMsgCallBack mMsgCallBack;
     private List<ZhiChiMessageBase> list;//数据源
     private Context context;
@@ -411,15 +418,12 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
         int senderType = message.getSenderType();
         if (senderType == -1) {
-            if (ZhiChiConstant.message_type_fraud_prevention == Integer
-                    .parseInt(message.getAction())) {
+            if (ZhiChiConstant.message_type_fraud_prevention == Integer.parseInt(message.getAction())) {
                 //防诈骗消息
                 return MSG_TYPE_FRAUD_PREVENTION;
             }
         }
-        if (ZhiChiConstant.message_sender_type_customer == senderType
-                || ZhiChiConstant.message_sender_type_robot == senderType
-                || ZhiChiConstant.message_sender_type_service == senderType) {
+        if (ZhiChiConstant.message_sender_type_customer == senderType || ZhiChiConstant.message_sender_type_robot == senderType || ZhiChiConstant.message_sender_type_service == senderType) {
             // 发送人类型 0是SDK客户  1是机器人  2 是客服
             // 这些都是平台传过来的消息
             if (message.getAnswer() != null) {
@@ -454,20 +458,17 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
                 } else if (ZhiChiConstant.message_type_emoji == message.getAnswer().getMsgType()) {
                     // 富文本格式
-                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType() || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
                         return MSG_TYPE_RICH;
                     }
                 } else if (ZhiChiConstant.message_type_textAndPic == message.getAnswer().getMsgType()) {
                     //富文本中有图片
-                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType() || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
                         return MSG_TYPE_RICH;
                     }
                 } else if (ZhiChiConstant.message_type_textAndText == message.getAnswer().getMsgType()) {
                     //富文本中纯文字
-                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()
-                            || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                    if (ZhiChiConstant.message_sender_type_robot == message.getSenderType() || ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
                         return MSG_TYPE_RICH;
                     }
                 } else if (message.getAnswer().getMsgType() == ZhiChiConstant.message_type_reply) {
@@ -578,6 +579,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         }
                     }
                 }
+            } else if (null != message.getVariableModels() && !message.getVariableModels().isEmpty()) {
+                //进线变量收集
+                return MSG_TYPE_VARIABLE_FROM;
             } else {
                 return MSG_TYPE_ILLEGAL;
             }
@@ -642,9 +646,12 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         } else if (ZhiChiConstant.action_card_mind_msg.equals(message.getAction())) {
             //多轮收集节点提醒消息 不可以点击
             return MSG_TYPE_TIP;
-        } else if (!TextUtils.isEmpty(message.getAction()) && message.getAction().equals("25")) {
+        } else if (!TextUtils.isEmpty(message.getAction()) && ZhiChiConstant.action_cai_msg.equals(message.getAction())) {
             //点踩问答
             return MSG_TYPE_CAI;
+        } else if (null != message.getVariableModels() && !message.getVariableModels().isEmpty()) {
+            //进线变量收集
+            return MSG_TYPE_VARIABLE_FROM;
         }
         return MSG_TYPE_ILLEGAL;
     }
@@ -676,10 +683,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         for (int i = 0; i < msgLists.size(); i++) {
             ZhiChiMessageBase base = msgLists.get(i);
             //相邻两条消息是同一个人发的，并且时间相隔1分钟，不显示头像昵称
-            if (previousMsgTime != 0 &&
-                    !TextUtils.isEmpty(base.getT())
-                    && ((Long.parseLong(base.getT()) - previousMsgTime) < (1000 * 60))
-                    && previousMsgSenderType == base.getSenderType()) {
+            if (previousMsgTime != 0 && !TextUtils.isEmpty(base.getT()) && ((Long.parseLong(base.getT()) - previousMsgTime) < (1000 * 60)) && previousMsgSenderType == base.getSenderType()) {
                 base.setShowFaceAndNickname(false);
                 if (i != 0) {
                     //修改上一条消息的字段
@@ -713,9 +717,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             if (ZhiChiConstant.message_sender_type_remide_info == base.getSenderType() && base.getAnswer() != null && base.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_below_unread) {
                 unReadIndex = i;
             }
-            if (StringUtils.isNoEmpty(base.getServant()) && "aiagent".equals(base.getServant())
-                    && base.getAnswer() != null && base.getAnswer().getMsgType() == ZhiChiConstant.message_type_text && base.getSenderType() == ZhiChiConstant.message_sender_type_robot) {
-                //如果是aiagent 答案
+            if (StringUtils.isNoEmpty(base.getServant()) && "aiagent".equals(base.getServant()) && base.getAnswer() != null && base.getAnswer().getMsgType() == ZhiChiConstant.message_type_text && base.getSenderType() == ZhiChiConstant.message_sender_type_robot) {
+                //如果是aiagent 答案 转成富文本消息
                 doMarkDownData(base.getAnswer().getMsg(), base.getAnswer());
             }
         }
@@ -731,8 +734,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         if (message == null) {
             return;
         }
-        if (message.getAction() != null && ZhiChiConstant.action_remind_connt_success.equals(message
-                .getAction())) {
+        if (message.getAction() != null && ZhiChiConstant.action_remind_connt_success.equals(message.getAction())) {
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getSugguestionsFontColor() != 1) {
                     if (list.get(i).getCustomCard() == null) {
@@ -742,8 +744,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             }
         }
 
-        removeByAction(message, ZhiChiConstant.action_remind_no_service, ZhiChiConstant
-                .action_remind_no_service, true);
+        removeByAction(message, ZhiChiConstant.action_remind_no_service, ZhiChiConstant.action_remind_no_service, true);
 
         removeByAction(message, ZhiChiConstant.action_remind_info_paidui, ZhiChiConstant.action_remind_info_paidui, true);
 
@@ -751,31 +752,26 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
         removeByAction(message, ZhiChiConstant.action_remind_info_paidui, ZhiChiConstant.action_remind_info_post_msg, true);
 
-        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant
-                .action_remind_info_paidui, false);
+        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant.action_remind_info_paidui, false);
 
         removeByAction(message, ZhiChiConstant.action_remind_info_post_msg, ZhiChiConstant.action_remind_info_post_msg, true);
 
-        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant
-                .action_remind_info_post_msg, false);
+        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant.action_remind_info_post_msg, false);
 
-        removeByAction(message, ZhiChiConstant.action_consultingContent_info, ZhiChiConstant
-                .action_consultingContent_info, false);
+        removeByAction(message, ZhiChiConstant.action_consultingContent_info, ZhiChiConstant.action_consultingContent_info, false);
 
         removeByAction(message, ZhiChiConstant.sobot_outline_leverByManager, ZhiChiConstant.sobot_outline_leverByManager, true);
 
         removeByAction(message, ZhiChiConstant.action_custom_evaluate, ZhiChiConstant.action_custom_evaluate, true);
 
         //  转人工后移除点踩后出现的转人工提示语消息
-        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant
-                .action_remind_info_zhuanrengong, false);
-
-        if (message.getAction() != null && message.getAction().equals(ZhiChiConstant.action_remind_past_time)
-                && message.getAnswer() != null && ZhiChiConstant.sobot_remind_type_outline == message.getAnswer().getRemindType()) {
+        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant.action_remind_info_zhuanrengong, false);
+        //  转人工后移除继续排队的提示语消息
+        removeByAction(message, ZhiChiConstant.action_remind_connt_success, ZhiChiConstant.action_remind_keep_queuing, false);
+        if (message.getAction() != null && message.getAction().equals(ZhiChiConstant.action_remind_past_time) && message.getAnswer() != null && ZhiChiConstant.sobot_remind_type_outline == message.getAnswer().getRemindType()) {
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).getAction() != null) {
-                    if (list.get(i).getAction().equals(ZhiChiConstant.action_remind_past_time) && message.getAnswer() != null
-                            && ZhiChiConstant.sobot_remind_type_outline == message.getAnswer().getRemindType()) {
+                    if (list.get(i).getAction().equals(ZhiChiConstant.action_remind_past_time) && message.getAnswer() != null && ZhiChiConstant.sobot_remind_type_outline == message.getAnswer().getRemindType()) {
                         list.remove(i);
                         notifyItemRemoved(i);
                         message.setShake(true);
@@ -851,10 +847,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                     message.setShowFaceAndNickname(false);
                 } else {
                     //相邻两条消息是同一个人发的，并且时间相隔1分钟，不显示头像昵称
-                    if (previousMsgTime != 0 &&
-                            !TextUtils.isEmpty(message.getT())
-                            && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60))
-                            && previousMsgSenderType == message.getSenderType()) {
+                    if (previousMsgTime != 0 && !TextUtils.isEmpty(message.getT()) && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60)) && previousMsgSenderType == message.getSenderType()) {
                         message.setShowFaceAndNickname(false);
                         ZhiChiMessageBase preMsg = list.get(list.size() - 1);
                         if (preMsg != null) {
@@ -887,14 +880,39 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
     }
 
     /**
+     * 添加到指定位置
+     * @param message
+     * @param position
+     */
+    public void addMsg(ZhiChiMessageBase message,int position) {
+        if (message == null) {
+            return;
+        }
+        LogUtils.d("===addMsg==="+position+"===="+(list.size()-1));
+        if(list.size()-1<0){
+            position =0;
+        }else{
+            position = list.size()-1;
+        }
+        if( position<list.size()){
+            list.add(position,message);
+            notifyDataSetChanged();
+//        notifyItemInserted(list.size() - 1);
+            if (mMsgCallBack != null) {
+                mMsgCallBack.checkUnReadMsg();
+            }
+        }
+
+    }
+
+    /**
      * 删除已有的数据
      *
      * @param message 当前的数据
      * @param when    当前数据类型（action）=when时   才进行删除操作
      * @param element 删除元素类型（action）
      */
-    private void removeByAction(ZhiChiMessageBase message, String when, String element, boolean
-            isShake) {
+    private void removeByAction(ZhiChiMessageBase message, String when, String element, boolean isShake) {
         if (list != null && message != null && StringUtils.isNoEmpty(element) && message.getAction() != null && message.getAction().equals(when)) {
             //倒叙判断，然后删
             ListIterator<ZhiChiMessageBase> iterator = list.listIterator(list.size());
@@ -911,6 +929,100 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
     }
 
     /**
+     * 检查
+     *
+     * @param variableFormId
+     * @return
+     */
+    public void deleteNoVariableFrom(String variableFormId) {
+        if (null != list) {
+            int posttion = 0;
+            for (int i = 0; i < list.size(); i++) {
+                if (StringUtils.isNoEmpty(list.get(i).getVariableFormId()) && list.get(i).getVariableFormId().equals(variableFormId)) {
+                    if (null != list.get(i).getVariableModels() && !list.get(i).isCheckFormSubmitOver()) {
+                        posttion =i;
+                        list.remove(i);
+                        notifyItemRemoved(i);
+                        break;
+                    }
+
+                }
+            }
+            if(posttion>0 && list.size()>=posttion){
+                //判断是否是欢迎语，如果是，删除欢迎语
+                if(list.get(posttion-1).getSenderType()==ZhiChiConstant.message_sender_type_robot_welcome_msg){
+                    list.remove(posttion-1);
+                    notifyItemRemoved(posttion-1);
+                }
+            }
+        }
+    }
+
+    /**
+     * 更新或者添加变量收集item
+     *
+     * @param message
+     */
+    public void addOrUpdateVariableForm(ZhiChiMessageBase message) {
+        if (list != null && message != null) {
+            boolean hasVariableForm = false;
+            for (int i = 0; i < list.size(); i++) {
+                ZhiChiMessageBase messageBase = list.get(i);
+                if (StringUtils.isNoEmpty(messageBase.getVariableFormId()) && StringUtils.isNoEmpty(message.getVariableFormId()) && ZhiChiConstant.action_variable_form.equals(messageBase.getAction())
+                        && messageBase.getVariableFormId().equals(message.getVariableFormId()) && message.getVariableModels() != null && !message.getVariableModels().isEmpty()) {
+                    messageBase.setVariableModels(message.getVariableModels());
+                    LogUtils.d((!messageBase.isCheckFormSubmitOver()) + "========更新====" + messageBase.getVariableFormId());
+                    messageBase.setCheckFormSubmitOver(message.isCheckFormSubmitOver());
+                    messageBase.setVariableSubmiting(message.isVariableSubmiting());
+                    list.set(i, messageBase);
+                    notifyItemChanged(i);
+                    hasVariableForm = true;
+                }
+            }
+            if (!hasVariableForm) {
+                LogUtils.d("========添加====" + message.getMsgId());
+                addMsg(message);
+            }
+        }
+    }
+
+    /**
+     * 删除已有的数据
+     *
+     * @param when 当前数据类型（action）=when时   才进行删除操作
+     */
+    public void removeByAction(String when) {
+        //倒叙判断，然后删
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if (list.get(i).getAction() != null) {
+                if (list.get(i).getAction().equals(when)) {
+                    list.remove(i);
+                }
+            }
+        }
+    }
+
+    /**
+     * 删除大模型加载中的消息（三个点）
+     */
+    public void removeAllByLoadingId() {
+        if (list == null) {
+            return;
+        }
+        //倒叙判断，然后删
+        for (int i = list.size() - 1; i >= 0; i--) {
+            ZhiChiMessageBase msg = list.get(i);
+            String id = msg != null ? msg.getId() : null;
+            if (StringUtils.isNoEmpty(id) && id.contains("aiagent")) {
+//                LogUtils.d("删除三个点气泡消息 id:"+id+"    msgid:"+StringUtils.checkStringIsNull(msg.getMsgId())); // 此时 id 已确保非空
+                list.remove(i);
+                notifyItemRemoved(i);
+            }
+        }
+    }
+
+
+    /**
      * 会话结束或者转人工后
      * 删除或者修改大模型机器人回答ui 未点顶踩的隐藏 未提交的点踩原因卡片也删除
      */
@@ -921,6 +1033,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             while (iterator.hasPrevious()) {
                 ZhiChiMessageBase messageBase = iterator.previous();
                 int posttion = iterator.previousIndex();
+                //大模型卡片转人工后按钮不可点
+                messageBase.setSugguestionsFontColor(1);
                 if (StringUtils.isNoEmpty(messageBase.getServant()) && "aiagent".equals(messageBase.getServant())) {
                     if (messageBase.getSenderType() == ZhiChiConstant.message_sender_type_ai_tobot_cai_card) {
                         //删除未提交的点踩原因卡片消息
@@ -932,8 +1046,6 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         iterator.set(messageBase);
                         notifyItemChanged(posttion);
                     } else if (messageBase.getAnswer() != null && ZhiChiConstant.message_type_ai_card_msg == messageBase.getAnswer().getMsgType()) {
-                        //大模型卡片转人工后按钮不可点
-                        messageBase.setSugguestionsFontColor(1);
                         iterator.set(messageBase);
                         notifyItemChanged(posttion);
                     }
@@ -1056,17 +1168,17 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
     }
 
-    //删除指定msgid的aiagent消息，同时在该位置添加新的aiagent消息
-    public void removeAndAddAIMsgDataByMsgId(String id, final ZhiChiMessageBase data) {
+    //替换指定msgid的aiagent消息
+    public void replaceAIMsgDataByMsgId(String id, final ZhiChiMessageBase data) {
         if (data == null) {
             return;
         }
         final int pos = getMsgInfoPosition(id);
         if (pos >= 0) {
-            list.remove(pos);
-            notifyItemRemoved(pos);
-            list.add(pos, data);
-            notifyItemRangeInserted(pos, 1);
+            if (list != null) {
+                list.set(pos, data);
+            }
+            notifyItemChanged(pos);
         }
     }
 
@@ -1077,55 +1189,148 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         ZhiChiMessageBase msgInfo = getMsgInfo(id);
         if (msgInfo != null) {
             msgInfo.setAiAgentReceiveMsgEnd(isEnd);
+            msgInfo.setId(id);//覆盖id,防止（ai直接回答）替换三个点时id 还是aiagent+发送msgid
             if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
                 //SENSITIVE_WORD 是敏感词，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
+            }else if (data.getCustomCard()!=null) {
+                //自定义卡片，直接覆盖显示
+                updateMsgDataByMsgId(id, data);
             } else {
-                if (StringUtils.isNoEmpty(data.getRobotAnswerMessageType()) && data.getRobotAnswerMessageType().equals("MESSAGE")) {
-                    //拼接消息
-                    String oldDate = msgInfo.getContent();
-                    String newDate = "";
-                    if (!isEnd) {
-                        //如果是结尾就不再追加message内容，因为最后一条实际是倒数第二条message内容
-                        newDate = data.getContent();
-                    }
-                    String content = oldDate + newDate;
-                    msgInfo.setContent(content);
-                    ZhiChiReplyAnswer answer = msgInfo.getAnswer();
-                    if (answer != null) {
-                        doMarkDownData(content, answer);
-                        if (!isEnd && answer.getRichList() != null) {
-                            //如果是aiagent 答案 因为没有结束，结尾加个|
-                            ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
-                            richListModel.setMsg("  |");
-                            richListModel.setType(0);
-                            answer.getRichList().add(richListModel);
-                        }
-                        answer.setMsg(content);
-                        msgInfo.setAnswer(answer);
-                    }
-                    msgInfo.setRevaluateState(data.getRevaluateState());
-                    if (isEnd && (answer == null || answer.getRichList() == null || answer.getRichList().isEmpty())) {
-                        //空消息 直接删除
-                        removeByMsgId(id);
+                ZhiChiReplyAnswer newAnswer;//处理后的answer
+                if (data.getAnswer() != null) {
+                    newAnswer = msgInfo.getAnswer();
+                } else {
+                    newAnswer = new ZhiChiReplyAnswer();
+                }
+                String endStr = "  |";//加载中的字符串，大模型没结束时最后加一个"  |"
+                List<ChatMessageRichListModel> newRichList;//合并后的richList
+                if (msgInfo.getAnswer() != null && msgInfo.getAnswer().getRichList() != null) {
+                    newRichList = new ArrayList<>(msgInfo.getAnswer().getRichList());//先把上一条消息的richList加到newRichList里边
+                } else {
+                    newRichList = new ArrayList<>();
+                }
+                if (!isEnd) {
+                    //如果最后一条以"  |"结束，则把最后一条richList item的msg去掉"  |"
+                    subLoadingStr(newRichList, endStr);
+                    //答案没结束，需要拼接，结束时最后一条内容是上一条的，所以不能拼接
+                    if (data.getAnswer() != null && data.getAnswer().getRichList() != null) {
+                        newRichList.addAll(data.getAnswer().getRichList());//再把新消息的richList加到newRichList里边
+                        newAnswer.setRichList(newRichList);
                     } else {
-                        notifyItemByMsgId(id);
+                        if (newRichList.isEmpty()) {
+                            //如果新消息里边没有richList，则用新消息的content生成一条richList item
+                            ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
+                            richListModel.setMsg(data.getContent());
+                            richListModel.setType(0);
+                            newRichList.add(richListModel);
+                        } else {
+                            // 检查newRichList最后一个元素是否是文本消息（type=0）
+                            int lastIndex = newRichList.size() - 1;
+                            ChatMessageRichListModel lastItem = newRichList.get(lastIndex);
+                            if (lastItem != null && lastItem.getType() == 0) {
+                                // 如果最后一个元素是文本消息
+                                String combinedContent = lastItem.getMsg() + data.getContent();
+                                lastItem.setMsg(combinedContent);
+                            } else {
+                                // 如果最后一个元素不是文本消息，添加新的文本消息项，追加到newRichList里
+                                ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
+                                richListModel.setMsg(data.getContent());
+                                richListModel.setType(0);
+                                newRichList.add(richListModel);
+                            }
+                        }
+                    }
+                    if ((data.getAnswer() != null && data.getAnswer().getRichList() != null) || StringUtils.isNoEmpty(data.getContent())) {
+                        //最后添加一个"  |"，模拟加载中的效果;如果都为空，则不显示"  |"，避免msgid变化会一直显示（流式回答中，如果msgid发生变化，richlist 和content 都会为空）
+                        ChatMessageRichListModel richListModel = new ChatMessageRichListModel();
+                        richListModel.setMsg(endStr);
+                        richListModel.setType(0);
+                        newRichList.add(richListModel);
                     }
                 } else {
-                    if (isEnd && (StringUtils.isEmpty(data.getContent()))) {
-                        //空消息 直接删除
-                        removeByMsgId(id);
+                    //如果最后一条以"  |"结束，则把最后一条richList item的msg去掉"  |"
+                    subLoadingStr(newRichList, endStr);
+                }
+                //最终显示的richList
+                List<ChatMessageRichListModel> resultRichList = new ArrayList<>();
+                // 循环处理newRichList
+                for (ChatMessageRichListModel item : newRichList) {
+                    if (item.getType() != 0) {
+                        // 如果不是文本类型，直接加入resultRichList
+                        resultRichList.add(item);
                     } else {
-                        //不是拼接消息，直接展示
-                        updateMsgDataByMsgId(id, data);
+                        // 如果是文本类型，解析文本并加入到resultRichList
+                        parseTextToRichList(item.getMsg(), resultRichList);
                     }
+                }
+                newAnswer.setRichList(resultRichList);//最终新的richList(气泡里边的内容)
+                msgInfo.setAnswer(newAnswer);
+                msgInfo.setRevaluateState(data.getRevaluateState());
+                if (data.getAnalysisInfo() != null) {
+                    //更新最新的大模型来源
+                    msgInfo.setAnalysisInfo(data.getAnalysisInfo());
+                }
+                if (data.getButtonInfos() != null) {
+                    //更新最新的大模型按钮list
+                    msgInfo.setButtonInfos(data.getButtonInfos());
+                }
+                if (isEnd && newRichList.isEmpty()) {
+                    //空消息 直接删除
+                    removeByMsgId(id);
+                } else {
+                    notifyItemByMsgId(id);
                 }
             }
         } else {
-            if (data.getAnswer() != null && data.getAnswer().getMsgType() == ZhiChiConstant.message_type_text) {
+            if (data.getAnswer() != null) {
                 doMarkDownData(data.getAnswer().getMsg(), data.getAnswer());
             }
             justAddData(data);
+        }
+    }
+
+    private static void subLoadingStr(List<ChatMessageRichListModel> newRichList, String endStr) {
+        if (!newRichList.isEmpty()) {
+            ChatMessageRichListModel lastItem = newRichList.get(newRichList.size() - 1);
+            if (lastItem != null) {
+                if (StringUtils.isNoEmpty(lastItem.getMsg()) && lastItem.getMsg().endsWith(endStr)) {
+                    // 修改：不是移除整个item，而是移除末尾的"  |"字符
+                    String updatedMsg = lastItem.getMsg().substring(0, lastItem.getMsg().length() - endStr.length());
+                    lastItem.setMsg(updatedMsg);
+                }
+            }
+        }
+    }
+
+    // 解析文本到富文本列表
+    private static void parseTextToRichList(String content, List<ChatMessageRichListModel> resultRichList) {
+        if ((ChatUtils.isHasPictureInMarkdown(content) || ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
+            String[] temp = ChatUtils.parseMarkdownToArr(content);
+            for (int i = 0; i < temp.length; i++) {
+                ChatMessageRichListModel model = new ChatMessageRichListModel();
+                if (StringUtils.isNoEmpty(temp[i])) {
+                    if (temp[i].startsWith("<table")) {
+                        //md 表格
+                        model.setMsg(temp[i]);
+                        model.setType(5);
+                    } else if (temp[i].startsWith("http")) {
+                        //图片
+                        model.setMsg(temp[i]);
+                        model.setType(1);
+                    } else {
+                        //文本
+                        model.setMsg(ChatUtils.parseMarkdownData(temp[i]));
+                        model.setType(0);
+                    }
+                    resultRichList.add(model);
+                }
+            }
+        } else {
+            ChatMessageRichListModel model = new ChatMessageRichListModel();
+            model.setMsg(ChatUtils.parseMarkdownData(content));
+            model.setType(0);
+            resultRichList.add(model);
         }
     }
 
@@ -1206,7 +1411,6 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             }
         }
     }
-
 
     //通过msgid 移除该消息
     public void removeByMsgId(String msgId) {
@@ -1510,6 +1714,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             case MSG_TYPE_CUSTOM_CARD_HORIZONTAL_SPECIAL:
                 holder = new CustomCardHorizontalMessageHolder(context, convertView);
                 break;
+            case MSG_TYPE_VARIABLE_FROM:
+                holder = new VariableFromMessageHolder(context, convertView);
+                break;
             default: {
                 holder = new TextMessageHolder(context, convertView);
                 break;
@@ -1519,12 +1726,10 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         return holder;
     }
 
-    public int getIdByName(Context context, String className,
-                           String resName) {
+    public int getIdByName(Context context, String className, String resName) {
         context = context.getApplicationContext();
         String packageName = context.getPackageName();
-        int indentify = context.getResources().getIdentifier(resName,
-                className, packageName);
+        int indentify = context.getResources().getIdentifier(resName, className, packageName);
         return indentify;
     }
 
@@ -1555,8 +1760,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             return;
         }
         VersionUtils.setBackground(null, baseHolder.reminde_time_Text);
-        baseHolder.reminde_time_Text.setTextColor(context.getResources()
-                .getColor(R.color.sobot_color_remind_text));
+        baseHolder.reminde_time_Text.setTextColor(context.getResources().getColor(R.color.sobot_color_remind_text));
         String time = "";
         String lastCid = SharedPreferencesUtil.getStringData(context, "lastCid", "");
 
@@ -1762,5 +1966,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         void chooseByAllLangaue(ArrayList<SobotlanguaeModel> sobotlanguaeModelList, ZhiChiMessageBase messageBase);
 
         void goToLastIndexItem();
+
+        void variableFrom(SobotRobot newRobotId, List<SobotVariableModel> variables);
     }
 }

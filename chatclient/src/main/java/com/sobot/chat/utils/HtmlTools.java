@@ -1,7 +1,6 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.HttpUtils.FileCallBack;
 import com.sobot.chat.widget.LinkMovementClickMethod;
-import com.sobot.chat.widget.emoji.InputHelper;
 import com.sobot.chat.widget.html.SobotCustomTagHandler;
 import com.sobot.chat.widget.rich.EmailSpan;
 import com.sobot.chat.widget.rich.MyURLSpan;
@@ -191,7 +189,7 @@ public class HtmlTools {
         if (TextUtils.isEmpty(content)) {
             return;
         }
-        content=content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
+        content = content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
         content = HtmlUnescaper.unescapeHtml4(content);//转义符还原
         content = content.trim();
         while (!TextUtils.isEmpty(content) && content.length() > 5 && "<br/>".equals(content.substring(0, 5))) {
@@ -202,7 +200,7 @@ public class HtmlTools {
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
         widget.setFocusable(false);
-        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"));
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), false, false);
         // 显示链接
         parseLinkText(context, widget, span, color, showBottomLine);
     }
@@ -215,10 +213,24 @@ public class HtmlTools {
      * @param color   要显示的颜色
      */
     public void setRichText(TextView widget, String content, int color) {
+        setRichText(widget, content, color, false, false, true);
+    }
+
+    /**
+     * 设置富文本
+     *
+     * @param widget
+     * @param content
+     * @param color              要显示的颜色
+     * @param isHistoryMsg       是否是大模型历史记录消息
+     * @param isCanClickAiButton 大模型消息里边按钮是否能点击（回答结束后才能点击）
+     * @param isDeleteBr         是否删除开头结尾的换行符（大模型实时问没结束前，不删除）
+     */
+    public void setRichText(TextView widget, String content, int color, boolean isHistoryMsg, boolean isCanClickAiButton, boolean isDeleteBr) {
         if (TextUtils.isEmpty(content)) {
             return;
         }
-        content=content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
+        content = content.replace("&mid=", "&#38;mid=");//雷霆超链接url里把&mid当参数用了，实际这个在html是数字符号|的意思
         content = HtmlUnescaper.unescapeHtml4(content);//转义符还原
         content = content.trim();
         if (content.contains("&nbsp;")) {
@@ -230,14 +242,19 @@ public class HtmlTools {
         if (content.contains("<p>")) {
             content = content.replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
         }
+        if (content.contains("</br>")) {
+            content = content.replaceAll("</br>", "<br/>");
+        }
         if (content.startsWith("<br/>") && content.length() >= 5) {
             content = content.substring(5);// 去掉开头的<br/>
         }
-        while (content.length() > 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
-            content = content.substring(0, content.length() - 5);// 去掉结尾的<br/>
+        if (isDeleteBr) {
+            while (content.length() >= 5 && "<br/>".equals(content.substring(content.length() - 5, content.length()))) {
+                content = content.substring(0, content.length() - 5).trim();// 去掉结尾的<br/>
+            }
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
-        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"));
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), isHistoryMsg, isCanClickAiButton);
         // 显示链接
         parseLinkText(context, widget, span, color, false);
     }
@@ -259,7 +276,7 @@ public class HtmlTools {
             content = content.replaceAll("\n", "<br/>");
         }
         widget.setMovementMethod(LinkMovementClickMethod.getInstance());
-        Spanned span = formatRichTextWithPic(widget,content.replace("\n", "<br/>"));
+        Spanned span = formatRichTextWithPic(widget, content.replace("\n", "<br/>"), false, false);
         // 显示链接
         parseLinkText(context, widget, span, color, false);
     }
@@ -271,8 +288,12 @@ public class HtmlTools {
      * @param htmlContent
      * @return
      */
-    public Spanned formatRichTextWithPic(final TextView textView,  String htmlContent) {
-        return Html.fromHtml(("<span>"+htmlContent+"</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors()));
+    public Spanned formatRichTextWithPic(TextView textView, String htmlContent, boolean isHistoryMsg, boolean isCanClickAiButton) {
+        // 添加空值检查
+        if (textView == null || TextUtils.isEmpty(htmlContent)) {
+            return Html.fromHtml("", null, null);
+        }
+        return Html.fromHtml(("<span>" + htmlContent + "</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors(), isHistoryMsg, isCanClickAiButton));
     }
 
     /**

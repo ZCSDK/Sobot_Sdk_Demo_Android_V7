@@ -14,6 +14,7 @@ import android.widget.TextView;
 public class SobotDialogUtils {
 
     public static SobotLoadingDialog progressDialog;
+    public static SobotTipDialog tipDialog;
 
     public static void startProgressDialog(Context context) {
         if (context == null) {
@@ -58,6 +59,35 @@ public class SobotDialogUtils {
             }
         }
         progressDialog = null;
+    }
+    public static void startTipDialog(Context context, String str) {
+        if (context == null) {
+            return;
+        }
+        if (tipDialog == null) {
+            tipDialog = new SobotTipDialog(context, str);
+        } else {
+            tipDialog.setmMessage(str);
+        }
+        try {
+            tipDialog.show();
+        } catch (Exception e) {
+//            e.printStackTrace();
+        }
+    }
+
+    public static void stopTipDialog(Context context) {
+        if (tipDialog != null && context != null && tipDialog.isShowing()) {
+            Activity act = (Activity) context;
+            try {
+                if (!act.isFinishing()) {
+                    tipDialog.dismiss();
+                }
+            } catch (Exception e) {
+//            e.printStackTrace();
+            }
+        }
+        tipDialog = null;
     }
 
     public static void resetDialogStyle(AlertDialog alertDialog) {

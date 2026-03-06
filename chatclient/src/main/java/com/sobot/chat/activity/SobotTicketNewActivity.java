@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,10 +51,11 @@ import com.sobot.chat.api.model.SobotFileModel;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.api.model.SobotLeaveMsgParamModel;
 import com.sobot.chat.api.model.SobotTimezone;
+import com.sobot.chat.api.model.UploadInitModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.camera.util.FileUtil;
-import com.sobot.chat.listener.ISobotCusField;
+import com.sobot.chat.listener.SobotCusFieldListener;
 import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.presenter.StPostMsgPresenter;
@@ -65,6 +68,7 @@ import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.MediaFileUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.SobotChunkedUploadManager;
 import com.sobot.chat.utils.SobotJsonUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.SobotSoftKeyboardUtils;
@@ -74,10 +78,12 @@ import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
 import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.SobotInputView;
+import com.sobot.chat.widget.SobotUploadView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
+import com.sobot.chat.widget.dialog.SobotSelectPicAndFileDialog;
 import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
@@ -90,7 +96,7 @@ import java.util.List;
 /**
  * 新建留言工单
  */
-public class SobotTicketNewActivity extends SobotChatBaseActivity implements View.OnClickListener, ISobotCusField {
+public class SobotTicketNewActivity extends SobotChatBaseActivity implements View.OnClickListener, SobotCusFieldListener {
 
     private SobotLeaveMsgConfig mConfig;
     private String mUid = "";
@@ -120,8 +126,14 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private TextView sobot_btn_file, sobot_file_hite, sobot_file_error;//上传按钮、提示、错误提示
     private RecyclerView sobot_reply_msg_pic;
     private ArrayList<SobotFileModel> pic_list = new ArrayList<>();
+    private ArrayList<SobotFileModel> cus_pic_list = new ArrayList<>();
     private SobotUploadFileAdapter adapter;
-    private SobotSelectPicDialog menuWindow;
+    private SobotSelectPicDialog selectPicDialog;
+    private SobotSelectPicAndFileDialog selectPicAndFileDialog;
+    //上传图片成功后知道是那个字段，上传成功或失败后清空变量
+    private SobotCusFieldConfig uploadFieldConfig;
+    //上传图片成功或失败后显示的view
+    private SobotUploadView uploadView;
     private String phoneCode;
 
     /**
@@ -152,6 +164,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private ImageView cb_policy;
     private LinearLayout sobot_ll_policy;
     private boolean flag_policy = false;
+    private SobotChunkedUploadManager uploadManager;
 
     @Override
     protected int getContentViewResId() {
@@ -165,6 +178,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             mGroupId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_GROUPID);
             mCustomerId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID);
             mCompanyId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID);
+            if (StringUtils.isEmpty(mCompanyId)) {
+                mCompanyId = SharedPreferencesUtil.getStringData(this,
+                        ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
+            }
             mTempId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_TEMPID);
         }
     }
@@ -177,6 +194,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     @Override
     protected void initView() {
         list = new ArrayList<>();
+        // 使用分片上传管理器上传文件
+        uploadManager = new SobotChunkedUploadManager(
+                SobotTicketNewActivity.this, zhiChiApi);
+
         sobot_ll_policy = findViewById(R.id.sobot_ll_policy);
         sobot_tv_policy = findViewById(R.id.sobot_tv_policy);
         cb_policy = findViewById(R.id.iv_policy);
@@ -231,7 +252,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         sobot_reply_msg_pic.setLayoutManager(layoutManager);
-        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false));
+        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false, ChatUtils.isRtl(getSobotBaseActivity())));
 
         sobot_post_phone = findViewById(R.id.sobot_post_phone);
         sobot_post_phone.setCusCallBack(this);
@@ -239,7 +260,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types), true);
         sobot_post_customer_field = (LinearLayout) findViewById(R.id.sobot_post_customer_field);
 
-        sobot_post_type.getTvSelect().setOnClickListener(new View.OnClickListener() {
+        sobot_post_type.getLlSelectOne().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clearFocus();
@@ -446,7 +467,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 sobot_post_phone.setInputType("single_line");
             }
             //键盘类型
-            sobot_post_phone.setViweType("phone");
+            sobot_post_phone.setInputHint(getResources().getString(R.string.sobot_please_input));
+            boolean isRtl = ChatUtils.isRtl(getSobotBaseActivity());
+            if (!isRtl) {
+                sobot_post_phone.setViweType("phone");//阿语下不反转
+            }
             sobot_post_phone.setVisibility(View.VISIBLE);
         } else {
             sobot_post_phone.setVisibility(View.GONE);
@@ -620,6 +645,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_CloseLeave);
         }
         SobotDialogUtils.stopProgressDialog(this);
+        SobotDialogUtils.stopTipDialog(this);
+        //页面异常结束时，调用接口清空缓存
+        if (null != uploadFieldConfig && null != uploadManager) {
+            uploadManager.finishUpload();
+        }
         super.onDestroy();
     }
 
@@ -643,18 +673,18 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 //图片上限15张
                 ToastUtil.showToast(this, getResources().getString(R.string.sobot_ticket_update_file_max_hite));
             } else {
-                menuWindow = new SobotSelectPicDialog(this, itemsOnClick);
-                menuWindow.show();
+                selectPicDialog = new SobotSelectPicDialog(this, itemsOnClick);
+                selectPicDialog.show();
             }
         } else if (v == sobot_ll_policy) {
             //隐私协议
             flag_policy = !flag_policy;
-            cb_policy.setSelected(flag_policy);
-            if(flag_policy){
+            updateFlagPolicy();
+            if (flag_policy) {
                 sobot_btn_submit.setEnabled(true);
                 sobot_btn_submit.setClickable(true);
                 sobot_btn_submit.getBackground().setAlpha(255);
-            }else{
+            } else {
                 sobot_btn_submit.setClickable(false);
                 sobot_btn_submit.setEnabled(false);
                 sobot_btn_submit.getBackground().setAlpha(102);
@@ -669,8 +699,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
      */
     private void setCusFieldValue() {
         //自定义表单校验结果:为空,校验通过,可以提交;不为空,说明自定义字段校验不通过，不能提交留言表单;
-        String errorMsg = StCusFieldPresenter.formatCusFieldVal(this, sobot_post_customer_field, mFields);
-        if (TextUtils.isEmpty(errorMsg)) {
+        boolean isError = StCusFieldPresenter.formatCusFieldVal(this, sobot_post_customer_field, mFields);
+        if (!isError) {
             checkSubmit();
         }
     }
@@ -701,9 +731,16 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         if (mFields != null && mFields.size() != 0) {
             for (int i = 0; i < mFields.size(); i++) {
                 if (1 == mFields.get(i).getCusFieldConfig().getFillFlag()) {
-                    if (TextUtils.isEmpty(mFields.get(i).getCusFieldConfig().getValue())) {
-                        showHint(mFields.get(i).getCusFieldConfig().getFieldName() + "  " + getResources().getString(R.string.sobot__is_null));
-                        return;
+                    if (mFields.get(i).getCusFieldConfig().getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD) {
+                        if (null == mFields.get(i).getCusFieldConfig().getCacheFile()) {
+                            showHint(mFields.get(i).getCusFieldConfig().getFieldName() + "  " + getResources().getString(R.string.sobot__is_null));
+                            return;
+                        }
+                    } else {
+                        if (TextUtils.isEmpty(mFields.get(i).getCusFieldConfig().getValue())) {
+                            showHint(mFields.get(i).getCusFieldConfig().getFieldName() + "  " + getResources().getString(R.string.sobot__is_null));
+                            return;
+                        }
                     }
                 }
             }
@@ -815,10 +852,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 sobot_post_phone.hideError();
             }
         }
-        postMsg(userPhone, userEamil, title,flag_policy);
+        postMsg(userPhone, userEamil, title, flag_policy);
     }
 
-    private void postMsg(String userPhone, String userEamil, String title,boolean authorizeAgree ) {
+    private void postMsg(String userPhone, String userEamil, String title, boolean authorizeAgree) {
         sobot_btn_submit.setAlpha(0.5f);
         sobot_btn_submit.setEnabled(false);
         sobot_btn_submit.setClickable(false);
@@ -897,7 +934,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     // 为弹出窗口popupwindow实现监听类
     private View.OnClickListener itemsOnClick = new View.OnClickListener() {
         public void onClick(View v) {
-            menuWindow.dismiss();
+            selectPicDialog.dismiss();
             if (v.getId() == R.id.btn_take_photo) {
                 LogUtils.i("拍照");
                 selectPicFromCamera();
@@ -909,6 +946,32 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             if (v.getId() == R.id.btn_pick_vedio) {
                 LogUtils.i("选择视频");
                 selectVedioFromLocal();
+            }
+
+        }
+    };
+    private View.OnClickListener itemsOnClick2 = new View.OnClickListener() {
+        public void onClick(View v) {
+            selectPicAndFileDialog.dismiss();
+            if (v.getId() == R.id.btn_take_photo) {
+                LogUtils.i("拍照");
+                selectPicFromCamera();
+            }
+            if (v.getId() == R.id.btn_pick_photo) {
+                LogUtils.i("选择照片");
+                selectPicFromLocal();
+            }
+            if (v.getId() == R.id.btn_pick_vedio) {
+                LogUtils.i("选择视频");
+                selectVedioFromLocal();
+            }
+            if (v.getId() == R.id.btn_pick_file) {
+                LogUtils.i("选择文件");
+                selectFile();
+            }
+            if (v.getId() == R.id.btn_cancel) {
+                LogUtils.i("取消");
+                uploadFieldConfig = null;
             }
 
         }
@@ -983,6 +1046,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 mTvCompleted.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
             }
             sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
+            mTvCompleted.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
             mIvLeaveMsgCreateSuccessDes.setImageDrawable(ThemeUtils.applyColorToDrawable(getResources().getDrawable(R.drawable.sobot_icon_completed), color));
         }
     }
@@ -1067,7 +1131,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
-    private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
+    private ChatUtils.SobotSendFileListener sendPicListener = new ChatUtils.SobotSendFileListener() {
         @Override
         public void onSuccess(final String filePath) {
             zhiChiApi.fileUploadForPostMsg(SobotTicketNewActivity.this, mConfig.getCompanyId(), mUid, filePath, new ResultCallBack<ZhiChiMessage>() {
@@ -1095,6 +1159,59 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 @Override
                 public void onLoading(long total, long current, boolean isUploading) {
 
+                }
+            });
+        }
+
+        @Override
+        public void onError() {
+            SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+        }
+    };
+    /**
+     * 分片上传文件
+     */
+    private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
+        @Override
+        public void onSuccess(final String filePath) {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+                return;
+            }
+            if(null == uploadManager){
+                uploadManager = new SobotChunkedUploadManager(getSobotBaseActivity(), zhiChiApi);
+            }
+            uploadManager.uploadFile(file, mCompanyId, new SobotChunkedUploadManager.UploadCallback() {
+                @Override
+                public void onSuccess(UploadInitModel result) {
+                    SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+                    if (uploadFieldConfig != null && result != null) {
+                        uploadFieldConfig.setText(result.getFileName());
+                        SobotCacheFile cacheFile = new SobotCacheFile();
+                        cacheFile.setFileType(ChatUtils.getFileType(result.getFileName()));
+                        cacheFile.setFilePath(filePath);
+                        cacheFile.setUrl(result.getFileUrl());
+                        cacheFile.setFileName(result.getFileName());
+                        uploadFieldConfig.setCacheFile(cacheFile);
+                        uploadView.addPicView(uploadFieldConfig);
+
+                    }
+                    uploadFieldConfig = null;
+                }
+
+                @Override
+                public void onFailure(String errorMsg) {
+                    SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+                    if (uploadView != null && errorMsg != null) {
+                        uploadView.showError(errorMsg);
+                    }
+                    uploadFieldConfig = null;
+                }
+
+                @Override
+                public void onProgress(int currentChunk, int totalChunks) {
+                    // 可以在这里更新进度条
                 }
             });
         }
@@ -1151,59 +1268,69 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && requestCode == ZhiChiConstant.work_order_list_display_type_policy) {
             flag_policy = data.getBooleanExtra("policyAgree", false);
-            cb_policy.setSelected(flag_policy);
-            if(flag_policy){
+            updateFlagPolicy();
+            if (flag_policy) {
                 sobot_btn_submit.setEnabled(true);
                 sobot_btn_submit.setClickable(true);
                 sobot_btn_submit.getBackground().setAlpha(255);
-            }else{
+            } else {
                 sobot_btn_submit.setClickable(false);
                 sobot_btn_submit.setEnabled(false);
                 sobot_btn_submit.getBackground().setAlpha(102);
             }
-        } else  if (resultCode == Activity.RESULT_OK) {
+        } else if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ZhiChiConstant.REQUEST_CODE_picture) { // 发送本地图片
                 sobot_file_error.setVisibility(View.GONE);
                 if (data != null && data.getData() != null) {
+                    SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
                     Uri selectedImage = data.getData();
                     if (selectedImage == null) {
                         selectedImage = ImageUtils.getUri(data, getSobotBaseActivity());
                     }
-                    String path = ImageUtils.getPath(getSobotBaseActivity(), selectedImage);
-                    if (!StringUtils.isEmpty(path)) {
-                        if (MediaFileUtils.isVideoFileType(path)) {
-                            try {
+                    Uri finalSelectedImage = selectedImage;
+                    ImageUtils.getPathAsync(getSobotBaseActivity(), selectedImage, new ImageUtils.OnPathCallback() {
+                        @Override
+                        public void onResult(String path) {
+                            if (!StringUtils.isEmpty(path)) {
+                                if (uploadFieldConfig != null) {
+                                    File selectedFile = new File(path);
+                                    ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                                } else {
+                                    if (MediaFileUtils.isVideoFileType(path)) {
+                                        try {
 
-                                File selectedFile = new File(path);
-                                if (selectedFile.exists()) {
-                                    if (selectedFile.length() > 50 * 1024 * 1024) {
-                                        ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_file_upload_failed));
-                                        return;
+                                            File selectedFile = new File(path);
+                                            if (selectedFile.exists()) {
+                                                if (selectedFile.length() > 50 * 1024 * 1024) {
+                                                    ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_file_upload_failed));
+                                                    return;
+                                                }
+                                            }
+                                            String fName = MD5Util.encode(path);
+                                            String filePath = null;
+                                            try {
+                                                filePath = FileUtil.saveImageFile(getSobotBaseActivity(), finalSelectedImage, fName + FileUtil.getFileEndWith(path), path);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_pic_type_error));
+                                                return;
+                                            }
+                                            sendPicListener.onSuccess(filePath);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    } else {
+                                        ChatUtils.sendPicByUriPost(getSobotBaseActivity(), finalSelectedImage, sendPicListener, false);
                                     }
                                 }
-                                SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-//                            ChatUtils.sendPicByFilePath(getSobotBaseActivity(),path,sendFileListener,false);
-                                String fName = MD5Util.encode(path);
-                                String filePath = null;
-                                try {
-                                    filePath = FileUtil.saveImageFile(getSobotBaseActivity(), selectedImage, fName + FileUtil.getFileEndWith(path), path);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_pic_type_error));
-                                    return;
-                                }
-                                sendFileListener.onSuccess(filePath);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            } else {
+                                SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+                                showHint(getResources().getString(R.string.sobot_did_not_get_picture_path));
                             }
-
-                        } else {
-                            SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                            ChatUtils.sendPicByUriPost(getSobotBaseActivity(), selectedImage, sendFileListener, false);
                         }
-                    } else {
-                        showHint(getResources().getString(R.string.sobot_did_not_get_picture_path));
-                    }
+                    });//耗时
+
                 } else {
                     showHint(getResources().getString(R.string.sobot_did_not_get_picture_path));
                 }
@@ -1211,9 +1338,39 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 sobot_file_error.setVisibility(View.GONE);
                 if (cameraFile != null && cameraFile.exists()) {
                     SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                    ChatUtils.sendPicByFilePath(getSobotBaseActivity(), cameraFile.getAbsolutePath(), sendFileListener, true);
+                    if (uploadFieldConfig != null) {
+                        ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                    } else {
+                        ChatUtils.sendPicByFilePath(getSobotBaseActivity(), cameraFile.getAbsolutePath(), sendPicListener, true);
+                    }
                 } else {
                     showHint(getResources().getString(R.string.sobot_pic_select_again));
+                }
+            } else if (requestCode == ZhiChiConstant.REQUEST_COCE_TO_CHOOSE_FILE) {
+                //上传文件
+                Uri selectedImage = data.getData();
+                if (null == selectedImage) {
+                    File selectedFile = (File) data.getSerializableExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE);
+                    //文件的上传
+                    if (uploadFieldConfig != null && selectedFile != null) {
+                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                        ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                    }
+                } else {
+                    if (selectedImage == null) {
+                        selectedImage = ImageUtils.getUri(data, getSobotBaseActivity());
+                    }
+                    String path = ImageUtils.getPath(getSobotBaseActivity(), selectedImage);//耗时
+                    if (TextUtils.isEmpty(path)) {
+                        ToastUtil.showToast(getSobotBaseActivity(), getResources().getString(R.string.sobot_cannot_open_file));
+                        return;
+                    }
+                    File selectedFile = new File(path);
+                    //文件的上传
+                    if (uploadFieldConfig != null && selectedFile != null) {
+                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                        ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                    }
                 }
             }
         } else if (resultCode == SobotCameraActivity.RESULT_CODE) {
@@ -1225,7 +1382,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     if (videoFile.exists()) {
                         cameraFile = videoFile;
                         SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                        sendFileListener.onSuccess(videoFile.getAbsolutePath());
+                        sendPicListener.onSuccess(videoFile.getAbsolutePath());
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
@@ -1234,12 +1391,17 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     if (tmpPic.exists()) {
                         cameraFile = tmpPic;
                         SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                        ChatUtils.sendPicByFilePath(getSobotBaseActivity(), tmpPic.getAbsolutePath(), sendFileListener, true);
+                        if (uploadFieldConfig != null) {
+                            ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                        } else {
+                            ChatUtils.sendPicByFilePath(getSobotBaseActivity(), tmpPic.getAbsolutePath(), sendPicListener, true);
+                        }
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
                 }
             }
+
         }
         if (data != null) {
             StCusFieldPresenter.onStCusFieldActivityResult(getSobotBaseActivity(), data, mFields, sobot_post_customer_field);
@@ -1263,6 +1425,25 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 default:
                     break;
             }
+        }
+    }
+
+    //修改我已经阅读勾选框
+    private void updateFlagPolicy() {
+        if (flag_policy) {
+            // 应用主题色到选中状态的图标
+            Drawable checkedDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_checkbox_bg, null);
+            if (checkedDrawable != null) {
+                cb_policy.setBackground(ThemeUtils.applyColorToDrawable(checkedDrawable, ThemeUtils.getThemeColor(getSobotBaseActivity())));
+            }
+            cb_policy.setImageResource(R.drawable.sobot_icon_checkbox_s);
+        } else {
+            // 未选中状态
+            Drawable uncheckedDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_checkbox_n, null);
+            if (uncheckedDrawable != null) {
+                cb_policy.setBackground(uncheckedDrawable);
+            }
+            cb_policy.setImageDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
     }
 
@@ -1298,18 +1479,19 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
     private ArrayList<SobotTimezone> list;
     private int requestCount = 0;//请求的次数
+
     @Override
-    public void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectLeftOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时区
         if (list == null || list.size() == 0) {
-            requestZone(true,fieldConfig);
+            requestZone(true, fieldConfig);
         } else {
             showZoneDialog(fieldConfig);
         }
     }
 
     @Override
-    public void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectRightOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时间
         if (fieldConfig != null) {
             Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
@@ -1319,11 +1501,51 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             startActivityForResult(intent, fieldConfig.getFieldType());
         }
     }
+
+    //================自定义字段上传======start===========
+    @Override
+    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+
+    @Override
+    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+        //预览，加载本地文件
+        if (fieldConfig != null && fieldConfig.getCacheFile() != null) {
+            if (fieldConfig.getCacheFile().getFileType() == ZhiChiConstant.MSGTYPE_FILE_PIC) {
+                //图片预览
+                Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhotoActivity.class);
+                intent.putExtra("imageUrL", fieldConfig.getCacheFile().getFilePath());
+                startActivity(intent);
+            } else {
+                //文件预览
+                Intent intent = new Intent(SobotTicketNewActivity.this, SobotFileDetailActivity.class);
+                fieldConfig.getCacheFile().setMsgId("" + System.currentTimeMillis());
+                intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, fieldConfig.getCacheFile());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }
+    }
+
+    @Override
+    public void onClickUpload(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+        if (uploadFieldConfig != null) {
+            //清空上次的上传数据
+        }
+        uploadView = view;
+        uploadFieldConfig = fieldConfig;
+        selectPicAndFileDialog = new SobotSelectPicAndFileDialog(this, itemsOnClick2);
+        selectPicAndFileDialog.show();
+    }
+//================自定义字段上传======end===========
+
     /**
      * 请求时区
+     *
      * @param showDialog
      */
-    private void requestZone(final boolean showDialog,SobotCusFieldConfig fieldConfig) {
+    private void requestZone(final boolean showDialog, SobotCusFieldConfig fieldConfig) {
         if (requestCount > 5) {
             //显示暂无数据
             if (showDialog) {
@@ -1347,7 +1569,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
             @Override
             public void onFailure(Exception e, String s) {
-                requestZone(showDialog,fieldConfig);
+                requestZone(showDialog, fieldConfig);
             }
         });
     }

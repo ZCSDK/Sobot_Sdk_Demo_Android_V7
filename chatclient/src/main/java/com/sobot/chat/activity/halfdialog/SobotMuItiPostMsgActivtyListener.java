@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,7 +21,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +30,6 @@ import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotPhotoActivity;
-import com.sobot.chat.activity.SobotTicketNewActivity;
 import com.sobot.chat.activity.SobotVideoActivity;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotUploadFileAdapter;
@@ -54,7 +51,7 @@ import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.HttpUtils;
-import com.sobot.chat.listener.ISobotCusField;
+import com.sobot.chat.listener.SobotCusFieldListener;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.presenter.StPostMsgPresenter;
 import com.sobot.chat.utils.ChatUtils;
@@ -74,6 +71,7 @@ import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.SobotInputView;
+import com.sobot.chat.widget.SobotUploadView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
@@ -93,7 +91,7 @@ import java.util.UUID;
 /**
  * 多伦 工单节点对应的 留言弹窗界面
  */
-public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements View.OnClickListener, ISobotCusField {
+public class SobotMuItiPostMsgActivtyListener extends SobotDialogBaseActivity implements View.OnClickListener, SobotCusFieldListener {
     private TextView sobot_tv_title;
     //新建工单
     private SobotInputView sobot_post_title;//标题
@@ -225,7 +223,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // 设置RecyclerView的LayoutManager
         sobot_reply_msg_pic.setLayoutManager(layoutManager);
-        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false));
+        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false, ChatUtils.isRtl(getSobotBaseActivity())));
 
         sobot_post_phone = findViewById(R.id.sobot_post_phone);
         sobot_post_phone.setCusCallBack(this);
@@ -233,14 +231,14 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types), true);
         sobot_post_customer_field = (LinearLayout) findViewById(R.id.sobot_post_customer_field);
 
-        sobot_post_type.getTvSelect().setOnClickListener(new View.OnClickListener() {
+        sobot_post_type.getLlSelectOne().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clearFocus();
                 if (null != mConfig) {
                     if (mConfig.getType() != null && mConfig.getType().size() != 0) {
                         ChatUtils.setTypeList(mConfig.getType());
-                        Intent intent = new Intent(SobotMuItiPostMsgActivty.this, SobotPostCategoryActivity.class);
+                        Intent intent = new Intent(SobotMuItiPostMsgActivtyListener.this, SobotPostCategoryActivity.class);
                         Bundle bundle = new Bundle();
                         if (sobot_post_type.getValue() != null &&
                                 !TextUtils.isEmpty(sobot_post_type.getValue())) {
@@ -280,7 +278,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
-        Drawable d = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_theme_color_20dp,null);
+        Drawable d = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_theme_color_20dp, null);
         sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
         sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         sobot_post_customer_field.setVisibility(View.GONE);
@@ -339,6 +337,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         displayInNotch(sobot_post_phone);
         displayInNotch(sobot_post_title);
     }
+
     /**
      * 创建统一的点击监听器，用于隐藏软键盘并清除输入框焦点
      */
@@ -349,6 +348,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             hideAllEditTextFocus();
         }
     };
+
     private void clearFocus() {
         View view = getCurrentFocus();
         if (view != null) {
@@ -356,6 +356,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             view.clearFocus();
         }
     }
+
     /**
      * 隐藏所有EditText的焦点并收起软键盘
      */
@@ -389,14 +390,14 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     @Override
     protected void initData() {
         information = (Information) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "sobot_last_current_info");
-        zhiChiApi.getTemplateFieldsInfo(SobotMuItiPostMsgActivty.this, uid, mConfig.getTemplateId(), new StringResultCallBack<SobotLeaveMsgParamModel>() {
+        zhiChiApi.getTemplateFieldsInfo(SobotMuItiPostMsgActivtyListener.this, uid, mConfig.getTemplateId(), new StringResultCallBack<SobotLeaveMsgParamModel>() {
 
             @Override
             public void onSuccess(SobotLeaveMsgParamModel result) {
                 if (result != null) {
                     if (result.getField() != null && result.getField().size() != 0) {
                         mFields = result.getField();
-                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseActivity(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivty.this);
+                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseActivity(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivtyListener.this);
                     }
                 }
             }
@@ -418,6 +419,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             requestTempConfig(templateId);
         }
     }
+
     /**
      * 获取模板配置
      */
@@ -432,10 +434,10 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     mConfig = data;
                     showTempConfig();
                 } else {
-                    ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivty.this,
+                    ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivtyListener.this,
                             ZhiChiConstant.sobot_last_current_initModel);
                     //如果mConfig 为空，直接从初始化接口获取配置信息
-                    Information info = (Information) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivty.this, "sobot_last_current_info");
+                    Information info = (Information) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivtyListener.this, "sobot_last_current_info");
                     mConfig = new SobotLeaveMsgConfig();
                     mConfig.setEmailFlag(initMode.isEmailFlag());
                     mConfig.setEmailShowFlag(initMode.isEmailShowFlag());
@@ -462,10 +464,10 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             @Override
             public void onFailure(Exception e, String des) {
                 mllContainer.setVisibility(View.VISIBLE);
-                ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivty.this,
+                ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivtyListener.this,
                         ZhiChiConstant.sobot_last_current_initModel);
                 //如果mConfig 为空，直接从初始化接口获取配置信息
-                Information info = (Information) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivty.this, "sobot_last_current_info");
+                Information info = (Information) SharedPreferencesUtil.getObject(SobotMuItiPostMsgActivtyListener.this, "sobot_last_current_info");
                 mConfig = new SobotLeaveMsgConfig();
                 mConfig.setEmailFlag(initMode.isEmailFlag());
                 mConfig.setEmailShowFlag(initMode.isEmailShowFlag());
@@ -495,8 +497,8 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
      */
     private void setCusFieldValue() {
         //自定义表单校验结果:为空,校验通过,可以提交;不为空,说明自定义字段校验不通过，不能提交留言表单;
-        String errorMsg = StCusFieldPresenter.formatCusFieldVal(this, sobot_post_customer_field, mFields);
-        if (TextUtils.isEmpty(errorMsg)) {
+        boolean isError = StCusFieldPresenter.formatCusFieldVal(this, sobot_post_customer_field, mFields);
+        if (!isError) {
             checkSubmit();
         }
     }
@@ -684,7 +686,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
         postParam.setCompanyId(mConfig.getCompanyId());
         postParam.setFileStr(getFileStr());
         postParam.setGroupId(mGroupId);
-        postParam.setTicketFrom("4");
+        postParam.setTicketFrom("21");
         if (information != null && information.getLeaveParamsExtends() != null) {
             postParam.setParamsExtends(SobotJsonUtils.toJson(information.getLeaveParamsExtends()));
         }
@@ -736,7 +738,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             tempMap.put(sobot_post_phone.getTvTitle().getText().toString().replace(" *", ""), StringUtils.isEmpty(userPhone) ? " - -" : userPhone);
         }
 
-        zhiChiApi.postMsg(SobotMuItiPostMsgActivty.this, postParam, new StringResultCallBack<CommonModelBase>() {
+        zhiChiApi.postMsg(SobotMuItiPostMsgActivtyListener.this, postParam, new StringResultCallBack<CommonModelBase>() {
             @Override
             public void onSuccess(CommonModelBase base) {
                 try {
@@ -766,7 +768,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                             map.put("msgId", tipMsgId);
                             map.put("deployId", templateId);
                             map.put("updateStatus", 1);//0表示插入 1表示更新
-                            zhiChiApi.infoCollection(SobotMuItiPostMsgActivty.this, map, new StringResultCallBack<CommonModel>() {
+                            zhiChiApi.infoCollection(SobotMuItiPostMsgActivtyListener.this, map, new StringResultCallBack<CommonModel>() {
                                 @Override
                                 public void onSuccess(CommonModel commonModel) {
 
@@ -825,7 +827,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 cacheFile.setFilePath(fileModel.getFileUrl());
                 cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(fileModel.getFileUrl())));
                 cacheFile.setMsgId("" + System.currentTimeMillis());
-                Intent intent = SobotVideoActivity.newIntent(SobotMuItiPostMsgActivty.this, cacheFile);
+                Intent intent = SobotVideoActivity.newIntent(SobotMuItiPostMsgActivtyListener.this, cacheFile);
                 startActivity(intent);
             }
 
@@ -842,7 +844,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     seleteMenuWindow = null;
                 }
                 if (seleteMenuWindow == null) {
-                    seleteMenuWindow = new SobotDeleteWorkOrderDialog(SobotMuItiPostMsgActivty.this, popMsg, new View.OnClickListener() {
+                    seleteMenuWindow = new SobotDeleteWorkOrderDialog(SobotMuItiPostMsgActivtyListener.this, popMsg, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             seleteMenuWindow.dismiss();
@@ -861,12 +863,12 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             public void previewPic(String fileUrl, String fileName) {
                 if (SobotOption.imagePreviewListener != null) {
                     //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(SobotMuItiPostMsgActivty.this, fileUrl);
+                    boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(SobotMuItiPostMsgActivtyListener.this, fileUrl);
                     if (isIntercept) {
                         return;
                     }
                 }
-                Intent intent = new Intent(SobotMuItiPostMsgActivty.this, SobotPhotoActivity.class);
+                Intent intent = new Intent(SobotMuItiPostMsgActivtyListener.this, SobotPhotoActivity.class);
                 intent.putExtra("imageUrL", fileUrl);
                 startActivity(intent);
             }
@@ -952,7 +954,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                 if (result != null) {
                     if (result.getField() != null && result.getField().size() != 0) {
                         mFields = result.getField();
-                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseContext(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivty.this);
+                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseContext(), mFields, sobot_post_customer_field, SobotMuItiPostMsgActivtyListener.this);
                     }
                 }
             }
@@ -1013,7 +1015,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
     private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
         @Override
         public void onSuccess(final String filePath) {
-            zhiChiApi.fileUploadForPostMsg(SobotMuItiPostMsgActivty.this, mConfig.getCompanyId(), uid, filePath, new ResultCallBack<ZhiChiMessage>() {
+            zhiChiApi.fileUploadForPostMsg(SobotMuItiPostMsgActivtyListener.this, mConfig.getCompanyId(), uid, filePath, new ResultCallBack<ZhiChiMessage>() {
                 @Override
                 public void onSuccess(ZhiChiMessage zhiChiMessage) {
                     SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
@@ -1147,7 +1149,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     File videoFile = new File(SobotCameraActivity.getSelectedVideo(data));
                     if (videoFile.exists()) {
                         cameraFile = videoFile;
-                        SobotDialogUtils.startProgressDialog(SobotMuItiPostMsgActivty.this);
+                        SobotDialogUtils.startProgressDialog(SobotMuItiPostMsgActivtyListener.this);
                         sendFileListener.onSuccess(videoFile.getAbsolutePath());
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
@@ -1156,8 +1158,8 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
                     File tmpPic = new File(SobotCameraActivity.getSelectedImage(data));
                     if (tmpPic.exists()) {
                         cameraFile = tmpPic;
-                        SobotDialogUtils.startProgressDialog(SobotMuItiPostMsgActivty.this);
-                        ChatUtils.sendPicByFilePath(SobotMuItiPostMsgActivty.this, tmpPic.getAbsolutePath(), sendFileListener, true);
+                        SobotDialogUtils.startProgressDialog(SobotMuItiPostMsgActivtyListener.this);
+                        ChatUtils.sendPicByFilePath(SobotMuItiPostMsgActivtyListener.this, tmpPic.getAbsolutePath(), sendFileListener, true);
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
@@ -1262,18 +1264,19 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
     private ArrayList<SobotTimezone> list;
     private int requestCount = 0;//请求的次数
+
     @Override
-    public void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectLeftOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时区
         if (list == null || list.size() == 0) {
-            requestZone(true,fieldConfig);
+            requestZone(true, fieldConfig);
         } else {
             showZoneDialog(fieldConfig);
         }
     }
 
     @Override
-    public void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectRightOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时间
         if (fieldConfig != null) {
             Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
@@ -1283,11 +1286,13 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             startActivityForResult(intent, fieldConfig.getFieldType());
         }
     }
+
     /**
      * 请求时区
+     *
      * @param showDialog
      */
-    private void requestZone(final boolean showDialog,SobotCusFieldConfig fieldConfig) {
+    private void requestZone(final boolean showDialog, SobotCusFieldConfig fieldConfig) {
         if (requestCount > 5) {
             //显示暂无数据
             if (showDialog) {
@@ -1311,7 +1316,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
 
             @Override
             public void onFailure(Exception e, String s) {
-                requestZone(showDialog,fieldConfig);
+                requestZone(showDialog, fieldConfig);
             }
         });
     }
@@ -1353,7 +1358,7 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             intent.putExtra("deployId", templateId);
             intent.putExtra("msg", getString(R.string.sobot_re_commit) + " <a>" + getString(R.string.sobot_re_write) + "</a>");
             CommonUtils.sendLocalBroadcast(getSobotBaseActivity(), intent);
-            zhiChiApi.infoCollection(SobotMuItiPostMsgActivty.this, map, new StringResultCallBack<CommonModel>() {
+            zhiChiApi.infoCollection(SobotMuItiPostMsgActivtyListener.this, map, new StringResultCallBack<CommonModel>() {
                 @Override
                 public void onSuccess(CommonModel commonModel) {
 
@@ -1366,4 +1371,20 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             });
         }
     }
+    //================自定义字段上传======start===========
+    @Override
+    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+
+    @Override
+    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+
+    @Override
+    public void onClickUpload(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+//================自定义字段上传======end===========
 }

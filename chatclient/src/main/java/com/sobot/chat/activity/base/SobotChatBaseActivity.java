@@ -115,12 +115,6 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     getDelegate().setLocalNightMode(local_night_mode); //切换模式
                 }
             }
-            if (!ChatUtils.isRtl(this)) {
-                //禁止布局镜像
-                Configuration config = getResources().getConfiguration();
-                config.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
-                getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-            }
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             super.onCreate(savedInstanceState);
             initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -195,16 +189,16 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                         for (Rect rect : notchScreenInfo.notchRects) {
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 44;
-                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 44;
+                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 44);
+                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 44);
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right < 90 ? 90 : rect.right) + 44;
-                                layoutParams.leftMargin = (rect.right < 90 ? 90 : rect.right) + 44;
+                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 44);
+                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 44);
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding((rect.right < 90 ? 90 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right < 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                view.setPadding((Math.max(rect.right, 90)) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right < 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -991,6 +985,16 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         ChatUtils.openSelectVedio(getSobotBaseActivity());
     }
 
+    /**
+     * 打开文件系统选取文件上传
+     */
+    public void selectFile() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, ZhiChiConstant.REQUEST_COCE_TO_CHOOSE_FILE);
+    }
+
     public SobotChatBaseActivity getSobotBaseActivity() {
         return this;
     }
@@ -1009,18 +1013,23 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         }
     }
 
+    // 在 attachBaseContext 方法中处理布局方向
     @Override
     protected void attachBaseContext(Context newBase) {
         Context context = null;
         try {
-            //修改语言
             Locale language = (Locale) SharedPreferencesUtil.getObject(newBase, ZhiChiConstant.SOBOT_LANGUAGE);
             context = newBase;
             if (language != null) {
                 Configuration config = newBase.getResources().getConfiguration();
-                // 更新配置信息
                 config = new Configuration(config);
                 config.setLocale(language);
+                // 根据是否为RTL语言设置布局方向
+                if (ChatUtils.isRtl(newBase)) {
+                    config.setLayoutDirection(language);
+                } else {
+                    config.setLayoutDirection(Locale.ENGLISH);
+                }
                 // 创建新的上下文
                 context = newBase.createConfigurationContext(config);
             }
@@ -1114,18 +1123,48 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * @param selCol  -1 = 不指定颜色  ; 其它=指定了，有指定优先用指定
      */
     private void updateViewColor(ImageView iv, boolean isBlack, int selCol) {
-        if (iv != null && iv.getDrawable() != null) {
-            Drawable backDrawable = iv.getDrawable();
-            if (selCol == -1) {
-                if (isBlack) {
-                    iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_black)));
-                } else {
-                    iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_white)));
-                }
-            } else {
-                iv.setImageDrawable(ThemeUtils.applyColorToDrawable(backDrawable, selCol));
-            }
+        // 增加空值检查和延迟执行机制
+        if (iv == null) {
+            return;
         }
+
+        // 使用 post 确保在 UI 线程执行且视图已准备就绪
+        iv.post(() -> {
+            try {
+                Drawable drawable = iv.getDrawable();
+                if (drawable == null) {
+                    // 如果 drawable 为空，尝试重新获取
+                    drawable = iv.getDrawable();
+                    if (drawable == null) {
+                        // 尝试从资源中获取默认 drawable
+                        int resId = iv.getId(); // 这里可能需要根据实际需求调整
+                        if (resId != View.NO_ID) {
+                            drawable = ContextCompat.getDrawable(getSobotBaseActivity(), resId);
+                        }
+                    }
+                }
+
+                if (drawable != null) {
+                    int color;
+                    if (selCol == -1) {
+                        color = isBlack ?
+                                ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_black) :
+                                ContextCompat.getColor(getSobotBaseActivity(), R.color.sobot_color_white);
+                    } else {
+                        color = selCol;
+                    }
+
+                    // 添加额外的安全检查
+                    if (color != 0) {
+                        Drawable coloredDrawable = ThemeUtils.applyColorToDrawable(drawable, color);
+                        if (coloredDrawable != null) {
+                            iv.setImageDrawable(coloredDrawable);
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     /**
@@ -1208,7 +1247,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             int nightModeFlags = getSobotBaseActivity().getResources().getConfiguration().uiMode
                     & Configuration.UI_MODE_NIGHT_MASK;
             boolean isNightMode = (nightModeFlags == Configuration.UI_MODE_NIGHT_YES);
-            LogUtils.d(isNightMode ? "夜间模式" : "日间模式");
+//            LogUtils.d(isNightMode ? "夜间模式" : "日间模式");
             return isNightMode;
         } else {
             return false;
@@ -1262,4 +1301,36 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
 
         return cameraFile;
     }
+
+    /**
+     * 安全获取字符串资源，支持多语言，避免资源不存在时抛出异常
+     *
+     * @param resId 字符串资源ID
+     * @return 字符串值或空字符串（当资源不存在时）
+     */
+    public String getSafeStringResource(int resId) {
+        try {
+            return getString(resId);
+        } catch (Exception e) {
+            LogUtils.e("获取字符串资源失败: " + e.getMessage());
+            return "";
+        }
+    }
+
+    /**
+     * 安全获取字符串资源，支持多语言，避免资源不存在时抛出异常
+     *
+     * @param resId        字符串资源ID
+     * @param defaultValue 默认值
+     * @return 字符串值或默认值（当资源不存在时）
+     */
+    public String getSafeStringResource(int resId, String defaultValue) {
+        try {
+            return getString(resId);
+        } catch (Exception e) {
+            LogUtils.e("获取字符串资源失败: " + e.getMessage());
+            return defaultValue;
+        }
+    }
+
 }

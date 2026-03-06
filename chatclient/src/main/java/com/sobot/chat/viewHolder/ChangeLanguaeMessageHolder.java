@@ -2,6 +2,8 @@ package com.sobot.chat.viewHolder;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -9,9 +11,12 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.model.SobotlanguaeModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.FastClickUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.ThemeUtils;
@@ -42,9 +47,35 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
         int msgPaddingStartRight = (int) mContext.getResources().getDimension(R.dimen.sobot_msg_left_right_padding_edge);//气泡内间距
         int msgEdgeStartRight = (int) mContext.getResources().getDimension(R.dimen.sobot_msg_margin_edge);//气泡到边沿的间距
         int msgRightEmptyWidth = (int) mContext.getResources().getDimension(R.dimen.sobot_chat_msg_boundary_to_empty_width);//气泡右侧空白宽度
-
+        try {
+            float msgSmallRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius); // 小圆角
+            float msgBigRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius); // 大圆角
+            if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.IS_CLOSE_SYSTEMRTL)) {
+                //禁止镜像 四个圆角不变
+            } else {
+                if (ChatUtils.isRtl(mContext)) {
+                    //是阿语，圆角需要镜像
+                    msgSmallRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_big_corner_radius); // 小圆角
+                    msgBigRadius = mContext.getResources().getDimension(R.dimen.sobot_msg_corner_radius); // 大圆角
+                }
+            }
+            float[] cornerRadii = null;
+            cornerRadii = new float[]{
+                    msgSmallRadius, msgSmallRadius, // 左上角
+                    msgBigRadius, msgBigRadius, // 右上角
+                    msgBigRadius, msgBigRadius, // 右下角
+                    msgSmallRadius, msgSmallRadius    // 左下角
+            };
+            int[] colors = new int[]{mContext.getResources().getColor(R.color.sobot_chat_left_bgColor), mContext.getResources().getColor(R.color.sobot_chat_left_bgColor)};
+            GradientDrawable aDrawable = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, colors);
+            aDrawable.setCornerRadii(cornerRadii);
+            if (sobot_msg_content_ll != null) {
+                sobot_msg_content_ll.setBackground(aDrawable);
+            }
+        } catch (Resources.NotFoundException ignored) {
+        }
         //屏幕宽度 - 气泡边界到屏幕边上的空白宽度60-气泡内间距16*2-气泡外间距20
-        msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight ;
+        msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight;
 
         tvStripe.setMaxWidth(msgMaxWidth);
         resetMaxWidth();

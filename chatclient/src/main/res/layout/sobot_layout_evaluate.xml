@@ -26,7 +26,7 @@
 
             <LinearLayout
                 android:id="@+id/sobot_ll_evaluate_title"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
@@ -36,16 +36,18 @@
                 <TextView
                     android:id="@+id/sobot_tv_evaluate_title"
                     style="@style/sobot_dialog_title"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp" />
 
                 <TextView
                     android:id="@+id/sobot_tv_evaluate_title_hint"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sobot_dialog_margin"
                     android:layout_marginTop="3dp"
+                    android:layout_marginEnd="@dimen/sobot_dialog_margin"
                     android:ellipsize="end"
                     android:gravity="start"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
@@ -117,7 +119,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:gravity="center"
-                        android:layoutDirection="ltr"
                         android:orientation="horizontal">
 
                         <LinearLayout
@@ -201,7 +202,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
                         android:gravity="center_horizontal"
-                        android:layoutDirection="ltr"
                         android:minWidth="292dp"
                         android:orientation="vertical"
                         android:visibility="gone">
@@ -214,7 +214,6 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:gravity="center_horizontal"
-                            android:layoutDirection="ltr"
                             android:orientation="vertical">
 
                         </com.sobot.chat.widget.SobotTenRatingLayout>
@@ -226,7 +225,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="20dp"
-                        android:layoutDirection="ltr"
                         android:visibility="gone" />
                     <!--二级-->
                     <LinearLayout
@@ -235,16 +233,14 @@
                         android:layout_height="match_parent"
                         android:layout_marginTop="24dp"
                         android:gravity="center"
-                        android:layoutDirection="ltr"
                         android:orientation="horizontal"
                         android:visibility="gone">
-
 
                         <LinearLayout
                             android:id="@+id/sobot_btn_satisfied"
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
-                            android:gravity="bottom"
+                            android:gravity="bottom|center_horizontal"
                             android:orientation="vertical">
 
                             <LinearLayout
@@ -365,7 +361,7 @@
                     android:layout_marginTop="24dp"
                     android:visibility="gone">
 
-                    <EditText
+                    <com.sobot.chat.widget.SobotEditText
                         android:id="@+id/sobot_add_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -381,6 +377,7 @@
                         android:scrollbars="none"
                         android:textColor="@color/sobot_color_text_first"
                         android:textColorHint="@color/sobot_color_text_third"
+                        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
                         android:textSize="@dimen/sobot_text_font_14" />
                 </com.sobot.chat.widget.SobotEditTextLayout>
             </LinearLayout>

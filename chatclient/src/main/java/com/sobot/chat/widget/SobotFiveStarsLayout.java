@@ -43,7 +43,7 @@ public class SobotFiveStarsLayout extends LinearLayout {
      * @param defScore    显示个数
      * @param isCanChange 点击后是否变色
      */
-    public void init(int defScore, final boolean isCanChange,int itemW) {
+    public void init(int defScore, final boolean isCanChange, int itemW) {
         if (null == line1) {
             line1 = new LinearLayout(getContext());
             line1.setOrientation(LinearLayout.HORIZONTAL);
@@ -58,12 +58,12 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 lp = new LayoutParams(ScreenUtils.dip2px(getContext(), itemW),
                         ScreenUtils.dip2px(getContext(), itemW));
                 imageView.setBackgroundResource(R.drawable.sobot_dialog_close_bg);
-                int p= ScreenUtils.dip2px(getContext(), 3);
-                imageView.setPadding(p,p,p,p);
+                int p = ScreenUtils.dip2px(getContext(), 3);
+                imageView.setPadding(p, p, p, p);
                 if (i != 4) {
-                    lp.rightMargin = ScreenUtils.dip2px(getContext(), 10f);
+                    lp.setMarginEnd(ScreenUtils.dip2px(getContext(), 10f));
                 } else {
-                    lp.rightMargin = 0;
+                    lp.setMarginEnd(0);
                 }
                 imageView.setLayoutParams(lp);
                 if (i < defScore) {

@@ -200,11 +200,12 @@ public class FunctionMenuPageView extends LinearLayout {
             int totalHorizontalSpacing = ScreenUtils.dip2px(getContext(), 20 * 2 + 10 * (columns - 1));
             int meunItemWidth = (screenWidth - totalHorizontalSpacing) / columns;
 
-            // 菜单名字文字最小高度（默认40dp）
-            int minHeight = ScreenUtils.dip2px(getContext(), 40);
+            // 菜单名字文字最小高度（默认100）
+            int minHeight = 100;
 
             // 根据菜单数量计算行数和对应文本高度
             if (meunList.size() > columns) {
+                realRows = rows;
                 // 超过一行，需要显示两行
                 // 计算第一行文本最大高度
                 int firstRowCount = Math.min(columns, meunList.size());

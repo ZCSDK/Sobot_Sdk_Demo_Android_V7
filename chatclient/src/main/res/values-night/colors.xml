@@ -60,6 +60,8 @@
     <!-- 主题色 默认绿色 -->
     <color name="sobot_color">@color/sobot_common_green</color>
     <color name="sobot_color_transparency_10">@color/sobot_common_green_transparency_10</color>
+    <!--光标颜色-->
+    <color name="sobot_color_cursor">#FFFFFF</color>
     <!--文字颜色 主要文本色 大部分界面里的黑色文字-->
     <color name="sobot_color_text_first">#FFFFFF</color>
     <!--文字颜色 次要文本色-->
@@ -84,6 +86,8 @@
     <color name="sobot_color_line_divider_to_transparent">#00FFFFFF</color>
     <!--线条 分割线颜色 夜间模式是完全透明的-->
     <color name="sobot_color_line_divider_to_transparent_second">#00FFFFFF</color>
+    <!--线条 分割线颜色 夜间模式也是一样的-->
+    <color name="sobot_color_line_divider_to_transparent_third">#F0F0F0</color>
     <!--线条 分割线颜色2-->
     <color name="sobot_color_line_divider_2">#595959</color>
     <!--线条 分割线颜色3-->
@@ -315,12 +319,15 @@
     <color name="sobot_evaluate_text_unselect">@color/sobot_color_text_third</color>
     <color name="sobot_evaluate_text_select">@color/sobot_color_text_first</color>
     <color name="sobot_dialog_input">#666666</color>
+    <color name="sobot_dialog_input_bg">#1AFFFFFF</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之十透明度 -->
     <color name="sobot_common_btn_bg">#1AFFFFFF</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之二十透明度 -->
     <color name="sobot_common_btn_bg_second">#33FFFFFF</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之三十透明度 -->
     <color name="sobot_common_btn_bg_three">#33FFFFFF</color>
+    <!--通用按钮背景色 白天百分之四 夜间模式中间百分之五透明度 -->
+    <color name="sobot_common_btn_bg_four">#0DFFFFFF</color>
     <color name="sobot_dialog_btn_line">@color/sobot_dialog_item_default_color</color>
     <!--表单-->
     <color name="sobot_ticket_item_press">#353535</color>
@@ -338,4 +345,10 @@
 
     <!--    常见问题-->
     <color name="sobot_color_issue_text">#ADB0B3</color>
+    <!-- 文本控件textview 富文本按钮背景色 圆形 -->
+    <color name="sobot_rich_textview_icon_bg">#FFFFFF</color>
+    <!-- 文本控件textview 大模型所有来源 弹窗 图标背景色 -->
+    <color name="sobot_rich_textview_icon_bg_first">#1AFFFFFF</color>
+    <!-- 文本控件textview 大模型生成按钮 矩形-->
+    <color name="sobot_rich_textview_icon_bg_second">#FFFFFF</color>
 </resources>

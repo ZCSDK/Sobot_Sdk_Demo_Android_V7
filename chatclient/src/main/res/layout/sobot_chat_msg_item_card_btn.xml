@@ -12,7 +12,5 @@
     android:paddingTop="8dp"
     android:paddingEnd="12dp"
     android:paddingBottom="8dp"
-    android:text="撒旦士大夫撒打发"
     android:textColor="@color/sobot_color_white"
-    android:textSize="@dimen/sobot_text_font_14"
-     />
+    android:textSize="@dimen/sobot_text_font_14" />

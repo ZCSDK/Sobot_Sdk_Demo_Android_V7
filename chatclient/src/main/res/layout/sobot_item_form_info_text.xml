@@ -10,29 +10,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:fontFamily=""
+        android:includeFontPadding="false"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:text="标题"
         android:textColor="@color/sobot_color_text_first"
-        android:fontFamily=""
-        android:textStyle="bold"
-        android:includeFontPadding="false"
-        android:textSize="@dimen/sobot_text_font_14" />
+        android:textSize="@dimen/sobot_text_font_14"
+        android:textStyle="bold" />
 
-    <EditText
+    <com.sobot.chat.widget.SobotEditText
         android:id="@+id/work_order_customer_field_text_single"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/sobot_bg_dialog_input"
-        android:paddingTop="9dp"
-        android:paddingBottom="9dp"
         android:layout_marginTop="4dp"
-        android:paddingEnd="12dp"
+        android:background="@drawable/sobot_bg_dialog_input"
+        android:hint="@string/sobot_please_input"
+        android:includeFontPadding="false"
         android:paddingStart="12dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="9dp"
         android:textColor="@color/sobot_color_text_first"
         android:textColorHint="@color/sobot_color_text_third"
-        android:includeFontPadding="false"
-        android:hint="@string/sobot_please_input"
+        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
         android:textSize="@dimen/sobot_text_font_14" />
 
 

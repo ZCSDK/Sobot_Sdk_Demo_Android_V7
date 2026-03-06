@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--下拉刷新  背景颜色-->
-    <color name="sobot_refresh_bg_color">#FFFFFF</color>
+    <color name="sobot_refresh_bg_color">#00000000</color>
 
     <!--下拉刷新  标题文字颜色-->
     <color name="sobot_refresh_text_color">#ACB5C4</color>

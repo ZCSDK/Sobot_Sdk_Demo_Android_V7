@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
@@ -88,11 +87,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/sobot_chat_more_action"
-            android:layout_marginTop="14dp"
-            android:layout_marginEnd="@dimen/sobot_msg_margin_edge_card"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="4dp"
             android:gravity="end"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <com.sobot.chat.widget.SobotRightAlignLineLayout
                 android:id="@+id/al_button"
@@ -105,29 +105,49 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/sobot_aiagent_button_more_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="12dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp">
+                android:background="@drawable/sobot_aiagent_button_more_root_bg"
+                android:orientation="vertical"
+                android:padding="1dp">
 
-                <TextView
-                    android:id="@+id/tv_more"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:text="@string/sobot_str_more"
-                    android:textColor="@color/sobot_color"
-                    android:textSize="@dimen/sobot_text_font_14" />
+                    android:background="@drawable/sobot_aiagent_button_more_bg"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp">
 
-                <ImageView
-                    android:id="@+id/iv_more"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginStart="5dp"
-                    android:src="@drawable/sobot_notice_arrow_down" />
+                    <ProgressBar
+                        android:id="@+id/progressbar_loading_ai_button"
+                        android:layout_width="34dp"
+                        android:layout_height="14dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:indeterminateBehavior="repeat"
+                        android:indeterminateDrawable="@drawable/sobot_aiagent_msg_loading"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_more"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:text="@string/sobot_str_more"
+                        android:textColor="@color/sobot_color"
+                        android:textSize="@dimen/sobot_text_font_14"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/iv_more"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="5dp"
+                        android:src="@drawable/sobot_notice_arrow_down"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

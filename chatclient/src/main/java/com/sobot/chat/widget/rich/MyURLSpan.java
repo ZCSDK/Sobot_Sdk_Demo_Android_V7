@@ -53,6 +53,11 @@ public class MyURLSpan extends URLSpan {
                 Intent intent = new Intent();
                 intent.setAction(ZhiChiConstants.chat_remind_to_customer);
                 CommonUtils.sendLocalBroadcast(context, intent);
+            } else if ("sobot:SobotKeepQueuing".equals(url)) {
+                //点击，继续排队
+                Intent intent = new Intent();
+                intent.setAction(ZhiChiConstants.CHAT_REMIND_KEEP_QAUEUING);
+                CommonUtils.sendLocalBroadcast(context, intent);
             }else if (url.startsWith("sobot:SobotMuItiPostMsgActivty")) {
                 //多轮工单收集节点 点击，重复填写
                 Intent intent = new Intent();

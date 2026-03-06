@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <com.sobot.chat.widget.SobotTextView
                 android:id="@+id/sobot_goods_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
                 android:textSize="@dimen/sobot_text_font_12"
                 android:textStyle="bold" />
 
-            <TextView
+            <com.sobot.chat.widget.SobotTextView
                 android:id="@+id/sobot_goods_des"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                 android:layout_marginTop="10dp"
                 android:gravity="bottom">
 
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_goods_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
                     android:textColor="@color/sobot_card_goods_price"
                     android:textSize="@dimen/sobot_text_font_14" />
 
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_goods_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

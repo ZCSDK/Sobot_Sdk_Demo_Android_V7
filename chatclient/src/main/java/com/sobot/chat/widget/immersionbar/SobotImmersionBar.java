@@ -1103,7 +1103,7 @@ public final class SobotImmersionBar implements ImmersionCallback {
         return mInitialized;
     }
 
-    BarConfig getBarConfig() {
+    public BarConfig getBarConfig() {
         if (mBarConfig == null) {
             mBarConfig = new BarConfig(mActivity);
         }

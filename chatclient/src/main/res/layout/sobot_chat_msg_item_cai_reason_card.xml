@@ -61,11 +61,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:background="@drawable/sobot_chat_msg_hollow_bg"
-            android:elevation="16dp"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="16dp"
+            android:background="@drawable/sobot_chat_msg_hollow_bg"
+            android:elevation="16dp"
             android:orientation="vertical"
             android:outlineSpotShadowColor="@color/sobot_color_shadow"
             android:paddingTop="20dp"
@@ -90,12 +90,12 @@
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/sobot_bg_cai_reason_lable_content_bg">
 
-                <EditText
+                <com.sobot.chat.widget.SobotEditText
                     android:id="@+id/ed_describe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:gravity="top|start"
+                    android:gravity="top"
                     android:isScrollContainer="true"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:maxLength="1000"
@@ -107,6 +107,7 @@
                     android:scrollbars="vertical"
                     android:textColor="@color/sobot_color_text_first"
                     android:textColorHint="@color/sobot_color_text_third"
+                    android:textCursorDrawable="@drawable/sobot_cursor_drawable"
                     android:textSize="@dimen/sobot_text_font_14" />
 
             </LinearLayout>

@@ -3,6 +3,7 @@ package com.sobot.chat.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -36,6 +37,7 @@ import com.sobot.chat.api.model.StTicketDetailInfo;
 import com.sobot.chat.api.model.StUserDealTicketReplyInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.MD5Util;
@@ -178,178 +180,182 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
-        if (getItemViewType(position) == MSG_TYPE_NO_DATA) {
-            NoDataViewHolder vh = (NoDataViewHolder) viewHolder;
-            displayInNotch(mActivity, vh.sobot_ll_root, 0);
-        } else if (getItemViewType(position) == MSG_TYPE_HEAD) {
-            HeadViewHolder vh = (HeadViewHolder) viewHolder;
-            displayInNotch(mActivity, vh.tv_time, 0);
-            if(position==list.size()-1){
-                vh.line.setVisibility(View.GONE);
-            }else{
-                vh.line.setVisibility(View.VISIBLE);
-            }
-            if (list.get(position) instanceof StTicketDetailInfo) {
-                final StTicketDetailInfo data = (StTicketDetailInfo) list.get(position);
-                if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
-                    vh.tv_ticket_title.setText(data.getTicketTitle());
-                }
-                if (data != null && !TextUtils.isEmpty(data.getTicketContent())) {
-                    String tempStr = data.getTicketContent().replaceAll("<br/>", "").replace("<p></p>", "")
-                            .replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
-                    if (tempStr.contains("<img")) {
-                        tempStr = tempStr.replaceAll("<img[^>]*>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ");
-                    }
-                    vh.tv_ticket_content.setText(TextUtils.isEmpty(data.getTicketContent()) ? "" : Html.fromHtml(tempStr));
-                }
-
-                SobotTicketStatus status = getStatus(data.getTicketStatus());
-                if (status != null) {
-                    vh.tv_ticket_status.setText(status.getCustomerStatusName());
-                    if (status.getCustomerStatusCode() == 1) {
-                        //处理中
-                        vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_deal_text));
-                        vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
-                    } else if (status.getCustomerStatusCode() == 2) {
-                        //带您回复
-                        vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_reply_text));
-                        vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_reply);
-                    } else if (status.getCustomerStatusCode() == 3) {
-                        //已解决
-                        vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_resolved_text));
-                        vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_resolved);
-                    } else {
-                        //兜底
-                        vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_deal_text));
-                        vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
-                    }
-                }
-                vh.tv_time.setText(DateUtil.getTimeStr(mActivity, data.getTicketCreateTime()));
-
-                if (null != data.getFileList() && !data.getFileList().isEmpty()) {
-                    vh.recyclerView.setVisibility(View.VISIBLE);
-                    vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(), false, listener));
+        try {
+            if (getItemViewType(position) == MSG_TYPE_NO_DATA) {
+                NoDataViewHolder vh = (NoDataViewHolder) viewHolder;
+            } else if (getItemViewType(position) == MSG_TYPE_HEAD) {
+                HeadViewHolder vh = (HeadViewHolder) viewHolder;
+                vh.itemView.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+                if (position == list.size() - 1) {
+                    vh.line.setVisibility(View.GONE);
                 } else {
-                    vh.recyclerView.setVisibility(View.GONE);
+                    vh.line.setVisibility(View.VISIBLE);
                 }
-            }
-        } else if (getItemViewType(position) == MSG_TYPE_EVALUATE) {
-            EvaluateViewHolder vh = (EvaluateViewHolder) viewHolder;
-            final StUserDealTicketReplyInfo mEvaluate = (StUserDealTicketReplyInfo) list.get(position);
-            vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
-            vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
-            vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, mEvaluate.getReplyTime()));
-
-            //已评价
-            // 创建加粗样式（Typeface.BOLD 表示加粗，Typeface.NORMAL 表示正常）
-            StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
-            if (mEvaluate.getQuestionFlag() >= 0) {
-                vh.sobot_tv_isSolve.setVisibility(View.VISIBLE);
-                String solve = mActivity.getResources().getString(R.string.sobot_evaluate_issolve)+ ": ";
-                int solveLen = solve.length();
-                if (mEvaluate.getQuestionFlag() == 0) {
-                    solve +=mActivity.getResources().getText(R.string.sobot_evaluate_no).toString();
-                } else if (mEvaluate.getQuestionFlag() == 1) {
-                    solve +=mActivity.getResources().getText(R.string.sobot_evaluate_yes).toString();
-                }
-                SpannableString spannableString = new SpannableString(solve);
-                spannableString.setSpan(boldSpan, 0, solveLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                vh.sobot_tv_isSolve.setText(spannableString);
-            } else {
-                vh.sobot_tv_isSolve.setVisibility(View.GONE);
-            }
-            vh.sobot_ll_ratingBar.init(mEvaluate.getScore());
-
-            if (StringUtils.isNoEmpty(mEvaluate.getRemark())) {
-               String remark = mActivity.getResources().getString(R.string.sobot_rating_dec) + ": ";
-                int remarkLen = remark.length();
-                remark +=mEvaluate.getRemark();
-                vh.sobot_tv_remark.setVisibility(View.VISIBLE);
-                SpannableString spannableString = new SpannableString(remark);
-                spannableString.setSpan(boldSpan, 0, remarkLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                vh.sobot_tv_remark.setText(spannableString);
-            } else {
-                vh.sobot_tv_remark.setVisibility(View.GONE);
-            }
-
-            if (null != mEvaluate.getTags() && !mEvaluate.getTags().isEmpty()) {
-                vh.sobot_tv_lab.setVisibility(View.VISIBLE);
-                String leb = mActivity.getResources().getString(R.string.sobot_evaluate_lab)+ ": ";
-                int lebLen = leb.length();
-                StringBuilder stringBuilder = new StringBuilder(leb);
-                for (int i = 0; i < mEvaluate.getTags().size(); i++) {
-                    stringBuilder.append(mEvaluate.getTags().get(i));
-                    if (i < mEvaluate.getTags().size() - 1) {
-                        stringBuilder.append(", ");
+                if (list.get(position) instanceof StTicketDetailInfo) {
+                    final StTicketDetailInfo data = (StTicketDetailInfo) list.get(position);
+                    if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
+                        vh.tv_ticket_title.setText(data.getTicketTitle());
                     }
-                }
-                SpannableString spannableString = new SpannableString(stringBuilder.toString());
-                spannableString.setSpan(boldSpan, 0, lebLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                vh.sobot_tv_lab.setText(spannableString);
-            } else {
-                vh.sobot_tv_lab.setVisibility(View.GONE);
-            }
-        } else {
-            DetailViewHolder vh = (DetailViewHolder) viewHolder;
-            vh.sobot_tv_content_detail.setText(mActivity.getResources().getString(R.string.sobot_see_detail));
-            if (list.get(position) instanceof StUserDealTicketReplyInfo) {
-                final StUserDealTicketReplyInfo reply = (StUserDealTicketReplyInfo) list.get(position);
-                if (reply.getStartType() == 1) {
-                    //我
-                    vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
-                    vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
-                    vh.sobot_tv_content_detail.setVisibility(View.GONE);
-                    vh.sobot_tv_content_detail.setOnClickListener(null);
-                    vh.sobot_tv_content.setPadding(0, 0, 0, 0);
-                    vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : Html.fromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
-                } else {
-                    if (StringUtils.isNoEmpty(reply.getUpdateUserName())) {
-                        //客服
-                        vh.sobot_tv_name.setText(reply.getUpdateUserName());
-                        //默认头像
-                        int bgColor = ThemeUtils.getThemeColor(mActivity);
-                        Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(mActivity, reply.getUpdateUserName(), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), bgColor, ThemeUtils.getThemeTextAndIconColor(mActivity));
-                        if (afaceDrawable != null) {
-                            vh.iv_head.setImageDrawable(afaceDrawable);
-                            vh.iv_head.setVisibility(View.VISIBLE);
-                            vh.iv_head.setRoundAsCircle(true);
+                    if (data != null && !TextUtils.isEmpty(data.getTicketContent())) {
+                        String tempStr = data.getTicketContent().replaceAll("<br/>", "").replace("<p></p>", "")
+                                .replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
+                        if (tempStr.contains("<img")) {
+                            tempStr = tempStr.replaceAll("<img[^>]*>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ");
+                        }
+                        vh.tv_ticket_content.setText(TextUtils.isEmpty(data.getTicketContent()) ? "" : Html.fromHtml(tempStr));
+                    }
+
+                    SobotTicketStatus status = getStatus(data.getTicketStatus());
+                    if (status != null) {
+                        vh.tv_ticket_status.setText(status.getCustomerStatusName());
+                        if (status.getCustomerStatusCode() == 1) {
+                            //处理中
+                            vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_deal_text));
+                            vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
+                        } else if (status.getCustomerStatusCode() == 2) {
+                            //带您回复
+                            vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_reply_text));
+                            vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_reply);
+                        } else if (status.getCustomerStatusCode() == 3) {
+                            //已解决
+                            vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_resolved_text));
+                            vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_resolved);
+                        } else {
+                            //兜底
+                            vh.tv_ticket_status.setTextColor(mActivity.getResources().getColor(R.color.sobot_ticket_deal_text));
+                            vh.tv_ticket_status.setBackgroundResource(R.drawable.sobot_ticket_detail_status_deal);
                         }
                     }
-                    if (TextUtils.isEmpty(reply.getReplyContent())) {
+                    vh.tv_time.setText(DateUtil.getTimeStr(mActivity, data.getTicketCreateTime()));
+
+                    if (null != data.getFileList() && !data.getFileList().isEmpty()) {
+                        vh.recyclerView.setVisibility(View.VISIBLE);
+                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(), false, listener));
+                    } else {
+                        vh.recyclerView.setVisibility(View.GONE);
+                    }
+                }
+            } else if (getItemViewType(position) == MSG_TYPE_EVALUATE) {
+                EvaluateViewHolder vh = (EvaluateViewHolder) viewHolder;
+                final StUserDealTicketReplyInfo mEvaluate = (StUserDealTicketReplyInfo) list.get(position);
+                vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
+                vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
+                vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, mEvaluate.getReplyTime()));
+
+                //已评价
+                // 创建加粗样式（Typeface.BOLD 表示加粗，Typeface.NORMAL 表示正常）
+                StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+                if (mEvaluate.getQuestionFlag() >= 0) {
+                    vh.sobot_tv_isSolve.setVisibility(View.VISIBLE);
+                    String solve = mActivity.getResources().getString(R.string.sobot_evaluate_issolve) + ": ";
+                    int solveLen = solve.length();
+                    if (mEvaluate.getQuestionFlag() == 0) {
+                        solve += mActivity.getResources().getText(R.string.sobot_evaluate_no).toString();
+                    } else if (mEvaluate.getQuestionFlag() == 1) {
+                        solve += mActivity.getResources().getText(R.string.sobot_evaluate_yes).toString();
+                    }
+                    SpannableString spannableString = new SpannableString(solve);
+                    spannableString.setSpan(boldSpan, 0, solveLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    vh.sobot_tv_isSolve.setText(spannableString);
+                } else {
+                    vh.sobot_tv_isSolve.setVisibility(View.GONE);
+                }
+                vh.sobot_ll_ratingBar.init(mEvaluate.getScore());
+
+                if (StringUtils.isNoEmpty(mEvaluate.getRemark())) {
+                    String remark = mActivity.getResources().getString(R.string.sobot_rating_dec) + ": ";
+                    int remarkLen = remark.length();
+                    remark += mEvaluate.getRemark();
+                    vh.sobot_tv_remark.setVisibility(View.VISIBLE);
+                    SpannableString spannableString = new SpannableString(remark);
+                    spannableString.setSpan(boldSpan, 0, remarkLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    vh.sobot_tv_remark.setText(spannableString);
+                } else {
+                    vh.sobot_tv_remark.setVisibility(View.GONE);
+                }
+
+                if (null != mEvaluate.getTags() && !mEvaluate.getTags().isEmpty()) {
+                    vh.sobot_tv_lab.setVisibility(View.VISIBLE);
+                    String leb = mActivity.getResources().getString(R.string.sobot_evaluate_lab) + ": ";
+                    int lebLen = leb.length();
+                    StringBuilder stringBuilder = new StringBuilder(leb);
+                    for (int i = 0; i < mEvaluate.getTags().size(); i++) {
+                        stringBuilder.append(mEvaluate.getTags().get(i));
+                        if (i < mEvaluate.getTags().size() - 1) {
+                            stringBuilder.append(", ");
+                        }
+                    }
+                    SpannableString spannableString = new SpannableString(stringBuilder.toString());
+                    spannableString.setSpan(boldSpan, 0, lebLen, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    vh.sobot_tv_lab.setText(spannableString);
+                } else {
+                    vh.sobot_tv_lab.setVisibility(View.GONE);
+                }
+            } else {
+                DetailViewHolder vh = (DetailViewHolder) viewHolder;
+                vh.sobot_tv_content_detail.setText(mActivity.getResources().getString(R.string.sobot_see_detail));
+                if (list.get(position) instanceof StUserDealTicketReplyInfo) {
+                    final StUserDealTicketReplyInfo reply = (StUserDealTicketReplyInfo) list.get(position);
+                    if (reply.getStartType() == 1) {
+                        //我
+                        vh.sobot_tv_name.setText(mActivity.getResources().getString(R.string.sobot_str_my));
+                        vh.iv_head.setImageLocal(R.drawable.sobot_tiket_item_me);
                         vh.sobot_tv_content_detail.setVisibility(View.GONE);
                         vh.sobot_tv_content_detail.setOnClickListener(null);
                         vh.sobot_tv_content.setPadding(0, 0, 0, 0);
+                        vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : Html.fromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
                     } else {
-                        //如果回复里包含图片（img标签），如果有，显示查看详情，并且跳转到WebViewActivity展示
-                        if (StringUtils.getImgSrc(reply.getReplyContent()).size() > 0) {
-                            vh.sobot_tv_content_detail.setVisibility(View.VISIBLE);
-                            vh.sobot_tv_content.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10));
-                            vh.sobot_tv_content_detail.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11));
-                            vh.sobot_tv_content_detail.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intent = new Intent(mActivity, WebViewActivity.class);
-                                    intent.putExtra("url", reply.getReplyContent());
-                                    mActivity.startActivity(intent);
-                                }
-                            });
-                        } else {
+                        if (StringUtils.isNoEmpty(reply.getUpdateUserName())) {
+                            //客服
+                            vh.sobot_tv_name.setText(reply.getUpdateUserName());
+                            //默认头像
+                            int bgColor = ThemeUtils.getThemeColor(mActivity);
+                            Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(mActivity, reply.getUpdateUserName(), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), bgColor, ThemeUtils.getThemeTextAndIconColor(mActivity));
+                            if (afaceDrawable != null) {
+                                vh.iv_head.setImageDrawable(afaceDrawable);
+                                vh.iv_head.setVisibility(View.VISIBLE);
+                                vh.iv_head.setRoundAsCircle(true);
+                            }
+                        }
+                        if (TextUtils.isEmpty(reply.getReplyContent())) {
                             vh.sobot_tv_content_detail.setVisibility(View.GONE);
                             vh.sobot_tv_content_detail.setOnClickListener(null);
                             vh.sobot_tv_content.setPadding(0, 0, 0, 0);
+                        } else {
+                            //如果回复里包含图片（img标签），如果有，显示查看详情，并且跳转到WebViewActivity展示
+                            if (StringUtils.getImgSrc(reply.getReplyContent()).size() > 0) {
+                                vh.sobot_tv_content_detail.setVisibility(View.VISIBLE);
+                                vh.sobot_tv_content.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 10));
+                                vh.sobot_tv_content_detail.setPadding(ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11), ScreenUtils.dip2px(mActivity, 15), ScreenUtils.dip2px(mActivity, 11));
+                                vh.sobot_tv_content_detail.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(mActivity, WebViewActivity.class);
+                                        intent.putExtra("url", reply.getReplyContent());
+                                        mActivity.startActivity(intent);
+                                    }
+                                });
+                            } else {
+                                vh.sobot_tv_content_detail.setVisibility(View.GONE);
+                                vh.sobot_tv_content_detail.setOnClickListener(null);
+                                vh.sobot_tv_content.setPadding(0, 0, 0, 0);
+                            }
+                            HtmlTools.getInstance(mActivity).setRichText(vh.sobot_tv_content, reply.getReplyContent().replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] "), getLinkTextColor());
                         }
-                        HtmlTools.getInstance(mActivity).setRichText(vh.sobot_tv_content, reply.getReplyContent().replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] "), getLinkTextColor());
+                    }
+
+                    vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, reply.getReplyTime()));
+                    if (null != reply.getFileList() && !reply.getFileList().isEmpty()) {
+                        vh.recyclerView.setVisibility(View.VISIBLE);
+                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
+                    } else {
+                        vh.recyclerView.setVisibility(View.GONE);
                     }
                 }
-
-                vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, reply.getReplyTime()));
-                if (null != reply.getFileList() && !reply.getFileList().isEmpty()) {
-                    vh.recyclerView.setVisibility(View.VISIBLE);
-                    vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
-                } else {
-                    vh.recyclerView.setVisibility(View.GONE);
-                }
             }
+        } catch (Resources.NotFoundException ignored) {
         }
     }
 
@@ -399,7 +405,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8), false));
+            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8), false, ChatUtils.isRtl(mActivity)));
 
 
         }
@@ -425,7 +431,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8), false));
+            recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8), false, ChatUtils.isRtl(mActivity)));
         }
     }
 
@@ -471,27 +477,6 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         return R.color.sobot_color_link;
     }
 
-    public void displayInNotch(Activity mActivity, final View view, final int addPaddingLeft) {
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
-            // 支持显示到刘海区域
-            NotchScreenManager.getInstance().setDisplayInNotch(mActivity);
-            // 设置Activity全屏
-            mActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-            // 获取刘海屏信息
-            NotchScreenManager.getInstance().getNotchInfo(mActivity, new INotchScreen.NotchScreenCallback() {
-                @Override
-                public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
-                    if (notchScreenInfo.hasNotch) {
-                        for (Rect rect : notchScreenInfo.notchRects) {
-                            view.setPadding((rect.right > 110 ? 110 : rect.right) + addPaddingLeft, view.getPaddingTop(), (rect.right > 110 ? 110 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
-                        }
-                    }
-                }
-            });
-
-        }
-    }
 
     public SobotTicketStatus getStatus(int code) {
         if (statusList != null && statusList.size() > 0) {

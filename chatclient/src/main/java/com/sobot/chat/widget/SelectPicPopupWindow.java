@@ -26,6 +26,7 @@ import android.widget.PopupWindow;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.WebViewActivity;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -47,7 +48,7 @@ import java.util.Locale;
 public class SelectPicPopupWindow extends PopupWindow {
 
     private Button sobot_btn_take_photo, sobot_btn_cancel, sobot_btn_scan_qr_code;
-    private View mView,view_scan_qr_code_split;
+    private View mView, view_scan_qr_code_split;
     private String imgUrl;
     private Context context;
     private String type;
@@ -119,11 +120,11 @@ public class SelectPicPopupWindow extends PopupWindow {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = inflater.inflate(R.layout.sobot_clear_history_dialog, null);
         view_scan_qr_code_split = mView.findViewById(R.id.view_scan_qr_code_split);
-        sobot_btn_take_photo =  mView.findViewById(R.id.sobot_btn_take_photo);
+        sobot_btn_take_photo = mView.findViewById(R.id.sobot_btn_take_photo);
         sobot_btn_take_photo.setText(R.string.sobot_save_pic);
-        sobot_btn_cancel =  mView.findViewById(R.id.sobot_btn_cancel);
+        sobot_btn_cancel = mView.findViewById(R.id.sobot_btn_cancel);
         sobot_btn_cancel.setText(R.string.sobot_btn_cancle);
-        sobot_btn_scan_qr_code =  mView.findViewById(R.id.sobot_btn_scan_qr_code);
+        sobot_btn_scan_qr_code = mView.findViewById(R.id.sobot_btn_scan_qr_code);
         sobot_btn_scan_qr_code.setText(R.string.sobot_scan_qr_code);
         // 设置SelectPicPopupWindow的View
         this.setContentView(mView);
@@ -172,16 +173,22 @@ public class SelectPicPopupWindow extends PopupWindow {
     public void changeAppLanguage() {
         if (context != null) {
             Locale language = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
-            try {
-                // 本地语言设置
-                Resources res = context.getResources();
-                DisplayMetrics dm = res.getDisplayMetrics();
-                Configuration conf = new Configuration();
-                if (language != null) {
-                    conf.locale = language;
+            if (language != null) {
+                try {
+                    // 本地语言设置
+                    Resources res = context.getResources();
+                    DisplayMetrics dm = res.getDisplayMetrics();
+                    Configuration conf = new Configuration();
+                    conf.setLocale(language);
+                    if (!ChatUtils.isRtl(context)) {
+                        //禁止镜像
+                        conf.setLayoutDirection(Locale.ENGLISH);
+                    } else {
+                        conf.setLayoutDirection(language);
+                    }
+                    res.updateConfiguration(conf, dm);
+                } catch (Exception ignored) {
                 }
-                res.updateConfiguration(conf, dm);
-            } catch (Exception e) {
             }
         }
     }

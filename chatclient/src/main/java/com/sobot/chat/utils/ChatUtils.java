@@ -45,6 +45,7 @@ import com.sobot.chat.api.model.SobotMultiDiaRespInfo;
 import com.sobot.chat.api.model.SobotQuestionRecommend;
 import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.SobotTypeModel;
+import com.sobot.chat.api.model.SobotVariableModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
@@ -60,7 +61,6 @@ import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.channel.Const;
 import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.gson.SobotGsonUtil;
-import com.sobot.chat.notchlib.utils.RomUtils;
 import com.sobot.chat.server.SobotSessionServer;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
@@ -68,6 +68,7 @@ import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
@@ -79,6 +80,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -95,6 +97,7 @@ public class ChatUtils {
     public static final String SOBOT_ACTION_CLOSE_TIKET = "sobot_action_close_tiket";
     private static List<SobotTicketStatus> statusList;//工单状态集合
     private static List<SobotTypeModel> typeList;//工单分类集合
+    public static boolean isOpenVariableDialog = false;
 
     public static void setStatusList(List<SobotTicketStatus> statusList) {
         ChatUtils.statusList = statusList;
@@ -131,8 +134,8 @@ public class ChatUtils {
             return;
         }
         Intent intent;
-        if (Build.VERSION.SDK_INT < 19) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
             intent.setType("image/*");
         } else {
             intent = new Intent(Intent.ACTION_PICK,
@@ -170,27 +173,7 @@ public class ChatUtils {
         if (act == null) {
             return;
         }
-        Intent intent;
-        if (Build.VERSION.SDK_INT < 27 || RomUtils.isOppo() || RomUtils.isOnePlus() || RomUtils.isVivo()) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("video/*");
-        } else {
-            intent = new Intent(Intent.ACTION_PICK);
-            intent.setDataAndType(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*");
-        }
-        try {
-            act.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
-        } catch (Exception e) {
-            e.printStackTrace();
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("video/*");
-            try {
-                act.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-                ToastUtil.showToast(act.getApplicationContext(), ResourceUtils.getResString(act, "sobot_not_open_album"));
-            }
-        }
+        openSelectVedio(act, null);
     }
 
     /**
@@ -203,14 +186,17 @@ public class ChatUtils {
             return;
         }
         Intent intent;
-        if (Build.VERSION.SDK_INT < 27 || RomUtils.isOppo() || RomUtils.isOnePlus() || RomUtils.isVivo()) {
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
             intent.setType("video/*");
         } else {
             intent = new Intent(Intent.ACTION_PICK);
             intent.setDataAndType(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*");
         }
         try {
+            // 添加 FLAG_GRANT_READ_URI_PERMISSION 权限
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             if (childFragment != null) {
                 childFragment.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
             } else {
@@ -219,6 +205,8 @@ public class ChatUtils {
         } catch (Exception e) {
             intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("video/*");
+            // 添加 FLAG_GRANT_READ_URI_PERMISSION 权限
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 if (childFragment != null) {
                     childFragment.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
@@ -1080,7 +1068,7 @@ public class ChatUtils {
                     }
                 }
                 long size = CommonUtils.getFileSize(filePath);
-                if (size < (50 * 1024 * 1024)) {
+                if (size <= (50 * 1024 * 1024)) {
                     listener.onSuccess(filePath);
                 } else {
                     ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_file_upload_failed"));
@@ -1093,7 +1081,7 @@ public class ChatUtils {
         } else {
             if (!TextUtils.isEmpty(filePath)) {
                 long size = CommonUtils.getFileSize(filePath);
-                if (size < (50 * 1024 * 1024)) {
+                if (size <= (50 * 1024 * 1024)) {
                     listener.onSuccess(filePath);
                 } else {
                     ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_file_upload_failed"));
@@ -1121,6 +1109,13 @@ public class ChatUtils {
         }
     }
 
+    /**
+     * 发送图片，异步机器人发送图片、视频，默认50M
+     *
+     * @param context
+     * @param selectedFile
+     * @param listener
+     */
     public static void sendPicByFilePost(Context context, File selectedFile, SobotSendFileListener listener) {
         if (!selectedFile.exists()) {
             SobotDialogUtils.stopProgressDialog(context);
@@ -1133,6 +1128,41 @@ public class ChatUtils {
                 listener.onSuccess(selectedFile.getPath());
             } else {
                 ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_file_upload_failed"));
+                listener.onError();
+            }
+        } else {
+            ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_pic_type_error"));
+            listener.onError();
+        }
+    }
+
+    /**
+     * 留言自定义字段，大小自定义
+     *
+     * @param context      上下文
+     * @param selectedFile 选中的文件
+     * @param maxSize      限制的最大文件大小
+     * @param listener     验证成功失败的监听
+     */
+    public static void sendByFilePost(Context context, File selectedFile, int maxSize, SobotSendFileListener listener) {
+        if (!selectedFile.exists()) {
+            SobotDialogUtils.stopProgressDialog(context);
+            ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_not_find_pic"));
+            return;
+        }
+        if (maxSize == 0) {
+            maxSize = 50;
+        }
+        if (!TextUtils.isEmpty(selectedFile.getPath())) {
+            long size = CommonUtils.getFileSize(selectedFile.getPath());
+            if (size <= ((long) maxSize * 1024 * 1024)) {
+                listener.onSuccess(selectedFile.getPath());
+            } else {
+                String fileTip = ResourceUtils.getResString(context, "sobot_file_upload_failed");
+                if (StringUtils.isNoEmpty(fileTip)) {
+                    fileTip = fileTip.replace("50", String.valueOf(maxSize));
+                    ToastUtil.showToast(context, fileTip);
+                }
                 listener.onError();
             }
         } else {
@@ -1448,6 +1478,37 @@ public class ChatUtils {
         return tmpFileType;
     }
 
+    public static int getFileType(String name) {
+        int tmpFileType = ZhiChiConstant.MSGTYPE_FILE_OTHER;
+        if (name == null) {
+            return tmpFileType;
+        }
+        try {
+            if (name.endsWith("doc") || name.endsWith("docx")) {
+                return ZhiChiConstant.MSGTYPE_FILE_DOC;
+            } else if (name.endsWith("ppt") || name.endsWith("pptx")) {
+                return ZhiChiConstant.MSGTYPE_FILE_PPT;
+            } else if (name.endsWith("xls") || name.endsWith("xlsx")) {
+                return ZhiChiConstant.MSGTYPE_FILE_XLS;
+            } else if (name.endsWith("pdf")) {
+                return ZhiChiConstant.MSGTYPE_FILE_PDF;
+            } else if (name.endsWith("mp3")) {
+                return ZhiChiConstant.MSGTYPE_FILE_MP3;
+            } else if (name.endsWith("mp4")) {
+                return ZhiChiConstant.MSGTYPE_FILE_MP4;
+            } else if (name.endsWith("rar") || name.endsWith("zip")) {
+                return ZhiChiConstant.MSGTYPE_FILE_RAR;
+            } else if (name.endsWith("txt")) {
+                return ZhiChiConstant.MSGTYPE_FILE_TXT;
+            } else if (name.endsWith("png") || name.endsWith("jpg") || name.endsWith("jpeg") || name.endsWith("gif") || name.endsWith("bmp") || name.endsWith("webp")) {
+                return ZhiChiConstant.MSGTYPE_FILE_PIC;
+            }
+        } catch (Exception e) {
+            //ignor
+        }
+        return tmpFileType;
+    }
+
     public static void callUp(String phone, Context context) {
         try {
             Intent intent = new Intent();
@@ -1754,103 +1815,85 @@ public class ChatUtils {
     }
 
 
-    //解析MarkDown数据 转成Html
     public static String parseMarkdownData(String tempContent) {
         if (StringUtils.isEmpty(tempContent)) {
             return "";
         }
-        String[] arrStr = tempContent.replace("1. **", "**1.")
-                .replace("2. **", "**2.")
-                .replace("3. **", "**3.")
-                .replace("4. **", "**4.")
-                .replace("5. **", "**5.")
-                .replace("6. **", "**6.")
-                .replace("7. **", "**7.")
-                .replace("8. **", "**8.")
-                .replace("9. **", "**9.")
-                .replace("10. **", "**10.")
-                .replace("11. **", "**11.")
-                .replace("12. **", "**12.")
-                .replace("13. **", "**13.")
-                .replace("14. **", "**14.")
-                .replace("15. **", "**15.")
-                .replace("16. **", "**16.")
-                .replace("17. **", "**17.")
-                .replace("18. **", "**18.")
-                .replace("19. **", "**19.")
-                .replace("20. **", "**20.")
-                .replace("\n", "<br/>").replace("<br>", "<br/>").split("<br/>");
         StringBuilder result = new StringBuilder();
-        for (int i = 0; i < arrStr.length; i++) {
-            String tempStr = arrStr[i];
-            if (StringUtils.isEmpty(arrStr[i])) {
-                tempStr = "";
+        try {
+            // 分离 <sobotbutton> 标签部分和其他内容
+            String[] parts = tempContent.split("(?=<sobotbutton)|(?<=</sobotbutton>)");
+            StringBuilder processedContent = new StringBuilder();
+
+            for (String part : parts) {
+                if (part.startsWith("<sobotbutton")) {
+                    // 如果是sobotbutton标签部分，直接保留，不进行MD转换
+                    processedContent.append(part);
+                } else {
+                    // 如果不是sobotbutton标签部分，进行正常的MD转换处理
+                    String processedPart = part;
+
+                    processedPart = processedPart.replace("1. **", "**1.")
+                            .replace("2. **", "**2.")
+                            .replace("3. **", "**3.")
+                            .replace("4. **", "**4.")
+                            .replace("5. **", "**5.")
+                            .replace("6. **", "**6.")
+                            .replace("7. **", "**7.")
+                            .replace("8. **", "**8.")
+                            .replace("9. **", "**9.")
+                            .replace("10. **", "**10.")
+                            .replace("11. **", "**11.")
+                            .replace("12. **", "**12.")
+                            .replace("13. **", "**13.")
+                            .replace("14. **", "**14.")
+                            .replace("15. **", "**15.")
+                            .replace("16. **", "**16.")
+                            .replace("17. **", "**17.")
+                            .replace("18. **", "**18.")
+                            .replace("19. **", "**19.")
+                            .replace("20. **", "**20.");
+
+                    // 整体处理标题
+                    processedPart = processedPart.replaceAll("(?m)^###### (.+)$", "<span style=\"font-size:12px; font-weight: bold;\">$1</span>");
+                    processedPart = processedPart.replaceAll("(?m)^##### (.+)$", "<span style=\"font-size:14px; font-weight: bold;\">$1</span>");
+                    processedPart = processedPart.replaceAll("(?m)^#### (.+)$", "<span style=\"font-size:16px; font-weight: bold;\">$1</span>");
+                    processedPart = processedPart.replaceAll("(?m)^### (.+)$", "<span style=\"font-size:18px; font-weight: bold;\">$1</span>");
+                    processedPart = processedPart.replaceAll("(?m)^## (.+)$", "<span style=\"font-size:20px; font-weight: bold;\">$1</span>");
+                    processedPart = processedPart.replaceAll("(?m)^# (.+)$", "<span style=\"font-size:22px; font-weight: bold;\">$1</span>");
+
+                    // 处理列表
+                    processedPart = processedPart.replaceAll("\\* ", "<span style=\"font-size:10px;\">● </span>");
+                    processedPart = processedPart.replaceAll("\\+ ", "<span style=\"font-size:10px;\">● </span>");
+                    processedPart = processedPart.replaceAll("\\- ", "<span style=\"font-size:10px;\">● </span>");
+
+                    // 处理格式化文本
+                    // 粗斜体
+                    processedPart = replaceMarkdownToHtmlByUserHtml(processedPart, "***", "\\*\\*\\*", "<strong><i>", "</i></strong>");
+                    // 粗体
+                    processedPart = replaceMarkdownToHtml(processedPart, "**", "\\*\\*", "strong");
+                    processedPart = replaceMarkdownToHtml(processedPart, "__", "\\_\\_", "strong");
+                    // 斜体
+                    processedPart = replaceMarkdownToHtml(processedPart, "*", "\\*", "i");
+//                  // 删除线
+                    processedPart = replaceMarkdownToHtml(processedPart, "~~", "\\~\\~", "strike");
+
+                    // 处理超链接
+                    processedPart = convertMarkdownLinkToHtml(processedPart);
+
+                    // 最后处理换行符
+                    processedPart = processedPart.replace("\n", "<br/>").replace("<br>", "<br/>");
+
+                    processedContent.append(processedPart);
+                }
             }
-            if (arrStr[i].startsWith("######")) {
-                //标题6级
-                tempStr = "<span style=\"font-size:12px; font-weight: bold;\">" + tempStr.replace("######", "") + "</span>" + "\n";
-            }
-            if (tempStr.startsWith("#####")) {
-                //标题5级
-                tempStr = "<span style=\"font-size:14px; font-weight: bold;\">" + tempStr.replace("#####", "") + "</span>";
-            }
-            if (tempStr.startsWith("####")) {
-                //标题4级
-                tempStr = "<span style=\"font-size:16px; font-weight: bold;\">" + tempStr.replace("####", "") + "</span>";
-            }
-            if (tempStr.startsWith("###")) {
-                //标题3级
-                tempStr = "<span style=\"font-size:18px; font-weight: bold;\">" + tempStr.replace("###", "") + "</span>";
-            }
-            if (tempStr.startsWith("##")) {
-                //标题2级
-                tempStr = "<span style=\"font-size:20px; font-weight: bold;\">" + tempStr.replace("##", "") + "</span>";
-            }
-            if (tempStr.startsWith("#")) {
-                //标题1级
-                tempStr = "<span style=\"font-size:22px; font-weight: bold;\">" + tempStr.replace("#", "") + "</span>";
-            }
-            if (tempStr.contains("* ") || tempStr.contains("+ ") || tempStr.contains("- ")) {
-                //无序列表
-                tempStr = tempStr.replaceFirst("\\* ", "<span style=\"font-size:10px;\">● </span>").replaceFirst("\\+ ", "<span style=\"font-size:10px;\">● </span>").replaceFirst("\\- ", "<span style=\"font-size:10px;\">● </span>");
-            }
-            if (searchMarkdown(tempStr, "***") > 1) {
-                //粗斜体
-                tempStr = replaceMarkdownToHtmlByUserHtml(tempStr, "***", "\\*\\*\\*", "<strong><i>", "</i></strong>");
-            }
-            if (searchMarkdown(tempStr, "**") > 1) {
-                //粗体1
-                tempStr = replaceMarkdownToHtml(tempStr, "**", "\\*\\*", "strong");
-            }
-            if (searchMarkdown(tempStr, "__") > 1) {
-                //粗体2
-                tempStr = replaceMarkdownToHtml(tempStr, "__", "\\_\\_", "strong");
-            }
-            if (searchMarkdown(tempStr, "*") > 1) {
-                //斜体1
-                tempStr = replaceMarkdownToHtml(tempStr, "*", "\\*", "i");
-            }
-            if (searchMarkdown(tempStr, "_") > 1) {
-                //斜体2
-                tempStr = replaceMarkdownToHtml(tempStr, "_", "\\_", "i");
-            }
-            if (searchMarkdown(tempStr, "~~") > 1) {
-                //删除线
-                tempStr = replaceMarkdownToHtml(tempStr, "~~", "\\~\\~", "strike");
-            }
-            if (searchMarkdown(tempStr, "](") > 0) {
-                //超链接
-                tempStr = convertMarkdownLinkToHtml(tempStr);
-            }
-            if (arrStr != null && arrStr.length > 1 && i != (arrStr.length - 1)) {
-                //不是最后，加换行
-                result.append(tempStr).append("<br/>");
-            } else {
-                result.append(tempStr);
-            }
+
+            result.append(processedContent);
+        } catch (Exception ignored) {
         }
         return result.toString();
     }
+
 
     /**
      * @param str              原始数据
@@ -1908,8 +1951,8 @@ public class ChatUtils {
 
     //处理超链接
     public static String convertMarkdownLinkToHtml(String markdownText) {
-        // 正则表达式匹配Markdown格式的超链接
-        String regex = "\\[(.+?)\\]\\((.+?)\\)";
+        // 正则表达式匹配Markdown格式的超链接 [text](url)
+        String regex = "\\[([^\\]]*)\\]\\(([^\\)]*)\\)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(markdownText);
         StringBuffer sb = new StringBuffer();
@@ -1924,10 +1967,8 @@ public class ChatUtils {
             matcher.appendReplacement(sb, replacement.toString());
         }
         matcher.appendTail(sb);
-
         return sb.toString();
     }
-
 
     //查找字符串里与指定字符串相同的个数
     public static int searchMarkdown(String str, String searchStr) {//查找字符串里与指定字符串相同的个数
@@ -2040,17 +2081,21 @@ public class ChatUtils {
             Matcher imgTagMatcher = imgTagPattern.matcher(text);
             StringBuffer result = new StringBuffer();
             while (imgTagMatcher.find()) {
-                String imgTag = imgTagMatcher.group(0); // 完整的<img>标签
-                // 步骤2：从src值中提取图片URL
-                String imageUrl = extractImageUrl(imgTag);
-                if (imageUrl != null) {
-                    // 步骤3：替换为新的<img>标签
-                    String replacement = "<img>" + imageUrl + "<img>";
-                    imgTagMatcher.appendReplacement(result, replacement);
-                } else {
-                    // 如果没有找到有效的图片URL，保留原标签
-                    imgTagMatcher.appendReplacement(result, imgTag);
+                // 获取src属性的值
+                String srcValue = imgTagMatcher.group(1);
+
+                // 如果srcValue不是http://或者https://开头，改成https://开头
+                if (srcValue.toLowerCase().startsWith("//")) {
+                    // 处理相对协议URL，如 //demo.zhichi.com/cdn/shop/files/3.jpg
+                    srcValue = "https:" + srcValue;
+                } else if (!srcValue.toLowerCase().startsWith("http://") && !srcValue.toLowerCase().startsWith("https://")) {
+                    // 处理其他情况，如 /cdn/shop/files/3.jpg 或 images/pic.jpg
+                    srcValue = "https://" + srcValue;
                 }
+
+                // 替换为 <img> + src属性值 + <img> 的格式
+                String replacement = "<img>" + srcValue + "<img>";
+                imgTagMatcher.appendReplacement(result, replacement);
             }
             imgTagMatcher.appendTail(result);
             return result.toString();
@@ -2124,5 +2169,57 @@ public class ChatUtils {
             // 默认情况下，如果未明确设置或发生错误，可以假设不支持或根据API级别处理
             return false;
         }
+    }
+
+    /**
+     * 返回继续排队的提示语
+     *
+     * @return
+     */
+    public static ZhiChiMessageBase getKeepQueuingHint(String keepQueuingDoc) {
+        ZhiChiMessageBase keepQueuingMessageBase = new ZhiChiMessageBase();
+        keepQueuingMessageBase.setSenderType(ZhiChiConstant.message_sender_type_remide_info);
+        keepQueuingMessageBase.setAction(ZhiChiConstant.action_remind_keep_queuing);
+        keepQueuingMessageBase.setT(Calendar.getInstance().getTime().getTime() + "");
+        ZhiChiReplyAnswer replyKeepQueuing = new ZhiChiReplyAnswer();
+        replyKeepQueuing.setMsg(keepQueuingDoc);
+        replyKeepQueuing.setRemindType(ZhiChiConstant.sobot_remind_type_keep_queuing_tip);
+        keepQueuingMessageBase.setAnswer(replyKeepQueuing);
+        return keepQueuingMessageBase;
+    }
+
+    /**
+     * 对象转json
+     *
+     * @param list 对象
+     * @return
+     */
+    public static String getVariableJSON(List<SobotVariableModel> list) {
+        if (null == list || list.isEmpty()) {
+            return null;
+        }
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < list.size(); i++) {
+            SobotVariableModel model = list.get(i);
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("variableType", model.getVariableType());
+                jsonObject.put("variableCode", model.getVariableCode());
+                jsonObject.put("variableValue", model.getVariableValue());
+                jsonObject.put("variableName", model.getVariableName());
+                jsonObject.put("variableId", model.getVariableId());
+                if (StringUtils.isNoEmpty(model.getEnumList()) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    JSONObject temp = new JSONObject(model.getEnumList());
+                    jsonObject.put("enumList", temp);
+                } else {
+                    jsonObject.put("enumList", null);
+                }
+                jsonObject.put("errorMsg", "");
+                array.put(jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return array.toString();
     }
 }

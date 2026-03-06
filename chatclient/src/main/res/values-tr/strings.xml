@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Aplet</string>
     <string name="sobot_mini_program_only_open_by_weixin">Applet can only be opened through wechat</string>
     <string name="sobot_parsing">ParsingAnalisi</string>
-    <string name="sobot_keep_queuing">Devam et.</string>
-    <string name="sobot_keep_queuing_string">Beklemeye devam ederseniz, tıklayın</string>
     <string name="sobot_ding">Faydalı</string>
     <string name="sobot_cai">Faydasız</string>
     <string name="sobot_outline_closed">Oturum bitti, danışma tekrar başlatılabilir.</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Mikrofon kullanım izni talep ediliyor. İzin verildikten sonra, müşteri hizmetlerine başvururken ve mesaj bırakırken kaydedilen videoyu gönderebilir/yükleyebilirsiniz.</string>
     <string name="sobot_agree_agreement">%s\'ı okudum ve kabul ediyorum.</string>
     <string name="sobot_agree">Kabul Et</string>
+    <string name="sobot_keep_queuing">Sıraya devam et</string>
+    <string name="sobot_keep_queuing_string">Devam etmek için beklemeye devam etmek üzere "Sıraya devam et"e tıklayın.</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Referans materyalleri</string>
+    <string name="sobot_reference_materials_quantity">%d kaynak inceleyin</string>
+    <string name="sobot_start_chat">Danışmaya başla</string>
+    <string name="sobot_variable_title">Bilgileri doldurun</string>
 </resources>

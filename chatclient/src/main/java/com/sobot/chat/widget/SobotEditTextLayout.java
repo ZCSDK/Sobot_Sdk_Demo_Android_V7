@@ -3,7 +3,6 @@ package com.sobot.chat.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -13,14 +12,14 @@ import android.widget.ScrollView;
 
 public class SobotEditTextLayout extends LinearLayout {
     private ScrollView parentScrollview;
-    private EditText editText;
+    private SobotEditText editText;
     private int showLineMax = 0;
 
     public void setParentScrollview(ScrollView parentScrollview) {
         this.parentScrollview = parentScrollview;
     }
 
-    public void setEditeText(EditText editText) {
+    public void setEditeText(SobotEditText editText) {
         this.editText = editText;
         SobotEditTextLayout.LayoutParams lp = (SobotEditTextLayout.LayoutParams) editText.getLayoutParams();
         showLineMax = lp.height / editText.getLineHeight();

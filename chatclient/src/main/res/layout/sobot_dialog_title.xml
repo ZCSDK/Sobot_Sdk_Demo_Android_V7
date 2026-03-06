@@ -12,12 +12,12 @@
         android:orientation="horizontal"
         tools:ignore="UseCompoundDrawables">
         <!-- 标题 -->
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_tv_title"
             style="@style/sobot_dialog_title"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
 
         <ImageView
             android:id="@+id/iv_closes"

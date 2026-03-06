@@ -18,7 +18,7 @@
         android:paddingEnd="20dp"
         android:paddingBottom="16dp">
 
-        <EditText
+        <com.sobot.chat.widget.SobotEditText
             android:id="@+id/sobot_reply_edit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,6 +38,7 @@
             android:scrollbars="vertical"
             android:textColor="@color/sobot_color_text_first"
             android:textColorHint="@color/sobot_color_text_third"
+            android:textCursorDrawable="@drawable/sobot_cursor_drawable"
             android:textSize="@dimen/sobot_text_font_14" />
 
         <androidx.recyclerview.widget.RecyclerView

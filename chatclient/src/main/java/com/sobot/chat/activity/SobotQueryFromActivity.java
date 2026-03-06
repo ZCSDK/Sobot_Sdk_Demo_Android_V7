@@ -23,7 +23,7 @@ import com.sobot.chat.api.model.SobotQueryFormModel;
 import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
-import com.sobot.chat.listener.ISobotCusField;
+import com.sobot.chat.listener.SobotCusFieldListener;
 import com.sobot.chat.presenter.StCusFieldPresenter;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
@@ -32,6 +32,7 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotInputView;
+import com.sobot.chat.widget.SobotUploadView;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
@@ -44,7 +45,7 @@ import java.util.List;
  * @author Created by jinxl on 2018/1/4.
  * 询前表单
  */
-public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISobotCusField, View.OnClickListener {
+public class SobotQueryFromActivity extends SobotChatBaseActivity implements SobotCusFieldListener, View.OnClickListener {
     private Bundle mIntentBundleData;
     private SobotConnCusParam param;
     private SobotQueryFormModel mQueryFormModel;
@@ -301,6 +302,22 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
             startActivityForResult(intent, fieldConfig.getFieldType());
         }
     }
+//================自定义字段上传======start===========
+    @Override
+    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+
+    @Override
+    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+
+    @Override
+    public void onClickUpload(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+
+    }
+//================自定义字段上传======end===========
     /**
      * 请求时区
      * @param showDialog
@@ -386,8 +403,8 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements ISo
     public void onClick(View v) {
         if (v == sobot_btn_submit) {
             //自定义表单校验结果:为空,校验通过,可以提交;不为空,说明自定义字段校验不通过，不能提交留言表单;
-            String checkCustomFieldResult = StCusFieldPresenter.formatCusFieldVal(SobotQueryFromActivity.this, sobot_container, mField);
-            if (!TextUtils.isEmpty(checkCustomFieldResult)) {
+            boolean isError = StCusFieldPresenter.formatCusFieldVal(SobotQueryFromActivity.this, sobot_container, mField);
+            if (isError) {
                 return;
             }
             if (!checkInput(mField)) {

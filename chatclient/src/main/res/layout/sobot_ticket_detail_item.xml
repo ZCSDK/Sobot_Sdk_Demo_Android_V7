@@ -51,25 +51,31 @@
             android:textSize="@dimen/sobot_text_font_12" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/sobot_tv_content"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-        android:textColor="@color/sobot_color_text_first"
-        android:textSize="@dimen/sobot_text_font_14" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/sobot_tv_content_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-        android:padding="11dp"
-        android:textColor="@color/sobot_color_link"
-        android:textSize="@dimen/sobot_text_font_14"
-        android:visibility="visible" />
+        <com.sobot.chat.widget.SobotTextView
+            android:id="@+id/sobot_tv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <com.sobot.chat.widget.SobotTextView
+            android:id="@+id/sobot_tv_content_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:padding="11dp"
+            android:textColor="@color/sobot_color_link"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:visibility="visible" />
+    </LinearLayout>
 
     <!--文件列表-->
     <androidx.recyclerview.widget.RecyclerView

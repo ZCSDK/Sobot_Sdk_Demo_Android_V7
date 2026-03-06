@@ -1,6 +1,7 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +20,7 @@ import com.sobot.chat.adapter.SobotFromSearchAdapter;
 import com.sobot.chat.api.model.FormNodeInfo;
 import com.sobot.chat.utils.SobotSoftKeyboardUtils;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +28,7 @@ import java.util.List;
 /**
  * 询前表单搜索
  */
-public class SobotFromSearchDialog extends SobotDialogBaseActivity implements View.OnClickListener {
+public class SobotFormSearchDialog extends SobotDialogBaseActivity implements View.OnClickListener {
     private LinearLayout coustom_pop_layout;
     private ArrayList<FormNodeInfo> list;
     private SobotFromSearchAdapter adapter;
@@ -37,7 +40,7 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear;
+    private ImageView iv_clear,iv_search;
     private TextView tv_nodata;
     private int type;
 
@@ -124,14 +127,18 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
         ll_search = findViewById(R.id.ll_search);
         et_search = findViewById(R.id.et_search);
         iv_clear = findViewById(R.id.sobot_iv_clear);
+        iv_search = findViewById(R.id.sobot_iv_search);
         tv_nodata = findViewById(R.id.tv_nodata);
         iv_clear.setOnClickListener(this);
         et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_bg_line_4, null);
+                    ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getContext())));
                     SobotSoftKeyboardUtils.showSoftKeyboard(getSobotBaseActivity());
                 } else {
+                    ll_search.setBackground(ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_search_bg, null));
                     SobotSoftKeyboardUtils.hideKeyboard(getSobotBaseActivity());
                 }
             }
@@ -152,7 +159,9 @@ public class SobotFromSearchDialog extends SobotDialogBaseActivity implements Vi
                 int inputCount = s.length();
                 if (inputCount > 0) {
                     iv_clear.setVisibility(View.VISIBLE);
+                    iv_search.setVisibility(View.GONE);
                 } else {
+                    iv_search.setVisibility(View.VISIBLE);
                     iv_clear.setVisibility(View.GONE);
                     showAll();
                 }

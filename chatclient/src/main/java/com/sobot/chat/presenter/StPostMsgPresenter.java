@@ -3,7 +3,7 @@ package com.sobot.chat.presenter;
 import android.content.Context;
 import android.content.Intent;
 
-import com.sobot.chat.activity.halfdialog.SobotMuItiPostMsgActivty;
+import com.sobot.chat.activity.halfdialog.SobotMuItiPostMsgActivtyListener;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.core.HttpUtils;
@@ -71,7 +71,7 @@ public class StPostMsgPresenter {
         mApi.getMsgTemplateConfig(mCancelTag, uid, templateId, new StringResultCallBack<SobotLeaveMsgConfig>() {
             @Override
             public void onSuccess(SobotLeaveMsgConfig data) {
-                Intent intent = new Intent(mContext, SobotMuItiPostMsgActivty.class);
+                Intent intent = new Intent(mContext, SobotMuItiPostMsgActivtyListener.class);
                 intent.putExtra(INTENT_KEY_UID, uid);
                 intent.putExtra("templateId", templateId);
                 intent.putExtra("tipMsgId", tipMsgId);

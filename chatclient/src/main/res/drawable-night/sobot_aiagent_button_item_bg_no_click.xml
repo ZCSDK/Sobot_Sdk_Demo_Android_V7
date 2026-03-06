@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#80404040" />
+    <stroke
+        android:width="@dimen/sobot_line_height_dp"
+        android:color="@color/sobot_color_line_divider_to_transparent_second" />
+    <corners android:radius="20dp" />
+</shape>

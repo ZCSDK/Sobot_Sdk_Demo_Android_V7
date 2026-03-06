@@ -63,7 +63,8 @@
     <!-- 主题色 默认绿色 -->
     <color name="sobot_color">@color/sobot_common_green</color>
     <color name="sobot_color_transparency_10">@color/sobot_common_green_transparency_10</color>
-
+    <!--光标颜色-->
+    <color name="sobot_color_cursor">#777474</color>
     <!--文字颜色 主要文本色 大部分界面里的黑色文字-->
     <color name="sobot_color_text_first">#161616</color>
     <!--文字颜色 次要文本色-->
@@ -90,6 +91,8 @@
     <color name="sobot_color_line_divider_to_transparent">#EBEBEB</color>
     <!--线条 分割线颜色 夜间模式是完全透明的-->
     <color name="sobot_color_line_divider_to_transparent_second">#F0F0F0</color>
+    <!--线条 分割线颜色 夜间模式也是一样的-->
+    <color name="sobot_color_line_divider_to_transparent_third">#F0F0F0</color>
     <!--线条 分割线颜色2-->
     <color name="sobot_color_line_divider_2">#E6E6E6</color>
     <!--线条 分割线颜色3-->
@@ -359,6 +362,8 @@
     <color name="sobot_common_btn_bg_second">@color/sobot_color_transparent</color>
     <!--通用按钮背景色 黑色边框中间白色按钮 夜间模式中间百分之三十透明度 -->
     <color name="sobot_common_btn_bg_three">#4DFFFFFF</color>
+    <!--通用按钮背景色 白天百分之四 夜间模式中间百分之五透明度 -->
+    <color name="sobot_common_btn_bg_four">#0A000000</color>
 
     <!--    对话框相关-->
     <!--    对话框关背景色-->
@@ -373,6 +378,7 @@
     <color name="sobot_dialog_item_selected_color">#EBEBEB</color>
     <!--自定义字段输入框边框-->
     <color name="sobot_dialog_input">#D9D9D9</color>
+    <color name="sobot_dialog_input_bg">@color/sobot_color_transparent</color>
     <color name="sobot_dialog_input_error">#F5222D</color>
     <color name="sobot_dialog_btn_line">#EBEBEB</color>
 
@@ -400,4 +406,10 @@
     <color name="sobot_color_issue_text">#777474</color>
     <!-- 工单授权   -->
     <color name="sobot_policy_text">@color/sobot_color_text_second</color>
+    <!-- 文本控件textview 大模型来源按钮 背景色 -->
+    <color name="sobot_rich_textview_icon_bg">#000000</color>
+    <!-- 文本控件textview 大模型所有来源 弹窗 图标背景色 -->
+    <color name="sobot_rich_textview_icon_bg_first">#0F000000</color>
+    <!-- 文本控件textview 大模型生成按钮 矩形 -->
+    <color name="sobot_rich_textview_icon_bg_second">#FFFFFF</color>
 </resources>

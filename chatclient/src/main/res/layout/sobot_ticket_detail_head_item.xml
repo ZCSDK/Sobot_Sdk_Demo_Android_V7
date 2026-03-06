@@ -2,21 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/sobot_color_bg_first"
     android:orientation="vertical">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge"
-        android:orientation="horizontal">
+        android:paddingEnd="@dimen/sobot_msg_margin_edge">
+
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:src="@drawable/sobot_ticket_icon"/>
+            android:src="@drawable/sobot_ticket_icon" />
+
         <TextView
             android:id="@+id/sobot_tv_ticket_status"
             android:layout_width="wrap_content"
@@ -27,38 +30,42 @@
             android:gravity="center"
             android:lines="1"
             android:paddingStart="8dp"
-            android:paddingEnd="8dp"
             android:paddingTop="3dp"
+            android:paddingEnd="8dp"
             android:paddingBottom="3dp"
             android:text="处理中"
             android:textColor="@color/sobot_ticket_deal_text"
             android:textSize="@dimen/sobot_text_font_12" />
+
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
+
         <TextView
             android:id="@+id/sobot_tv_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginStart="10dp"
+            android:gravity="center"
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_12" />
     </LinearLayout>
-    <TextView
+
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/tv_title"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:paddingStart="@dimen/sobot_msg_margin_edge"
         android:paddingEnd="@dimen/sobot_msg_margin_edge"
         android:textColor="@color/sobot_color_text_first"
-        android:textStyle="bold"
-        android:textSize="@dimen/sobot_text_font_14" />
-    <TextView
+        android:textSize="@dimen/sobot_text_font_14"
+        android:textStyle="bold" />
+
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/tv_context"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:paddingStart="@dimen/sobot_msg_margin_edge"
@@ -68,17 +75,17 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sobot_attachment_file_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:paddingStart="@dimen/sobot_msg_margin_edge"
         android:paddingEnd="@dimen/sobot_msg_margin_edge"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         tools:listitem="@layout/sobot_layout_attachment_view" />
+
     <View
         android:id="@+id/line"
         android:layout_width="match_parent"
         android:layout_height="0.6dp"
-        android:background="@color/sobot_ticket_detail_line"
         android:layout_marginTop="20dp"
-         />
+        android:background="@color/sobot_ticket_detail_line" />
 </LinearLayout>

@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.MarkConfig;
@@ -23,8 +24,10 @@ import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.SobotCusFieldDataInfo;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,24 +96,50 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
             } else {
                 myViewHolder.categorySmallTitle.setText("");
             }
-
-            if (displayList.get(position).isChecked()) {
-                myViewHolder.categorySmallTitle.setTypeface( null,Typeface.BOLD);
-                myViewHolder.categorySmallIshave.setVisibility(View.VISIBLE);
-                if (ThemeUtils.isChangedThemeColor(context)) {
-                    int themeColor = ThemeUtils.getThemeColor(context);
-                    Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
-                    if (bg != null) {
-                        myViewHolder.categorySmallIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
-                    }
-                }
-            } else {
-                myViewHolder.categorySmallTitle.setTypeface( null,Typeface.NORMAL);
+            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE){
                 myViewHolder.categorySmallIshave.setVisibility(View.GONE);
+                myViewHolder.categoryDuoIshave.setVisibility(View.VISIBLE);
+                //多选
+                if (displayList.get(position).isChecked()) {
+                    myViewHolder.categorySmallTitle.setTypeface(null, Typeface.BOLD);
+                    myViewHolder.categoryDuoIshave.setSelected(true);
+                    if (ThemeUtils.isChangedThemeColor(context)) {
+                        int themeColor = ThemeUtils.getThemeColor(context);
+                        Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_radio_btn_selected);
+                        if (bg != null) {
+                            myViewHolder.categoryDuoIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                        }
+                    }
+                }else{
+                    Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_radio_btn_normal);
+                    if (bg != null) {
+                        myViewHolder.categoryDuoIshave.setImageDrawable(bg);
+                    }
+                    myViewHolder.categorySmallTitle.setTypeface(null, Typeface.NORMAL);
+                    myViewHolder.categoryDuoIshave.setSelected(false);
+                }
+            }else {
+                myViewHolder.categoryDuoIshave.setVisibility(View.GONE);
+                if (displayList.get(position).isChecked()) {
+                    myViewHolder.categorySmallTitle.setTypeface(null, Typeface.BOLD);
+                    myViewHolder.categorySmallIshave.setVisibility(View.VISIBLE);
+
+                    if (ThemeUtils.isChangedThemeColor(context)) {
+                        int themeColor = ThemeUtils.getThemeColor(context);
+                        Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
+                        if (bg != null) {
+                            myViewHolder.categorySmallIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                        }
+                    }
+                } else {
+                    myViewHolder.categorySmallTitle.setTypeface(null, Typeface.NORMAL);
+                    myViewHolder.categorySmallIshave.setVisibility(View.GONE);
+                }
             }
         } else {
             myViewHolder.categorySmallTitle.setText("");
             myViewHolder.categorySmallIshave.setVisibility(View.GONE);
+            myViewHolder.categoryDuoIshave.setVisibility(View.GONE);
         }
 
         return convertView;
@@ -119,13 +148,18 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
     class MyViewHolder {
 
         private TextView categorySmallTitle;
-        private ImageView categorySmallIshave;
+        private ImageView categorySmallIshave, categoryDuoIshave;
         private Activity mActivity;
 
         MyViewHolder(Activity activity, View view) {
             this.mActivity = activity;
+            // 在 getView 方法中
+            boolean isRtl = ChatUtils.isRtl(getContext());
+            LinearLayout container = view.findViewById(R.id.sobot_ll_item_container);
+            container.setLayoutDirection(isRtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
             categorySmallTitle = (TextView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
             categorySmallIshave = (ImageView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_ishave);
+            categoryDuoIshave = (ImageView) view.findViewById(R.id.sobot_duo_cusfield_listview_items_ishave);
             displayInNotch(categorySmallTitle);
         }
 

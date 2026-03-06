@@ -32,7 +32,7 @@
             android:layout_height="32dp"
             android:src="@drawable/sobot_temp_class" />
 
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_tv_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -9,4 +9,5 @@
     <item name="action_bar_container" type="id" />
 
     <item name="sobot_srl_tag" type="id" />
+    <item name="sobot_child_type_tag" type="id"/>
 </resources>

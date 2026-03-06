@@ -1,6 +1,7 @@
 
 package com.sobot.chat.utils;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -13,6 +14,8 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -271,6 +274,275 @@ public class ImageUtils {
         return null;
     }
 
+    /**
+     * 异步获取文件路径的方法
+     * @param context 上下文
+     * @param uri URI对象
+     * @param callback 回调接口，用于返回结果
+     */
+    public static void getPathAsync(final Context context, final Uri uri, final OnPathCallback callback) {
+        if (context == null) {
+            if (callback != null) {
+                callback.onResult("");
+            }
+            return;
+        }
+
+        new Thread(() -> {
+            String result;
+            if (!(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)) {
+                result = uriToFileApiQ(context, uri);
+            } else {
+                // DocumentProvider
+                if (DocumentsContract.isDocumentUri(context, uri)) {
+                    // ExternalStorageProvider
+                    if (isExternalStorageDocument(uri)) {
+                        final String docId = DocumentsContract.getDocumentId(uri);
+                        final String[] split = docId.split(":");
+                        final String type = split[0];
+
+                        result = "primary".equalsIgnoreCase(type) ?
+                                Environment.getExternalStorageDirectory() + "/" + split[1] : null;
+                    }
+                    // DownloadsProvider
+                    else if (isDownloadsDocument(uri)) {
+                        String id = DocumentsContract.getDocumentId(uri);
+                        if (!TextUtils.isEmpty(id)) {
+                            if (id.startsWith("raw:")) {
+                                result = id.replaceFirst("raw:", "");
+                            } else {
+                                try {
+                                    final Uri contentUri = ContentUris.withAppendedId(
+                                            Uri.parse("content://downloads/public_downloads"),
+                                            Long.valueOf(id));
+                                    result = getDataColumn(context, contentUri, null, null);
+                                } catch (NumberFormatException e) {
+                                    result = null;
+                                }
+                            }
+                        } else {
+                            result = null;
+                        }
+                    }
+                    // MediaProvider
+                    else if (isMediaDocument(uri)) {
+                        final String docId = DocumentsContract.getDocumentId(uri);
+                        final String[] split = docId.split(":");
+                        final String type = split[0];
+
+                        Uri contentUri = null;
+                        if ("image".equals(type)) {
+                            contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                        } else if ("video".equals(type)) {
+                            contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                        } else if ("audio".equals(type)) {
+                            contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                        }
+
+                        final String selection = "_id=?";
+                        final String[] selectionArgs = new String[]{split[1]};
+
+                        result = getDataColumn(context, contentUri, selection, selectionArgs);
+                    } else {
+                        result = null;
+                    }
+                }
+                // MediaStore (and general)
+                else if ("content".equalsIgnoreCase(uri.getScheme())) {
+                    if (isNewGooglePhotosUri(uri)) {
+                        if (uri != null && !TextUtils.isEmpty(uri.getPath()) && uri.getPath().contains("video")) {
+                            // 如果是谷歌图库里的视频，需要复制出来再上传
+                            BufferedOutputStream outStream = null;
+                            BufferedInputStream reader = null;
+                            InputStream inputStream = null;
+                            try {
+                                ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver()
+                                        .openFileDescriptor(uri, "r");
+                                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                                inputStream = new FileInputStream(fileDescriptor);
+                                reader = new BufferedInputStream(inputStream);
+                                String picDir = SobotPathManager.getInstance().getVideoDir();
+                                IOUtils.createFolder(picDir);
+                                String videoFileName = "v_" + System.currentTimeMillis() + ".mp4";
+                                String videoPath = picDir + videoFileName;
+                                LogUtils.i(videoPath);
+                                // 创建要保存到的文件
+                                outStream = new BufferedOutputStream(new FileOutputStream(videoPath));
+                                byte[] buf = new byte[2048];
+                                int len;
+                                while ((len = reader.read(buf)) > 0) {
+                                    outStream.write(buf, 0, len);
+                                }
+                                result = videoPath;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                result = null;
+                            } finally {
+                                try {
+                                    if (inputStream != null) {
+                                        inputStream.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    if (reader != null) {
+                                        reader.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    if (outStream != null) {
+                                        outStream.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            Uri imageUrlWithAuthority = getImageUrlWithAuthority(context, uri);
+                            result = imageUrlWithAuthority != null ?
+                                    getDataColumn(context, imageUrlWithAuthority, null, null) : "";
+                        }
+                    } else if (isGooglePhotosUri(uri)) {
+                        // Return the remote address
+                        result = uri.getLastPathSegment();
+                    } else {
+                        String tmpDataPath;
+                        try {
+                            tmpDataPath = getDataColumn(context, uri, null, null);
+                        } catch (Exception e) {
+                            tmpDataPath = uri.getPath();
+                            if (!TextUtils.isEmpty(tmpDataPath)) {
+                                try {
+                                    String rootpath = Environment.getExternalStorageDirectory().getPath();
+                                    if (rootpath.length() < tmpDataPath.length()) {
+                                        int indexOf = tmpDataPath.indexOf(rootpath);
+                                        if (indexOf != -1) {
+                                            tmpDataPath = tmpDataPath.substring(indexOf);
+                                        }
+                                    }
+                                } catch (Exception exce) {
+                                    exce.printStackTrace();
+                                }
+                            }
+                        }
+                        result = tmpDataPath;
+                    }
+                }
+                // File
+                else if ("file".equalsIgnoreCase(uri.getScheme())) {
+                    result = uri.getPath();
+                } else {
+                    result = null;
+                }
+            }
+
+            // 将结果发送回主线程
+            if (callback != null) {
+                Handler mainHandler = new Handler(Looper.getMainLooper());
+                String finalResult = result;
+                mainHandler.post(() -> callback.onResult(finalResult));
+            }
+        }).start();
+    }
+
+    /**
+     * 通过URI获取文件大小
+     * @param context 上下文
+     * @param uri 文件URI
+     * @return 文件大小（字节数），如果无法获取则返回-1
+     */
+    public static long getFileSizeFromUri(Context context, Uri uri) {
+        if (context == null || uri == null) {
+            return -1;
+        }
+
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor cursor = null;
+
+        try {
+            // 尝试从OpenableColumns获取文件大小（适用于内容URI）
+            cursor = contentResolver.query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex >= 0) {
+                    return cursor.getLong(sizeIndex);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        // 如果通过OpenableColumns无法获取，则尝试其他方式
+        String scheme = uri.getScheme();
+        if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            // 文件URI，直接获取文件大小
+            File file = new File(uri.getPath());
+            return file.exists() ? file.length() : -1;
+        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            // 内容URI，如果是MediaStore相关，则尝试特殊处理
+            String authority = uri.getAuthority();
+            if (authority != null) {
+                if (authority.startsWith("com.android.providers.media")) {
+                    // 对于媒体存储，尝试直接查询
+                    try {
+                        cursor = contentResolver.query(uri, new String[]{MediaStore.MediaColumns.SIZE}, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int sizeIndex = cursor.getColumnIndex(MediaStore.MediaColumns.SIZE);
+                            if (sizeIndex >= 0) {
+                                return cursor.getLong(sizeIndex);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                    }
+                }
+            }
+
+            // 如果还是无法获取，可以通过InputStream获取文件大小（仅作为最后手段）
+            // 注意：某些类型的URI可能会导致实际读取整个文件，因此谨慎使用
+            try {
+                ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(uri, "r");
+                if (pfd != null) {
+                    FileDescriptor fd = pfd.getFileDescriptor();
+                    long size = new File(fd.toString()).length(); // 此方法不一定准确
+                    pfd.close();
+                    return size;
+                }
+            } catch (Exception e) {
+                // 忽略异常
+            }
+        }
+
+        return -1; // 无法获取文件大小
+    }
+
+    /**
+     * 异步获取文件大小
+     * @param context 上下文
+     * @param uri 文件URI
+     * @param callback 回调接口，用于返回结果
+     */
+    public static void getFileSizeFromUriAsync(Context context, Uri uri, OnFileSizeCallback callback) {
+        new Thread(() -> {
+            long result = getFileSizeFromUri(context, uri);
+            if (callback != null) {
+                Handler mainHandler = new Handler(Looper.getMainLooper());
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        }).start();
+    }
+
     public static String getDataColumn(Context context, Uri uri, String selection,
                                        String[] selectionArgs) {
 
@@ -395,7 +667,7 @@ public class ImageUtils {
                 new String[]{MediaStore.Images.Media._ID}, MediaStore.Images.Media.DATA + "=? ",
                 new String[]{path}, null);
         if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
             Uri baseUri = Uri.parse("content://media/external/images/media");
             return Uri.withAppendedPath(baseUri, "" + id);
         } else {
@@ -549,4 +821,29 @@ public class ImageUtils {
         }
     }
 
+    /**
+     * Android Q及以上版本Uri转File路径的方法（异步方式）
+     */
+    public static void uriToFileApiQAsync(Context context, Uri uri, OnUriToFileCallback callback) {
+        new Thread(() -> {
+            String result = uriToFileApiQ(context, uri);
+            if (callback != null) {
+                Handler mainHandler = new Handler(Looper.getMainLooper());
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        }).start();
+    }
+
+    // 添加回调接口
+    public interface OnUriToFileCallback {
+        void onResult(String filePath);
+    }
+
+    public interface OnPathCallback {
+        void onResult(String path);
+    }
+
+    public interface OnFileSizeCallback {
+        void onResult(long fileSize);
+    }
 }

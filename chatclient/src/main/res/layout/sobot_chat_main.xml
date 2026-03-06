@@ -2,7 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/sobot_color_chat_bg"
     android:fitsSystemWindows="true">
+
+    <ImageView
+        android:id="@+id/iv_message_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
 
     <RelativeLayout
         android:id="@+id/sobot_chat_main"
@@ -57,35 +64,23 @@
                 android:visibility="gone" />
         </RelativeLayout>
         <!--消息列表-->
-        <FrameLayout
+        <com.sobot.chat.widget.refresh.layout.SobotRefreshLayout
+            android:id="@+id/sobot_srv_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/sobot_bar_bottom"
-            android:layout_below="@+id/rl_announcement"
-            android:background="@color/sobot_color_chat_bg">
+            android:layout_below="@+id/rl_announcement">
 
-            <ImageView
-                android:id="@+id/iv_message_bg"
+            <com.sobot.chat.widget.refresh.SobotClassicsHeader
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:layout_height="wrap_content"
+                app:sobotSrlFinishDuration="0" />
 
-            <com.sobot.chat.widget.refresh.layout.SobotRefreshLayout
-                android:id="@+id/sobot_srv_message"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/sobot_rv_message"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.sobot.chat.widget.refresh.SobotClassicsHeader
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:sobotSrlFinishDuration="0" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/sobot_rv_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </com.sobot.chat.widget.refresh.layout.SobotRefreshLayout>
-        </FrameLayout>
+                android:layout_height="match_parent" />
+        </com.sobot.chat.widget.refresh.layout.SobotRefreshLayout>
         <!-- 切换机器人按钮 -->
         <com.sobot.chat.widget.attach.SobotRobotAttachLinearlayout
             android:id="@+id/ll_switch_robot"

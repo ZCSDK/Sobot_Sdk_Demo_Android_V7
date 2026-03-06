@@ -102,16 +102,16 @@ public abstract class SobotBaseFragment extends Fragment {
                         for (Rect rect : notchScreenInfo.notchRects) {
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 110 ? 110 : rect.right) + 14;
-                                layoutParams.leftMargin = (rect.right > 110 ? 110 : rect.right) + 14;
+                                layoutParams.setMarginEnd((Math.min(rect.right, 110)) + 14);
+                                layoutParams.setMarginStart((Math.min(rect.right, 110)) + 14);
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.rightMargin = (rect.right > 110 ? 110 : rect.right) + 14;
-                                layoutParams.leftMargin = (rect.right > 110 ? 110 : rect.right) + 14;
+                                layoutParams.setMarginEnd((Math.min(rect.right, 110)) + 14);
+                                layoutParams.setMarginStart((Math.min(rect.right, 110)) + 14);
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding((rect.right > 110 ? 110 : rect.right) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right > 110 ? 110 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                view.setPadding((Math.min(rect.right, 110)) + view.getPaddingLeft(), view.getPaddingTop(), (Math.min(rect.right, 110)) + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -646,7 +646,7 @@ public abstract class SobotBaseFragment extends Fragment {
             int nightModeFlags = getSobotActivity().getResources().getConfiguration().uiMode
                     & Configuration.UI_MODE_NIGHT_MASK;
             boolean isNightMode = (nightModeFlags == Configuration.UI_MODE_NIGHT_YES);
-            LogUtils.d("fragment:" + (isNightMode ? "夜间模式" : "日间模式"));
+//            LogUtils.d("fragment:" + (isNightMode ? "夜间模式" : "日间模式"));
             return isNightMode;
         } else {
             return false;

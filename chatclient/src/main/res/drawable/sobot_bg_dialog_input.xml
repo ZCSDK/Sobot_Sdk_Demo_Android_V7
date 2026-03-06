@@ -5,7 +5,7 @@
         android:width="0.6dp"
         android:color="@color/sobot_dialog_input" />
 
-    <solid android:color="@color/sobot_color_transparent" />
+    <solid android:color="@color/sobot_dialog_input_bg" />
 
     <corners android:radius="4dp" />
 </shape>

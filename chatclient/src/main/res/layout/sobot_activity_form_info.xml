@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        android:paddingBottom="40dp"
         app:sobot_mhv_HeightRatio="0.9">
 
         <include layout="@layout/sobot_dialog_title" />
@@ -44,12 +43,19 @@
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="gone" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:background="@color/sobot_dialog_line"
+            android:layout_height="1dp"/>
+
         <TextView
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/sobot_dialog_margin"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
             android:layout_marginEnd="@dimen/sobot_dialog_margin"
             android:background="@drawable/sobot_btn_bg_28"
             android:gravity="center"

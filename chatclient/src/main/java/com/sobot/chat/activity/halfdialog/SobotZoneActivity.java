@@ -1,6 +1,7 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +20,7 @@ import com.sobot.chat.adapter.SobotTimeZoneAdapter;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear;
+    private ImageView iv_clear,sobot_iv_search;
     private TextView tv_nodata;
     private TextView sobot_tv_title;
     private SobotCusFieldConfig cusFieldConfig;//当前自定义字段
@@ -113,6 +116,7 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
         ll_search = findViewById(R.id.ll_search);
         et_search = findViewById(R.id.et_search);
         iv_clear = findViewById(R.id.sobot_iv_clear);
+        sobot_iv_search = findViewById(R.id.sobot_iv_search);
         tv_nodata = findViewById(R.id.tv_nodata);
         iv_clear.setOnClickListener(this);
         et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -141,11 +145,24 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
                 int inputCount = s.length();
                 if (inputCount > 0) {
                     iv_clear.setVisibility(View.VISIBLE);
+                    sobot_iv_search.setVisibility(View.GONE);
                 } else {
                     iv_clear.setVisibility(View.GONE);
+                    sobot_iv_search.setVisibility(View.VISIBLE);
                 }
                 //搜索
                 setIv_search();
+            }
+        });
+        et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_bg_line_4, null);
+                    ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getContext())));
+                } else {
+                    ll_search.setBackground(ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_search_bg, null));
+                }
             }
         });
         sobot_tv_title.setText(R.string.sobot_time_zone);

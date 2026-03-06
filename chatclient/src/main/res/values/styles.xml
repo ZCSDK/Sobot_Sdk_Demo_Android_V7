@@ -4,6 +4,20 @@
         <item name="android:statusBarColor">@color/sobot_color_transparent</item> <!-- 状态栏颜色 -->
         <item name="android:navigationBarColor">@color/sobot_color_bg_first</item> <!-- 导航栏颜色 -->
     </style>
+    <!-- 在 styles.xml 中添加 -->
+    <style name="BottomDialogStyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/BottomDialogAnimation</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+    <style name="BottomDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/sobot_pickerview_dialog_scale_in</item>
+        <item name="android:windowExitAnimation">@anim/sobot_pickerview_dialog_scale_out</item>
+    </style>
 
     <style name="sobot_Dialog" parent="android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>

@@ -10,15 +10,14 @@
     android:orientation="vertical">
 
     <com.sobot.chat.widget.SobotMHLinearLayout
+        android:id="@+id/sobot_dialog_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        android:paddingBottom="40dp"
         app:sobot_mhv_HeightRatio="0.8">
 
         <include layout="@layout/sobot_dialog_title" />
-
 
         <LinearLayout
             android:id="@+id/sobot_ll_search"
@@ -35,7 +34,7 @@
             android:paddingEnd="2dp"
             android:visibility="gone">
 
-            <EditText
+            <com.sobot.chat.widget.SobotEditText
                 android:id="@+id/sobot_et_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,32 +51,46 @@
                 android:paddingBottom="7dp"
                 android:textColor="@color/sobot_color_text_first"
                 android:textColorHint="@color/sobot_color_text_third"
+                android:textCursorDrawable="@drawable/sobot_cursor_drawable"
                 android:textSize="@dimen/sobot_text_font_14" />
 
             <ImageView
                 android:id="@+id/sobot_iv_clear"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:padding="10dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="3dp"
+                android:padding="9dp"
                 android:src="@drawable/sobot_cur_input_clear"
                 android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/sobot_iv_search"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_margin="10dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="3dp"
+                android:padding="9dp"
                 android:src="@drawable/sobot_cur_search" />
         </LinearLayout>
 
+        <View
+            android:id="@+id/v_search_line"
+            android:layout_width="match_parent"
+            android:layout_height="0.6dp"
+            android:background="@color/sobot_color_line_divider_2"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical"
+            >
             <ListView
                 android:id="@+id/sobot_activity_cusfield_listview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
                 android:background="@color/sobot_dialog_bg_color"
                 android:cacheColorHint="@android:color/transparent"
                 android:divider="@color/sobot_color_line_divider"
@@ -86,24 +99,26 @@
                 android:listSelector="@android:color/transparent"
                 android:overScrollMode="never"
                 android:scrollbarSize="10dp"
+                android:layout_above="@+id/sobot_btn_submit"
                 android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style" />
+            <TextView
+                android:id="@+id/sobot_btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sobot_dialog_margin"
+                android:layout_marginEnd="@dimen/sobot_dialog_margin"
+                android:background="@drawable/sobot_btn_bg_28"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:padding="9dp"
+                android:singleLine="true"
+                android:text="@string/sobot_btn_submit_text"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_white"
+                android:textSize="@dimen/sobot_text_font_14" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/sobot_btn_submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="@dimen/sobot_dialog_margin"
-            android:layout_marginEnd="@dimen/sobot_dialog_margin"
-            android:background="@drawable/sobot_btn_bg_28"
-            android:gravity="center"
-            android:padding="9dp"
-            android:singleLine="true"
-            android:text="@string/sobot_btn_submit_text"
-            android:textAllCaps="false"
-            android:textColor="@color/sobot_white"
-            android:textSize="@dimen/sobot_text_font_14"  />
+
     </com.sobot.chat.widget.SobotMHLinearLayout>
 
 

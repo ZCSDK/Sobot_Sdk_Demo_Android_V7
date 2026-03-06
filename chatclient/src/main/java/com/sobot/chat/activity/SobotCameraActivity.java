@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.view.View;
 
 import com.sobot.chat.R;
@@ -20,6 +19,7 @@ import com.sobot.chat.utils.SobotPathManager;
 
 /**
  * 拍摄--图片--视频
+ *
  * @author Created by jinxl on 2018/12/3.
  */
 public class SobotCameraActivity extends SobotChatBaseActivity {
@@ -79,8 +79,8 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        //全屏显示
-        if (Build.VERSION.SDK_INT >= 19) {
+        //全屏显示
+        try {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -89,10 +89,7 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            View decorView = getWindow().getDecorView();
-            int option = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(option);
+        } catch (Exception ignored) {
         }
     }
 
@@ -102,7 +99,7 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
         changeAppLanguage();
         jCameraView.onResume();
         boolean hasPermission = checkAudioPermission();
-        if (hasPermission){
+        if (hasPermission) {
             jCameraView.setGotoSettingVisible(false);
         }
     }
@@ -153,9 +150,9 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
                     return true;
                 }
                 boolean hasPermission = isHasPermission(4, 2);
-                if (hasPermission){
+                if (hasPermission) {
                     jCameraView.setGotoSettingVisible(false);
-                }else {
+                } else {
                     jCameraView.setGotoSettingVisible(true);
                 }
                 return hasPermission;
@@ -202,7 +199,7 @@ public class SobotCameraActivity extends SobotChatBaseActivity {
                 SobotCameraActivity.this.finish();
             }
         });
-        permissionListener=new PermissionListenerImpl(){
+        permissionListener = new PermissionListenerImpl() {
             @Override
             public void onPermissionSuccessListener() {
                 jCameraView.setGotoSettingVisible(false);

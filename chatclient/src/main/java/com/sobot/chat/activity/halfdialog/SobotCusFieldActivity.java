@@ -19,6 +19,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotCusFieldAdapter;
@@ -54,9 +56,10 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
     private StringBuffer dataValue = new StringBuffer();
     private TextView sobot_tv_title;
     private TextView sobot_btn_submit;
-    private ImageView sobot_iv_clear;
+    private ImageView sobot_iv_clear,sobot_iv_search;
     private EditText sobot_et_search;
-    private LinearLayout sobot_ll_search;
+    private LinearLayout sobot_ll_search,sobot_dialog_content;
+    private View v_search_line;
     private float screenHeight70;
     private int themeColor = 0;
     private boolean changeThemeColor;
@@ -74,12 +77,16 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
     @Override
     public void initView() {
         super.initView();
-        screenHeight70 = ScreenUtils.getScreenHeight(this) * 0.8f;
+        int screenHeight = getContext().getResources().getDisplayMetrics().heightPixels;
+        screenHeight70 = screenHeight * 0.8f;
+        sobot_dialog_content = findViewById(R.id.sobot_dialog_content);
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_ll_search = findViewById(R.id.sobot_ll_search);
+        v_search_line = findViewById(R.id.v_search_line);
         sobot_et_search = (EditText) findViewById(R.id.sobot_et_search);
         sobot_iv_clear = findViewById(R.id.sobot_iv_clear);
+        sobot_iv_search = findViewById(R.id.sobot_iv_search);
         sobot_iv_clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -154,7 +161,9 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
                 adapter.setSearchText(s.toString());
                 if (s.length() > 0) {
                     sobot_iv_clear.setVisibility(View.VISIBLE);
+                    sobot_iv_search.setVisibility(View.GONE);
                 } else {
+                    sobot_iv_search.setVisibility(View.VISIBLE);
                     sobot_iv_clear.setVisibility(View.GONE);
                 }
                 SobotCusFieldAdapter.MyFilter m = adapter.getFilter();
@@ -194,6 +203,17 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
             }
             sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
+        sobot_et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_bg_line_4, null);
+                    sobot_ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getContext())));
+                } else {
+                    sobot_ll_search.setBackground(ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_search_bg, null));
+                }
+            }
+        });
     }
 
     protected void onSumbitClick() {
@@ -270,8 +290,14 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         //是否显示搜索框
         if (cusFieldConfig != null && cusFieldConfig.getQueryFlag() == 1) {
             sobot_ll_search.setVisibility(View.VISIBLE);
+            v_search_line.setVisibility(View.VISIBLE);
+//            // 设置高度为屏幕的90%
+//            sobot_dialog_content.setMinimumHeight((int) (getContext().getResources().getDisplayMetrics().heightPixels * 0.9));
         } else {
             sobot_ll_search.setVisibility(View.GONE);
+            v_search_line.setVisibility(View.GONE);
+//            // 设置高度为屏幕的50%
+//            sobot_dialog_content.setMinimumHeight((int) (getContext().getResources().getDisplayMetrics().heightPixels * 0.5));
         }
 
         if (model != null && model.getCusFieldDataInfoList().size() != 0) {
@@ -305,7 +331,8 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
             } else {
                 adapter.notifyDataSetChanged();
             }
-            setListViewHeight(mListView, 5, 0);
+
+//            setListViewHeight(mListView, 5, 0);
         }
     }
 
@@ -363,7 +390,6 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         } else {
             layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, itemHeight * itemCount);
         }
-
         listView.setLayoutParams(layoutParams);
     }
 }

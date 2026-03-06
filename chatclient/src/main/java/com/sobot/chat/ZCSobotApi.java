@@ -31,7 +31,6 @@ import com.sobot.chat.api.model.SobotLocationModel;
 import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.api.model.SobotTransferOperatorParam;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
-import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.conversation.SobotChatActivity;
 import com.sobot.chat.core.channel.Const;
@@ -48,6 +47,7 @@ import com.sobot.chat.listener.SobotNoReadLeaveReplyListener;
 import com.sobot.chat.listener.SobotOrderCardListener;
 import com.sobot.chat.presenter.StPostMsgPresenter;
 import com.sobot.chat.server.SobotSessionServer;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
@@ -104,6 +104,10 @@ public class ZCSobotApi {
             SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_LANGUAGE);
             SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
             SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
+            //清空工单状态
+            ChatUtils.setStatusList(null);
+            //清除夜间模式设置
+            SharedPreferencesUtil.removeKey(context, ZCSobotConstant.LOCAL_NIGHT_MODE);
             if (!CommonUtils.inMainProcess(context.getApplicationContext())) {
                 return;
             }
@@ -1175,7 +1179,7 @@ public class ZCSobotApi {
      * @param context   上下文  必填
      * @param appkey    用户的appkey  必填 如果是平台用户需要传总公司的appkey
      * @param partnerid 用户的唯一标识不能传一样的值,如果为空返回的值可能存在误差
-     * @param callBack  返回内容为map类型，key的描述：offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空，message 收到最后一条消息内容 （eg:您收到了一条新消息），time  收到最后一条消息的时间戳 （未读消息、离线消息、未确认消息 三者比较取时间为最后的一条消息），object 接口返回的全部数据
+     * @param callBack  返回内容为map类型，key的描述：offlineSize  离线消息数，unAckSize 未确认消息数，unReadSize  本地记录的未读消息数 进入SDK页面会清空
      */
     public static void offlineMsgSize(final Context context, final String appkey, final String partnerid, StringResultCallBack<NureadMsgModel> callBack) {
         //必填验证

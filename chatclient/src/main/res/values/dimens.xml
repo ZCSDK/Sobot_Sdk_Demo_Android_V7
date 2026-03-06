@@ -48,6 +48,8 @@
 
     <!--行间距 -->
     <dimen name="sobot_text_line_spacing_extra">4dp</dimen>
+    <!--大模型 答案有按钮时 行间距 -->
+    <dimen name="sobot_text_line_spacing_aianswar_button">7dp</dimen>
 
     <!--activity界面导航栏通用高度（不包含状态栏） -->
     <dimen name="sobot_common_titlebar_hight">54dp</dimen>

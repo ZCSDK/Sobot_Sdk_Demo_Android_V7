@@ -85,7 +85,7 @@ public class SobotPostCategoryAdapter extends SobotBaseAdapter<SobotTypeModel> {
             myViewHolder.categoryIshave.setVisibility(View.GONE);
         } else {
             myViewHolder.categoryIshave.setVisibility(View.VISIBLE);
-            myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow_gray);
+            myViewHolder.categoryIshave.setImageResource(R.drawable.sobot_icon_right_arrow);
         }
 
         if (list.get(position).isChecked()) {

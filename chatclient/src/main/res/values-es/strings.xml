@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Applet</string>
     <string name="sobot_mini_program_only_open_by_weixin">Los applets sólo se pueden abrir a través de Wechat</string>
     <string name="sobot_parsing">Analizar...</string>
-    <string name="sobot_keep_queuing">Sigue haciendo cola</string>
-    <string name="sobot_keep_queuing_string">Si continúa esperando, haga clic en</string>
     <string name="sobot_ding">Útil</string>
     <string name="sobot_cai">Inútil</string>
     <string name="sobot_outline_closed">La sesión ha terminado y se puede reiniciar la consulta</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Solicitando permiso para usar el micrófono. Una vez permitido, puede enviar/subir videos grabados al consultar con un agente o dejar un mensaje.</string>
     <string name="sobot_agree_agreement">He leído y acepto los %s.</string>
     <string name="sobot_agree">Aceptar</string>
+    <string name="sobot_keep_queuing">haga clic en continuar en la cola</string>
+    <string name="sobot_keep_queuing_string">Si desea continuar esperando, haga clic en continuar en la cola.</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Referencias</string>
+    <string name="sobot_reference_materials_quantity">Consulte %d documento(s) de referencia.</string>
+    <string name="sobot_start_chat">Iniciar consulta</string>
+    <string name="sobot_variable_title">Completar la información</string>
 </resources>

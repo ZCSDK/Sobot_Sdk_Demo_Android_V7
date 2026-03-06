@@ -49,7 +49,7 @@
                 android:paddingStart="0dp"
                 android:paddingEnd="0dp">
 
-                <TextView
+                <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_template4_temp_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -15,9 +15,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:orientation="vertical">
-<!--公告-->
+            android:orientation="vertical"
+            android:padding="20dp">
+            <!--公告-->
             <TextView
                 android:id="@+id/sobot_tv_post_msg"
                 android:layout_width="match_parent"
@@ -31,20 +31,21 @@
                 android:id="@+id/sobot_tv_problem_description"
                 style="@style/sobot_cur_text"
                 android:layout_width="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp" />
             <!--描述-->
-            <EditText
+            <com.sobot.chat.widget.SobotEditText
                 android:id="@+id/sobot_post_et_content"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:background="@drawable/sobot_bg_line_4"
+                android:gravity="start|top"
                 android:inputType="textMultiLine"
                 android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                 android:padding="12dp"
-                android:gravity="start|top"
                 android:textColor="@color/sobot_color_text_first"
                 android:textColorHint="@color/sobot_color_text_third"
+                android:textCursorDrawable="@drawable/sobot_cursor_drawable"
                 android:textSize="@dimen/sobot_text_font_14" />
 
             <TextView
@@ -56,6 +57,7 @@
                 android:textColor="@color/sobot_color_text_third"
                 android:textSize="@dimen/sobot_text_font_12"
                 android:visibility="gone" />
+
             <TextView
                 android:id="@+id/sobot_btn_submit"
                 android:layout_width="match_parent"
@@ -63,10 +65,10 @@
                 android:layout_marginTop="40dp"
                 android:background="@drawable/sobot_bg_theme_color_20dp"
                 android:gravity="center"
-                android:paddingTop="9dp"
-                android:paddingBottom="9dp"
-                android:paddingEnd="30dp"
                 android:paddingStart="30dp"
+                android:paddingTop="9dp"
+                android:paddingEnd="30dp"
+                android:paddingBottom="9dp"
                 android:stateListAnimator="@null"
                 android:textAllCaps="false"
                 android:textColor="@color/sobot_color_white"

@@ -8,7 +8,7 @@
     android:paddingTop="21dp"
     android:paddingBottom="21dp">
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/tv_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

@@ -29,13 +29,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <EditText
+            <com.sobot.chat.widget.SobotEditText
                 android:id="@+id/work_order_customer_field_text_single"
                 style="@style/sobot_sobot_cur_text_one_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/sobot_search_bg"
-                android:hint="@string/sobot_please_input" />
+                android:hint="@string/sobot_please_input"
+                android:textCursorDrawable="@drawable/sobot_cursor_drawable" />
 
             <!--选择-->
             <TextView
@@ -52,20 +53,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="12dp"
+                android:visibility="gone"
                 app:sobot_fillMode="1"
                 app:sobot_horizontalGap="8dp"
-                app:sobot_verticalGap="8dp"
-                android:visibility="gone"/>
+                app:sobot_verticalGap="8dp" />
 
 
             <!--   多行文本   -->
-            <EditText
+            <com.sobot.chat.widget.SobotEditText
                 android:id="@+id/work_order_customer_field_text_more_content"
                 style="@style/sobot_cur_text_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/sobot_please_input"
-                android:minHeight="50dp" />
+                android:minHeight="50dp"
+                android:textCursorDrawable="@drawable/sobot_cursor_drawable" />
 
         </LinearLayout>
 

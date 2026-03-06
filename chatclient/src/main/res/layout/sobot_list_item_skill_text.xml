@@ -9,16 +9,16 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical"
         android:paddingTop="13dp"
-        android:paddingBottom="13dp"
-        android:orientation="vertical">
+        android:paddingBottom="13dp">
 
         <TextView
             android:id="@+id/sobot_tv_group_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
@@ -26,12 +26,17 @@
             android:textSize="@dimen/sobot_text_font_14" />
 
         <TextView
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
             android:id="@+id/sobot_tv_group_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:paddingTop="4dp"
+            android:paddingEnd="16dp"
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_12"
             android:visibility="gone" />
@@ -42,6 +47,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:src="@drawable/sobot_icon_right_arrow"
-        />
+        android:src="@drawable/sobot_icon_right_arrow" />
 </LinearLayout>

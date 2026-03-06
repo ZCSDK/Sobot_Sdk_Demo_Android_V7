@@ -7,20 +7,24 @@
     android:gravity="center"
     android:minHeight="34dp"
     android:paddingStart="6dp"
-    android:paddingEnd="6dp"
-    >
+    android:paddingEnd="6dp">
 
-    <TextView
-        android:id="@+id/sobot_tv_name"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="start|center_vertical"
-        android:includeFontPadding="false"
-        android:layout_marginTop="7dp"
-        android:layout_marginBottom="7dp"
-        android:textColor="@color/sobot_color_text_first"
-        android:textSize="@dimen/sobot_text_font_14" />
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/sobot_tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="7dp"
+            android:gravity="start|center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/sobot_im_icon_right"

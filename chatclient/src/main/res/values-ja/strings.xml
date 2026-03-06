@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">アプレット</string>
     <string name="sobot_mini_program_only_open_by_weixin">ウィジェットはウィチャットでのみ開くことができます</string>
     <string name="sobot_parsing">解析中...</string>
-    <string name="sobot_keep_queuing">待ち続ける</string>
-    <string name="sobot_keep_queuing_string">待ち続ける場合は、</string>
     <string name="sobot_ding">有用</string>
     <string name="sobot_cai">没用</string>
     <string name="sobot_outline_closed">セッションが終了しました。問い合わせを再開できます</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">マイクの使用許可を申請中です。許可されると、コンサルティングエージェントへの相談時やメッセージを送る際に録画した動画を送信/アップロードできます。</string>
     <string name="sobot_agree_agreement">%sを読み同意します。</string>
     <string name="sobot_agree">同意する</string>
+    <string name="sobot_keep_queuing">クリックして順番を続けます</string>
+    <string name="sobot_keep_queuing_string">続けてお待ちになる場合は、クリックして順番を続けます。</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">参考資料</string>
+    <string name="sobot_reference_materials_quantity">%d 件の資料を参照してください</string>
+    <string name="sobot_start_chat">相談開始</string>
+    <string name="sobot_variable_title">情報を入力してください</string>
 </resources>

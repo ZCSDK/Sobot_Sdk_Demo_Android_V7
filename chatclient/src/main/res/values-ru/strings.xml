@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Аплет </string>
     <string name="sobot_mini_program_only_open_by_weixin">малая программа может быть открыта только через микрописьмо</string>
     <string name="sobot_parsing">анализ...</string>
-    <string name="sobot_keep_queuing">продолжайте стоять в очереди</string>
-    <string name="sobot_keep_queuing_string">если ждать, нажмите</string>
     <string name="sobot_ding">Полезный</string>
     <string name="sobot_cai">Безполезный</string>
     <string name="sobot_outline_closed">Сеанс окончен, консультации могут быть возобновлены</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Запрашивается разрешение на использование микрофона. После разрешения можно отправлять/загружать записанные видео при консультации с агентом и оставлении сообщений.</string>
     <string name="sobot_agree_agreement">Я прочитал(а) и согласен(на) с %s.</string>
     <string name="sobot_agree">Согласен(-на)</string>
+    <string name="sobot_keep_queuing">нажмите «Продолжить ожидание в очереди»</string>
+    <string name="sobot_keep_queuing_string">Чтобы продолжить ожидание, нажмите «Продолжить ожидание в очереди».</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Справочные материалы</string>
+    <string name="sobot_reference_materials_quantity">См. %d источников информации</string>
+    <string name="sobot_start_chat">Начать консультацию</string>
+    <string name="sobot_variable_title">Заполните информацию</string>
 </resources>

@@ -34,7 +34,7 @@
                 android:background="@color/sobot_color_transparent"
                 android:minHeight="536dp"
                 android:overScrollMode="never"
-                android:paddingTop="1dp" />
+                 />
 
             <TextView
                 android:id="@+id/tv_nodata"

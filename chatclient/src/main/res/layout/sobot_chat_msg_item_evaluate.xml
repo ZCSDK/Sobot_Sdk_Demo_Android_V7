@@ -45,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:layoutDirection="ltr"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -120,6 +119,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
+
                 <!--五星-->
                 <com.sobot.chat.widget.SobotFiveStarsLayout
                     android:id="@+id/sobot_ratingBar"
@@ -127,7 +127,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="13dp"
-                    android:layoutDirection="ltr"
                     android:visibility="visible" />
                 <!--10分-->
                 <LinearLayout
@@ -136,7 +135,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:gravity="center_horizontal"
-                    android:layoutDirection="ltr"
                     android:minWidth="292dp"
                     android:orientation="vertical">
 
@@ -158,7 +156,6 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="24dp"
                     android:gravity="center"
-                    android:layoutDirection="ltr"
                     android:orientation="horizontal"
                     android:visibility="gone">
 
@@ -285,9 +282,10 @@
                     android:layout_marginTop="24dp"
                     android:visibility="gone">
 
-                    <EditText
+                    <com.sobot.chat.widget.SobotEditText
                         android:id="@+id/sobot_add_content"
                         android:layout_width="match_parent"
+                        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:background="@drawable/sobot_bg_dialog_input"

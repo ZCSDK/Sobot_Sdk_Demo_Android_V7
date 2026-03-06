@@ -93,20 +93,20 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         super.initView();
         mEvaluate = (SobotUserTicketEvaluate) getIntent().getSerializableExtra("sobotUserTicketEvaluate");
         sobot_btn_submit = findViewById(R.id.sobot_close_now);
-        sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
+        sobot_btn_submit.setText(getSafeStringResource(R.string.sobot_btn_submit_text));
         sobot_readiogroup = findViewById(R.id.sobot_readiogroup);
         sobot_tv_evaluate_title = (TextView) findViewById(R.id.sobot_tv_evaluate_title);
         //统一显示为服务评价
-        sobot_tv_evaluate_title.setText(R.string.sobot_please_evaluate_this_service);
+        sobot_tv_evaluate_title.setText(getSafeStringResource(R.string.sobot_please_evaluate_this_service));
         sobot_robot_center_title = (TextView) findViewById(R.id.sobot_robot_center_title);
         String sobot_question = getResources().getString(R.string.sobot_question);
         sobot_robot_center_title.setText(String.format(sobot_question, "").trim());
         sobot_text_other_problem = (TextView) findViewById(R.id.sobot_text_other_problem);
         sobot_ratingBar_title = (TextView) findViewById(R.id.sobot_ratingBar_title);
-        sobot_ratingBar_title.setText(R.string.sobot_great_satisfaction);
+        sobot_ratingBar_title.setText(getSafeStringResource(R.string.sobot_great_satisfaction));
         sobot_tv_evaluate_title_hint = (TextView) findViewById(R.id.sobot_tv_evaluate_title_hint);
         sobot_evaluate_cancel = (TextView) findViewById(R.id.sobot_evaluate_cancel);
-        sobot_evaluate_cancel.setText(R.string.sobot_temporarily_not_evaluation);
+        sobot_evaluate_cancel.setText(getSafeStringResource(R.string.sobot_temporarily_not_evaluation));
         sobot_ratingBar_split_view = findViewById(R.id.sobot_ratingBar_split_view);
         sobot_evaluate_cancel.setVisibility(View.GONE);
 
@@ -124,8 +124,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_btn_no_robot = findViewById(R.id.sobot_btn_no_robot);
         iv_solved = findViewById(R.id.iv_solved);
         iv_no_solve = findViewById(R.id.iv_no_solve);
-        sobot_btn_ok_robot.setText(R.string.sobot_evaluate_yes);
-        sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
+        sobot_btn_ok_robot.setText(getSafeStringResource(R.string.sobot_evaluate_yes));
+        sobot_btn_no_robot.setText(getSafeStringResource(R.string.sobot_evaluate_no));
         sobot_robot_relative = (LinearLayout) findViewById(R.id.sobot_robot_relative);
         sobot_custom_relative = (LinearLayout) findViewById(R.id.sobot_custom_relative);
         sobot_hide_layout = (LinearLayout) findViewById(R.id.sobot_hide_layout);
@@ -221,7 +221,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             if (ratingType == 0) {
                 if (0 == score) {
                     changeCommitButtonUi(false);
-                    sobot_ratingBar_title.setText(R.string.sobot_evaluate_zero_score_des);
+                    sobot_ratingBar_title.setText(getSafeStringResource(R.string.sobot_evaluate_zero_score_des));
                     sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_third));
                 } else {
                     changeCommitButtonUi(true);
@@ -233,7 +233,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             } else {
                 if (-1 == score) {
                     changeCommitButtonUi(false);
-                    sobot_ratingBar_title.setText(R.string.sobot_evaluate_zero_score_des);
+                    sobot_ratingBar_title.setText(getSafeStringResource(R.string.sobot_evaluate_zero_score_des));
                     sobot_ratingBar_title.setTextColor(ContextCompat.getColor(getContext(), R.color.sobot_color_text_third));
                 } else {
                     changeCommitButtonUi(true);

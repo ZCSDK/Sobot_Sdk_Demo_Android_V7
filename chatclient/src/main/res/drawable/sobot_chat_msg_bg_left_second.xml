@@ -4,6 +4,6 @@
     <corners
         android:bottomLeftRadius="@dimen/sobot_msg_big_corner_radius"
         android:bottomRightRadius="@dimen/sobot_msg_big_corner_radius"
-        android:topLeftRadius="@dimen/sobot_msg_big_corner_radius"
+        android:topLeftRadius="@dimen/sobot_msg_corner_radius"
         android:topRightRadius="@dimen/sobot_msg_big_corner_radius" />
 </shape>

@@ -13,22 +13,15 @@ import androidx.annotation.Nullable;
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
-import com.sobot.chat.api.model.SobotTimezone;
-import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
-import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.timePicker.view.SobotWheelTime;
-import com.sobot.chat.widget.toast.ToastUtil;
-import com.sobot.network.http.callback.SobotResultCallBack;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**

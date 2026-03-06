@@ -15,14 +15,18 @@ import java.util.List;
 /**
  * 右对齐自动换行布局（子控件从左到右排列，但整体靠右对齐）
  * 支持RTL：阿语环境下子控件从右到左排列，整行内容靠左对齐
+ * 支持多类型子控件：每种类型独立换行，按类型顺序显示
  */
 public class SobotRightAlignLineLayout extends ViewGroup {
 
     private int mVerticalGap = 0;
     private int mHorizontalGap = 0;
 
-    private List<Integer> childOfLine; //保存每行的子视图数量
-    private List<Integer> lineWidths;  //保存每行的实际宽度
+    // 按类型存储每行的子视图信息
+    private List<LineInfo> lineInfoList;
+
+    // 类型分隔信息：记录每种类型从哪一行开始
+    private List<TypeInfo> typeInfoList;
 
     public SobotRightAlignLineLayout(Context context) {
         super(context);
@@ -60,161 +64,190 @@ public class SobotRightAlignLineLayout extends ViewGroup {
         return new LayoutParams(p);
     }
 
+    /**
+     * 设置子控件的类型标识
+     *
+     * @param child 子控件
+     * @param type  类型标识（从0开始，按类型顺序显示）
+     */
+    public static void setChildType(View child, int type) {
+        child.setTag(R.id.sobot_child_type_tag, type);
+    }
+
+    /**
+     * 获取子控件的类型标识
+     */
+    private int getChildType(View child) {
+        Object tag = child.getTag(R.id.sobot_child_type_tag);
+        return tag != null ? (int) tag : 0;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        childOfLine = new ArrayList<>();
-        lineWidths = new ArrayList<>();
+        lineInfoList = new ArrayList<>();
+        typeInfoList = new ArrayList<>();
 
         int childCount = getChildCount();
-        int totalHeight = 0;
         int totalWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int curLineChildCount = 0;
-        int curLineWidth = 0;
-        int maxHeight = 0;
+        int totalHeight = 0;
+
+        if (childCount == 0) {
+            setMeasuredDimension(totalWidth, totalHeight);
+            return;
+        }
+
+        // 按类型分组收集子控件
+        List<List<View>> viewsByType = new ArrayList<>();
+        int currentType = -1;
+        List<View> currentTypeViews = null;
 
         for (int i = 0; i < childCount; i++) {
-            View childItem = getChildAt(i);
-            measureChild(childItem, widthMeasureSpec, heightMeasureSpec);
+            View child = getChildAt(i);
+            if (child.getVisibility() == GONE) continue;
 
-            int childHeight = childItem.getMeasuredHeight();
-            int childWidth = childItem.getMeasuredWidth();
-
-            if (childItem.getVisibility() == GONE) {
-                childHeight = 0;
-                childWidth = 0;
-                continue; // 修复：GONE视图不计入当前行计数
+            int type = getChildType(child);
+            if (type != currentType) {
+                currentType = type;
+                currentTypeViews = new ArrayList<>();
+                viewsByType.add(currentTypeViews);
             }
+            currentTypeViews.add(child);
+        }
 
-            // 检查是否需要换行
-            if (curLineWidth + childWidth + ((curLineChildCount > 0) ? mHorizontalGap : 0) <= totalWidth) {
-                curLineWidth += childWidth + ((curLineChildCount > 0) ? mHorizontalGap : 0);
-                maxHeight = Math.max(childHeight, maxHeight);
-                curLineChildCount++;
-            } else {
-                // 换行处理
-                if (curLineChildCount > 0) { // 添加保护条件
-                    childOfLine.add(curLineChildCount);
-                    lineWidths.add(curLineWidth);
+        // 对每种类型分别进行测量和换行计算
+        for (int typeIndex = 0; typeIndex < viewsByType.size(); typeIndex++) {
+            List<View> typeViews = viewsByType.get(typeIndex);
+            int typeStartLine = lineInfoList.size();
+
+            int curLineWidth = 0;
+            int curLineChildCount = 0;
+            int maxHeight = 0;
+            List<View> curLineViews = new ArrayList<>();
+
+            for (int i = 0; i < typeViews.size(); i++) {
+                View child = typeViews.get(i);
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
+
+                int childWidth = child.getMeasuredWidth();
+                int childHeight = child.getMeasuredHeight();
+
+                // 关键修改：每个类型的第一个子控件强制从新行开始
+                boolean needNewLine = (i == 0) ||
+                        (curLineChildCount > 0 && (curLineWidth + mHorizontalGap + childWidth > totalWidth));
+
+                if (needNewLine) {
+                    // 如果不是该类型的第一个元素，保存前一行
+                    if (i > 0 && curLineChildCount > 0) {
+                        LineInfo lineInfo = new LineInfo();
+                        lineInfo.views = new ArrayList<>(curLineViews);
+                        lineInfo.lineWidth = curLineWidth;
+                        lineInfo.lineHeight = maxHeight;
+                        lineInfo.typeIndex = typeIndex;
+                        lineInfoList.add(lineInfo);
+
+                        totalHeight += maxHeight + mVerticalGap;
+                    }
+
+                    // 开始新行（包括该类型的第一个元素）
+                    curLineWidth = childWidth;
+                    curLineChildCount = 1;
+                    maxHeight = childHeight;
+                    curLineViews.clear();
+                    curLineViews.add(child);
+                } else {
+                    // 继续当前行
+                    if (curLineChildCount > 0) {
+                        curLineWidth += mHorizontalGap;
+                    }
+                    curLineWidth += childWidth;
+                    maxHeight = Math.max(maxHeight, childHeight);
+                    curLineChildCount++;
+                    curLineViews.add(child);
                 }
-                curLineWidth = childWidth;
-                curLineChildCount = 1;
-                totalHeight += maxHeight + mVerticalGap;
-                maxHeight = childHeight;
+            }
+
+            // 保存最后一行
+            if (curLineChildCount > 0) {
+                LineInfo lineInfo = new LineInfo();
+                lineInfo.views = new ArrayList<>(curLineViews);
+                lineInfo.lineWidth = curLineWidth;
+                lineInfo.lineHeight = maxHeight;
+                lineInfo.typeIndex = typeIndex;
+                lineInfoList.add(lineInfo);
+
+                totalHeight += maxHeight;
+            }
+
+            // 记录类型信息
+            TypeInfo typeInfo = new TypeInfo();
+            typeInfo.startLine = typeStartLine;
+            typeInfo.endLine = lineInfoList.size() - 1;
+            typeInfoList.add(typeInfo);
+
+            // 类型之间添加额外间距（除了最后一个类型）
+            if (typeIndex < viewsByType.size() - 1) {
+                totalHeight += mVerticalGap;
             }
         }
 
-        // 添加最后一行的信息
-        if (curLineChildCount > 0) { // 添加保护条件
-            childOfLine.add(curLineChildCount);
-            lineWidths.add(curLineWidth);
-        }
-
-        // 移除空行
-        for (int i = childOfLine.size() - 1; i >= 0; i--) { // 从后往前遍历避免索引问题
-            if (childOfLine.get(i) == 0) {
-                childOfLine.remove(i);
-                lineWidths.remove(i);
-            }
-        }
-
-        totalHeight += maxHeight;
         setMeasuredDimension(totalWidth, totalHeight);
     }
+
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         boolean isRtl = isRtl();
-        if (isRtl) {
-            layoutRtlMode();
-        } else {
-            layoutLtrMode();
+
+        int curHeight = 0;
+
+        for (int i = 0; i < lineInfoList.size(); i++) {
+            LineInfo lineInfo = lineInfoList.get(i);
+
+            if (isRtl) {
+                layoutLineRtl(lineInfo, curHeight);
+            } else {
+                layoutLineLtr(lineInfo, curHeight);
+            }
+
+            curHeight += lineInfo.lineHeight + mVerticalGap;
         }
     }
 
     /**
-     * LTR模式：子控件从左到右排列，整行靠右对齐
+     * LTR模式布局单行：子控件从左到右，整行靠右对齐
      */
-    private void layoutLtrMode() {
-        // 添加边界检查
-        if (childOfLine == null || childOfLine.isEmpty() || lineWidths == null || lineWidths.isEmpty()) {
-            return;
-        }
-
-        int index = 0;
-        int curHeight = 0;
+    private void layoutLineLtr(LineInfo lineInfo, int top) {
         int layoutWidth = getMeasuredWidth();
+        int rightMargin = layoutWidth - lineInfo.lineWidth;
+        int currentX = rightMargin;
 
-        for (int i = 0; i < childOfLine.size(); i++) {
-            int childCount = childOfLine.get(i);
-            int lineHeight = 0;
-            int lineWidth = lineWidths.get(i);
+        for (View child : lineInfo.views) {
+            if (child.getVisibility() != VISIBLE) continue;
 
-            // 计算右边距（使整行右对齐）
-            int rightMargin = layoutWidth - lineWidth;
-            int currentX = rightMargin; // 从右边界开始的位置
+            child.layout(currentX, top,
+                    currentX + child.getMeasuredWidth(),
+                    top + child.getMeasuredHeight());
 
-            // 从左到右放置子控件，但整体靠右对齐
-            for (int j = 0; j < childCount; j++) {
-                View item = getChildAt(index + j);
-                if (item != null && item.getVisibility() == VISIBLE) {
-                    lineHeight = Math.max(lineHeight, item.getMeasuredHeight());
-
-                    // 从左到右放置，但起点在右侧
-                    item.layout(currentX, curHeight,
-                            currentX + item.getMeasuredWidth(),
-                            curHeight + item.getMeasuredHeight());
-
-                    // 移动到下一个位置
-                    currentX += item.getMeasuredWidth() + mHorizontalGap;
-                }
-            }
-
-            curHeight += lineHeight + mVerticalGap;
-            index += childCount;
+            currentX += child.getMeasuredWidth() + mHorizontalGap;
         }
     }
 
     /**
-     * RTL模式：子控件从右到左排列，整行靠左对齐
+     * RTL模式布局单行：子控件从右到左，整行靠左对齐
      */
-    private void layoutRtlMode() {
-        // 添加边界检查
-        if (childOfLine == null || childOfLine.isEmpty() || lineWidths == null || lineWidths.isEmpty()) {
-            return;
-        }
+    private void layoutLineRtl(LineInfo lineInfo, int top) {
+        int currentX = lineInfo.lineWidth;
 
-        int index = 0;
-        int curHeight = 0;
-        int layoutWidth = getMeasuredWidth();
+        for (View child : lineInfo.views) {
+            if (child.getVisibility() != VISIBLE) continue;
 
-        for (int i = 0; i < childOfLine.size(); i++) {
-            int childCount = childOfLine.get(i);
-            int lineHeight = 0;
-            int lineWidth = lineWidths.get(i);
+            currentX -= child.getMeasuredWidth();
+            child.layout(currentX, top,
+                    currentX + child.getMeasuredWidth(),
+                    top + child.getMeasuredHeight());
 
-            // RTL模式下整行靠左对齐，所以起始位置应该是lineWidth（行宽度）
-            int currentX = lineWidth; // 从行宽度位置开始，向左放置控件
-
-            // 从右到左放置子控件，保持从右到左的视觉顺序
-            for (int j = 0; j < childCount; j++) {
-                View item = getChildAt(index + j);
-                if (item != null && item.getVisibility() == VISIBLE) {
-                    lineHeight = Math.max(lineHeight, item.getMeasuredHeight());
-
-                    // 从右向左放置
-                    currentX -= item.getMeasuredWidth();
-                    item.layout(currentX, curHeight,
-                            currentX + item.getMeasuredWidth(),
-                            curHeight + item.getMeasuredHeight());
-
-                    // 继续向左移动（包括间距）
-                    currentX -= mHorizontalGap;
-                }
-            }
-
-            curHeight += lineHeight + mVerticalGap;
-            index += childCount;
+            currentX -= mHorizontalGap;
         }
     }
 
@@ -225,9 +258,29 @@ public class SobotRightAlignLineLayout extends ViewGroup {
 
     public void setHorizontalGap(int horizontalGap) {
         this.mHorizontalGap = horizontalGap;
+        requestLayout();
     }
 
     public void setVerticalGap(int verticalGap) {
         this.mVerticalGap = verticalGap;
+        requestLayout();
+    }
+
+    /**
+     * 行信息
+     */
+    private static class LineInfo {
+        List<View> views;
+        int lineWidth;
+        int lineHeight;
+        int typeIndex; // 所属类型索引
+    }
+
+    /**
+     * 类型信息
+     */
+    private static class TypeInfo {
+        int startLine;
+        int endLine;
     }
 }

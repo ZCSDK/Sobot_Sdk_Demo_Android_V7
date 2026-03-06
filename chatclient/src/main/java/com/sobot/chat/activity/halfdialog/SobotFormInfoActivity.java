@@ -98,14 +98,15 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             datas = new ArrayList<>();
             relationshipList = new ArrayList<>();
             relationshipList.addAll(formInfoModel.getFormNodeRelRespVos());
-            if (formInfoModel.getFormNodeRespVos() != null && formInfoModel.getFormNodeRespVos().size() > 0) {
+            if (formInfoModel.getFormNodeRespVos() != null && !formInfoModel.getFormNodeRespVos().isEmpty()) {
                 for (int i = 0; i < formInfoModel.getFormNodeRespVos().size(); i++) {
                     if (formInfoModel.getFormNodeRespVos().get(i).getStatus() == 0) {
                         allData.add(formInfoModel.getFormNodeRespVos().get(i));
                     }
                 }
-                if (allData.size() > 0 && StringUtils.isNoEmpty(allData.get(0).getTips())) {
+                if (!allData.isEmpty() && StringUtils.isNoEmpty(allData.get(0).getTips())) {
                     topView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
+                    topView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     topView.setText(allData.get(0).getTips());
                     //第一个节点是开始
                     showStartData(allData.get(0).getId());
@@ -294,7 +295,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         try {
             JSONArray arrayid = new JSONArray(nodeInfo.getFieldDataIds());
             JSONArray arrayvalue = new JSONArray(nodeInfo.getFieldDataValues());
-            if (arrayid != null && arrayvalue != null && arrayid.length() == arrayvalue.length()) {
+            if (arrayid.length() == arrayvalue.length()) {
                 for (int i = 0; i < arrayid.length(); i++) {
                     FormNodeInfo info = new FormNodeInfo();
                     info.setId(arrayid.getString(i));
@@ -306,7 +307,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             throw new RuntimeException(e);
         }
 
-        Intent intent = new Intent(this, SobotFromSearchDialog.class);
+        Intent intent = new Intent(this, SobotFormSearchDialog.class);
         intent.putExtra("List", list);
         intent.putExtra("defualtValue", defualtValue);
         intent.putExtra("type", nodeInfo.getFieldType());
@@ -517,7 +518,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             if (nodeInfo.getFieldType() == 8) {
                 v.setInputType("select");
                 //单选
-                v.setOnClickListener(new View.OnClickListener() {
+                v.getLlSelectOne().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         hideKeyboard();

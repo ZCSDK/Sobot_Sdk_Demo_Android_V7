@@ -3,9 +3,12 @@ package com.sobot.chat.activity.base;
 import android.os.Bundle;
 
 import com.sobot.chat.api.model.Information;
+import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.utils.ChatUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.ZhiChiConfig;
 import com.sobot.chat.utils.ZhiChiConstant;
 
 import java.io.Serializable;
@@ -33,6 +36,17 @@ public abstract class SobotBaseHelpCenterActivity extends SobotChatBaseActivity 
                     if (isUseLanguage) {
                         //客户指定语言了
                         String settingLanguage = SharedPreferencesUtil.getStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
+                        // 检查是否已初始化过，如果已初始化则不使用用户指定的语言
+                        if (getSobotBaseActivity() != null && SobotMsgManager.getInstance(getSobotBaseActivity()) != null) {
+                            if (!ChatUtils.checkConfigChange(getSobotBaseActivity(), mInfo.getApp_key(), mInfo)) {
+                                ZhiChiConfig config = SobotMsgManager.getInstance(getSobotBaseActivity()).getConfig(mInfo.getApp_key());
+                                if (config != null && config.getInitModel() != null) {
+                                    //已经初始化过了，就不使用用户指定的语言，防止指定的语言不再接待方案里（接待方案返回了默认语言）
+                                    LogUtils.d("聊天界面已经初始化过了，就不使用用户指定的语言");
+                                    settingLanguage = "";
+                                }
+                            }
+                        }
                         if (StringUtils.isNoEmpty(settingLanguage)) {
                             mInfo.setLocale(settingLanguage);
                         }

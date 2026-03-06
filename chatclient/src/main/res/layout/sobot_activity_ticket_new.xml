@@ -162,27 +162,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:sobot_input_hint="@string/sobot_please_input"
-                    app:sobot_input_type="phone"
                     app:sobot_input_view_type="input_two" />
 
             </LinearLayout>
 
         </ScrollView>
+
         <LinearLayout
             android:id="@+id/sobot_ll_policy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:visibility="gone"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
+
             <ImageView
                 android:id="@+id/iv_policy"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:layout_marginStart="16dp"
-                android:checked="true"
-                android:src="@drawable/sobot_checkbox_btn"
-                />
+                android:padding="2dp"
+                android:background="@drawable/sobot_icon_checkbox_n" />
+
             <TextView
                 android:id="@+id/sobot_tv_policy"
                 android:layout_width="wrap_content"
@@ -192,6 +193,7 @@
                 android:textColor="@color/sobot_policy_text"
                 android:textSize="12sp" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/sobot_btn_submit"
             android:layout_width="match_parent"

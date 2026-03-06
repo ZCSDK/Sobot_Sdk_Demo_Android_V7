@@ -54,9 +54,9 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private int blockIndex = 0, groupIndex = 0;
     private int PAGE_NUM = 5;
     private int curPageNum = 0;
-    private int imagW= 72;
-    private int imagMaxH= 284;
-    private int imagMinH= 242;
+    private int imagW = 72;
+    private int imagMaxH = 284;
+    private int imagMinH = 242;
 
     private List<FaqDocRespVo> faqDocRespVoList = new ArrayList<>();
 
@@ -117,6 +117,12 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 horizontalScrollView_ll.removeAllViews();
                 TextView titleTv = new TextView(mContext);
                 titleTv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                try {
+                    int msgEdgeStartRight = (int) mContext.getResources().getDimension(R.dimen.sobot_msg_margin_edge);//气泡到边沿的间距
+                    int maxWidth = ScreenUtils.getScreenWidth(mContext) - ScreenUtils.dip2px(mContext, 16 + 16) - msgEdgeStartRight * 2;
+                    titleTv.setMaxWidth(maxWidth);//最大宽度
+                } catch (Exception e) {
+                }
                 titleTv.setTextSize(14);
                 titleTv.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_text_first));
                 titleTv.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 15));

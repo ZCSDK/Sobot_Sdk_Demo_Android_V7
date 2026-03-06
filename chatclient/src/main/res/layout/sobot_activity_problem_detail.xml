@@ -8,7 +8,7 @@
 
     <include layout="@layout/sobot_layout_common_titlebar" />
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/sobot_text_problem_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,11 +24,11 @@
         android:id="@+id/sobot_webView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginStart="@dimen/sobot_Left_right_margin_edge"
         android:layout_marginTop="22dp"
         android:layout_marginEnd="@dimen/sobot_Left_right_margin_edge"
         android:layout_marginBottom="8dp"
-        android:layout_weight="1"
         android:scrollbars="none" />
 
     <include layout="@layout/sobot_layout_online_service_bottom" />

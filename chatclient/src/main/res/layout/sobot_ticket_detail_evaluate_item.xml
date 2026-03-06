@@ -85,7 +85,7 @@
 
     </LinearLayout>
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/sobot_tv_lab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
         android:textColor="@color/sobot_color_text_first"
         android:textSize="@dimen/sobot_text_font_14" />
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/sobot_tv_remark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -99,23 +99,23 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                 mWebView.getWindowVisibleDisplayFrame(r);
                 int screenHeight = mWebView.getRootView().getHeight();
                 // 计算键盘高度，考虑工具栏
-                int keypadHeight = screenHeight - r.bottom;
+                int keyboardHeight = screenHeight - r.bottom;
                 //自定义导航栏高度
                 View toolBar = getToolBar();
                 if (toolBar != null && toolBar.getVisibility() == View.VISIBLE) {
-                    keypadHeight -= toolBar.getHeight();
+                    keyboardHeight -= toolBar.getHeight();
                 }
-                if (keypadHeight < 0) {
-                    keypadHeight = 0;
+                if (keyboardHeight < 0) {
+                    keyboardHeight = 0;
                 }
-                LogUtils.i("键盘高度===========" + keypadHeight);
-                boolean currentlyKeyboardShown = keypadHeight > screenHeight * 0.15;
+                LogUtils.i("键盘高度===========" + keyboardHeight);
+                boolean isKeyboardCurrentlyVisible = keyboardHeight > screenHeight * 0.15;
                 // 只有状态真正改变时才处理
-                if (currentlyKeyboardShown && !isKeyboardShown) {
+                if (isKeyboardCurrentlyVisible && !isKeyboardShown) {
                     // 键盘刚显示
                     isKeyboardShown = true;
-                    adjustWebViewForKeyboard(keypadHeight);
-                } else if (!currentlyKeyboardShown && isKeyboardShown) {
+                    adjustWebViewForKeyboard(keyboardHeight);
+                } else if (!isKeyboardCurrentlyVisible && isKeyboardShown) {
                     // 键盘刚隐藏
                     isKeyboardShown = false;
                     resetWebViewLayout();
@@ -303,7 +303,9 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             }
         });
         // 注册键盘监听器
-        mWebView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+        if (keyboardLayoutListener != null) {
+            mWebView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+        }
         mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
         mWebView.getSettings().setDefaultFontSize(16);
         mWebView.getSettings().setTextZoom(100);
@@ -461,7 +463,10 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
     @Override
     protected void onDestroy() {
         if (mWebView != null) {
-            mWebView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardLayoutListener);
+            if (keyboardLayoutListener != null) {
+                mWebView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardLayoutListener);
+                keyboardLayoutListener = null;
+            }
             mWebView.removeAllViews();
             final ViewGroup viewGroup = (ViewGroup) mWebView.getParent();
             if (viewGroup != null) {

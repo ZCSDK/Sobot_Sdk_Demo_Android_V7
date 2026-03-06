@@ -39,7 +39,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear;
+    private ImageView iv_clear,iv_search;
     private TextView tv_nodata;
     private TextView sobot_tv_title;
 
@@ -111,6 +111,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
 
         ll_search = findViewById(R.id.ll_search);
         et_search = findViewById(R.id.et_search);
+        iv_search = findViewById(R.id.sobot_iv_search);
         iv_clear = findViewById(R.id.sobot_iv_clear);
         tv_nodata = findViewById(R.id.tv_nodata);
         iv_clear.setOnClickListener(this);
@@ -150,7 +151,9 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
                 int inputCount = s.length();
                 if (inputCount > 0) {
                     iv_clear.setVisibility(View.VISIBLE);
+                    iv_search.setVisibility(View.GONE);
                 } else {
+                    iv_search.setVisibility(View.VISIBLE);
                     iv_clear.setVisibility(View.GONE);
                     showAll();
                 }

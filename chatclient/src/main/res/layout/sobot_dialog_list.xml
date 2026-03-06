@@ -10,14 +10,15 @@
     <com.sobot.chat.widget.SobotMHLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@drawable/sobot_dialog_title_bg"
+        android:orientation="vertical"
         android:paddingBottom="40dp"
         app:sobot_mhv_HeightRatio="0.9">
 
-        <include layout="@layout/sobot_dialog_title"
+        <include
+            layout="@layout/sobot_dialog_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -26,19 +27,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:overScrollMode="never"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingEnd="@dimen/sobot_dialog_margin"
             android:paddingStart="@dimen/sobot_dialog_margin"
-             />
+            android:paddingTop="10dp"
+            android:paddingEnd="@dimen/sobot_dialog_margin"
+            android:paddingBottom="10dp" />
 
         <TextView
             android:id="@+id/tv_nodata"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:paddingTop="60dp"
             android:paddingBottom="117dp"
-            android:gravity="center"
             android:text="@string/sobot_no_data_string"
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_14"

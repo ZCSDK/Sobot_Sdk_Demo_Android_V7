@@ -107,7 +107,9 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
                     }
                 });
             } else {
-                vh.tv_title.setText(checkin.getPinyin());
+                if(null!=vh.tv_pinyin_title) {
+                    vh.tv_pinyin_title.setText(checkin.getPinyin());
+                }
             }
 
         }
@@ -129,10 +131,11 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView iv_img;
-        private TextView tv_title;
+        private TextView tv_title,tv_pinyin_title;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+            tv_pinyin_title = itemView.findViewById(R.id.tv_title);
             tv_title = itemView.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
             iv_img = itemView.findViewById(R.id.sobot_activity_cusfield_listview_items_ishave);
 

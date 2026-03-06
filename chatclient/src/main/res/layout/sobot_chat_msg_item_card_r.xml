@@ -87,7 +87,7 @@
                         app:sobot_round_corner="4dp" />
 
 
-                    <TextView
+                    <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/sobot_goods_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_toEndOf="@+id/sobot_goods_pic" />
 
-                    <TextView
+                    <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/sobot_goods_des"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

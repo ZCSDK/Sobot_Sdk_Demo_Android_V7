@@ -6,28 +6,33 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
 import com.sobot.chat.api.model.SobotFieldModel;
-import com.sobot.chat.listener.ISobotCusField;
+import com.sobot.chat.listener.SobotCusFieldListener;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.widget.dialog.SobotDialogUtils;
 
 /**
  * 带标题，输入框 错误提示
@@ -43,8 +48,11 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     private EditText manyLineInput;
     //    选择框
     private TextView tvSelect;
+    private LinearLayout llSelectOne;
+    private ImageView iv_select_icon;
     //地区或者手机区号
-    private RelativeLayout sobot_select_two, sobot_input_two;
+    private LinearLayout sobot_input_two;
+    private RelativeLayout sobot_select_two ;
     private View v_select_line, v_input_line;
     private TextView tv_select_two_left, tv_select_two_right, tv_input_two_left;
     private EditText et_input_two_right;
@@ -59,13 +67,14 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     private String inputType;//输入类型：single_line、many_lines、select
     private int inputLengthLimit;//输入长度限制
 
-    private Drawable bgDrawable;//
+    private Drawable focusDrawable;//
 
     private Context mContext;
-    private ISobotCusField cusCallBack;//回调方法
+    private SobotCusFieldListener cusCallBack;//回调方法
     private SobotCusFieldConfig cusFieldConfig;//字段配置
     private SobotFieldModel cusFields;//字段 包括选项
     private String valueId;
+    private GradientDrawable defaultBg, focusBg, errorBg;
 
     public String getValueId() {
         return valueId;
@@ -109,6 +118,31 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             inputType = "single_line";
         }
         array.recycle();//回收
+        // 默认状态
+        defaultBg = createInputBackground(
+                mContext,
+                ContextCompat.getColor(mContext, R.color.sobot_dialog_input),  // 灰色边框
+                1,                                                            // 1dp 边框
+                ContextCompat.getColor(mContext, R.color.sobot_dialog_input_bg), // 填充色
+                4                                                             // 4dp 圆角
+        );
+
+// 获取焦点状态（主题色边框）
+        focusBg = createInputBackground(
+                mContext,
+                ThemeUtils.getThemeColor(mContext),  // 主题色边框
+                1,
+                ContextCompat.getColor(mContext, R.color.sobot_dialog_input_bg),
+                4
+        );
+        errorBg = createInputBackground(
+                mContext,
+                ContextCompat.getColor(mContext, R.color.sobot_dialog_input_error),  // 主题色边框
+                1,
+                ContextCompat.getColor(mContext, R.color.sobot_dialog_input_bg),
+                4
+        );
+
         initView();
     }
 
@@ -120,10 +154,12 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         singleLineInput = view.findViewById(R.id.sobot_single_line);
         manyLineInput = view.findViewById(R.id.sobot_many_line);
         tvSelect = view.findViewById(R.id.sobot_select);
-        bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_line_4, null);
+        iv_select_icon = view.findViewById(R.id.iv_select_icon);
+        llSelectOne = view.findViewById(R.id.sobot_select_one);
+        focusDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_line_4, null);
 
-        Drawable selectD = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_select_icon, null);
-        selectD.setBounds(0, 0, ScreenUtils.dip2px(getContext(), 14), ScreenUtils.dip2px(getContext(), 14));
+        Drawable selectRight = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_select_icon, null);
+        selectRight.setBounds(0, 0, ScreenUtils.dip2px(getContext(), 14), ScreenUtils.dip2px(getContext(), 14));
         sobot_select_two = view.findViewById(R.id.sobot_select_two);
         sobot_input_two = view.findViewById(R.id.sobot_input_two);
         v_select_line = view.findViewById(R.id.v_select_line);
@@ -132,19 +168,12 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         tv_select_two_right = view.findViewById(R.id.tv_select_two_right);
         tv_input_two_left = view.findViewById(R.id.tv_input_two_left);
         et_input_two_right = view.findViewById(R.id.et_input_two_right);
-        if (selectD != null) {
-            if (ChatUtils.isRtl(mContext)) {
-                tvSelect.setCompoundDrawables(selectD, null, null, null);
-                tv_select_two_left.setCompoundDrawables(selectD, null, null, null);
-                tv_select_two_right.setCompoundDrawables(selectD, null, null, null);
-                tv_input_two_left.setCompoundDrawables(selectD, null, null, null);
-            } else {
-                tvSelect.setCompoundDrawables(null, null, selectD, null);
-                tv_select_two_left.setCompoundDrawables(null, null, selectD, null);
-                tv_select_two_right.setCompoundDrawables(null, null, selectD, null);
-                tv_input_two_left.setCompoundDrawables(null, null, selectD, null);
-            }
+        if (selectRight != null) {
+            tv_select_two_left.setCompoundDrawables(null, null, selectRight, null);
+            tv_select_two_right.setCompoundDrawables(null, null, selectRight, null);
+            tv_input_two_left.setCompoundDrawables(null, null, selectRight, null);
         }
+        llSelectOne.setOnClickListener(this);
         tv_input_two_left.setOnClickListener(this);
         tv_select_two_left.setOnClickListener(this);
         tv_select_two_right.setOnClickListener(this);
@@ -171,9 +200,9 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    singleLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
+                    singleLineInput.setBackground(focusBg);
                 } else {
-                    singleLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
+                    singleLineInput.setBackground(defaultBg);
                 }
             }
         });
@@ -192,9 +221,39 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    manyLineInput.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
+                    manyLineInput.setBackground(ThemeUtils.applyColorToDrawable(focusDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
                     manyLineInput.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
+                }
+            }
+        });
+        llSelectOne.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    llSelectOne.setBackground(ThemeUtils.applyColorToDrawable(focusDrawable, ThemeUtils.getThemeColor(mContext)));
+                } else {
+                    llSelectOne.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
+                }
+            }
+        });
+        sobot_select_two.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    sobot_select_two.setBackground(ThemeUtils.applyColorToDrawable(focusDrawable, ThemeUtils.getThemeColor(mContext)));
+                } else {
+                    sobot_select_two.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
+                }
+            }
+        });
+        sobot_input_two.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    sobot_input_two.setBackground(ThemeUtils.applyColorToDrawable(focusDrawable, ThemeUtils.getThemeColor(mContext)));
+                } else {
+                    sobot_input_two.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
                 }
             }
         });
@@ -283,12 +342,6 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         }
         if (null != selectIcon) {
             selectIcon.setBounds(0, 0, selectIcon.getMinimumWidth(), selectIcon.getMinimumHeight());
-            //设置右侧图标
-            if (ChatUtils.isRtl(mContext)) {
-                tvSelect.setCompoundDrawables(selectIcon, null, null, null);
-            } else {
-                tvSelect.setCompoundDrawables(null, null, selectIcon, null);
-            }
         }
 
 
@@ -296,35 +349,35 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             case "single_line":
                 singleLineInput.setVisibility(View.VISIBLE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.GONE);
                 sobot_input_two.setVisibility(View.GONE);
                 break;
             case "many_lines":
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.VISIBLE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.GONE);
                 sobot_input_two.setVisibility(View.GONE);
                 break;
             case "select":
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.VISIBLE);
+                llSelectOne.setVisibility(View.VISIBLE);
                 sobot_select_two.setVisibility(View.GONE);
                 sobot_input_two.setVisibility(View.GONE);
                 break;
             case "select_two":
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.VISIBLE);
                 sobot_input_two.setVisibility(View.GONE);
                 break;
             case "input_two":
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.GONE);
                 sobot_input_two.setVisibility(View.VISIBLE);
                 break;
@@ -332,7 +385,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 //选择区号
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.GONE);
                 sobot_input_two.setVisibility(View.VISIBLE);
                 break;
@@ -340,7 +393,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 //时区
                 singleLineInput.setVisibility(View.GONE);
                 manyLineInput.setVisibility(View.GONE);
-                tvSelect.setVisibility(View.GONE);
+                llSelectOne.setVisibility(View.GONE);
                 sobot_select_two.setVisibility(View.VISIBLE);
                 sobot_input_two.setVisibility(View.GONE);
                 break;
@@ -377,13 +430,13 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
      *
      * @param callBack
      */
-    public void setCusCallBack(ISobotCusField callBack) {
+    public void setCusCallBack(SobotCusFieldListener callBack) {
         this.cusCallBack = callBack;
-        if (tvSelect != null) {
-            tvSelect.setOnClickListener(new OnClickListener() {
+        if (llSelectOne != null) {
+            llSelectOne.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    tvSelect.requestFocus();
+                    llSelectOne.requestFocus();
                     cusCallBack.onClickCusField(tvSelect, cusFieldConfig, cusFields);
                 }
             });
@@ -403,6 +456,40 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         } else {
             titleText = title;
         }
+        if (tvTitle == null) return;
+        tvTitle.setText(Html.fromHtml(titleText));
+    }
+
+    /**
+     * 设置标题
+     *
+     * @param title
+     * @param isMust
+     */
+    public void setTitle(String title, boolean isMust, String finalExplain) {
+        String endStr = "";
+        if (StringUtils.isNoEmpty(finalExplain)) {
+            endStr = "<span style='font-size:18px;'> ⓘ</span>";
+            tvTitle.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    弹框显示，finalExplain
+                    SobotDialogUtils.startTipDialog(mContext, finalExplain);
+                }
+            });
+        }
+        String mustFill = "<font color='#F5222D'> *</font>";
+        if (isMust) {
+            endStr = endStr + mustFill;
+        }
+        if (ChatUtils.isRtl(mContext)) {
+            endStr = "\u200F" + endStr;
+            titleText = "\u200F" + title + endStr;
+        } else {
+            endStr = "\u200E" + endStr;
+            titleText = "\u200E" + title + endStr;
+        }
+
         if (tvTitle == null) return;
         tvTitle.setText(Html.fromHtml(titleText));
     }
@@ -440,6 +527,10 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         return tvSelect;
     }
 
+    public LinearLayout getLlSelectOne() {
+        return llSelectOne;
+    }
+
     /**
      * 设置右侧图标
      *
@@ -447,14 +538,8 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
      */
     public void setSelectIcon(Drawable selectIcon) {
         this.selectIcon = selectIcon;
-        if (null != tvSelect && null != selectIcon) {
-            selectIcon.setBounds(0, 0, selectIcon.getMinimumWidth(), selectIcon.getMinimumHeight());
-            //设置右侧图标
-            if (ChatUtils.isRtl(mContext)) {
-                tvSelect.setCompoundDrawables(selectIcon, null, null, null);
-            } else {
-                tvSelect.setCompoundDrawables(null, null, selectIcon, null);
-            }
+        if (null != iv_select_icon && null != selectIcon) {
+            iv_select_icon.setImageDrawable(selectIcon);
         }
     }
 
@@ -501,35 +586,35 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
                 case "single_line":
                     singleLineInput.setVisibility(View.VISIBLE);
                     manyLineInput.setVisibility(View.GONE);
-                    tvSelect.setVisibility(View.GONE);
+                    llSelectOne.setVisibility(View.GONE);
                     sobot_select_two.setVisibility(View.GONE);
                     sobot_input_two.setVisibility(View.GONE);
                     break;
                 case "many_lines":
                     singleLineInput.setVisibility(View.GONE);
                     manyLineInput.setVisibility(View.VISIBLE);
-                    tvSelect.setVisibility(View.GONE);
+                    llSelectOne.setVisibility(View.GONE);
                     sobot_select_two.setVisibility(View.GONE);
                     sobot_input_two.setVisibility(View.GONE);
                     break;
                 case "select":
                     singleLineInput.setVisibility(View.GONE);
                     manyLineInput.setVisibility(View.GONE);
-                    tvSelect.setVisibility(View.VISIBLE);
+                    llSelectOne.setVisibility(View.VISIBLE);
                     sobot_select_two.setVisibility(View.GONE);
                     sobot_input_two.setVisibility(View.GONE);
                     break;
                 case "phone":
                     singleLineInput.setVisibility(View.GONE);
                     manyLineInput.setVisibility(View.GONE);
-                    tvSelect.setVisibility(View.GONE);
+                    llSelectOne.setVisibility(View.GONE);
                     sobot_select_two.setVisibility(View.GONE);
                     sobot_input_two.setVisibility(View.VISIBLE);
                     break;
                 case "timezone":
                     singleLineInput.setVisibility(View.GONE);
                     manyLineInput.setVisibility(View.GONE);
-                    tvSelect.setVisibility(View.GONE);
+                    llSelectOne.setVisibility(View.GONE);
                     sobot_select_two.setVisibility(View.VISIBLE);
                     sobot_input_two.setVisibility(View.GONE);
                     break;
@@ -610,10 +695,10 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     public void showError(String error) {
         if (!TextUtils.isEmpty(error)) {
             tvError.setVisibility(View.VISIBLE);
-            Drawable db = ThemeUtils.applyColorToDrawable(mContext, bgDrawable, R.color.sobot_dialog_input_error);
-            singleLineInput.setBackground(db);
-            manyLineInput.setBackground(db);
-            tvSelect.setBackground(db);
+//            Drawable db = ThemeUtils.applyColorToDrawable(mContext, focusDrawable, R.color.sobot_dialog_input_error);
+            singleLineInput.setBackground(errorBg);
+            manyLineInput.setBackground(errorBg);
+            llSelectOne.setBackground(errorBg);
             tvError.setText(error);
         }
     }
@@ -621,10 +706,10 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     // 隐藏错误
     public void hideError() {
         tvError.setVisibility(GONE);
-        Drawable db = ThemeUtils.applyColorToDrawable(mContext, bgDrawable, R.color.sobot_dialog_input);
-        singleLineInput.setBackground(db);
-        manyLineInput.setBackground(db);
-        tvSelect.setBackground(db);
+//        Drawable db = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null);
+        singleLineInput.setBackground(defaultBg);
+        manyLineInput.setBackground(defaultBg);
+        llSelectOne.setBackground(defaultBg);
     }
 
     //设置右边图标
@@ -670,4 +755,47 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             }
         }
     }
+
+    /**
+     * 创建输入框背景 Drawable（对应 sobot_bg_dialog_input）
+     * @param context 上下文
+     * @param strokeColor 边框颜色
+     * @param strokeWidth 边框宽度（dp）
+     * @param fillColor 填充颜色
+     * @param cornerRadius 圆角半径（dp）
+     * @return GradientDrawable
+     */
+    public static GradientDrawable createInputBackground(
+            Context context,
+            int strokeColor,
+            int strokeWidth,
+            int fillColor,
+            int cornerRadius) {
+
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.RECTANGLE);
+
+        // 设置边框
+        drawable.setStroke(dp2px(context, strokeWidth), strokeColor);
+
+        // 设置填充色
+        drawable.setColor(fillColor);
+
+        // 设置圆角
+        drawable.setCornerRadius(dp2px(context, cornerRadius));
+
+        return drawable;
+    }
+
+    /**
+     * dp 转 px
+     */
+    private static int dp2px(Context context, int dp) {
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                context.getResources().getDisplayMetrics()
+        );
+    }
+
 }

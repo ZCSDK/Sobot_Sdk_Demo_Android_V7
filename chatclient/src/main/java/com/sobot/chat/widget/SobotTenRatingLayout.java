@@ -28,7 +28,7 @@ public class SobotTenRatingLayout extends LinearLayout {
     private int selectContent;//选中的值
     private OnClickItemListener onClickItemListener;
 
-    private LinearLayout line1,line2;
+    private LinearLayout line1, line2;
 
     public SobotTenRatingLayout(Context context) {
         super(context);
@@ -53,15 +53,16 @@ public class SobotTenRatingLayout extends LinearLayout {
 //        addView(line2);
     }
 
-    public boolean isInit(){
+    public boolean isInit() {
         return null == line1;
     }
+
     /**
      * @param defScore    显示个数
      * @param isCanChange 点击后是否变色
      */
-    public void init(int defScore, final boolean isCanChange,int spaceWidth) {
-        if(null == line1){
+    public void init(int defScore, final boolean isCanChange, int spaceWidth) {
+        if (null == line1) {
             line1 = new LinearLayout(getContext());
             line1.setOrientation(LinearLayout.HORIZONTAL);
             line1.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -80,7 +81,7 @@ public class SobotTenRatingLayout extends LinearLayout {
         }
 
         LayoutParams lp = null;
-        selectContent=defScore;
+        selectContent = defScore;
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
             //横屏
             for (int i = 0; i < 11; i++) {
@@ -89,11 +90,11 @@ public class SobotTenRatingLayout extends LinearLayout {
                 if (i != 10) {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                    lp.setMarginEnd(ScreenUtils.dip2px(getContext(), spaceWidth));
                 } else {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = 0;
+                    lp.setMarginEnd(0);
                 }
                 textView.setLayoutParams(lp);
                 if (i == defScore) {
@@ -121,18 +122,18 @@ public class SobotTenRatingLayout extends LinearLayout {
                 });
                 line1.addView(textView);
             }
-        }else {
+        } else {
             for (int i = 0; i < 6; i++) {
                 TextView textView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_ten_rating_item, null);
                 textView.setText(i + "");
                 if (i != 5) {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                    lp.setMarginEnd(ScreenUtils.dip2px(getContext(), spaceWidth));
                 } else {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = 0;
+                    lp.setMarginEnd(0);
                 }
                 textView.setLayoutParams(lp);
                 if (i == defScore) {
@@ -166,11 +167,11 @@ public class SobotTenRatingLayout extends LinearLayout {
                 if (i != 10) {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = ScreenUtils.dip2px(getContext(), spaceWidth);
+                    lp.setMarginEnd(ScreenUtils.dip2px(getContext(), spaceWidth));
                 } else {
                     lp = new LinearLayout.LayoutParams(ScreenUtils.dip2px(getContext(), 30),
                             ScreenUtils.dip2px(getContext(), 30));
-                    lp.rightMargin = 0;
+                    lp.setMarginEnd(0);
                 }
                 textView.setLayoutParams(lp);
                 textView.setFocusable(true);
@@ -233,7 +234,7 @@ public class SobotTenRatingLayout extends LinearLayout {
                 tv.setBackgroundResource(R.drawable.sobot_ten_rating_item_bg_def);
             }
         }
-        if(line2!=null) {
+        if (line2 != null) {
             if (selIndex > 5) {
                 int totalNum2 = line2.getChildCount();
                 for (int i = 0; i < totalNum2; i++) {

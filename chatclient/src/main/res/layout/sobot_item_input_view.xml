@@ -6,10 +6,10 @@
     android:paddingStart="20dp"
     android:paddingEnd="20dp">
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/sobot_title_lable"
         style="@style/sobot_cur_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:clickable="false"
@@ -17,26 +17,27 @@
         android:text="" />
 
     <!--单行输入框-->
-    <EditText
+    <com.sobot.chat.widget.SobotEditText
         android:id="@+id/sobot_single_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:minHeight="32dp"
         android:background="@drawable/sobot_bg_dialog_input"
         android:ellipsize="end"
         android:hint="@string/sobot_please_input"
         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
         android:lines="1"
+        android:minHeight="32dp"
         android:paddingStart="12dp"
         android:paddingTop="5dp"
         android:paddingEnd="12dp"
         android:paddingBottom="5dp"
         android:textColor="@color/sobot_color_text_first"
         android:textColorHint="@color/sobot_color_text_third"
+        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
         android:textSize="@dimen/sobot_text_font_14" />
     <!--多行输入框-->
-    <EditText
+    <com.sobot.chat.widget.SobotEditText
         android:id="@+id/sobot_many_line"
         android:layout_width="match_parent"
         android:layout_height="160dp"
@@ -53,44 +54,59 @@
         android:paddingBottom="5dp"
         android:textColor="@color/sobot_color_text_first"
         android:textColorHint="@color/sobot_color_text_third"
+        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
         android:textSize="@dimen/sobot_text_font_14" />
-    <!--选择框-->
-    <TextView
-        android:id="@+id/sobot_select"
+
+    <LinearLayout
+        android:id="@+id/sobot_select_one"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:gravity="top|start"
         android:background="@drawable/sobot_bg_dialog_input"
-        android:hint="@string/sobot_please_choice"
-        android:minHeight="32dp"
+        android:orientation="horizontal"
         android:paddingStart="12dp"
-        android:paddingTop="6dp"
-        android:paddingEnd="12dp"
-        android:lines="1"
-        android:ellipsize="end"
-        android:paddingBottom="5dp"
-        android:textColor="@color/sobot_color_text_first"
-        android:textColorHint="@color/sobot_color_text_third"
-        android:textSize="@dimen/sobot_text_font_14" />
+        android:paddingEnd="12dp">
+        <!--选择框-->
+        <com.sobot.chat.widget.SobotTextView
+            android:id="@+id/sobot_select"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/sobot_please_choice"
+            android:lines="1"
+            android:layout_weight="1"
+            android:minHeight="32dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textColorHint="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+
+        <ImageView
+            android:id="@+id/iv_select_icon"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/sobot_select_icon" />
+    </LinearLayout>
     <!--    两部分的选择框，时区-->
     <RelativeLayout
         android:id="@+id/sobot_select_two"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:minHeight="32dp"
-        android:background="@drawable/sobot_bg_dialog_input">
+        android:background="@drawable/sobot_bg_dialog_input"
+        android:minHeight="32dp">
 
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/tv_select_two_left"
             android:layout_width="160dp"
             android:layout_height="32dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:ellipsize="end"
-            android:hint="@string/sobot_timezone"
             android:gravity="center_vertical"
+            android:hint="@string/sobot_timezone"
             android:lines="1"
             android:paddingStart="12dp"
             android:paddingEnd="9dp"
@@ -106,43 +122,42 @@
             android:background="@color/sobot_dialog_input"
             android:visibility="visible" />
 
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/tv_select_two_right"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_toEndOf="@+id/tv_select_two_left"
+            android:ellipsize="end"
             android:gravity="center_vertical"
             android:hint="@string/sobot_please_choice"
+            android:lines="1"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:lines="1"
-            android:ellipsize="end"
             android:textColor="@color/sobot_color_text_first"
             android:textColorHint="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_14" />
 
     </RelativeLayout>
     <!--    两部分 选择框+输入框 -->
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/sobot_input_two"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:minHeight="32dp"
-        android:background="@drawable/sobot_bg_dialog_input">
+        android:background="@drawable/sobot_bg_dialog_input"
+        android:gravity="center_vertical"
+        android:minHeight="32dp">
 
-        <TextView
+        <com.sobot.chat.widget.SobotTextView
             android:id="@+id/tv_input_two_left"
             android:layout_width="112dp"
             android:layout_height="32dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:lines="1"
+            android:gravity="center"
             android:hint="+86"
+            android:lines="1"
             android:paddingStart="12dp"
             android:paddingEnd="9dp"
             android:textColor="@color/sobot_color_text_first"
@@ -153,31 +168,30 @@
             android:id="@+id/v_input_line"
             android:layout_width="1dp"
             android:layout_height="32dp"
-            android:layout_toEndOf="@+id/tv_input_two_left"
             android:background="@color/sobot_dialog_input"
             android:visibility="visible" />
-        <EditText
+
+        <com.sobot.chat.widget.SobotEditText
             android:id="@+id/et_input_two_right"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_toEndOf="@+id/tv_input_two_left"
+            android:layout_height="wrap_content"
+            android:minHeight="32dp"
             android:background="@null"
             android:ellipsize="end"
+            android:gravity="center_vertical"
             android:hint="@string/sobot_please_input"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:lines="1"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:gravity="center_vertical"
             android:textColor="@color/sobot_color_text_first"
             android:textColorHint="@color/sobot_color_text_third"
+            android:textCursorDrawable="@drawable/sobot_cursor_drawable"
             android:textSize="@dimen/sobot_text_font_14" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
-    <TextView
+    <com.sobot.chat.widget.SobotTextView
         android:id="@+id/tv_title_error"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

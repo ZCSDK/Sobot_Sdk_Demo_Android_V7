@@ -26,11 +26,12 @@ import java.util.List;
 public class SobotRobotListAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
-    private  List<SobotRobot> list;
+    private List<SobotRobot> list;
     private RobotItemOnClick itemOnClick;
     private int selectPosition = -1;
-    private int themeColor ;
-    public SobotRobotListAdapter(Context context, List<SobotRobot> list ,int mRobotFlag, RobotItemOnClick listener){
+    private int themeColor;
+
+    public SobotRobotListAdapter(Context context, List<SobotRobot> list, int mRobotFlag, RobotItemOnClick listener) {
         this.mContext = context;
         this.list = list;
         this.itemOnClick = listener;
@@ -41,25 +42,27 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
     public List<SobotRobot> getList() {
         return list;
     }
-    public void setList(List<SobotRobot> date){
+
+    public void setList(List<SobotRobot> date) {
         list.clear();
         list.addAll(date);
         notifyDataSetChanged();
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.sobot_list_item_robot, viewGroup, false);
-        return  new MyViewHolder(v);
+        return new MyViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         final SobotRobot data = list.get(i);
         MyViewHolder vh = (MyViewHolder) viewHolder;
-        if(data!=null){
+        if (data != null) {
 
-            if(selectPosition!=-1 && data.getRobotFlag()==selectPosition){
+            if (selectPosition != -1 && data.getRobotFlag() == selectPosition) {
                 Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_item_hot_press, null);
                 if (drawable instanceof GradientDrawable) {
                     GradientDrawable gradientDrawable = (GradientDrawable) drawable;
@@ -88,7 +91,7 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
                 @Override
                 public void onClick(View v) {
                     notifyDataSetChanged();
-                    if(itemOnClick!=null){
+                    if (itemOnClick != null) {
                         itemOnClick.onItemClick(data);
                     }
                 }
@@ -100,7 +103,8 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         return list.size();
     }
-    class MyViewHolder extends RecyclerView.ViewHolder{
+
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private TextView sobot_tv_content;
         private LinearLayout sobot_ll_content;
         private ImageView iv_select;
@@ -112,7 +116,8 @@ public class SobotRobotListAdapter extends RecyclerView.Adapter {
             iv_select = itemView.findViewById(R.id.iv_select);
         }
     }
-    public interface RobotItemOnClick{
+
+    public interface RobotItemOnClick {
         void onItemClick(SobotRobot itemBeen);
     }
 

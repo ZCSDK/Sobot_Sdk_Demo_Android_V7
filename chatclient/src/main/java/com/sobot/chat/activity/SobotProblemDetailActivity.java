@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -89,6 +91,66 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         }
     }
 
+    // 键盘真正显示，避免多次走回调
+    private boolean isKeyboardShown = false;
+
+    private ViewTreeObserver.OnGlobalLayoutListener keyboardLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            try {
+                Rect r = new Rect();
+                mWebView.getWindowVisibleDisplayFrame(r);
+                int screenHeight = mWebView.getRootView().getHeight();
+                // 计算键盘高度，考虑工具栏
+                int keyboardHeight = screenHeight - r.bottom;
+                //自定义导航栏高度
+                View toolBar = getToolBar();
+                if (toolBar != null && toolBar.getVisibility() == View.VISIBLE) {
+                    keyboardHeight -= toolBar.getHeight();
+                }
+                if (keyboardHeight < 0) {
+                    keyboardHeight = 0;
+                }
+                LogUtils.d("键盘高度===========" + keyboardHeight);
+                boolean isKeyboardCurrentlyVisible = keyboardHeight > screenHeight * 0.15;
+                // 只有状态真正改变时才处理
+                if (isKeyboardCurrentlyVisible && !isKeyboardShown) {
+                    // 键盘刚显示
+                    isKeyboardShown = true;
+                    adjustWebViewForKeyboard(keyboardHeight);
+                } else if (!isKeyboardCurrentlyVisible && isKeyboardShown) {
+                    // 键盘刚隐藏
+                    isKeyboardShown = false;
+                    resetWebViewLayout();
+                }
+            } catch (Exception e) {
+            }
+        }
+    };
+
+    //webview高度 - 键盘高度
+    private void adjustWebViewForKeyboard(int keyboardHeight) {
+        try {
+            //LinearLayout.LayoutParams 需要自己判断具体的类型
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mWebView.getLayoutParams();
+            //70 是防止把导航条顶上去
+            params.height = mWebView.getHeight() - keyboardHeight - 70;
+            mWebView.setLayoutParams(params);
+        } catch (Exception e) {
+        }
+    }
+
+    //webview高度 还原
+    private void resetWebViewLayout() {
+        try {
+            //LinearLayout.LayoutParams 需要自己判断具体的类型
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mWebView.getLayoutParams();
+            params.height = LinearLayout.LayoutParams.MATCH_PARENT;
+            mWebView.setLayoutParams(params);
+        } catch (Exception e) {
+        }
+    }
+
     @Override
     protected void initView() {
         changeAppLanguage();
@@ -140,40 +202,82 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                     stringBuffer.append(Integer.toHexString(Color.green(zinyanColor)));
                     stringBuffer.append(Integer.toHexString(Color.blue(zinyanColor)));
                     //修改图片高度为自适应宽度
-                    answerDesc = "<!DOCTYPE html>\n" +
-                            "<html>\n" +
-                            "    <head>\n" +
-                            "        <meta charset=\"utf-8\">\n" +
-                            "        <title></title>\n" +
-                            "        <style>\n body{color:" + (stringBuffer != null ? stringBuffer.toString() : "") +
-                            ";}\n" +
-                            "            img{\n" +
-                            "                width: auto;\n" +
-                            "                height:auto;\n" +
-                            "                max-height: 100%;\n" +
-                            "                max-width: 100%;\n" +
-                            "            }" +
-                            "            video{\n" +
-                            "                width: auto;\n" +
-                            "                height:auto;\n" +
-                            "                max-height: 100%;\n" +
-                            "                max-width: 100%;\n" +
-                            "            }" +
-                            "        </style>\n" +
-                            "    </head>\n" +
-                            "    <body>" + answerDesc + "  </body>\n" +
-                            "</html>";
+
+                    // 检查内容是否包含阿拉伯语字符
+                    boolean isArabicContent = containsArabicCharacters(answerDesc);
+
+                    // 构建HTML内容
+                    StringBuilder htmlBuilder = new StringBuilder();
+                    htmlBuilder.append("<!DOCTYPE html>\n");
+                    htmlBuilder.append("<html");
+                    if (isArabicContent) {
+                        htmlBuilder.append(" dir=\"rtl\"");
+                    }
+                    htmlBuilder.append(">\n");
+                    htmlBuilder.append("    <head>\n");
+                    htmlBuilder.append("        <meta charset=\"utf-8\">\n");
+                    htmlBuilder.append("        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n");
+                    htmlBuilder.append("        <title></title>\n");
+                    htmlBuilder.append("        <style>\n body{color:").append(stringBuffer != null ? stringBuffer.toString() : "")
+                            .append(";}\n");
+                    htmlBuilder.append("            img{\n");
+                    htmlBuilder.append("                width: auto;\n");
+                    htmlBuilder.append("                height:auto;\n");
+                    htmlBuilder.append("                max-height: 100%;\n");
+                    htmlBuilder.append("                max-width: 100%;\n");
+                    htmlBuilder.append("            }\n");
+                    htmlBuilder.append("            video{\n");
+                    htmlBuilder.append("                width: auto;\n");
+                    htmlBuilder.append("                height:auto;\n");
+                    htmlBuilder.append("                max-height: 100%;\n");
+                    htmlBuilder.append("                max-width: 100%;\n");
+                    htmlBuilder.append("            }\n");
+                    if (isArabicContent) {
+                        htmlBuilder.append("            body {\n");
+                        htmlBuilder.append("                text-align: right;\n");
+                        htmlBuilder.append("                direction: rtl;\n");
+                        htmlBuilder.append("                word-wrap: break-word;\n");
+                        htmlBuilder.append("                word-break: break-all;\n");
+                        htmlBuilder.append("                overflow-wrap: break-word;\n");
+                        htmlBuilder.append("            }\n");
+                    } else {
+                        htmlBuilder.append("            body {\n");
+                        htmlBuilder.append("                word-wrap: break-word;\n");
+                        htmlBuilder.append("                word-break: break-word;\n");
+                        htmlBuilder.append("                overflow-wrap: break-word;\n");
+                        htmlBuilder.append("            }\n");
+                    }
+                    htmlBuilder.append("        </style>\n");
+                    htmlBuilder.append("    </head>\n");
+                    htmlBuilder.append("    <body>");
+                    htmlBuilder.append(answerDesc.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"));
+                    htmlBuilder.append("  </body>\n");
+                    htmlBuilder.append("</html>");
+
                     //显示文本内容
-                    String html = answerDesc.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>");
-                    mWebView.loadDataWithBaseURL("about:blank", html, "text/html", "utf-8", null);
+                    mWebView.loadDataWithBaseURL("about:blank", htmlBuilder.toString(), "text/html", "utf-8", null);
                 }
             }
+// ... existing code ...
+
 
             @Override
             public void onFailure(Exception e, String des) {
                 ToastUtil.showToast(getApplicationContext(), des);
             }
         });
+    }
+    /**
+     * 检查字符串是否包含阿拉伯语字符
+     * @param text 要检查的文本
+     * @return 如果包含阿拉伯语字符返回true，否则返回false
+     */
+    private boolean containsArabicCharacters(String text) {
+        if (TextUtils.isEmpty(text)) {
+            return false;
+        }
+        // 阿拉伯语Unicode范围: \u0600-\u06FF, \u0750-\u077F, \u08A0-\u08FF, \uFB50-\uFDFF, \uFE70-\uFEFF
+        return text.matches(".*[\\u0600-\\u06FF\\u0750-\\u077F\\u08A0-\\u08FF\\uFB50-\\uFDFF\\uFE70-\\uFEFF].*");
     }
 
     //设置导航条颜色
@@ -236,6 +340,10 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                 startActivity(intent);
             }
         });
+        // 注册键盘监听器
+        if (keyboardLayoutListener != null) {
+            mWebView.getViewTreeObserver().addOnGlobalLayoutListener(keyboardLayoutListener);
+        }
         mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
         mWebView.getSettings().setDefaultFontSize(14);
         mWebView.getSettings().setTextZoom(100);
@@ -341,7 +449,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         });
     }
 
-    private static final int REQUEST_CODE_ALBUM = 0x0111;
+
     private ValueCallback<Uri[]> uploadMessageAboveL;
 
     /**
@@ -395,13 +503,13 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         } else {
             intent.setType("*/*"); // 默认所有类型
         }
-        startActivityForResult(intent, REQUEST_CODE_ALBUM);
+        startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_ALBUM);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_ALBUM || requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
+        if (requestCode == ZhiChiConstant.REQUEST_CODE_ALBUM || requestCode == ZCSobotConstant.REQUEST_CODE_OPENCAMERA) {
             if (uploadMessageAboveL == null) {
                 return;
             }
@@ -413,7 +521,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             }
 
             Uri imageUri = null;
-            if (requestCode == REQUEST_CODE_ALBUM) {
+            if (requestCode == ZhiChiConstant.REQUEST_CODE_ALBUM) {
                 if (data != null) {
                     imageUri = data.getData();
                 }
@@ -481,6 +589,10 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
     @Override
     protected void onDestroy() {
         if (mWebView != null) {
+            if (keyboardLayoutListener != null) {
+                mWebView.getViewTreeObserver().removeOnGlobalLayoutListener(keyboardLayoutListener);
+                keyboardLayoutListener = null;
+            }
             mWebView.removeAllViews();
             final ViewGroup viewGroup = (ViewGroup) mWebView.getParent();
             if (viewGroup != null) {

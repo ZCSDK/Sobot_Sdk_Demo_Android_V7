@@ -2,6 +2,7 @@ package com.sobot.chat.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,10 +20,13 @@ import com.sobot.chat.R;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.core.HttpUtils.FileCallBack;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ImageUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.ScreenUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.RoundProgressBar;
 import com.sobot.chat.widget.SelectPicPopupWindow;
 import com.sobot.chat.widget.gif.GifView2;
@@ -32,6 +36,7 @@ import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Locale;
 
 public class SobotPhotoActivity extends Activity implements View.OnLongClickListener {
 
@@ -51,6 +56,18 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sobot_photo_activity);
+        //全屏显示
+        try {
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        } catch (Exception ignored) {
+        }
         MyApplication.getInstance().addActivity(this);
         sobot_progress = (RoundProgressBar) findViewById(R.id.sobot_pic_progress_round);
         sobot_progress.setRoundWidth(10);//设置圆环的宽度
@@ -106,6 +123,30 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
         sobot_rl_gif.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        Context context = null;
+        try {
+            Locale language = (Locale) SharedPreferencesUtil.getObject(newBase, ZhiChiConstant.SOBOT_LANGUAGE);
+            context = newBase;
+            if (language != null) {
+                Configuration config = newBase.getResources().getConfiguration();
+                config = new Configuration(config);
+                config.setLocale(language);
+                // 根据语言设置布局方向
+                if (ChatUtils.isRtl(newBase)) {
+                    config.setLayoutDirection(language);
+                } else {
+                    config.setLayoutDirection(Locale.ENGLISH);
+                }
+                // 创建新的上下文
+                context = newBase.createConfigurationContext(config);
+            }
+            super.attachBaseContext(context);
+        } catch (Exception e) {
+        }
+    }
+
     private void initBundleData(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             imageUrL = getIntent().getStringExtra("imageUrL");
@@ -134,7 +175,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
                     if (degree > 0) {
                         bitmap = ImageUtils.rotateBitmap(bitmap, degree);
                     }
-                    if(bitmap !=null){
+                    if (bitmap != null) {
                         mImageView.setImage(ImageSource.bitmap(bitmap));
                     }
                 } catch (Exception e) {

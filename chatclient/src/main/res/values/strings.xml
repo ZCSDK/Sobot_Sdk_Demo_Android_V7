@@ -225,8 +225,6 @@
     <string name="sobot_mini_program">小程序</string>
     <string name="sobot_mini_program_only_open_by_weixin">小程序只能通过微信打开</string>
     <string name="sobot_parsing">解析中...</string>
-    <string name="sobot_keep_queuing">继续排队</string>
-    <string name="sobot_keep_queuing_string">如果继续等待，点击</string>
     <string name="sobot_ding">有用</string>
     <string name="sobot_cai">没用</string>
     <string name="sobot_outline_closed">会话已结束，可重新发起咨询</string>
@@ -333,4 +331,12 @@
     <string name="sobot_microphone_permission_yongtu_camera">正在申请麦克风使用权限。允许后，咨询客服和留言时可以发送/上传录制的视频。</string>
     <string name="sobot_agree_agreement">我已阅读并同意 %s。</string>
     <string name="sobot_agree">同意</string>
+<!--    4.5.0 继续排队-->
+    <string name="sobot_keep_queuing">点击继续排队</string>
+    <string name="sobot_keep_queuing_string">如需继续等待 点击继续排队</string>
+    <string name="sobot_i_know">知道了</string>
+    <string name="sobot_reference_materials_quantity">参考 %d 篇资料</string>
+    <string name="sobot_reference_materials">参考资料</string>
+    <string name="sobot_start_chat">开始咨询</string>
+    <string name="sobot_variable_title">填写信息</string>
 </resources>

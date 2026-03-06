@@ -2,15 +2,17 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
@@ -31,7 +33,7 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
     private TextView moreTV;
     private ImageView moreIV;
 
-    private String[] inputContent; // 保存输入内容数组
+    private String[] inputContentList; // 保存输入内容数组
     private int currentLoadedCount = 0; // 当前已加载的数量
     private int itemsPerLoad = 8; // 每次加载的数量
 
@@ -51,6 +53,19 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
     public void bindData(final Context context, ZhiChiMessageBase message) {
         this.message = message;
         if (message != null && message.getVariableValueEnums() != null) {
+            // 设置plAiButton的颜色为主题色
+            if (moreLL != null) {
+                Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_more_bg, null);
+                if (moreDrawable != null) {
+                    moreLL.setBackground(moreDrawable);
+                    moreLL.setElevation(12f);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        moreLL.setOutlineSpotShadowColor(ContextCompat.getColor(context, R.color.sobot_color_shado));
+                    }
+                    moreLL.setTranslationY(6f);
+                }
+
+            }
             String msgStr = message.getContent();
             if (!TextUtils.isEmpty(msgStr)) {
                 HtmlTools.getInstance(context).setRichText(tvMsg, msgStr, getLinkTextColor());
@@ -61,33 +76,44 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
             checkShowTransferBtn();
 
             // 保存输入内容数组
-            this.inputContent = message.getVariableValueEnums();
+            this.inputContentList = message.getVariableValueEnums();
 
-            if (inputContent.length > 0) {
-                Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_more_bg, null);
-                if (moreDrawable != null) {
-                    moreLL.setBackground(ThemeUtils.applyColorToDrawable(moreDrawable, ThemeUtils.getThemeColor(mContext)));
+            if (inputContentList.length > 0) {
+                if (inputContentList.length > itemsPerLoad) {
+                    //多余8个才显示更多
+                    moreLL.setVisibility(View.VISIBLE);
+                    moreIV.setVisibility(View.VISIBLE);
+                    moreTV.setVisibility(View.VISIBLE);
+                    Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_more_bg, null);
+                    Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_notice_arrow_down, null);
+                    if (moreDrawable != null) {
+                        moreLL.setBackground(ThemeUtils.applyColorToDrawable(moreDrawable, ThemeUtils.getThemeColor(mContext)));
+                    }
+                    moreLL.setElevation(0f);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        moreLL.setOutlineSpotShadowColor(ContextCompat.getColor(context, R.color.sobot_color_transparent));
+                    }
+                    moreLL.setTranslationY(0f);
+                    if (arrowDownDrawable != null) {
+                        moreIV.setBackground(ThemeUtils.applyColorToDrawable(arrowDownDrawable, ThemeUtils.getThemeColor(mContext)));
+                    }
+                    moreTV.setTextColor(ThemeUtils.getThemeColor(mContext));
+                    // 设置更多按钮点击事件
+                    moreLL.setOnClickListener(v -> loadMoreItems(true));
+                } else {
+                    moreLL.setVisibility(View.GONE);
                 }
-                Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_notice_arrow_down, null);
-                if (arrowDownDrawable != null) {
-                    moreIV.setBackground(ThemeUtils.applyColorToDrawable(arrowDownDrawable, ThemeUtils.getThemeColor(mContext)));
-                }
-                moreTV.setTextColor(ThemeUtils.getThemeColor(mContext));
-
                 // 重置状态
                 alButton.removeAllViews();
                 currentLoadedCount = 0;
                 resetMaxWidth();
+                // 首次加载最多8个
+                loadMoreItems(false);
                 if (message.isHideVariableValueEnums()) {
                     llButtonRoot.setVisibility(View.GONE);
                 } else {
                     llButtonRoot.setVisibility(View.VISIBLE);
                 }
-                // 首次加载最多8个
-                loadMoreItems();
-
-                // 设置更多按钮点击事件
-                moreLL.setOnClickListener(v -> loadMoreItems());
             } else {
                 alButton.setVisibility(View.GONE);
                 moreLL.setVisibility(View.GONE);
@@ -109,59 +135,105 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
     /**
      * 加载更多项
      */
-    private void loadMoreItems() {
+    private void loadMoreItems(boolean isClickMore) {
         try {
-            if (message == null || inputContent == null || currentLoadedCount >= inputContent.length) {
+            if (message == null || inputContentList == null) {
                 if (moreLL != null) {
                     moreLL.setVisibility(View.GONE);
                 }
                 return;
             }
-            if (msgCallBack != null) {
-                msgCallBack.goToLastIndexItem();
-            }
-            int loadCount = Math.min(itemsPerLoad, inputContent.length - currentLoadedCount);
 
-            for (int i = 0; i < loadCount; i++) {
-                int index = currentLoadedCount + i;
-                if (index < inputContent.length && alButton != null) {
-                    String str = inputContent[index];
+            // 从message中获取缓存的已加载数量
+            int cachedCount = message.getLoadedButtonCount();
+            if (cachedCount > 0) {
+                currentLoadedCount = cachedCount;
+            }
+
+            llButtonRoot.setVisibility(View.VISIBLE);
+            alButton.setVisibility(View.VISIBLE); // 显示快捷回复加载按钮
+
+            // 计算需要加载的起始位置和数量
+            int startLoadIndex;
+            int loadCount;
+
+            if (isClickMore) {
+                // 点击"更多"按钮：从当前已加载位置继续加载itemsPerLoad个
+                startLoadIndex = currentLoadedCount;
+                loadCount = Math.min(itemsPerLoad, inputContentList.length - currentLoadedCount);
+                if (loadCount > 0) {
+                    currentLoadedCount += loadCount;
+                    message.setLoadedButtonCount(currentLoadedCount);
+                }
+            } else if (cachedCount > 0) {
+                // 从缓存恢复：已经加载了cachedCount个，不需要重新加载
+                startLoadIndex = 0;
+                loadCount = cachedCount;
+                // 清理之前的视图
+                alButton.removeAllViews();
+            } else {
+                // 第一次加载：从0开始
+                startLoadIndex = 0;
+                loadCount = Math.min(itemsPerLoad, inputContentList.length);
+                currentLoadedCount = loadCount;
+                message.setLoadedButtonCount(currentLoadedCount);
+                // 第一次加载时清理之前的视图
+                alButton.removeAllViews();
+            }
+
+            // 加载指定范围的项
+            for (int i = startLoadIndex; i < startLoadIndex + loadCount; i++) {
+                if (i < inputContentList.length && alButton != null) {
+                    String str = StringUtils.checkStringIsNull(inputContentList[i]);
                     try {
                         View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_aiagent_item_bottom_layout, null);
                         TextView nameTv = view.findViewById(R.id.tv_lable_name);
                         if (nameTv != null) {
-                            nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
+                            if (message.getSugguestionsFontColor() == 1) {
+                                // 历史记录 - 使用半透明主题色
+                                nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
+                                int themeColor = ThemeUtils.getThemeColor(mContext);
+                                int semiTransparentColor = ColorUtils.setAlphaComponent(themeColor, 128); // 50%透明度
+                                nameTv.setTextColor(semiTransparentColor);
+                                nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg_no_click));
+                            } else {
+                                nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
+                                nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg));
+                            }
                             nameTv.setText(StringUtils.isEmpty(str) ? "" : str + "");
                             alButton.addView(view);
                         }
-                        view.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (msgCallBack != null) {
-                                    ZhiChiMessageBase msgObj = new ZhiChiMessageBase();
-                                    msgObj.setNodeId(message.getNodeId());
-                                    msgObj.setProcessId(message.getProcessId());
-                                    msgObj.setVariableId(message.getVariableId());
-                                    msgObj.setContent(StringUtils.checkStringIsNull(str));
-                                    msgCallBack.sendMessageToRobot(msgObj, 6, 1, "");
-                                    //隐藏按钮
-                                    message.setHideVariableValueEnums(true);
-                                    llButtonRoot.setVisibility(View.GONE);
+                        if (message.getSugguestionsFontColor() == 0) {
+                            //实时的能点击
+                            view.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (msgCallBack != null) {
+                                        ZhiChiMessageBase msgObj = new ZhiChiMessageBase();
+                                        msgObj.setNodeId(message.getNodeId());
+                                        msgObj.setProcessId(message.getProcessId());
+                                        msgObj.setVariableId(message.getVariableId());
+                                        msgObj.setContent(StringUtils.checkStringIsNull(str));
+                                        msgCallBack.sendMessageToRobot(msgObj, 0, 0, "");
+                                        //隐藏按钮
+                                        message.setHideVariableValueEnums(true);
+                                        llButtonRoot.setVisibility(View.GONE);
+                                    }
                                 }
-                            }
-                        });
-                    } catch (Exception e) {
-                        // 处理 inflate 或 findViewById 异常
-                        e.printStackTrace();
+                            });
+                        }
+                    } catch (Exception ignored) {
                     }
                 }
             }
 
-            currentLoadedCount += loadCount;
-
             // 检查是否还有更多数据
-            if (moreLL != null && currentLoadedCount >= inputContent.length) {
-                moreLL.setVisibility(View.GONE);
+            if (moreLL != null) {
+                if (currentLoadedCount >= inputContentList.length) {
+                    moreLL.setVisibility(View.GONE);
+                } else {
+                    moreLL.setVisibility(View.VISIBLE);
+                }
             }
         } catch (Exception e) {
             if (moreLL != null) {

@@ -20,7 +20,6 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 
 import com.sobot.chat.R;
-import com.sobot.chat.utils.LogUtils;
 
 /**
  * The type Bar config.
@@ -28,7 +27,7 @@ import com.sobot.chat.utils.LogUtils;
  * @author geyifeng
  * @date 2017 /5/11
  */
-class BarConfig {
+public class BarConfig {
 
     private final int mStatusBarHeight;
     private final int mActionBarHeight;
@@ -175,7 +174,7 @@ class BarConfig {
      * @return The height of the status bar (in pixels).
      */
     int getStatusBarHeight() {
-        LogUtils.d("状态栏高度：" + mStatusBarHeight);
+//        LogUtils.d("状态栏高度：" + mStatusBarHeight);
         return mStatusBarHeight;
     }
 
@@ -202,7 +201,7 @@ class BarConfig {
      *
      * @return The height of the navigation bar (in pixels). If the device does not have soft navigation keys, this will always return 0.
      */
-    int getNavigationBarHeight() {
+    public int getNavigationBarHeight() {
         return mNavigationBarHeight;
     }
 

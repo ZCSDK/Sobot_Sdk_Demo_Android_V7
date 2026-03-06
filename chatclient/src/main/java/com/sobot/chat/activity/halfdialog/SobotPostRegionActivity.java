@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -72,7 +73,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear;
+    private ImageView iv_clear,sobot_iv_search;
 
     //搜索内容
     private LinearLayout ll_search_data;
@@ -149,6 +150,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
         ll_search_data = findViewById(R.id.ll_search_data);
         ll_data = findViewById(R.id.ll_data);
         iv_clear = findViewById(R.id.sobot_iv_clear);
+        sobot_iv_search = findViewById(R.id.sobot_iv_search);
         iv_clear.setOnClickListener(this);
         refreshLayout = findViewById(R.id.sobot_srl_workorder_search);
         loading_layout = findViewById(R.id.sobot_loading_layout);
@@ -204,6 +206,9 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_bg_line_4, null);
+                    ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getContext())));
+
                     btnSubmit.setVisibility(View.VISIBLE);
                     showSoftKeyboard();
                     //列表中显示搜索
@@ -250,6 +255,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
                         }
                     }
                 } else {
+                    ll_search.setBackground(ResourcesCompat.getDrawable(getContext().getResources(), R.drawable.sobot_search_bg, null));
                     hideKeyboard();
                 }
             }
@@ -278,8 +284,10 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
                 int inputCount = s.length();
                 if (inputCount > 0) {
                     iv_clear.setVisibility(View.VISIBLE);
+                    sobot_iv_search.setVisibility(View.GONE);
                 } else {
                     iv_clear.setVisibility(View.GONE);
+                    sobot_iv_search.setVisibility(View.VISIBLE);
                 }
                 pageNo = 1;
                 searchDate();

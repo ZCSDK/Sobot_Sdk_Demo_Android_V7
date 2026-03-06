@@ -163,7 +163,16 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
                         //图文样式
                         GridLayoutManager gridlayoutmanager = new GridLayoutManager(SobotSkillGroupActivity.this, 3);
                         sobot_rcy_skill.setLayoutManager(gridlayoutmanager);
-                        sobot_rcy_skill.setPadding(ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24));
+                        sobot_rcy_skill.setPadding(0, ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), 0, ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24));
+                        // 简单的间距设置 待测试
+//                        sobot_rcy_skill.addItemDecoration(new RecyclerView.ItemDecoration() {
+//                            @Override
+//                            public void getItemOffsets(android.graphics.Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+//                                int spacing = ScreenUtils.dip2px(SobotSkillGroupActivity.this, 8);
+//                                outRect.set(spacing, spacing, spacing, spacing);
+//                            }
+//                        });
+
                     } else if (list_skill.get(0).getGroupStyle() == 2) {
                         //图文加描述
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SobotSkillGroupActivity.this);
@@ -177,18 +186,18 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
                     sobotSkillAdapter.setMsgFlag(msgFlag);
                     sobotSkillAdapter.notifyDataSetChanged();
                     if (TextUtils.isEmpty(list_skill.get(0).getGroupGuideDoc())) {
-                        sobot_tv_title.setText(R.string.sobot_switch_robot_title_2);
+                        sobot_tv_title.setText(getSafeStringResource(R.string.sobot_switch_robot_title_2));
                     } else {
                         sobot_tv_title.setText(list_skill.get(0).getGroupGuideDoc());
                     }
                 } else {
-                    sobot_tv_title.setText(R.string.sobot_switch_robot_title_2);
+                    sobot_tv_title.setText(getSafeStringResource(R.string.sobot_switch_robot_title_2));
                 }
             }
 
             @Override
             public void onFailure(Exception e, String des) {
-                sobot_tv_title.setText(R.string.sobot_switch_robot_title_2);
+                sobot_tv_title.setText(getSafeStringResource(R.string.sobot_switch_robot_title_2));
             }
         });
     }

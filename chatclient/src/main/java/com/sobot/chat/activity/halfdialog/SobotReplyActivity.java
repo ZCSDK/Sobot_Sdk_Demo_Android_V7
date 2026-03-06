@@ -41,7 +41,6 @@ import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.HttpUtils;
-import com.sobot.chat.listener.PermissionListenerImpl;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
@@ -119,7 +118,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     @Override
     protected void initView() {
         super.initView();
-        sobot_container= findViewById(R.id.sobot_container);
+        sobot_container = findViewById(R.id.sobot_container);
         sobot_container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,7 +131,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         // 设置RecyclerView的LayoutManager
         sobotReplyMsgPic.setLayoutManager(layoutManager);
-        sobotReplyMsgPic.addItemDecoration(new HorizontalItemSpacingDecoration(ScreenUtils.dip2px(this, 8)));
+        sobotReplyMsgPic.addItemDecoration(new HorizontalItemSpacingDecoration(ScreenUtils.dip2px(this, 8), ChatUtils.isRtl(getSobotBaseActivity())));
         sobotBtnSubmit = findViewById(R.id.sobot_btn_submit);
         sobotBtnSubmit.setText(R.string.sobot_btn_submit_text);
         if (ThemeUtils.isChangedThemeColor(getSobotBaseContext())) {
@@ -373,31 +372,12 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
             }
             if (v.getId() == R.id.btn_pick_photo) {
                 LogUtils.i("选择照片");
-                permissionListener = new PermissionListenerImpl() {
-                    @Override
-                    public void onPermissionSuccessListener() {
-                        ChatUtils.openSelectPic(SobotReplyActivity.this);
-                    }
-                };
-                if (!isHasPermission(1, 0)) {
-                    return;
-                }
-                ChatUtils.openSelectPic(SobotReplyActivity.this);
+                selectPicFromLocal();
             }
             if (v.getId() == R.id.btn_pick_vedio) {
                 LogUtils.i("选择视频");
-                permissionListener = new PermissionListenerImpl() {
-                    @Override
-                    public void onPermissionSuccessListener() {
-                        ChatUtils.openSelectVedio(SobotReplyActivity.this, null);
-                    }
-                };
-                if (!isHasPermission(1, 1)) {
-                    return;
-                }
-                ChatUtils.openSelectVedio(SobotReplyActivity.this, null);
+                selectVedioFromLocal();
             }
-
         }
     };
 

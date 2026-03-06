@@ -9,14 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
-import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.base.SobotDialogBaseActivity;
 import com.sobot.chat.adapter.SobotRobotListAdapter;
 import com.sobot.chat.api.ZhiChiApi;
+import com.sobot.chat.api.apiUtils.ZhiChiConstants;
 import com.sobot.chat.api.model.SobotRobot;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.core.channel.SobotMsgManager;
-import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.network.http.callback.StringResultCallBack;
@@ -50,7 +49,7 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
         sobotRobotList = new ArrayList<>();
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         tv_nodata = (TextView) findViewById(R.id.tv_nodata);
-        sobot_tv_title.setText(R.string.sobot_switch_robot_title);
+        sobot_tv_title.setText(getSafeStringResource(R.string.sobot_switch_robot_title));
         rv_list = findViewById(R.id.rv_list);
         iv_closes = findViewById(R.id.iv_closes);
         iv_closes.setOnClickListener(this);
@@ -70,11 +69,18 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
             @Override
             public void onItemClick(SobotRobot item) {
                 if (item.getRobotFlag() != mRobotFlag) {
-                    //选择留言模版成功 发送广播
-                    Intent intent = new Intent();
-                    intent.putExtra("sobotRobot", item);
-                    CommonUtils.sendLocalBroadcast(getContext(), intent);
-                    setResult(ZCSobotConstant.EXTRA_SWITCH_ROBOT_REQUEST_CODE, intent);
+                    if(!item.isCheckFormSubmitOver() && item.getFormSubmitInfos() != null && !item.getFormSubmitInfos().isEmpty()){
+                        //显示变量收集
+                        Intent intent = new Intent(SobotRobotListActivity.this, SobotFormVariableActivity.class);
+                        intent.putExtra("sobotRobot", item);
+                        startActivity(intent);
+                    }else{
+                        //选择成功 发送广播
+                        Intent intent = new Intent();
+                        intent.setAction(ZhiChiConstants.SOBOT_SWICH_ROBOT);
+                        intent.putExtra("sobotRobot", item);
+                        sendBroadcast(intent);
+                    }
                     finish();
                 } else {
                     finish();

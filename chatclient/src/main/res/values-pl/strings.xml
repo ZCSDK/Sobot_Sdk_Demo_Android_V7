@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Aplet</string>
     <string name="sobot_mini_program_only_open_by_weixin">Aplet może być otwarty tylko przez wechat</string>
     <string name="sobot_parsing">Analiza</string>
-    <string name="sobot_keep_queuing">Kontynuuj kolejkę</string>
-    <string name="sobot_keep_queuing_string">Jeśli nadal będziesz czekać, kliknij</string>
     <string name="sobot_ding">Użyteczny</string>
     <string name="sobot_cai">Bezużyteczny</string>
     <string name="sobot_outline_closed">Sesja zakończona, konsultacje mogą zostać ponownie rozpoczęte</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Trwa żądanie uprawnień do korzystania z mikrofonu. Po zezwoleniu, podczas kontaktu z obsługą klienta i składania wiadomości, będzie można wysłać/przesłać nagrane filmy.</string>
     <string name="sobot_agree_agreement">Zapoznałem/am się z %s i wyrażam na nie zgodę.</string>
     <string name="sobot_agree">Zgadzam się</string>
+    <string name="sobot_keep_queuing">kliknij, aby pozostać w kolejce</string>
+    <string name="sobot_keep_queuing_string">Jeśli chcesz kontynuować oczekiwanie, kliknij, aby pozostać w kolejce.</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Materiały odniesienia</string>
+    <string name="sobot_reference_materials_quantity">Zobacz $%dźródeł</string>
+    <string name="sobot_start_chat">Rozpocznij konsultację</string>
+    <string name="sobot_variable_title">Wypełnij informacje</string>
 </resources>

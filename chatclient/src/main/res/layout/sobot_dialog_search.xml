@@ -1,23 +1,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_search"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <!--搜索-->
     <LinearLayout
+        android:id="@+id/ll_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_dialog_margin"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="@dimen/sobot_dialog_margin"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/sobot_search_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="visible">
 
-        <EditText
+        <com.sobot.chat.widget.SobotEditText
             android:id="@+id/et_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,6 +34,7 @@
             android:paddingBottom="9dp"
             android:textColor="@color/sobot_color_text_first"
             android:textColorHint="@color/sobot_color_text_third"
+            android:textCursorDrawable="@drawable/sobot_cursor_drawable"
             android:textSize="@dimen/sobot_text_font_14" />
 
         <ImageView
@@ -53,6 +54,7 @@
             android:padding="9dp"
             android:src="@drawable/sobot_cur_search" />
     </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.6dp"

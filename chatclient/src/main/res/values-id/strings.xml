@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Aplet</string>
     <string name="sobot_mini_program_only_open_by_weixin">Aplet hanya dapat dibuka melalui wechat</string>
     <string name="sobot_parsing">Menganalisis</string>
-    <string name="sobot_keep_queuing">Lanjutkan Barisan</string>
-    <string name="sobot_keep_queuing_string">Jika Anda terus menunggu, klik</string>
     <string name="sobot_ding">Berguna</string>
     <string name="sobot_cai">Tidak Berguna</string>
     <string name="sobot_outline_closed">Sesi telah berakhir, konsultasi dapat dimulai lagi</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Sedang mengajukan izin untuk menggunakan mikrofon. Setelah diizinkan, Anda dapat mengirim/mengunggah video yang direkam saat berkonsultasi dengan agen dan meninggalkan pesan.</string>
     <string name="sobot_agree_agreement">Saya telah membaca dan menyetujui %s.</string>
     <string name="sobot_agree">Setuju</string>
+    <string name="sobot_keep_queuing">klik untuk tetap berada dalam antrean</string>
+    <string name="sobot_keep_queuing_string">Jika Anda ingin terus menunggu, klik untuk tetap berada dalam antrean.</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Referensi</string>
+    <string name="sobot_reference_materials_quantity">Lihat %d referensi</string>
+    <string name="sobot_start_chat">Mulai konsultasi</string>
+    <string name="sobot_variable_title">Isi Informasi</string>
 </resources>

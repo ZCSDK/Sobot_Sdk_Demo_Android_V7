@@ -3,6 +3,7 @@ package com.sobot.chat.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -22,9 +23,14 @@ import com.sobot.chat.api.model.SobotCacheFile;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.camera.StVideoView;
 import com.sobot.chat.camera.listener.StVideoListener;
+import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.pictureframe.SobotBitmapUtil;
+
+import java.util.Locale;
 
 /**
  * @author Created by jinxl on 2018/12/3.
@@ -52,6 +58,30 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_VIDEO_FILE_DATA, cacheFile);
         return intent;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        Context context = null;
+        try {
+            Locale language = (Locale) SharedPreferencesUtil.getObject(newBase, ZhiChiConstant.SOBOT_LANGUAGE);
+            context = newBase;
+            if (language != null) {
+                Configuration config = newBase.getResources().getConfiguration();
+                config = new Configuration(config);
+                config.setLocale(language);
+                // 根据是否为RTL语言设置布局方向
+                if (ChatUtils.isRtl(newBase)) {
+                    config.setLayoutDirection(language);
+                } else {
+                    config.setLayoutDirection(Locale.ENGLISH);
+                }
+                // 创建新的上下文
+                context = newBase.createConfigurationContext(config);
+            }
+            super.attachBaseContext(context);
+        } catch (Exception e) {
+        }
     }
 
     @Override

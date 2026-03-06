@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/pop_layout"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/sobot_doalig_bg_style"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_tip_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:maxHeight="303dp"
+                android:scrollbars="none"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/sobot_btn_i_know"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/sobot_bg_theme_color_20dp"
+            android:gravity="center"
+            android:minWidth="130dp"
+            android:padding="8dp"
+            android:stateListAnimator="@null"
+            android:text="@string/sobot_i_know"
+            android:textAllCaps="false"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</RelativeLayout>

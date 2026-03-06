@@ -4,7 +4,7 @@
         android:width="1.5dp"
         android:color="@color/sobot_color_line_divider" />
 
-    <solid android:color="@color/sobot_color_transparent" />
+    <solid android:color="@color/sobot_color_chat_bg" />
 
     <corners android:radius="25dp" />
 </shape>

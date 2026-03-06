@@ -220,8 +220,6 @@
     <string name="sobot_mini_program">Applets</string>
     <string name="sobot_mini_program_only_open_by_weixin">Miniprogramma\'s kunnen alleen via WeChat worden geopend</string>
     <string name="sobot_parsing">Parseren...</string>
-    <string name="sobot_keep_queuing">Blijf in de rij staan</string>
-    <string name="sobot_keep_queuing_string">Als u blijft wachten, klikt u op</string>
     <string name="sobot_ding">Nuttig</string>
     <string name="sobot_cai">Nutteloos</string>
     <string name="sobot_outline_closed">De sessie is afgelopen, u kunt het consult opnieuw starten</string>
@@ -316,4 +314,11 @@
     <string name="sobot_microphone_permission_yongtu_camera">Bezig met het aanvragen van toestemming voor microfoon gebruik. Nadat dit is toegestaan, kunt u bij het contacteren van de klantenservice en het achterlaten van berichten opgenomen video\'s verzenden/uploaden.</string>
     <string name="sobot_agree_agreement">Ik heb de %s gelezen en ga ermee akkoord.</string>
     <string name="sobot_agree">Akkoord</string>
+    <string name="sobot_keep_queuing">klikt u op \'Doorgaan met wachten\'</string>
+    <string name="sobot_keep_queuing_string">Als u wilt blijven wachten, klikt u op \'Doorgaan met wachten\'.</string>
+    <string name="sobot_i_know">OK</string>
+    <string name="sobot_reference_materials">Referentiebronnen</string>
+    <string name="sobot_reference_materials_quantity">Raadpleeg %d bronnen.</string>
+    <string name="sobot_start_chat">Begin met raadplegen</string>
+    <string name="sobot_variable_title">Informatie invullen</string>
 </resources>
