@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- 底层：白色 -->
+            <item>
+                <shape>
+                    <solid android:color="#FFFFFF" />
+                    <corners android:radius="16dp" />
+                </shape>
+            </item>
+            <!-- 上层：6% 黑色遮罩 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color_first" />
+                    <corners android:radius="16dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <item>
+        <shape>
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+</selector>

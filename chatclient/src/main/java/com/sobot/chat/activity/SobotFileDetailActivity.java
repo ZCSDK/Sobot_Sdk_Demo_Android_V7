@@ -16,6 +16,7 @@ import com.sobot.chat.core.HttpUtils;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.FileOpenHelper;
 import com.sobot.chat.utils.FileSizeUtil;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotPathManager;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
@@ -61,7 +62,7 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
     protected void initView() {
         setTitle(R.string.sobot_file_preview);
         showLeftMenu(true);
-        sobot_file_icon =findViewById(R.id.sobot_file_icon);
+        sobot_file_icon = findViewById(R.id.sobot_file_icon);
         sobot_file_name = (TextView) findViewById(R.id.sobot_file_name);
         sobot_tv_file_size = (TextView) findViewById(R.id.sobot_tv_file_size);
         sobot_tv_progress = (TextView) findViewById(R.id.sobot_tv_progress);
@@ -104,9 +105,9 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
             }
         };
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_normal_btn_bg_22);
+            Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_22dp);
             if (bg != null) {
-                sobot_btn_start.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
+                sobot_btn_start.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, ThemeUtils.getThemeColor(this)));
             }
         }
     }
@@ -146,7 +147,7 @@ public class SobotFileDetailActivity extends SobotChatBaseActivity implements Vi
                 restoreTask();
             }
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
     }
 

@@ -7,11 +7,21 @@
     <!--加号里边表情区域 一行显示几个表情-->
     <integer name="sobot_emoji_span_count">7</integer>
 
-    <!--横屏-->
-    <!--加号里 功能菜单区域 每页几行-->
-    <integer name="sobot_plus_menu_line_h">1</integer>
-    <!--加号里 功能菜单区域 每行几列-->
-    <integer name="sobot_plus_menu_row_h">6</integer>
-    <!--加号里边表情区域 一行显示几个表情-->
-    <integer name="sobot_emoji_span_count_h">12</integer>
+    <!--列表列数（手机竖屏 1 列；横屏 / Pad 在对应限定符下覆盖为 2 列）-->
+    <integer name="sobot_list_span_count">1</integer>
+
+    <!--语言列表列数（手机竖屏 1 列；横屏 / Pad 在对应限定符下覆盖为 1 列）-->
+    <integer name="sobot_languae_list_span_count">1</integer>
+
+    <!--语言选择弹窗列数（手机竖屏 1 列；横屏 / Pad 在对应限定符下覆盖为 2 列）-->
+    <integer name="sobot_dialog_languae_span_count">1</integer>
+
+    <!--多轮模板（Template1 / 2 / 3 共用）选项列数（手机竖屏 1 列；手机横屏 2 列；Pad / 折叠屏内屏 1 列）-->
+    <integer name="sobot_robot_template_columns">1</integer>
+
+    <!--多轮模板（Template1 / 3）每页行数（手机竖屏 3；手机横屏 2；Pad / 折叠屏内屏 3）。每页总数 = rows × columns-->
+    <integer name="sobot_robot_template_rows">3</integer>
+
+    <!--AiCard 商品列表列数（手机竖屏 / Pad / 折叠屏内屏 1 列；手机横屏 2 列）。当 > 1 时使用 GridLayoutManager，带自定义字段的 item 独占整行-->
+    <integer name="sobot_ai_card_span_count">1</integer>
 </resources>

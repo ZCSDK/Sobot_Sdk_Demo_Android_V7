@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
@@ -16,6 +17,8 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge">
 
         <!--头像-->
@@ -37,6 +40,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/sobot_msg_nike_name_tv"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="horizontal">
 
             <!--消息内容  列表 -->
@@ -45,7 +50,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/sobot_chat_msg_bg_left"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:minWidth="48dp"
+                app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
                 android:orientation="vertical">
 
                 <!--标题-->
@@ -66,7 +74,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp" />
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="10dp"/>
 
                 <!--展开按钮-->
                 <LinearLayout

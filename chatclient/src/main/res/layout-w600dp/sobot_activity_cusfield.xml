@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 横屏（手机横屏 w>=600dp 且 h<600dp）专用布局
+     与竖屏差异：
+     1. SobotMHLinearLayout 高度比例 0.9，配合 Activity#initData 的 minimumHeight 0.9 让横屏弹窗撑到 90%
+     2. ListView 去掉 minHeight=200dp：weight=1 模式下 minHeight 无效且会误导调试；键盘弹起时让列表自由收缩
+     3. 搜索框 / 列表上下 margin 收紧，给横屏更多内容空间 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@android:color/transparent"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <com.sobot.chat.widget.SobotMHLinearLayout
+        android:id="@+id/sobot_dialog_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_dialog_title_bg"
+        android:orientation="vertical"
+        app:sobot_mhv_HeightRatio="0.9">
+
+        <include layout="@layout/sobot_dialog_title" />
+
+        <LinearLayout
+            android:id="@+id/sobot_ll_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/sobot_msg_margin_edge"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/sobot_search_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:visibility="gone">
+
+            <com.sobot.chat.widget.SobotEditText
+                android:id="@+id/sobot_et_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="center_vertical"
+                android:hint="@string/sobot_please_input"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:lines="1"
+                android:minHeight="36dp"
+                android:paddingStart="10dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/sobot_color_text_first"
+                android:textColorHint="@color/sobot_color_text_third"
+                android:textCursorDrawable="@drawable/sobot_cursor_drawable"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+            <ImageView
+                android:id="@+id/sobot_iv_clear"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="3dp"
+                android:padding="7dp"
+                android:src="@drawable/sobot_cur_input_clear"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/sobot_iv_search"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="3dp"
+                android:padding="7dp"
+                android:src="@drawable/sobot_cur_search" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_search_line"
+            android:layout_width="match_parent"
+            android:layout_height="0.6dp"
+            android:background="@color/sobot_color_line_divider_2"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:minHeight="160dp"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/sobot_activity_cusfield_listview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="6dp"
+                android:layout_weight="1"
+                android:background="@color/sobot_dialog_bg_color"
+                android:cacheColorHint="@android:color/transparent"
+                android:divider="@color/sobot_color_line_divider"
+                android:dividerHeight="0dp"
+                android:fadingEdge="none"
+                android:listSelector="@android:color/transparent"
+                android:overScrollMode="never"
+                android:scrollbarSize="10dp"
+                android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style" />
+
+            <TextView
+                android:id="@+id/sobot_btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/sobot_dialog_margin"
+                android:layout_marginEnd="@dimen/sobot_dialog_margin"
+                android:background="@drawable/sobot_bg_theme_color_28dp"
+                android:gravity="center"
+                android:padding="8dp"
+                android:singleLine="true"
+                android:text="@string/sobot_btn_submit_text"
+                android:textAllCaps="false"
+                android:textColor="@color/sobot_white"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
+
+
+    </com.sobot.chat.widget.SobotMHLinearLayout>
+
+
+</LinearLayout>

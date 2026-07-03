@@ -48,7 +48,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="43dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:background="@color/sobot_white"
             android:orientation="horizontal"
             android:paddingStart="15dp"
@@ -57,33 +59,45 @@
             <ImageView
                 android:id="@+id/sobot_webview_goback"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="43dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:background="@drawable/sobot_button_bg_first"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:src="@drawable/sobot_webview_btn_back_selector" />
 
             <ImageView
                 android:id="@+id/sobot_webview_forward"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="43dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:background="@drawable/sobot_button_bg_first"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:src="@drawable/sobot_webview_btn_forward_selector" />
 
             <ImageView
                 android:id="@+id/sobot_webview_reload"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="43dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:background="@drawable/sobot_button_bg_first"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:src="@drawable/sobot_webview_btn_reload_selector" />
 
             <ImageView
                 android:id="@+id/sobot_webview_copy"
                 android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_height="43dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:background="@drawable/sobot_button_bg_first"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
                 android:src="@drawable/sobot_webview_btn_copy_selector"
                 android:visibility="gone" />
         </LinearLayout>

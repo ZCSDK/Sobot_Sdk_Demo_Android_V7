@@ -95,8 +95,13 @@
 
     <!--控件最大宽高-->
     <declare-styleable name="sobot_maxsize_layout">
+        <!-- 最大宽（默认"上限"语义：父可用宽超过才限，保留原 mode；配合 sobot_fill_to_max_width=true 切换为"主动撑宽"） -->
         <attr name="sobot_max_width" format="dimension" />
         <attr name="sobot_max_height" format="dimension" />
+        <!-- 宽度占屏宽百分比（0~1，0 = 不启用）；默认"上限"语义（屏宽×百分比作为上限，超过才限，保留原 mode）；配合 sobot_fill_to_max_width=true 切换为"主动撑宽"；与 sobot_max_width 同时存在取较小 -->
+        <attr name="sobot_max_width_percent" format="float" />
+        <!-- 配合 sobot_max_width / sobot_max_width_percent 使用：true=按 EXACTLY 主动撑宽到目标值，让 match_parent 子 View 跟随撑开；false（默认）=上限语义 -->
+        <attr name="sobot_fill_to_max_width" format="boolean" />
     </declare-styleable>
 
     <!--拖拽吸附控件-->
@@ -120,8 +125,10 @@
         <attr name="image_is_show_progressbar" format="boolean" />
         <!--预加载时背景色-->
         <attr name="image_bg" format="color" />
+        <!--预加载时占位图-->
+        <attr name="image_loading_drawable" format="reference" />
     </declare-styleable>
-    
+
     <!--  带标题、输入框、错误提示  -->
     <declare-styleable name="SobotInputView">
         <!-- 是否隐藏标题-->
@@ -143,8 +150,8 @@
     </declare-styleable>
 
     <declare-styleable name="SobotLoadingView">
-        <attr name="backgroundColor" format="color" />
-        <attr name="progressColor" format="color" />
-        <attr name="strokeWidth" format="dimension" />
+        <attr name="sobot_background_color" format="color" />
+        <attr name="sobot_progress_color" format="color" />
+        <attr name="sobot_strokeWidth" format="dimension" />
     </declare-styleable>
 </resources>

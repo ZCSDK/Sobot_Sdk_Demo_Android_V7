@@ -27,48 +27,48 @@ import java.util.List;
  */
 public final class ReedSolomonEncoder {
 
-  private final com.sobot.chat.widget.zxing.common.reedsolomon.GenericGF field;
-  private final List<com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly> cachedGenerators;
+    private final com.sobot.chat.widget.zxing.common.reedsolomon.GenericGF field;
+    private final List<com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly> cachedGenerators;
 
-  public ReedSolomonEncoder(GenericGF field) {
-    this.field = field;
-    this.cachedGenerators = new ArrayList<>();
-    cachedGenerators.add(new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, new int[]{1}));
-  }
+    public ReedSolomonEncoder(GenericGF field) {
+        this.field = field;
+        this.cachedGenerators = new ArrayList<>();
+        cachedGenerators.add(new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, new int[]{1}));
+    }
 
-  private com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly buildGenerator(int degree) {
-    if (degree >= cachedGenerators.size()) {
-      com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly lastGenerator = cachedGenerators.get(cachedGenerators.size() - 1);
-      for (int d = cachedGenerators.size(); d <= degree; d++) {
-        com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly nextGenerator = lastGenerator.multiply(
-            new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, new int[] { 1, field.exp(d - 1 + field.getGeneratorBase()) }));
-        cachedGenerators.add(nextGenerator);
-        lastGenerator = nextGenerator;
-      }
+    private com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly buildGenerator(int degree) {
+        if (degree >= cachedGenerators.size()) {
+            com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly lastGenerator = cachedGenerators.get(cachedGenerators.size() - 1);
+            for (int d = cachedGenerators.size(); d <= degree; d++) {
+                com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly nextGenerator = lastGenerator.multiply(
+                        new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, new int[]{1, field.exp(d - 1 + field.getGeneratorBase())}));
+                cachedGenerators.add(nextGenerator);
+                lastGenerator = nextGenerator;
+            }
+        }
+        return cachedGenerators.get(degree);
     }
-    return cachedGenerators.get(degree);
-  }
 
-  public void encode(int[] toEncode, int ecBytes) {
-    if (ecBytes == 0) {
-      throw new IllegalArgumentException("No error correction bytes");
+    public void encode(int[] toEncode, int ecBytes) {
+        if (ecBytes == 0) {
+            throw new IllegalArgumentException("No error correction bytes");
+        }
+        int dataBytes = toEncode.length - ecBytes;
+        if (dataBytes <= 0) {
+            throw new IllegalArgumentException("No data bytes provided");
+        }
+        com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly generator = buildGenerator(ecBytes);
+        int[] infoCoefficients = new int[dataBytes];
+        System.arraycopy(toEncode, 0, infoCoefficients, 0, dataBytes);
+        com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly info = new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, infoCoefficients);
+        info = info.multiplyByMonomial(ecBytes, 1);
+        com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly remainder = info.divide(generator)[1];
+        int[] coefficients = remainder.getCoefficients();
+        int numZeroCoefficients = ecBytes - coefficients.length;
+        for (int i = 0; i < numZeroCoefficients; i++) {
+            toEncode[dataBytes + i] = 0;
+        }
+        System.arraycopy(coefficients, 0, toEncode, dataBytes + numZeroCoefficients, coefficients.length);
     }
-    int dataBytes = toEncode.length - ecBytes;
-    if (dataBytes <= 0) {
-      throw new IllegalArgumentException("No data bytes provided");
-    }
-    com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly generator = buildGenerator(ecBytes);
-    int[] infoCoefficients = new int[dataBytes];
-    System.arraycopy(toEncode, 0, infoCoefficients, 0, dataBytes);
-    com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly info = new com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly(field, infoCoefficients);
-    info = info.multiplyByMonomial(ecBytes, 1);
-    com.sobot.chat.widget.zxing.common.reedsolomon.GenericGFPoly remainder = info.divide(generator)[1];
-    int[] coefficients = remainder.getCoefficients();
-    int numZeroCoefficients = ecBytes - coefficients.length;
-    for (int i = 0; i < numZeroCoefficients; i++) {
-      toEncode[dataBytes + i] = 0;
-    }
-    System.arraycopy(coefficients, 0, toEncode, dataBytes + numZeroCoefficients, coefficients.length);
-  }
 
 }

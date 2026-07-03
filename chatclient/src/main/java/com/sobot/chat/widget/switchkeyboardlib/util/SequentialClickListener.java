@@ -9,6 +9,7 @@ public class SequentialClickListener implements View.OnClickListener {
     public interface OnSequentialClickListener {
         /**
          * 点击事件处理
+         *
          * @param v View
          * @return true 继续执行，false 中断执行
          */

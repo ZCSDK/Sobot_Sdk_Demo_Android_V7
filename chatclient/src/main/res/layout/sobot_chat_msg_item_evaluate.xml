@@ -12,7 +12,7 @@
         style="@style/sobot_center_remind_time" />
 
 
-    <LinearLayout
+    <com.sobot.chat.widget.SobotMaxSizeLinearLayout
         style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +20,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:orientation="vertical"
+        app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent"
         android:padding="24dp">
 
         <TextView
@@ -49,60 +50,38 @@
 
                 <LinearLayout
                     android:id="@+id/sobot_ll_ok_robot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/sobot_button_solve_selector"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/sobot_evaluate_ding_circle_bg"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/iv_solved"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/sobot_evaluate_btn_yes_selector" />
 
-                    <TextView
-                        android:id="@+id/sobot_btn_ok_robot"
-                        style="@style/sobot_tx_evaluate_style"
-                        android:ellipsize="end"
-                        android:lines="1"
-                        android:text="@string/sobot_evaluate_yes" />
                 </LinearLayout>
 
                 <View
-                    android:layout_width="14dp"
+                    android:layout_width="40dp"
                     android:layout_height="1dp" />
 
                 <LinearLayout
                     android:id="@+id/sobot_ll_no_robot"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/sobot_button_solve_selector"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/sobot_evaluate_cai_circle_bg"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingStart="14dp"
-                    android:paddingTop="7dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="7dp">
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:id="@+id/iv_no_solve"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/sobot_evaluate_btn_no_selector" />
 
-                    <TextView
-                        android:id="@+id/sobot_btn_no_robot"
-                        style="@style/sobot_tx_evaluate_style"
-                        android:ellipsize="end"
-                        android:lines="1"
-                        android:text="@string/sobot_evaluate_no" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -155,78 +134,47 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="24dp"
+                    android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:orientation="horizontal"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
                     android:visibility="gone">
 
                     <LinearLayout
                         android:id="@+id/sobot_btn_satisfied"
-                        android:layout_width="100dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
+                        android:gravity="bottom|center_horizontal"
                         android:orientation="vertical">
 
-                        <LinearLayout
-                            android:layout_width="43dp"
-                            android:layout_height="43dp"
-                            android:gravity="center">
+                        <ImageView
+                            android:id="@+id/iv_satisfied"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/sobot_satisfie_btn" />
 
-                            <ImageView
-                                android:id="@+id/iv_satisfied"
-                                android:layout_width="43dp"
-                                android:layout_height="43dp"
-                                android:background="@drawable/sobot_dialog_close_bg"
-                                android:padding="5dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/sobot_satisfie_btn" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_satisfied"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_horizontal"
-                            android:text="@string/sobot_satisfied"
-                            android:textColor="@drawable/sobot_satisfied_btn_text_selector"
-                            android:textSize="@dimen/sobot_text_font_14" />
                     </LinearLayout>
 
                     <View
-                        android:layout_width="8dp"
+                        android:layout_width="40dp"
                         android:layout_height="0.6dp" />
 
                     <LinearLayout
                         android:id="@+id/sobot_btn_dissatisfied"
-                        android:layout_width="100dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
+                        android:gravity="bottom|center_horizontal"
                         android:orientation="vertical">
 
-                        <LinearLayout
-                            android:layout_width="43dp"
-                            android:layout_height="43dp"
-                            android:gravity="center">
+                        <ImageView
+                            android:id="@+id/iv_dissatisfied"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/sobot_dissatisfied_btn" />
 
-                            <ImageView
-                                android:id="@+id/iv_dissatisfied"
-                                android:layout_width="43dp"
-                                android:layout_height="43dp"
-                                android:background="@drawable/sobot_dialog_close_bg"
-                                android:padding="5dp"
-                                android:scaleType="fitCenter"
-                                android:src="@drawable/sobot_dissatisfied_btn" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_dissatisfied"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_horizontal"
-                            android:text="@string/sobot_dissatisfied"
-                            android:textColor="@drawable/sobot_satisfied_btn_text_selector"
-                            android:textSize="@dimen/sobot_text_font_14" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -310,7 +258,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="@drawable/sobot_btn_bg_28"
+            android:background="@drawable/sobot_bg_theme_color_28dp"
             android:gravity="center"
             android:minHeight="40dp"
             android:paddingStart="15dp"
@@ -320,6 +268,6 @@
             android:textColor="@color/sobot_color_white"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="visible" />
-    </LinearLayout>
+    </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
 </LinearLayout>

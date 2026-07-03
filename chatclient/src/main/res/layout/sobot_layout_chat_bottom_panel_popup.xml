@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  横屏下表情/加号面板的浮卡容器。
+  - 外层 FrameLayout：透明，给 elevation 阴影留扩散空间（避免被 PopupWindow decor 裁切）
+  - 内层 fl_bottom_panel_popup_card：真正的浮卡卡片，承载背景/描边/阴影
+  - fl_bottom_panel_popup_root：表情面板（fl_emoji）运行时被搬入这里
+  - rv_function_popup：加号功能面板独立 grid，不复用 FunctionMenuPageView
+  emoji / function 通过 visibility 切换显示
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="@dimen/sobot_chat_bottom_panel_popup_shadow_inset">
+
+    <FrameLayout
+        android:id="@+id/fl_bottom_panel_popup_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_bg_chat_bottom_panel_popup"
+        android:elevation="@dimen/sobot_chat_bottom_panel_popup_elevation"
+        android:outlineSpotShadowColor="@color/sobot_color_shadow"
+        android:padding="@dimen/sobot_chat_bottom_panel_popup_padding">
+
+        <FrameLayout
+            android:id="@+id/fl_bottom_panel_popup_root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_function_popup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/sobot_chat_bottom_panel_popup_grid_h_padding"
+            android:paddingEnd="@dimen/sobot_chat_bottom_panel_popup_grid_h_padding"
+            android:scrollbars="none"
+            android:visibility="gone" />
+
+    </FrameLayout>
+</FrameLayout>

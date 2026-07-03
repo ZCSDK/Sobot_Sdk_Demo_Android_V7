@@ -36,9 +36,9 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
         super(context, convertView);
         btn_sendBtn = convertView.findViewById(R.id.sobot_goods_sendBtn);
         try {
-            Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_btn_bg_16, null);
+            Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_theme_color_16dp, null);
             if (drawable != null) {
-                btn_sendBtn.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mContext)));
+                btn_sendBtn.setBackground(ThemeUtils.applyColorWithMultiplyMode(drawable, ThemeUtils.getThemeColor(mContext)));
             }
         } catch (Resources.NotFoundException e) {
         }
@@ -95,16 +95,8 @@ public class ConsultMessageHolder extends MsgHolderBase implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v == sobot_container && mData != null && !TextUtils.isEmpty(mData.getUrl())) {
-            if (SobotOption.hyperlinkListener != null) {
-                SobotOption.hyperlinkListener.onUrlClick(mData.getUrl());
+            if (SobotOption.dispatchUrlClick(mContext, mData.getUrl())) {
                 return;
-            }
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, mData.getUrl());
-                if (isIntercept) {
-                    return;
-                }
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", mData.getUrl());

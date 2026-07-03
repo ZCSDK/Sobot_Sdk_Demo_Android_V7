@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言详情 横屏专用布局（w >= 600dp）
+  - 左侧 RecyclerView (weight=1) 占满列表区
+  - 右侧 ll_side_action 固定面板，宽 sobot_ticket_side_panel_width
+  - 右侧面板按 Figma 设计（node 658-22370 / 745-57673）改造为 4 个圆形图标按钮
+    （滚顶 / 评价 / 回复主操作 / 滚底），由 R.integer.sobot_list_span_count > 1 分流，
+    showBottom(type) 宽屏分支按工单状态显隐对应图标
+  - 竖屏旧 ID（sobot_ticket_bottom_ll 等）以 0dp View 占位保留，
+    避免 SobotTicketDetailActivity initView() 中 findViewById + setOnClickListener NPE
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sobot_color_bg_first"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/tl_titlebar"
+        layout="@layout/sobot_layout_common_titlebar" />
+
+    <!-- 内容区：横向栈（列表 + 右侧固定面板） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- 详情列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/sobot_listview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:divider="@null"
+            android:overScrollMode="never" />
+
+        <!-- 列表与右侧面板之间 1dp 分割线（对齐 Figma border-l #F0F0F0 / night #353535） -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/sobot_color_line_divider" />
+
+        <!-- 右侧固定操作面板：垂直堆叠 4 个圆形图标按钮 -->
+        <LinearLayout
+            android:id="@+id/ll_side_action"
+            android:layout_width="@dimen/sobot_ticket_side_panel_width"
+            android:layout_height="match_parent"
+            android:background="@color/sobot_color_dialog_bg"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- ↑ 滚动到列表顶部 -->
+            <ImageView
+                android:id="@+id/iv_side_scroll_up"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/sobot_bg_side_btn_default"
+                android:contentDescription="@null"
+                android:elevation="4dp"
+                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow"
+                android:padding="14dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/sobot_arrow_up" />
+
+            <!-- 👍 评价（type=1/2 且 mEvaluate!=null 才显示） -->
+            <ImageView
+                android:id="@+id/iv_side_evaluate"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/sobot_bg_side_btn_default"
+                android:contentDescription="@null"
+                android:elevation="4dp"
+                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow"
+                android:padding="14dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/sobot_icon_zan_def"
+                android:visibility="gone" />
+
+            <!-- 💬 回复（type=0/1 显示，type=2 隐藏） -->
+            <ImageView
+                android:id="@+id/iv_side_reply"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/sobot_bg_side_btn_primary"
+                android:contentDescription="@null"
+                android:elevation="6dp"
+                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow"
+                android:padding="11dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/sobot_ic_side_reply" />
+
+            <!-- ↓ 滚动到列表底部 -->
+            <ImageView
+                android:id="@+id/iv_side_scroll_down"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/sobot_bg_side_btn_default"
+                android:contentDescription="@null"
+                android:elevation="4dp"
+                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow"
+                android:padding="14dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/sobot_arrow_down" />
+
+            <!-- ============================================================
+                 以下为竖屏 ID 占位（0dp View），仅为避免基类 / Activity 中
+                 findViewById + setOnClickListener / setVisibility 取到 null。
+                 横屏 showBottom() 分支会提前 return，不会触达这些 view。
+                 ============================================================ -->
+            <LinearLayout
+                android:id="@+id/sobot_ticket_bottom_ll"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/sobot_ticket_success_bottom_ll"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/h_bottom_btns"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/sobot_evaluate_h"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/sobot_evaluate_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/sobot_reply_h"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/v_bottom_btns"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/sobot_evaluate_v"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/sobot_reply_v"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言记录 item 横屏专用布局（w≥600dp，覆盖手机横屏 / 折叠屏内屏 / 平板）
+  与 values/ 竖屏版的区别（依据 Figma node 745:57961）：
+    1. background：换成带描边的卡片样式（sobot_bg_ticket_record_card）
+    2. v_line：横屏隐藏（卡片之间靠 ItemDecoration 留白）
+    3. v_end：占位高度收缩为 0dp（卡片不需要垂直兜底高度）
+  其余 ID、层级、文字属性与竖屏完全一致，保证 Adapter 零侵入
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/sobot_bg_ticket_record_card"
+    android:clickable="true"
+    android:clipToOutline="true"
+    android:elevation="16dp"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:outlineSpotShadowColor="@color/sobot_color_shadow"
+    android:paddingStart="@dimen/sobot_tiket_item_padding_h"
+    android:paddingTop="@dimen/sobot_tiket_item_padding_top"
+    android:paddingEnd="@dimen/sobot_tiket_item_padding_h"
+    android:paddingBottom="@dimen/sobot_tiket_item_padding_top"
+    android:translationY="6dp">
+
+    <ImageView
+        android:id="@+id/iv_ticket"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/sobot_ticket_item" />
+
+    <ImageView
+        android:id="@+id/sobot_tv_new"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_alignTop="@+id/iv_ticket"
+        android:layout_alignEnd="@+id/iv_ticket"
+        android:src="@drawable/sobot_ticket_new"
+        tools:visibility="visible" />
+
+    <!--
+      右侧文本列：title / code / content / time-row 全部在垂直 LinearLayout 内，
+      避免在 RelativeLayout 中跨 child 用 toEndOf / alignStart 的对齐不确定性。
+      所有文本左边都自然对齐 LinearLayout 的左边。
+    -->
+    <LinearLayout
+        android:id="@+id/sobot_text_column"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="12dp"
+        android:layout_toEndOf="@+id/iv_ticket"
+        android:orientation="vertical">
+
+        <com.sobot.chat.widget.SobotTextView
+            android:id="@+id/sobot_tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:maxLines="1"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_ticket_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_12" />
+
+        <com.sobot.chat.widget.SobotTextView
+            android:id="@+id/sobot_tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:maxLines="2"
+            android:textColor="@color/sobot_ticket_text_desc"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <LinearLayout
+            android:id="@+id/ll_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/sobot_tv_ticket_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:lines="1"
+                android:paddingBottom="3dp"
+                android:textColor="@color/sobot_refresh_text_color"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+            <TextView
+                android:id="@+id/sobot_tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                android:textColor="@color/sobot_color_text_third"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 横屏卡片样式下不再需要分割线，但保留 id 以兼容竖屏 Adapter 中的 findViewById 调用 -->
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/sobot_text_column"
+        android:visibility="gone" />
+
+    <!-- 横屏卡片不需要 v_end 垂直兜底；保留 id 防止竖屏 Adapter findViewById 取到 null -->
+    <View
+        android:id="@+id/v_end"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:layout_below="@+id/v_line"
+        android:visibility="gone" />
+</RelativeLayout>

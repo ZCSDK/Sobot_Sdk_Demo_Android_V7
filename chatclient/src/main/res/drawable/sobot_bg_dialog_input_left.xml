@@ -7,6 +7,7 @@
 
     <solid android:color="@color/sobot_color_transparent" />
 
-    <corners android:topLeftRadius="4dp"
+    <corners
+        android:topLeftRadius="4dp"
         android:bottomLeftRadius="4dp" />
 </shape>

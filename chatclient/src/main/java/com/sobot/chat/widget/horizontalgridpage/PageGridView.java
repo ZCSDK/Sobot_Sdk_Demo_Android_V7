@@ -64,6 +64,7 @@ public class PageGridView extends RecyclerView {
 
 
     }
+
     @Nullable
     @Override
     public PagerGridLayoutManager getLayoutManager() {
@@ -94,7 +95,7 @@ public class PageGridView extends RecyclerView {
 
             @Override
             public void onPageSelect(int pageIndex) {
-                if(layoutManager.getChildCount()!=0) {
+                if (layoutManager.getChildCount() != 0) {
                     pageIndicatorView.update(pageIndex);
                 }
 
@@ -183,15 +184,16 @@ public class PageGridView extends RecyclerView {
 //                        currentPage=1;
 //                    }
 //                } else { // 下页
-////                    currentPage = (int) Math.ceil(scrollX / getWidth()) + 1;
-////                    if (currentPage <= totalPage) {
-////                        if (scrollX - (currentPage - 2) * getWidth() < validDistance) {
-////                            // 如果这一页滑出距离不足，则定位到前一页
-////                            currentPage -= 1;
-////                        }
-////                    } else {
-////                        currentPage = totalPage;
-////                    }
+
+    /// /                    currentPage = (int) Math.ceil(scrollX / getWidth()) + 1;
+    /// /                    if (currentPage <= totalPage) {
+    /// /                        if (scrollX - (currentPage - 2) * getWidth() < validDistance) {
+    /// /                            // 如果这一页滑出距离不足，则定位到前一页
+    /// /                            currentPage -= 1;
+    /// /                        }
+    /// /                    } else {
+    /// /                        currentPage = totalPage;
+    /// /                    }
 //
 //                    if (++currentPage>totalPage){
 //                        currentPage=totalPage;
@@ -217,8 +219,6 @@ public class PageGridView extends RecyclerView {
 //        }
 //        super.onScrolled(dx, dy);
 //    }
-
-
     public int getCurrentPage() {
         return currentPage;
     }

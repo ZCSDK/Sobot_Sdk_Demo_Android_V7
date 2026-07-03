@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">محتوایی یافت نشد. آیا فراموش کرده‌اید در فایل xml اضافه کنید؟</string>
+    <string name="sobot_srl_header_pulling">برای به‌روزرسانی به پایین بکشید</string>
+    <string name="sobot_srl_header_refreshing">در حال به‌روزرسانی…</string>
+    <string name="sobot_srl_header_loading">در انتظار تکمیل بارگذاری پایین…</string>
+    <string name="sobot_srl_header_release">رها کنید تا فوراً به‌روزرسانی شود</string>
+    <string name="sobot_srl_header_finish">به‌روزرسانی انجام شد</string>
+    <string name="sobot_srl_header_failed">به‌روزرسانی ناموفق بود</string>
+    <string name="sobot_srl_header_update">آخرین به‌روزرسانی %s</string>
+    <string name="sobot_srl_header_secondary">رها کنید تا وارد طبقه دوم شوید</string>
+    <string name="sobot_srl_footer_pulling">برای بارگذاری بیشتر به بالا بکشید</string>
+    <string name="sobot_srl_footer_release">رها کنید تا فوراً بارگذاری شود</string>
+    <string name="sobot_srl_footer_loading">در حال بارگذاری…</string>
+    <string name="sobot_srl_footer_refreshing">در انتظار تکمیل به‌روزرسانی بالا…</string>
+    <string name="sobot_srl_footer_finish">بارگذاری انجام شد</string>
+    <string name="sobot_srl_footer_failed">بارگذاری ناموفق بود</string>
+    <string name="sobot_srl_footer_nothing">داده‌ی بیشتری وجود ندارد</string>
+    <string name="sobot_no_data_string">داده‌ای موجود نیست</string>
+    <string name="sobot_no_net_string">اتصال اینترنت قطع است، لطفاً شبکه خود را بررسی کنید...</string>
+    <string name="sobot_error_click_reload_string">بارگذاری ناموفق بود، برای تلاش مجدد کلیک کنید~~</string>
+    <string name="sobot_loading_string">در حال بارگذاری...</string>
+</resources>

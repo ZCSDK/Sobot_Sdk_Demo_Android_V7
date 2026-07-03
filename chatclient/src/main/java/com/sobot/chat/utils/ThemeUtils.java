@@ -1,6 +1,7 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,6 +11,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.text.TextUtils;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -96,7 +100,7 @@ public class ThemeUtils {
                     ZhiChiConstant.sobot_last_current_initModel);
             if (initMode != null && initMode.getVisitorScheme() != null) {
                 if (StringUtils.isNoEmpty(initMode.getVisitorScheme().getTopBarFontIconColor())) {
-                    if ("#ffffff".equals(initMode.getVisitorScheme().getTopBarFontIconColor().toLowerCase())||"#FFFFFF".equals(initMode.getVisitorScheme().getTopBarFontIconColor())) {
+                    if ("#ffffff".equals(initMode.getVisitorScheme().getTopBarFontIconColor().toLowerCase()) || "#FFFFFF".equals(initMode.getVisitorScheme().getTopBarFontIconColor())) {
                         return 0;
                     } else {
                         return 1;
@@ -207,6 +211,22 @@ public class ThemeUtils {
         if (drawable != null) {
             PorterDuffColorFilter porterDuffColorFilter = new PorterDuffColorFilter(color,
                     PorterDuff.Mode.SRC_ATOP);
+            drawable.setColorFilter(porterDuffColorFilter);
+        }
+        return drawable;
+    }
+
+    /**
+     * 修改图片颜色 - 使用 MULTIPLY 模式（按下去后保留黑色遮罩效果）
+     *
+     * @param drawable 图片
+     * @param color    颜色
+     *                 btn_model_voice.setBackground(ImageUtils.applyColorToDrawable(getResources().getDrawable(R.drawable.sobot_vioce_button_selector),R.color.sobot_color));
+     */
+    public static Drawable applyColorWithMultiplyMode(Drawable drawable, int color) {
+        if (drawable != null) {
+            PorterDuffColorFilter porterDuffColorFilter = new PorterDuffColorFilter(color,
+                    PorterDuff.Mode.MULTIPLY);
             drawable.setColorFilter(porterDuffColorFilter);
         }
         return drawable;
@@ -331,4 +351,205 @@ public class ThemeUtils {
         }
         return false;
     }
+
+    /**
+     * 为 Outline 按钮创建带主题色的 StateListDrawable
+     * 按压时：描边和背景变为主题色，添加 6% 黑色遮罩
+     *
+     * @param context        上下文
+     * @param themeColor     主题色
+     * @param cornerRadiusDp 圆角半径（dp）
+     * @param strokeWidthPx  描边宽度（px）
+     * @return StateListDrawable
+     */
+    public static StateListDrawable createOutlineButtonDrawable(Context context, int themeColor, float cornerRadiusDp, int strokeWidthPx) {
+        if (context == null) {
+            return null;
+        }
+        StateListDrawable stateListDrawable = new StateListDrawable();
+        // 将 dp 转换为 px
+        float cornerRadiusPx = ScreenUtils.dip2px(context, cornerRadiusDp);
+        // 按压状态
+        LayerDrawable pressedLayer = createOutlineButtonLayer(context, themeColor, cornerRadiusPx, strokeWidthPx, true);
+        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedLayer);
+        // 默认状态
+        GradientDrawable defaultDrawable = createOutlineBackground(context, themeColor, cornerRadiusPx, strokeWidthPx, false);
+        stateListDrawable.addState(new int[]{}, defaultDrawable);
+        return stateListDrawable;
+    }
+
+    /**
+     * 为 Outline 按钮创建带主题色的 StateListDrawable
+     * 按压时：描边和背景变为主题色，添加 6% 黑色遮罩;默认：传进来
+     *
+     * @param context         上下文
+     * @param themeColor      主题色
+     * @param cornerRadiusDp  圆角半径（dp）
+     * @param strokeWidthPx   描边宽度（px）
+     * @param defaultDrawable 默认状态
+     * @return StateListDrawable
+     */
+    public static StateListDrawable createOutlineButtonDrawable(Context context, int themeColor, float cornerRadiusDp, int strokeWidthPx, Drawable defaultDrawable) {
+        if (context == null) {
+            return null;
+        }
+
+        StateListDrawable stateListDrawable = new StateListDrawable();
+        // 将 dp 转换为 px
+        float cornerRadiusPx = ScreenUtils.dip2px(context, cornerRadiusDp);
+        // 按压状态
+        LayerDrawable pressedLayer = createOutlineButtonLayer(context, themeColor, cornerRadiusPx, strokeWidthPx, true);
+        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedLayer);
+        // 默认状态
+        if (defaultDrawable == null) {
+            GradientDrawable dDrawable = createOutlineBackground(context, themeColor, cornerRadiusPx, strokeWidthPx, false);
+            stateListDrawable.addState(new int[]{}, dDrawable);
+        } else {
+            stateListDrawable.addState(new int[]{}, defaultDrawable);
+        }
+        return stateListDrawable;
+    }
+
+    /**
+     * 创建 Outline 按钮的 LayerDrawable（用于按压状态）
+     */
+    private static LayerDrawable createOutlineButtonLayer(Context context, int themeColor, float cornerRadiusPx, int strokeWidthPx, boolean isPressed) {
+        if (context == null) {
+            return null;
+        }
+
+        // 底层：主题色填充 + 主题色描边
+        GradientDrawable backgroundDrawable = createOutlineBackground(context, themeColor, cornerRadiusPx, strokeWidthPx, isPressed);
+        if (backgroundDrawable == null) {
+            return null;
+        }
+
+        // 上层：6% 黑色遮罩
+        GradientDrawable overlayDrawable = new GradientDrawable();
+        overlayDrawable.setColor(Color.parseColor("#0F000000")); // 6% 不透明度黑色
+        overlayDrawable.setCornerRadii(new float[]{
+                cornerRadiusPx, cornerRadiusPx, cornerRadiusPx, cornerRadiusPx,
+                cornerRadiusPx, cornerRadiusPx, cornerRadiusPx, cornerRadiusPx
+        });
+
+        return new LayerDrawable(new Drawable[]{backgroundDrawable, overlayDrawable});
+    }
+
+    /**
+     * 创建 Outline 按钮背景
+     */
+    private static GradientDrawable createOutlineBackground(Context context, int themeColor, float cornerRadiusPx, int strokeWidthPx, boolean isPressed) {
+        if (context == null) {
+            return null;
+        }
+
+        try {
+            GradientDrawable drawable = new GradientDrawable();
+            drawable.setShape(GradientDrawable.RECTANGLE);
+            drawable.setCornerRadius(cornerRadiusPx);
+            drawable.setStroke(strokeWidthPx, themeColor);
+
+            if (isPressed) {
+                // 按压时填充主题色
+                drawable.setColor(Color.argb(255, Color.red(themeColor), Color.green(themeColor), Color.blue(themeColor)));
+            } else {
+                // 默认透明
+                drawable.setColor(Color.TRANSPARENT);
+            }
+
+            return drawable;
+        } catch (Exception e) {
+            LogUtils.e("createOutlineBackground error: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    /**
+     * 创建文字颜色选择器
+     * 默认：主题色
+     * 按压：根据主题色亮度自动调整（黑/白）
+     *
+     * @param context    上下文
+     * @param themeColor 主题色
+     * @return ColorStateList
+     */
+    public static ColorStateList createButtonTextColorSelector(Context context, int themeColor) {
+        if (context == null) {
+            // context 为空时返回默认的颜色选择器
+            return createDefaultButtonTextColorSelector(themeColor);
+        }
+
+        try {
+            int[][] states = new int[][]{
+                    new int[]{android.R.attr.state_pressed}, // 按压状态
+                    new int[]{-android.R.attr.state_pressed} // 默认状态
+            };
+
+            int[] colors = new int[]{
+                    getThemeTextAndIconColor(context), // 按压时的颜色（根据亮度自动调整）
+                    themeColor // 默认主题色
+            };
+
+            return new ColorStateList(states, colors);
+        } catch (Exception e) {
+            LogUtils.e("createButtonTextColorSelector error: " + e.getMessage());
+            return createDefaultButtonTextColorSelector(themeColor);
+        }
+    }
+
+    /**
+     * 创建图标颜色选择器，支持按压效果
+     */
+    public static StateListDrawable createIconColorSelector(Drawable pressedDrawable, Drawable normalDrawable) {
+        try {
+            StateListDrawable stateListDrawable = new StateListDrawable();
+            // 添加状态
+            stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
+            stateListDrawable.addState(new int[]{-android.R.attr.state_pressed}, normalDrawable);
+            return stateListDrawable;
+        } catch (Exception e) {
+            LogUtils.e("createIconColorSelector error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 根据主题色亮度判断文字颜色
+     *
+     * @param themeColor 主题色
+     * @return 白色或黑色
+     */
+    public static int getTextColorForTheme(int themeColor) {
+        // 计算主题色的亮度（相对亮度的标准公式）
+        double luminance = (0.299 * Color.red(themeColor) +
+                0.587 * Color.green(themeColor) +
+                0.114 * Color.blue(themeColor)) / 255;
+
+        // 亮度大于 0.5 认为是浅色，使用黑色文字；否则使用白色文字
+        return luminance > 0.5 ? Color.parseColor("#161616") : Color.WHITE;
+    }
+
+    /**
+     * 创建默认的文字颜色选择器（当 context 为空或出现异常时使用）
+     *
+     * @param themeColor 主题色
+     * @return ColorStateList
+     */
+    private static ColorStateList createDefaultButtonTextColorSelector(int themeColor) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_pressed}, // 按压状态
+                new int[]{-android.R.attr.state_pressed} // 默认状态
+        };
+
+        // 使用简化的亮度计算，确保至少能返回一个可用的颜色
+        int pressedColor = getTextColorForTheme(themeColor);
+        int[] colors = new int[]{
+                pressedColor, // 按压时的颜色
+                themeColor // 默认主题色
+        };
+
+        return new ColorStateList(states, colors);
+    }
+
 }

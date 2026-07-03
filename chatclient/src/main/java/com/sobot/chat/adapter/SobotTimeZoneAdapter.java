@@ -31,51 +31,54 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
     private SobotTimezoneListener listener;
     private SobotTimezone chatStatus;
     private String searchText;
-    public SobotTimeZoneAdapter(Context context, List<SobotTimezone> list, SobotTimezone chatStatus, SobotTimezoneListener listener){
+
+    public SobotTimeZoneAdapter(Context context, List<SobotTimezone> list, SobotTimezone chatStatus, SobotTimezoneListener listener) {
         this.mContext = context;
         this.list = list;
         this.listener = listener;
-        this.chatStatus=chatStatus;
+        this.chatStatus = chatStatus;
     }
 
     public List<SobotTimezone> getList() {
         return list;
     }
-    public void setList(List<SobotTimezone> date,String searchText){
+
+    public void setList(List<SobotTimezone> date, String searchText) {
         list.clear();
         list.addAll(date);
         this.searchText = searchText;
         notifyDataSetChanged();
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.sobot_item_cusfield_listview, viewGroup, false);
-        return  new MyViewHolder(v);
+        return new MyViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         final SobotTimezone checkin = list.get(i);
         MyViewHolder vh = (MyViewHolder) viewHolder;
-        if(checkin!=null){
+        if (checkin != null) {
             String data = checkin.getTimezoneValue();
-            if(StringUtils.isNoEmpty(data)){
+            if (StringUtils.isNoEmpty(data)) {
                 SpannableString spannableString = new SpannableString(data);
-                if(StringUtils.isNoEmpty(searchText)) {
-                    if ( data.toLowerCase().contains(searchText.toLowerCase()) ) {
+                if (StringUtils.isNoEmpty(searchText)) {
+                    if (data.toLowerCase().contains(searchText.toLowerCase())) {
                         int index = data.toLowerCase().indexOf(searchText.toLowerCase());
-                        if(index>=0) {
+                        if (index >= 0) {
                             spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), index, index + searchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
                 vh.tv_title.setText(spannableString);
-            }else {
+            } else {
                 vh.tv_title.setText("");
             }
 
-            if(null!= chatStatus && chatStatus.getTimezoneId().equals(checkin.getTimezoneId())){
+            if (null != chatStatus && chatStatus.getTimezoneId().equals(checkin.getTimezoneId())) {
                 vh.iv_img.setVisibility(View.VISIBLE);
                 if (ThemeUtils.isChangedThemeColor(mContext)) {
                     int themeColor = ThemeUtils.getThemeColor(mContext);
@@ -84,7 +87,7 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
                         vh.iv_img.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                     }
                 }
-            }else{
+            } else {
                 vh.iv_img.setVisibility(View.GONE);
             }
             vh.itemView.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +95,7 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     chatStatus = checkin;
                     notifyDataSetChanged();
-                    if(listener!=null){
+                    if (listener != null) {
                         listener.selectStatus(checkin);
                     }
                 }
@@ -104,7 +107,8 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         return list.size();
     }
-    class MyViewHolder extends RecyclerView.ViewHolder{
+
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView iv_img;
         private TextView tv_title;
 
@@ -115,7 +119,8 @@ public class SobotTimeZoneAdapter extends RecyclerView.Adapter {
 
         }
     }
-    public interface  SobotTimezoneListener {
+
+    public interface SobotTimezoneListener {
         void selectStatus(SobotTimezone model);
     }
 }

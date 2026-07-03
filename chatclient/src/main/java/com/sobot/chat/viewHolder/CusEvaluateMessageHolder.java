@@ -1,7 +1,6 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -48,63 +47,195 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 客服主动邀请客户评价
+ * 客服主动邀请客户评价 ViewHolder
+ * <p>
+ * 当客服主动发起满意度评价邀请时，在聊天列表中展示评价卡片。
+ * 支持三种评价模式：
+ * <ul>
+ *   <li>五星评价（ratingType=0）：通过 {@link SobotFiveStarsLayout} 展示 1-5 星评分</li>
+ *   <li>十分评价（ratingType=1）：通过 {@link SobotTenRatingLayout} 展示 0-10 分评分</li>
+ *   <li>二级评价（ratingType=2）：满意/不满意两个选项</li>
+ * </ul>
+ * <p>
+ * 评价卡片包含以下功能区域：
+ * <ul>
+ *   <li>"问题是否解决"选择区（已解决/未解决），受 {@link SatisfactionSet#getIsQuestionFlag()} 控制显隐</li>
+ *   <li>评分区：根据 {@link SatisfactionSet#getScoreFlag()} 决定展示五星、十分或二级评价</li>
+ *   <li>标签选择区：根据 {@link SatisfactionSetBase} 配置动态生成 CheckBox 标签</li>
+ *   <li>文本输入区：用户补充建议，受 {@link SatisfactionSet#getTxtFlag()} 控制显隐</li>
+ *   <li>提交按钮：校验必填项后调用 {@link #doEvaluate(boolean, int)} 提交评价</li>
+ * </ul>
+ * <p>
+ * 数据绑定流程：
+ * <ol>
+ *   <li>{@link #bindData(Context, ZhiChiMessageBase)} 获取满意度配置（{@link SatisfactionSet}）</li>
+ *   <li>{@link #showData()} 根据配置初始化评分组件、默认分值、标签和输入框</li>
+ *   <li>用户交互后通过 {@link MsgHolderBase#msgCallBack} 回调评价结果</li>
+ * </ol>
+ *
+ * @see MsgHolderBase
+ * @see SobotEvaluateModel
+ * @see SatisfactionSet
  */
 public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnClickListener {
     // ==============已解决、未解决 start==========
-    private LinearLayout sobot_readiogroup,sobot_ll_ok_robot,sobot_ll_no_robot;//已解决、为解决
-    private TextView sobot_btn_ok_robot;//评价  已解决
-    private TextView sobot_btn_no_robot;//评价  未解决
-    private ImageView iv_solved,iv_no_solve;
-    //    ============已解决、为解决 end===========
+    /**
+     * 已解决/未解决 按钮容器
+     */
+    private LinearLayout sobot_readiogroup;
+    /**
+     * 已解决按钮布局
+     */
+    private LinearLayout sobot_ll_ok_robot;
+    /**
+     * 未解决按钮布局
+     */
+    private LinearLayout sobot_ll_no_robot;
+    /**
+     * 已解决图标
+     */
+    private ImageView iv_solved;
+    /**
+     * 未解决图标
+     */
+    private ImageView iv_no_solve;
+    //    ============已解决、未解决 end===========
+
+    /**
+     * "问题是否解决"标题文本，可通过 SatisfactionSetBase 自定义文案
+     */
     private TextView sobot_tv_star_title;
-    private SobotFiveStarsLayout sobot_ratingBar;//评价  打分
-    private LinearLayout sobot_ten_root_ll;//评价  十分全布局
-    private SobotTenRatingLayout sobot_ten_rating_ll;//评价  十分 父布局 动态添加10个textview
-    private int ratingType;//评价  类型   0 5星 ；1 十分 默认5星,2 二级评价
-    private TextView sobot_ratingBar_title;//星星对应描述
-    private TextView sobot_submit;//提交
-    private View sobot_ratingBar_split_view;//如果有已解决按钮和未解决按钮就显示，否则隐藏；
+    /**
+     * 五星评价控件（ratingType=0 时显示）
+     */
+    private SobotFiveStarsLayout sobot_ratingBar;
+    /**
+     * 十分评价根布局（ratingType=1 时显示）
+     */
+    private LinearLayout sobot_ten_root_ll;
+    /**
+     * 十分评价控件，动态添加 0-10 分的 TextView（ratingType=1 时显示）
+     */
+    private SobotTenRatingLayout sobot_ten_rating_ll;
+    /**
+     * 评价类型：0-五星评价，1-十分评价，2-二级评价（满意/不满意）
+     */
+    private int ratingType;
+    /**
+     * 评分描述文本（如"非常满意"），跟随分值变化
+     */
+    private TextView sobot_ratingBar_title;
+    /**
+     * 提交按钮
+     */
+    private TextView sobot_submit;
+    /**
+     * 已解决/未解决区域与评分区域之间的分割线
+     */
+    private View sobot_ratingBar_split_view;
+    /**
+     * 用户信息，用于获取评价标签隐藏配置等
+     */
     private Information information;
+    /**
+     * 标签区域容器布局
+     */
     private LinearLayout sobot_hide_layout;
-    private SobotAntoLineLayout sobot_evaluate_lable_autoline;//评价 标签 自动换行
+    /**
+     * 评价标签自动换行布局
+     */
+    private SobotAntoLineLayout sobot_evaluate_lable_autoline;
+    /**
+     * 标签 CheckBox 列表，用于获取选中状态
+     */
     private List<CheckBox> checkBoxList = new ArrayList<>();
+    /**
+     * 当前评价数据模型，存储评分、是否解决、标签等信息
+     */
     private SobotEvaluateModel sobotEvaluateModel;
+    /**
+     * 当前绑定的消息对象
+     */
     public ZhiChiMessageBase message;
 
-    private SatisfactionSet mSatisfactionSet;//评价配置信息
+    /**
+     * 满意度评价配置信息（包含评价类型、默认分值、标签列表等）
+     */
+    private SatisfactionSet mSatisfactionSet;
+    /**
+     * 各分值对应的评价配置列表（标签、输入框提示语、是否必填等）
+     */
     private List<SatisfactionSetBase> satisFactionList;
+    /**
+     * 主题色
+     */
     private int themeColor;
+    /**
+     * 是否使用了自定义主题色
+     */
     private boolean changeThemeColor;
 
     //=======二级评价===start==
-    private LinearLayout ll_2_type;//二级评价
-    private LinearLayout sobot_btn_satisfied;//二级评价  满意
-    private LinearLayout sobot_btn_dissatisfied;//二级评价  不满意
-    private ImageView iv_satisfied,iv_dissatisfied;
-    private TextView tv_satisfied,tv_dissatisfied;
+    /**
+     * 二级评价容器布局（ratingType=2 时显示）
+     */
+    private LinearLayout ll_2_type;
+    /**
+     * 二级评价"满意"按钮
+     */
+    private LinearLayout sobot_btn_satisfied;
+    /**
+     * 二级评价"不满意"按钮
+     */
+    private LinearLayout sobot_btn_dissatisfied;
+    /**
+     * 满意图标
+     */
+    private ImageView iv_satisfied;
+    /**
+     * 不满意图标
+     */
+    private ImageView iv_dissatisfied;
     //==========二级评价===end======
-    private TextView sobot_text_other_problem;//评价  机器人或人工客服存在哪些问题的标题
-    private SobotEditTextLayout setl_submit_content;//评价框
-    private EditText sobot_add_content;//评价  添加建议
 
-    //标签选中样式
+    /**
+     * 评价标签引导语标题（如"客服存在哪些问题"）
+     */
+    private TextView sobot_text_other_problem;
+    /**
+     * 评价输入框容器
+     */
+    private SobotEditTextLayout setl_submit_content;
+    /**
+     * 评价文本输入框，用于用户输入补充建议
+     */
+    private EditText sobot_add_content;
+
+    /**
+     * 标签选中时的背景样式
+     */
     private GradientDrawable checkboxDrawable;
 
+    /**
+     * 构造方法，初始化评价卡片中的所有子视图并设置点击监听
+     *
+     * @param context     上下文
+     * @param convertView 评价卡片的根视图
+     */
     public CusEvaluateMessageHolder(Context context, View convertView) {
         super(context, convertView);
         sobot_text_other_problem = convertView.findViewById(R.id.sobot_text_other_problem);
         setl_submit_content = convertView.findViewById(R.id.setl_submit_content);
         sobot_add_content = convertView.findViewById(R.id.sobot_add_content);
         sobot_add_content.setHint(R.string.sobot_edittext_hint);
-        Drawable bgDrawable  = ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_line_4,null);
+        Drawable bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_line_4, null);
         sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     sobot_add_content.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
                 } else {
-                    sobot_add_content.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),R.drawable.sobot_bg_dialog_input,null));
+                    sobot_add_content.setBackground(ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_dialog_input, null));
                 }
             }
         });
@@ -114,23 +245,24 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         sobot_ll_no_robot = convertView.findViewById(R.id.sobot_ll_no_robot);
         sobot_ll_ok_robot.setOnClickListener(this);
         sobot_ll_no_robot.setOnClickListener(this);
-        sobot_btn_ok_robot = convertView.findViewById(R.id.sobot_btn_ok_robot);
-        sobot_btn_no_robot = convertView.findViewById(R.id.sobot_btn_no_robot);
         iv_solved = convertView.findViewById(R.id.iv_solved);
         iv_no_solve = convertView.findViewById(R.id.iv_no_solve);
-        sobot_btn_ok_robot.setText(context.getResources().getString(R.string.sobot_evaluate_yes));
-        sobot_btn_no_robot.setText(R.string.sobot_evaluate_no);
+        LinearLayout.LayoutParams params1 = (LinearLayout.LayoutParams) iv_solved.getLayoutParams();
+        params1.setMarginEnd(0);
+        iv_solved.setLayoutParams(params1);
+        LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) iv_no_solve.getLayoutParams();
+        params2.setMarginEnd(0);
+        iv_no_solve.setLayoutParams(params2);
 
         sobot_tv_star_title = (TextView) convertView.findViewById(R.id.sobot_tv_star_title);
-        sobot_ratingBar =  convertView.findViewById(R.id.sobot_ratingBar);
+        sobot_ratingBar = convertView.findViewById(R.id.sobot_ratingBar);
         sobot_ten_root_ll = convertView.findViewById(R.id.sobot_ten_root_ll);
 
         //二级评价
         ll_2_type = convertView.findViewById(R.id.ll_2_type);
         iv_satisfied = convertView.findViewById(R.id.iv_satisfied);
         iv_dissatisfied = convertView.findViewById(R.id.iv_dissatisfied);
-        tv_satisfied = convertView.findViewById(R.id.tv_satisfied);
-        tv_dissatisfied = convertView.findViewById(R.id.tv_dissatisfied);
+
         sobot_btn_satisfied = convertView.findViewById(R.id.sobot_btn_satisfied);
         sobot_btn_dissatisfied = convertView.findViewById(R.id.sobot_btn_dissatisfied);
         sobot_btn_satisfied.setOnClickListener(this);
@@ -149,14 +281,14 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(context);
             Drawable bg = sobot_submit.getBackground();
-            sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+            sobot_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             sobot_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
         }
 
         sobot_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int deftaultScore = sobotEvaluateModel==null ?-1:sobotEvaluateModel.getScore();
+                int deftaultScore = sobotEvaluateModel == null ? -1 : sobotEvaluateModel.getScore();
                 SatisfactionSetBase satisfactionSetBase = getSatisFaction(deftaultScore, satisFactionList);
                 if (ratingType == 0) {
                     if (satisFactionList != null && satisFactionList.size() == 5
@@ -172,7 +304,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
                         ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_the_label_is_required));//标签必选
                         return;
                     }
-                } else if(ratingType == 1){
+                } else if (ratingType == 1) {
                     if (deftaultScore >= 0 && satisFactionList != null && satisFactionList.size() == 11 && deftaultScore < satisFactionList.size()
                             && satisfactionSetBase.getIsInputMust()) {
                         //校验10分评价建议是否必填写，如果是，弹出评价pop再去提交
@@ -187,23 +319,23 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
                         return;
                     }
 
-                }else if(ratingType == 2){
+                } else if (ratingType == 2) {
 
-                    if (deftaultScore >= 0   && satisfactionSetBase.getIsInputMust()) {
+                    if (deftaultScore >= 0 && satisfactionSetBase.getIsInputMust()) {
                         doEvaluate(false, deftaultScore);
                         return;
                     }
                     //校验评价标签是否必选
                     if (TextUtils.isEmpty(checkBoxIsChecked())
                             && satisfactionSetBase.getIsTagMust()
-                            && !TextUtils.isEmpty(satisfactionSetBase.getLabelName()) ) {
+                            && !TextUtils.isEmpty(satisfactionSetBase.getLabelName())) {
                         ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_the_label_is_required));//标签必选
                         return;
                     }
                 }
                 if (mSatisfactionSet != null && mSatisfactionSet.getIsQuestionFlag() == 1) {
                     //“问题是否解决”是否为必填选项： 0-非必填 1-必填
-                    if ( sobotEvaluateModel.getIsResolved() == -1 && mSatisfactionSet.getIsQuestionMust() == 1) {
+                    if (sobotEvaluateModel.getIsResolved() == -1 && mSatisfactionSet.getIsQuestionMust() == 1) {
                         ToastUtil.showToast(mContext, mContext.getResources().getString(R.string.sobot_str_please_check_is_solve));//标签必选
                         return;
                     }
@@ -226,12 +358,12 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         sobot_ratingBar.setOnClickItemListener(new SobotFiveStarsLayout.OnClickItemListener() {
             @Override
             public void onClickItem(int selectIndex) {
-                int score = selectIndex+1;
+                int score = selectIndex + 1;
                 if (score > 5) {
                     score = 5;
                 }
-                if (score < 0 ) {
-                    score=0;
+                if (score < 0) {
+                    score = 0;
                 }
                 sobot_add_content.clearFocus();
                 sobotEvaluateModel.setScore(score);
@@ -241,6 +373,15 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         });
     }
 
+    /**
+     * 绑定消息数据，加载满意度评价配置并初始化 UI
+     * <p>
+     * 首次绑定时通过 API 获取满意度配置（{@link SatisfactionSet}），
+     * 后续复用缓存的配置数据。配置加载成功后调用 {@link #showData()} 渲染评价界面。
+     *
+     * @param context 上下文
+     * @param message 包含评价数据的消息对象
+     */
     @Override
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         information = (Information) SharedPreferencesUtil.getObject(context, "sobot_last_current_info");
@@ -290,15 +431,26 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         refreshReadStatus();
     }
 
+    /**
+     * 根据满意度配置渲染评价界面
+     * <p>
+     * 根据 {@link SatisfactionSet#getScoreFlag()} 决定展示哪种评价模式：
+     * <ul>
+     *   <li>0：五星评价，通过 {@link SobotFiveStarsLayout} 展示</li>
+     *   <li>1：十分评价，通过 {@link SobotTenRatingLayout} 展示 0-10 分</li>
+     *   <li>2：二级评价，展示满意/不满意两个按钮</li>
+     * </ul>
+     * 同时根据配置设置默认分值、标签、输入框提示语、提交按钮文案等。
+     */
     private void showData() {
         int score = 0;
-        int deftaultScore = sobotEvaluateModel==null ?-1:sobotEvaluateModel.getIsResolved();
+        int deftaultScore = sobotEvaluateModel == null ? -1 : sobotEvaluateModel.getIsResolved();
         if (mSatisfactionSet.getScoreFlag() == 0) {
             //defaultType 0-默认5星,1-默认0星
             score = (mSatisfactionSet.getDefaultType() == 0) ? 5 : 0;
             deftaultScore = score;
             sobotEvaluateModel.setScore(deftaultScore);
-            sobot_ratingBar.init(score,true,35);
+            sobot_ratingBar.init(score, true, 35);
             sobot_ten_root_ll.setVisibility(View.GONE);
             ll_2_type.setVisibility(View.GONE);
             sobot_ratingBar.setVisibility(View.VISIBLE);
@@ -306,7 +458,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             if (mSatisfactionSet.getDefaultType() == 0 && score > 0) {
                 sobot_submit.setVisibility(View.VISIBLE);
             }
-        } else if(mSatisfactionSet.getScoreFlag() == 1){
+        } else if (mSatisfactionSet.getScoreFlag() == 1) {
             //十分
             sobot_ten_root_ll.setVisibility(View.VISIBLE);
             ll_2_type.setVisibility(View.GONE);
@@ -330,7 +482,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             if (sobot_ten_rating_ll.isInit()) {
                 sobot_ten_rating_ll.init(score, true, 16);
             }
-        }else if(mSatisfactionSet.getScoreFlag() == 2){
+        } else if (mSatisfactionSet.getScoreFlag() == 2) {
             //二级评价
             ratingType = 2;//二级评价
             sobot_ten_root_ll.setVisibility(View.GONE);
@@ -340,40 +492,29 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             //0-满意，1-不满意，2-不选中
             if (mSatisfactionSet.getDefaultType() == 0) {
                 score = 5;
-                iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
-                iv_satisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
-                iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
-                iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 35);
+
                 iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
                 iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
-                tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-                tv_satisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_common_hese));
-                tv_dissatisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
+
             } else if (mSatisfactionSet.getDefaultType() == 1) {
                 score = 1;
-                iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
-                iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);
-                iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
-                iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
+
                 iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
                 iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
-                tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-                tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                tv_satisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
-                tv_dissatisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_common_hese));
+
             } else if (mSatisfactionSet.getDefaultType() == 2) {
                 score = -1;
             }
-            if ( score > 0) {
+            if (score > 0) {
                 sobot_submit.setVisibility(View.VISIBLE);
             }
             deftaultScore = score;
             sobotEvaluateModel.setScore(deftaultScore);
+            setCustomLayoutViewVisible(score, satisFactionList);
         }
 
         SatisfactionSetBase satisfactionSetBase = getSatisFaction(score, satisFactionList);
-        if(satisfactionSetBase!=null) {
+        if (satisfactionSetBase != null) {
             if (ratingType == 0) {
                 if (0 == score) {
                     sobot_hide_layout.setVisibility(View.GONE);
@@ -442,7 +583,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             setl_submit_content.setVisibility(View.VISIBLE);
         }
         //是否是默认提交按钮
-        if(mSatisfactionSet!=null && mSatisfactionSet.getIsDefaultButton()==0 && !TextUtils.isEmpty(mSatisfactionSet.getButtonDesc())){
+        if (mSatisfactionSet != null && mSatisfactionSet.getIsDefaultButton() == 0 && !TextUtils.isEmpty(mSatisfactionSet.getButtonDesc())) {
             sobot_submit.setText(mSatisfactionSet.getButtonDesc());
         }
         //标签引导语
@@ -465,14 +606,18 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
                 tmpData[i] = satisfactionSetBase.getTags().get(i).getLabelName();
             }
             setLableViewVisible(tmpData);
-        } else if  (satisfactionSetBase != null && !TextUtils.isEmpty(satisfactionSetBase.getLabelName())) {
+        } else if (satisfactionSetBase != null && !TextUtils.isEmpty(satisfactionSetBase.getLabelName())) {
             String tmpData[] = convertStrToArray(satisfactionSetBase.getLabelName());
             setLableViewVisible(tmpData);
         } else {
             setLableViewVisible(null);
         }
-
-        sobot_tv_star_title.setText(String.format(mContext.getString(R.string.sobot_question),message.getSenderName()));
+        //是否自定义已解决标题
+        if (satisfactionSetBase != null && satisfactionSetBase.getIsDefaultQuestion() == 0 && StringUtils.isNoEmpty(satisfactionSetBase.getQuestionCopywriting())) {
+            sobot_tv_star_title.setText(satisfactionSetBase.getQuestionCopywriting());
+        } else {
+            sobot_tv_star_title.setText(String.format(mContext.getString(R.string.sobot_question), message.getSenderName()));
+        }
 
         checkQuestionFlag();
         refreshItem();
@@ -495,21 +640,19 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
                     int width2 = sobot_ll_no_robot.getMeasuredWidth();
                     sobot_ll_ok_robot.getPaddingStart();
                     if (width1 < width2) {
-                        int pading = (width2-width1)/2+ScreenUtils.dip2px(mContext, 16);
+                        int pading = (width2 - width1) / 2 + ScreenUtils.dip2px(mContext, 16);
                         int paddingTop = ScreenUtils.dip2px(mContext, 7);
-                        LogUtils.d("==pading=="+pading+"====16="+ScreenUtils.dip2px(mContext, 16));
-                        sobot_ll_ok_robot.setPadding(pading, paddingTop,pading ,paddingTop );
+                        LogUtils.d("==pading==" + pading + "====16=" + ScreenUtils.dip2px(mContext, 16));
+                        sobot_ll_ok_robot.setPadding(pading, paddingTop, pading, paddingTop);
                     } else if (width1 > width2) {
-                        int pading = (width1-width2)/2+ScreenUtils.dip2px(mContext, 16);
+                        int pading = (width1 - width2) / 2 + ScreenUtils.dip2px(mContext, 16);
                         int paddingTop = ScreenUtils.dip2px(mContext, 7);
-                        LogUtils.d("==pading=="+pading+"====16="+ScreenUtils.dip2px(mContext, 16));
-                        sobot_ll_no_robot.setPadding(pading,paddingTop ,pading ,paddingTop );
+                        LogUtils.d("==pading==" + pading + "====16=" + ScreenUtils.dip2px(mContext, 16));
+                        sobot_ll_no_robot.setPadding(pading, paddingTop, pading, paddingTop);
                     }
                 }
             });
             sobot_readiogroup.setVisibility(View.VISIBLE);
-            sobot_btn_ok_robot.setVisibility(View.VISIBLE);
-            sobot_btn_no_robot.setVisibility(View.VISIBLE);
             sobot_ratingBar_split_view.setVisibility(View.VISIBLE);
 //            if()
 
@@ -545,30 +688,22 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         if (sobotEvaluateModel == null) {
             return;
         }
-        sobot_btn_ok_robot.setVisibility(View.VISIBLE);
-        sobot_btn_no_robot.setVisibility(View.VISIBLE);
         //是否解决问题 0:未解决，1：已解决，-1：都不选
         if (sobotEvaluateModel.getIsResolved() == 1) {
             iv_solved.setSelected(true);
             iv_no_solve.setSelected(false);
             sobot_ll_ok_robot.setSelected(true);
             sobot_ll_no_robot.setSelected(false);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
-            sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         } else if (sobotEvaluateModel.getIsResolved() == 0) {
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
             sobot_ll_ok_robot.setSelected(false);
             sobot_ll_no_robot.setSelected(true);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
-            sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         } else if (sobotEvaluateModel.getIsResolved() == -1) {
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(false);
             sobot_ll_ok_robot.setSelected(false);
             sobot_ll_no_robot.setSelected(true);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
-            sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
         }
         sobot_ratingBar.setEnabled(true);
     }
@@ -584,7 +719,7 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             message.getSobotEvaluateModel().setScore(score);
             message.getSobotEvaluateModel().setScoreFlag(ratingType);
             SatisfactionSetBase satisfactionSetBase = getSatisFaction(score, satisFactionList);
-            if(satisfactionSetBase!=null){
+            if (satisfactionSetBase != null) {
                 message.getSobotEvaluateModel().setScoreExplainLan(satisfactionSetBase.getScoreExplainLan());
                 message.getSobotEvaluateModel().setScoreExplain(satisfactionSetBase.getScoreExplain());
                 message.getSobotEvaluateModel().setTagsJson(getCheckedLable(score));
@@ -597,6 +732,11 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         }
     }
 
+    /**
+     * 获取"问题是否解决"的状态值
+     *
+     * @return 1-已解决，0-未解决，-1-未选择或未开启该功能
+     */
     private int getResovled() {
         if (sobotEvaluateModel == null) {
             return -1;
@@ -607,6 +747,13 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         return -1;
     }
 
+    /**
+     * 根据评分值从满意度配置列表中查找对应的配置项
+     *
+     * @param score            当前评分值
+     * @param satisFactionList 满意度配置列表
+     * @return 匹配的配置项，未找到则返回 null
+     */
     private SatisfactionSetBase getSatisFaction(int score, List<SatisfactionSetBase> satisFactionList) {
         if (satisFactionList == null) {
             return null;
@@ -664,7 +811,11 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         }
     }
 
-    //检测选中的标签
+    /**
+     * 获取所有已选中标签的名称，以逗号分隔
+     *
+     * @return 选中标签名称的拼接字符串，无选中时返回空字符串
+     */
     private String checkBoxIsChecked() {
         String str = new String();
         for (int i = 0; i < checkBoxList.size(); i++) {
@@ -677,7 +828,13 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         }
         return str + "";
     }
-    //检测选中的标签
+
+    /**
+     * 获取已选中标签的 JSON 数组字符串（包含 labelId、labelName、labelNameLan）
+     *
+     * @param sorce 当前评分值，用于查找对应的标签配置
+     * @return 选中标签的 JSON 数组字符串，无选中或异常时返回空字符串
+     */
     private String getCheckedLable(int sorce) {
         SatisfactionSetBase satisfactionSetBase = getSatisFaction(sorce, satisFactionList);
         if (satisfactionSetBase != null && satisfactionSetBase.getTags() != null) {
@@ -706,41 +863,29 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
         return "";
     }
 
+    /**
+     * 处理二级评价（满意/不满意）和已解决/未解决按钮的点击事件
+     *
+     * @param v 被点击的视图
+     */
     @Override
     public void onClick(View v) {
         sobot_add_content.clearFocus();
         if (v.getId() == R.id.sobot_btn_satisfied) {
             sobotEvaluateModel.setScore(5);
-            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
-            iv_satisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
-            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
 
-            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
-            iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 35);
-            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
-            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-            tv_satisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_common_hese));
-            tv_dissatisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
+            setCustomLayoutViewVisible(5, satisFactionList);
         } else if (v.getId() == R.id.sobot_btn_dissatisfied) {
-            iv_satisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 35);
-            iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);
-            iv_satisfied.setLayoutParams(iv_satisfied.getLayoutParams());
             iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
 
-            iv_dissatisfied.getLayoutParams().width= ScreenUtils.dip2px(mContext, 43);
-            iv_dissatisfied.getLayoutParams().height= ScreenUtils.dip2px(mContext, 43);
-            iv_dissatisfied.setLayoutParams(iv_dissatisfied.getLayoutParams());
             iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
-            tv_satisfied.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-            tv_dissatisfied.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            tv_satisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_second));
-            tv_dissatisfied.setTextColor(mContext.getResources().getColor(R.color.sobot_common_hese));
+
             sobotEvaluateModel.setScore(1);
+            setCustomLayoutViewVisible(1, satisFactionList);
         }
-        if (v.getId()  == R.id.sobot_ll_ok_robot) {
+        if (v.getId() == R.id.sobot_ll_ok_robot) {
             sobotEvaluateModel.setIsResolved(1);
             // 获取系统默认的加粗字体
             iv_solved.setSelected(true);
@@ -748,18 +893,23 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             sobot_ll_ok_robot.setSelected(true);
             sobot_ll_no_robot.setSelected(false);
 
-            sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
-            sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
-        } else if (v.getId()  == R.id.sobot_ll_no_robot) {
+        } else if (v.getId() == R.id.sobot_ll_no_robot) {
             sobotEvaluateModel.setIsResolved(0);
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
             sobot_ll_ok_robot.setSelected(false);
             sobot_ll_no_robot.setSelected(true);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
-            sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         }
     }
+
+    /**
+     * 根据用户选择的评分值，动态更新标签区域、输入框和评分描述的显示
+     * <p>
+     * 当用户切换评分时调用，重置所有标签选中状态，并加载新评分对应的标签列表和输入框配置。
+     *
+     * @param score            用户选择的评分值
+     * @param satisFactionList 满意度配置列表
+     */
     private void setCustomLayoutViewVisible(int score, List<SatisfactionSetBase> satisFactionList) {
         SatisfactionSetBase satisfactionSetBase = getSatisFaction(score, satisFactionList);
         for (int i = 0; i < checkBoxList.size(); i++) {

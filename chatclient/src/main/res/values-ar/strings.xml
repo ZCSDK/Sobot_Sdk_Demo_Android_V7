@@ -135,7 +135,7 @@
     <string name="sobot_delete">حذف</string>
     <string name="sobot_data_wrong_hint">خطأ في البيانات</string>
     <string name="sobot_cus_service">خدمة العملاء</string>
-    <string name="sobot_ctrl_v_success">تم النسخ بنجاح!</string>
+    <string name="sobot_ctrl_v_success">تم النسخ إلى الحافظة</string>
     <string name="sobot_ctrl_copy">نسخ</string>
     <string name="sobot_created_1">تم الإنشاء</string>
     <string name="sobot_count_down">عد تنازلي</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3"> البحث عن جميع المقاطعات ( المناطق )  </string>
     <string name="sobot_region_level4"> البحث عن جميع الشوارع</string>
     <string name="sobot_permission_use_info">تعليمات استخدام الإذن</string>
-    <string name="sobot_album_permission_yongtu">طلب الوصول إلى الصور ومقاطع الفيديو الخاصة بك واستخدامها. بعد الإذن، يمكنك إرسال الصور ومقاطع الفيديو عند استشارة خدمة العملاء وترك الرسائل.</string>
     <string name="sobot_please_open_album">طلب إذن لاستخدام الألبوم</string>
     <string name="sobot_use_album">للوصول إلى الصور ومقاطع الفيديو واستخدامها على هذا الجهاز</string>
-    <string name="sobot_camera_permission_yongtu">طلب الوصول إلى الصور ومقاطع الفيديو الخاصة بك واستخدامها. بعد الإذن، يمكنك إرسال الصور ومقاطع الفيديو عند استشارة خدمة العملاء وترك الرسائل.</string>
     <string name="sobot_please_open_camera">طلب الإذن لفتح الكاميرا</string>
     <string name="sobot_use_camera">تستخدم للحصول على أذونات الكاميرا</string>
-    <string name="sobot_microphone_permission_yongtu">طلب الإذن لاستخدام الميكروفون الخاص بك. بعد الحصول على إذن، يمكنك إرسال رسائل صوتية عند استشارة خدمة العملاء</string>
     <string name="sobot_please_open_microphone">اطلب الإذن لتشغيل الكاميرا والميكروفون</string>
     <string name="sobot_use_microphone">يستخدم للحصول على إذن لاستخدام الكاميرا والميكروفون</string>
     <string name="sobot_storage_permission_yongtu">طلب الوصول إلى الملف وأذونات الاستخدام. بعد الحصول على إذن، يمكنك إرسال الملفات عند استشارة خدمة العملاء وترك الرسائل.</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">لا يوجد رد</string>
     <string name="sobot_please_input">الرجاء إدخال...</string>
     <string name="sobot_ticket_update_file_hite">تحميل ما يصل إلى %s، الحجم لا يتجاوز %s</string>
-    <string name="sobot_ticket_update_file_max_hite">تم الوصول إلى الحد الأقصى 15</string>
+    <string name="sobot_ticket_update_file_max_hite">تم الوصول إلى الحد الأقصى %1$d</string>
     <string name="sobot_cus_level_all">الكل</string>
     <string name="sobot_please_choice">الرجاء الاختيار...</string>
     <string name="sobot_skill_no_service">لا يوجد وكيل متاح على الإنترنت. انقر لمغادرة الإرسال</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">لا يمكن تسجيل الصوت، انتقل إلى \"الإعدادات > التطبيقات > %s > الصلاحيات\" لفتح إذن الميكروفون</string>
     <string name="sobot_continue_shooting">متابعة التسجيل</string>
     <string name="sobot_audio_go_setting">الميكروفون غير مفعّل. يتعذّر تسجيل الصوت.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">يتم الآن طلب إذن لاستخدام الميكروفون. بعد السماح، يمكنك إرسال/تحميل الفيديو المسجل عند استشارة خدمة العملاء وترك رسالة.</string>
     <string name="sobot_agree_agreement">لقد قرأت %s ووافقت عليه</string>
     <string name="sobot_agree">موافقة</string>
     <string name="sobot_keep_queuing">اضغط على "متابعة الانتظار في الطابور"</string>
@@ -321,4 +317,9 @@
     <string name="sobot_reference_materials_quantity">الرجوع إلى $%d مصادر</string>
     <string name="sobot_start_chat">بدء الاستشارة</string>
     <string name="sobot_variable_title">املأ المعلومات</string>
+    <string name="sobot_ctrl_ticket_success">تم نسخ رقم تذكرة العمل</string>
+    <string name="sobot_album_permission_yongtu">يتم طلب إذن الصور لإرسال رسائل تحتوي على صور. التطبيق يعمل بشكل طبيعي عند الرفض.</string>
+    <string name="sobot_microphone_permission_yongtu">يتم طلب إذن الميكروفون لإرسال الرسائل الصوتية/المرئية. التطبيق يعمل بشكل طبيعي عند الرفض.</string>
+    <string name="sobot_camera_permission_yongtu">يتم طلب إذن الكاميرا لإرسال الصور ومقاطع الفيديو. التطبيق يعمل بشكل طبيعي عند الرفض.</string>
+
 </resources>

@@ -1,7 +1,6 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -25,6 +24,7 @@ import com.sobot.chat.api.model.SobotUserTicketEvaluate;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.widget.SobotAntoLineLayout;
 import com.sobot.chat.widget.SobotEditTextLayout;
@@ -36,58 +36,212 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 评价界面的显示
+ * 工单评价界面（半屏弹窗）
+ * <p>
+ * 该Activity用于对工单（Ticket）服务进行满意度评价，与会话评价（{@link SobotEvaluateActivity}）的区别：
+ * <ul>
+ *     <li>评价配置直接通过Intent传入{@link SobotUserTicketEvaluate}对象，不需要请求服务端接口</li>
+ *     <li>评价结果通过setResult返回给调用方（而非发送广播），由调用方处理提交逻辑</li>
+ *     <li>仅支持五星评价（scoreFlag=0）和十分制评价（scoreFlag=1），不支持二级评价</li>
+ *     <li>不支持"暂不评价"功能（按钮固定隐藏）</li>
+ *     <li>"问题是否已解决"的未选择状态值为2（而非-1）</li>
+ * </ul>
+ * <p>
+ * 需要通过Intent传入以下参数：
+ * <ul>
+ *     <li>sobotUserTicketEvaluate - 工单评价配置对象{@link SobotUserTicketEvaluate}，包含评分模式、标签、默认值等</li>
+ * </ul>
+ * <p>
+ * 评价完成后通过setResult返回以下数据：
+ * <ul>
+ *     <li>score - 评分值</li>
+ *     <li>content - 文字建议内容</li>
+ *     <li>labelTag - 选中标签的逗号分隔字符串</li>
+ *     <li>defaultQuestionFlag - 问题是否已解决（0=未解决，1=已解决，2=未选择）</li>
+ * </ul>
+ *
+ * @see SobotDialogBaseActivity 基类，提供半屏弹窗样式
+ * @see SobotEvaluateActivity 人工客服/机器人评价界面
+ * @see SobotAIEvaluateActivity 大模型机器人评价界面
  * Created by jinxl on 2017/6/12.
  */
-public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity implements  View.OnClickListener{
+public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity implements View.OnClickListener {
+
+    // ==================== UI控件 ====================
+
     private LinearLayout coustom_pop_layout;
-    private LinearLayout sobot_robot_relative;//评价 机器人布局
-    private LinearLayout sobot_custom_relative;//评价人工布局
-    private LinearLayout sobot_hide_layout;//评价机器人和人工未解决时显示出来的布局
-    private LinearLayout sobot_readiogroup,sobot_ll_ok_robot,sobot_ll_no_robot;//已解决、为解决
-    private TextView sobot_btn_ok_robot;//评价  已解决
-    private TextView sobot_btn_no_robot;//评价  未解决
-    private ImageView iv_solved,iv_no_solve;
-    private TextView sobot_btn_submit;//提交评价按钮
-    private View sobot_ratingBar_split_view;//如果有已解决按钮和未解决按钮就显示，否则隐藏；
+    /**
+     * 机器人评价区域布局（工单评价中不使用，固定隐藏）
+     */
+    private LinearLayout sobot_robot_relative;
+    /**
+     * 人工客服评价区域布局（工单评价中复用此布局显示评价内容）
+     */
+    private LinearLayout sobot_custom_relative;
+    /**
+     * 评价标签和建议输入的容器布局
+     */
+    private LinearLayout sobot_hide_layout;
+    /**
+     * 已解决/未解决的按钮组容器
+     */
+    private LinearLayout sobot_readiogroup;
+    /**
+     * "已解决"按钮
+     */
+    private LinearLayout sobot_ll_ok_robot;
+    /**
+     * "未解决"按钮
+     */
+    private LinearLayout sobot_ll_no_robot;
+    /**
+     * "已解决"图标
+     */
+    private ImageView iv_solved;
+    /**
+     * "未解决"图标
+     */
+    private ImageView iv_no_solve;
+    /**
+     * 提交评价按钮
+     */
+    private TextView sobot_btn_submit;
+    /**
+     * 已解决/未解决选项与下方内容之间的分隔线
+     */
+    private View sobot_ratingBar_split_view;
 
-    private EditText sobot_add_content;//评价  添加建议
-    private TextView sobot_tv_evaluate_title;//评价   当前是评价机器人还是评价人工客服
-    private TextView sobot_robot_center_title;//评价  机器人或人工是否解决了问题的标题
-    private TextView sobot_text_other_problem;//评价  机器人或人工客服存在哪些问题的标题
-    private TextView sobot_ratingBar_title;//评价  对人工客服打分不同显示不同的内容
-    private TextView sobot_evaluate_cancel;//评价  暂不评价
-    private TextView sobot_tv_evaluate_title_hint;//评价  提交后结束评价
-    private SobotFiveStarsLayout sobot_ratingBar;//评价  打分
-    private LinearLayout sobot_ten_root_ll;//评价  十分全布局
-    private SobotTenRatingLayout sobot_ten_rating_ll;//评价  十分 父布局 动态添加10个textview
-    private int ratingType;//评价  类型   0 5星 ；1 十分 默认5星
+    /**
+     * 文字建议输入框
+     */
+    private EditText sobot_add_content;
+    /**
+     * 评价标题（如"服务评价"）
+     */
+    private TextView sobot_tv_evaluate_title;
+    /**
+     * "是否解决了您的问题？"标题
+     */
+    private TextView sobot_robot_center_title;
+    /**
+     * 评价标签区域的提示标题（如"请选择您遇到的问题"）
+     */
+    private TextView sobot_text_other_problem;
+    /**
+     * 评分说明文字（如"非常满意"、"一般"等，随评分变化）
+     */
+    private TextView sobot_ratingBar_title;
+    /**
+     * "暂不评价"按钮（工单评价中固定隐藏）
+     */
+    private TextView sobot_evaluate_cancel;
+    /**
+     * 评价提示文案（工单评价中不使用）
+     */
+    private TextView sobot_tv_evaluate_title_hint;
+    /**
+     * 五星评分控件
+     */
+    private SobotFiveStarsLayout sobot_ratingBar;
+    /**
+     * 十分制评分的根布局
+     */
+    private LinearLayout sobot_ten_root_ll;
+    /**
+     * 十分制评分控件，动态添加0-10共11个评分项
+     */
+    private SobotTenRatingLayout sobot_ten_rating_ll;
+    /**
+     * 评分类型：
+     * <ul>
+     *     <li>0 - 五星评价</li>
+     *     <li>1 - 十分制评价</li>
+     * </ul>
+     * 注意：工单评价不支持二级评价（满意/不满意）模式
+     */
+    private int ratingType;
 
-    private SobotAntoLineLayout sobot_evaluate_lable_autoline;//评价 标签 自动换行 最多可以有六个
-    private SobotEditTextLayout setl_submit_content;//评价框
+    /**
+     * 评价标签的自动换行布局容器
+     */
+    private SobotAntoLineLayout sobot_evaluate_lable_autoline;
+    /**
+     * 文字建议输入框的外层容器（带样式），控制整体显示/隐藏
+     */
+    private SobotEditTextLayout setl_submit_content;
+
+    // ==================== 数据字段 ====================
+
+    /**
+     * 当前评分值，五星制取值1-5，十分制取值0-10
+     */
     private int score;
 
+    /**
+     * 主题色，用于按钮的主题色渲染
+     */
     private int themeColor;
+    /**
+     * 是否已自定义主题色（非默认色），决定是否对按钮应用主题色
+     */
     private boolean changeThemeColor;
 
-    private int isSolve = 2;//是否解决问题 1:已解决，0：未解决，2：都不选
+    /**
+     * 问题是否已解决：1=已解决，0=未解决，2=未选择
+     * <p>
+     * 注意：与{@link SobotEvaluateActivity}和{@link SobotAIEvaluateActivity}不同，
+     * 工单评价的未选择状态值为2（而非-1）
+     */
+    private int isSolve = 2;
 
+    /**
+     * 所有评价标签CheckBox的集合，用于遍历获取选中状态
+     */
     private List<CheckBox> checkBoxList = new ArrayList<>();
+    /**
+     * 工单评价配置数据，通过Intent传入
+     */
     private SobotUserTicketEvaluate mEvaluate;
+    /**
+     * 当前选中评分对应的配置，随评分变化动态更新
+     */
     private SobotOrderScoreModel satisfactionSetBase;
+    /**
+     * 输入框获得焦点时的背景Drawable
+     */
     private Drawable bgDrawable;
 
 
+    /**
+     * 返回评价界面的布局资源ID，复用与普通评价相同的布局
+     */
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_layout_evaluate;
     }
 
+    /**
+     * 设置网络请求的取消标识
+     */
     @Override
     protected void setRequestTag() {
         REQUEST_TAG = "SobotTicketEvaluateActivity";
     }
 
+    /**
+     * 初始化视图：解析Intent参数、绑定控件、设置初始状态
+     * <p>
+     * 与会话评价不同，工单评价的配置数据直接通过Intent传入{@link SobotUserTicketEvaluate}对象，
+     * 不需要异步请求服务端接口。初始化流程：
+     * 1. 从Intent获取工单评价配置对象
+     * 2. 绑定所有控件
+     * 3. 根据配置的scoreFlag确定评分模式（五星/十分）
+     * 4. 根据defaultType和defaultQuestionFlag设置默认评分和"问题是否解决"状态
+     * 5. 等宽对齐"已解决/未解决"按钮
+     * 6. 根据isQuestionFlag决定是否显示"问题是否解决"选项
+     * 7. 设置自定义评价提示语和提交按钮文案
+     * 8. 调用{@link #setViewListener()}注册评分和提交的监听器
+     */
     @Override
     protected void initView() {
         super.initView();
@@ -120,12 +274,8 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         sobot_ll_no_robot = findViewById(R.id.sobot_ll_no_robot);
         sobot_ll_ok_robot.setOnClickListener(this);
         sobot_ll_no_robot.setOnClickListener(this);
-        sobot_btn_ok_robot = findViewById(R.id.sobot_btn_ok_robot);
-        sobot_btn_no_robot = findViewById(R.id.sobot_btn_no_robot);
         iv_solved = findViewById(R.id.iv_solved);
         iv_no_solve = findViewById(R.id.iv_no_solve);
-        sobot_btn_ok_robot.setText(getSafeStringResource(R.string.sobot_evaluate_yes));
-        sobot_btn_no_robot.setText(getSafeStringResource(R.string.sobot_evaluate_no));
         sobot_robot_relative = (LinearLayout) findViewById(R.id.sobot_robot_relative);
         sobot_custom_relative = (LinearLayout) findViewById(R.id.sobot_custom_relative);
         sobot_hide_layout = (LinearLayout) findViewById(R.id.sobot_hide_layout);
@@ -135,7 +285,7 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = sobot_btn_submit.getBackground();
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
         }
         if (ScreenUtils.isFullScreen(this)) {
@@ -187,17 +337,12 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
                 iv_no_solve.setSelected(false);
                 sobot_ll_ok_robot.setSelected(true);
                 sobot_ll_no_robot.setSelected(false);
-                // 获取系统默认的加粗字体
-                sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
-                sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
             } else if (mEvaluate.getDefaultQuestionFlag() == 0) {
                 //(0)-未解决
                 iv_solved.setSelected(false);
                 iv_no_solve.setSelected(true);
                 sobot_ll_ok_robot.setSelected(false);
                 sobot_ll_no_robot.setSelected(true);
-                sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
-                sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
             }
 //判断已解决 未解决长度是否相等
             new Handler().post(new Runnable() {
@@ -262,14 +407,14 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             if (mEvaluate.getIsDefaultButton() == 0 && !TextUtils.isEmpty(mEvaluate.getButtonDesc())) {
                 sobot_btn_submit.setText(mEvaluate.getButtonDesc());
             }
-            bgDrawable = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_line_4,null);
+            bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_line_4, null);
             sobot_add_content.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
                         sobot_add_content.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, themeColor));
                     } else {
-                        sobot_add_content.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_dialog_input,null));
+                        sobot_add_content.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_dialog_input, null));
                     }
                 }
             });
@@ -277,11 +422,23 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
     }
 
+    /**
+     * 初始化数据（工单评价不需要异步加载数据，所有配置已在initView中处理）
+     */
     @Override
     protected void initData() {
 
     }
 
+    /**
+     * 设置评分控件和操作按钮的监听器
+     * <p>
+     * 包括：
+     * - 根据information配置决定是否显示评分说明文字
+     * - 五星评分控件的点击监听：选择星级后更新标签和提交按钮状态
+     * - 十分制评分控件的点击监听：选择分值后更新标签和提交按钮状态
+     * - 提交按钮：校验通过后通过setResult返回评价数据给调用方
+     */
     private void setViewListener() {
         Information information = (Information) SharedPreferencesUtil.getObject(getContext(), "sobot_last_current_info");
         //根据infomation 配置是否隐藏星星评价描述
@@ -344,11 +501,18 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
 
     }
 
+    /**
+     * 更新提交按钮的UI状态（可点击/不可点击）
+     * <p>
+     * 与会话评价的区别：仅在自定义主题色（changeThemeColor=true）时应用主题色背景。
+     *
+     * @param isCanClick true=按钮可点击（正常状态），false=按钮不可点击（置灰状态）
+     */
     private void changeCommitButtonUi(boolean isCanClick) {
         if (changeThemeColor) {
             Drawable bg = sobot_btn_submit.getBackground();
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
         }
         sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
@@ -363,7 +527,16 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
     }
 
-    //设置人工客服评价的布局显示逻辑
+    /**
+     * 根据当前评分，更新评价标签、输入框、评分说明等UI元素的显示状态
+     * <p>
+     * 根据选中的评分值从配置列表中查找对应的配置项{@link SobotOrderScoreModel}，
+     * 然后依据该配置项更新评分说明、输入框提示、标签列表等。
+     * 与会话评价相比逻辑更简洁，不需要处理information配置的标签隐藏。
+     *
+     * @param score            当前评分值
+     * @param satisFactionList 所有评分配置列表
+     */
     private void setCustomLayoutViewVisible(int score, List<SobotOrderScoreModel> satisFactionList) {
         satisfactionSetBase = getSatisFaction(score, satisFactionList);
         for (int i = 0; i < checkBoxList.size(); i++) {
@@ -398,9 +571,20 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
             if (score == 5) {
                 sobot_ratingBar_title.setText(satisfactionSetBase.getScoreExplain());
             }
+            //是否自定义已解决标题
+            if (satisfactionSetBase.getIsDefaultQuestion() == 0 && StringUtils.isNoEmpty(satisfactionSetBase.getQuestionCopywriting())) {
+                sobot_robot_center_title.setText(satisfactionSetBase.getQuestionCopywriting());
+            }
         }
     }
 
+    /**
+     * 根据评分值从配置列表中查找对应的评价配置
+     *
+     * @param score            当前评分值
+     * @param satisFactionList 评价配置列表
+     * @return 匹配的配置项，未找到返回null
+     */
     private SobotOrderScoreModel getSatisFaction(int score, List<SobotOrderScoreModel> satisFactionList) {
         if (satisFactionList == null) {
             return null;
@@ -413,7 +597,14 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         return null;
     }
 
-    //设置评价标签的显示逻辑
+    /**
+     * 设置评价标签区域的显示逻辑
+     * <p>
+     * 与会话评价相比更简洁：标签数据为null时隐藏，否则直接显示，
+     * 不需要根据information配置判断隐藏。
+     *
+     * @param tmpData 标签名称数组，null表示无标签（隐藏标签区域）
+     */
     private void setLableViewVisible(String tmpData[]) {
         if (tmpData == null) {
             sobot_hide_layout.setVisibility(View.GONE);
@@ -435,7 +626,13 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         checkLable(tmpData);
     }
 
-    //检查标签是否选中（根据主动邀评传过来的选中标签判断）
+    /**
+     * 回显工单评价中已有的标签选中状态
+     * <p>
+     * 根据工单评价配置中的tag字段（已选标签），回显对应标签的选中状态。
+     *
+     * @param tmpData 当前显示的标签名称数组
+     */
     private void checkLable(String tmpData[]) {
         if (tmpData != null && tmpData.length > 0 && sobot_evaluate_lable_autoline != null) {
             for (int i = 0; i < tmpData.length; i++) {
@@ -451,11 +648,22 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
     }
 
+    /**
+     * 校验评价表单是否满足提交条件
+     * <p>
+     * 校验规则：
+     * 1. 如果"问题是否解决"为必填（isQuestionFlag=1且isQuestionMust=1），检查isSolve是否不为2
+     * 2. 评分是否已选择（不允许未选择-1）
+     * 3. 如果标签为必填（isTagMust=true），检查是否已选择标签
+     * 4. 如果建议输入为必填（isInputMust=1），检查是否已填写
+     *
+     * @return true=校验通过可提交，false=校验不通过（已Toast提示用户）
+     */
     private boolean checkInput() {
         //如果开启了是否解决问题
         if (mEvaluate != null && mEvaluate.getIsQuestionFlag() == 1 && mEvaluate.getIsQuestionMust() == 1) {
             //“问题是否解决”是否为必填选项： 0-非必填 1-必填
-            if (isSolve==2) {
+            if (isSolve == 2) {
                 ToastUtil.showToast(this, getString(R.string.sobot_str_please_check_is_solve));//标签必选
                 return false;
             }
@@ -490,7 +698,11 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         return true;
     }
 
-    //检测选中的标签
+    /**
+     * 获取所有选中标签的名称，以逗号分隔
+     *
+     * @return 选中标签名称的逗号分隔字符串，无选中时返回空字符串
+     */
     private String checkBoxIsChecked() {
         String str = "";
         for (int i = 0; i < checkBoxList.size(); i++) {
@@ -504,6 +716,12 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         return str + "";
     }
 
+    /**
+     * 在自动换行布局中动态创建评价标签CheckBox
+     *
+     * @param antoLineLayout 自动换行布局容器
+     * @param tmpData        标签名称数组
+     */
     private void createChildLableView(SobotAntoLineLayout antoLineLayout, String tmpData[]) {
         if (antoLineLayout != null) {
             antoLineLayout.removeAllViews();
@@ -521,26 +739,29 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
         }
     }
 
+    /**
+     * 统一点击事件处理
+     * <p>
+     * 仅处理"已解决/未解决"按钮的点击：
+     * - 已解决按钮：设置isSolve=1，更新选中状态
+     * - 未解决按钮：设置isSolve=0，更新选中状态
+     */
     @Override
     public void onClick(View v) {
         sobot_add_content.clearFocus();
-        if (v.getId()  == R.id.sobot_ll_ok_robot) {
+        if (v.getId() == R.id.sobot_ll_ok_robot) {
             isSolve = 1;
             // 获取系统默认的加粗字体
             iv_solved.setSelected(true);
             iv_no_solve.setSelected(false);
             sobot_ll_ok_robot.setSelected(true);
             sobot_ll_no_robot.setSelected(false);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.BOLD);
-            sobot_btn_no_robot.setTypeface(null, Typeface.NORMAL);
-        } else if (v.getId()  == R.id.sobot_ll_no_robot) {
+        } else if (v.getId() == R.id.sobot_ll_no_robot) {
             isSolve = 0;
             iv_solved.setSelected(false);
             iv_no_solve.setSelected(true);
             sobot_ll_ok_robot.setSelected(false);
             sobot_ll_no_robot.setSelected(true);
-            sobot_btn_ok_robot.setTypeface(null, Typeface.NORMAL);
-            sobot_btn_no_robot.setTypeface(null, Typeface.BOLD);
         }
     }
 }

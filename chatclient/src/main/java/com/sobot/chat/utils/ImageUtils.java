@@ -13,7 +13,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
@@ -24,7 +23,6 @@ import android.text.TextUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -32,26 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
 
 public class ImageUtils {
-
-    public static int computeSampleSize(BitmapFactory.Options options,
-                                        int minSideLength, int maxNumOfPixels) {
-        int initialSize = computeInitialSampleSize(options, minSideLength, maxNumOfPixels);
-
-        int roundedSize;
-        if (initialSize <= 8) {
-            roundedSize = 1;
-            while (roundedSize < initialSize) {
-                roundedSize <<= 1;
-            }
-        } else {
-            roundedSize = (initialSize + 7) / 8 * 8;
-        }
-
-        return roundedSize;
-    }
 
     public static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength, int maxNumOfPixels) {
         double w = options.outWidth;
@@ -64,7 +44,6 @@ public class ImageUtils {
                         Math.floor(h / minSideLength));
 
         if (upperBound < lowerBound) {
-            // return the larger one when there is no overlapping zone.
             return lowerBound;
         }
 
@@ -95,7 +74,7 @@ public class ImageUtils {
                     break;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return degree;
     }
@@ -106,14 +85,12 @@ public class ImageUtils {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
-        // Setting post rotate to 90
         Matrix mtx = new Matrix();
 
         if (rotate != 0) {
             mtx.postRotate(rotate, (float) bitmap.getWidth() / 2,
                     (float) bitmap.getHeight() / 2);
         }
-        // mtx.postRotate(rotate);
         return Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, true);
     }
 
@@ -142,7 +119,12 @@ public class ImageUtils {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    //使用应用专属外部存储目录，兼容 Android 10+
+                    File externalFilesDir = context.getExternalFilesDir(null);
+                    if (externalFilesDir != null) {
+                        return externalFilesDir.getPath() + "/" + split[1];
+                    }
+                    return null;
                 }
             }
             // DownloadsProvider
@@ -185,7 +167,6 @@ public class ImageUtils {
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
             if (isNewGooglePhotosUri(uri)) {
                 if (uri != null && !TextUtils.isEmpty(uri.getPath()) && uri.getPath().contains("video")) {
-                    //如果是谷歌图库里的视频，需要复制出来，在上传
                     BufferedOutputStream outStream = null;
                     BufferedInputStream reader = null;
                     InputStream inputStream = null;
@@ -199,7 +180,6 @@ public class ImageUtils {
                         String videoFileName = "v_" + System.currentTimeMillis() + ".mp4";
                         String videoPath = picDir + videoFileName;
                         LogUtils.i(videoPath);
-                        //创建要保存到
                         outStream = new BufferedOutputStream(new FileOutputStream(videoPath));
                         byte[] buf = new byte[2048];
                         int len;
@@ -208,28 +188,28 @@ public class ImageUtils {
                         }
                         return videoPath;
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                     } finally {
                         try {
                             if (inputStream != null) {
-                                inputStream.close(); // 关闭输出流
+                                inputStream.close();
                             }
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogUtils.e("uncaught", e);
                         }
                         try {
                             if (reader != null) {
                                 reader.close();
                             }
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogUtils.e("uncaught", e);
                         }
                         try {
                             if (outStream != null) {
                                 outStream.close();
                             }
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LogUtils.e("uncaught", e);
                         }
 
                     }
@@ -240,7 +220,6 @@ public class ImageUtils {
                 }
                 return getDataColumn(context, imageUrlWithAuthority, null, null);
             }
-            // Return the remote address
             if (isGooglePhotosUri(uri))
                 return uri.getLastPathSegment();
 
@@ -249,25 +228,26 @@ public class ImageUtils {
                 tmpDataPath = getDataColumn(context, uri, null, null);
             } catch (Exception e) {
                 tmpDataPath = uri.getPath();
+                // 使用应用专属外部存储目录，兼容 Android 10+
                 if (!TextUtils.isEmpty(tmpDataPath)) {
                     try {
-                        String rootpath = Environment.getExternalStorageDirectory().getPath();
-                        if (rootpath.length() < tmpDataPath.length()) {
-                            int indexOf = tmpDataPath.indexOf(rootpath);
-                            if (indexOf != -1) {
-                                tmpDataPath = tmpDataPath.substring(indexOf);
+                        File externalFilesDir = context.getExternalFilesDir(null);
+                        if (externalFilesDir != null) {
+                            String rootpath = externalFilesDir.getPath();
+                            if (rootpath.length() < tmpDataPath.length()) {
+                                int indexOf = tmpDataPath.indexOf(rootpath);
+                                if (indexOf != -1) {
+                                    tmpDataPath = tmpDataPath.substring(indexOf);
+                                }
                             }
                         }
                     } catch (Exception exce) {
-                        exce.printStackTrace();
+                        LogUtils.e("uncaught", exce);
                     }
-
                 }
             }
             return tmpDataPath;
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
 
@@ -276,8 +256,9 @@ public class ImageUtils {
 
     /**
      * 异步获取文件路径的方法
-     * @param context 上下文
-     * @param uri URI对象
+     *
+     * @param context  上下文
+     * @param uri      URI对象
      * @param callback 回调接口，用于返回结果
      */
     public static void getPathAsync(final Context context, final Uri uri, final OnPathCallback callback) {
@@ -301,8 +282,14 @@ public class ImageUtils {
                         final String[] split = docId.split(":");
                         final String type = split[0];
 
-                        result = "primary".equalsIgnoreCase(type) ?
-                                Environment.getExternalStorageDirectory() + "/" + split[1] : null;
+                        //使用应用专属外部存储目录，兼容 Android 10+
+                        if ("primary".equalsIgnoreCase(type)) {
+                            File externalFilesDir = context.getExternalFilesDir(null);
+                            result = externalFilesDir != null ?
+                                    externalFilesDir.getPath() + "/" + split[1] : null;
+                        } else {
+                            result = null;
+                        }
                     }
                     // DownloadsProvider
                     else if (isDownloadsDocument(uri)) {
@@ -351,7 +338,6 @@ public class ImageUtils {
                 else if ("content".equalsIgnoreCase(uri.getScheme())) {
                     if (isNewGooglePhotosUri(uri)) {
                         if (uri != null && !TextUtils.isEmpty(uri.getPath()) && uri.getPath().contains("video")) {
-                            // 如果是谷歌图库里的视频，需要复制出来再上传
                             BufferedOutputStream outStream = null;
                             BufferedInputStream reader = null;
                             InputStream inputStream = null;
@@ -366,7 +352,6 @@ public class ImageUtils {
                                 String videoFileName = "v_" + System.currentTimeMillis() + ".mp4";
                                 String videoPath = picDir + videoFileName;
                                 LogUtils.i(videoPath);
-                                // 创建要保存到的文件
                                 outStream = new BufferedOutputStream(new FileOutputStream(videoPath));
                                 byte[] buf = new byte[2048];
                                 int len;
@@ -375,7 +360,7 @@ public class ImageUtils {
                                 }
                                 result = videoPath;
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                LogUtils.e("uncaught", e);
                                 result = null;
                             } finally {
                                 try {
@@ -383,21 +368,21 @@ public class ImageUtils {
                                         inputStream.close();
                                     }
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                                 try {
                                     if (reader != null) {
                                         reader.close();
                                     }
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                                 try {
                                     if (outStream != null) {
                                         outStream.close();
                                     }
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                             }
                         } else {
@@ -406,7 +391,6 @@ public class ImageUtils {
                                     getDataColumn(context, imageUrlWithAuthority, null, null) : "";
                         }
                     } else if (isGooglePhotosUri(uri)) {
-                        // Return the remote address
                         result = uri.getLastPathSegment();
                     } else {
                         String tmpDataPath;
@@ -414,32 +398,33 @@ public class ImageUtils {
                             tmpDataPath = getDataColumn(context, uri, null, null);
                         } catch (Exception e) {
                             tmpDataPath = uri.getPath();
+                            //使用应用专属外部存储目录，兼容 Android 10+
                             if (!TextUtils.isEmpty(tmpDataPath)) {
                                 try {
-                                    String rootpath = Environment.getExternalStorageDirectory().getPath();
-                                    if (rootpath.length() < tmpDataPath.length()) {
-                                        int indexOf = tmpDataPath.indexOf(rootpath);
-                                        if (indexOf != -1) {
-                                            tmpDataPath = tmpDataPath.substring(indexOf);
+                                    File externalFilesDir = context.getExternalFilesDir(null);
+                                    if (externalFilesDir != null) {
+                                        String rootpath = externalFilesDir.getPath();
+                                        if (rootpath.length() < tmpDataPath.length()) {
+                                            int indexOf = tmpDataPath.indexOf(rootpath);
+                                            if (indexOf != -1) {
+                                                tmpDataPath = tmpDataPath.substring(indexOf);
+                                            }
                                         }
                                     }
                                 } catch (Exception exce) {
-                                    exce.printStackTrace();
+                                    LogUtils.e("uncaught", exce);
                                 }
                             }
                         }
                         result = tmpDataPath;
                     }
-                }
-                // File
-                else if ("file".equalsIgnoreCase(uri.getScheme())) {
+                } else if ("file".equalsIgnoreCase(uri.getScheme())) {
                     result = uri.getPath();
                 } else {
                     result = null;
                 }
             }
 
-            // 将结果发送回主线程
             if (callback != null) {
                 Handler mainHandler = new Handler(Looper.getMainLooper());
                 String finalResult = result;
@@ -450,8 +435,9 @@ public class ImageUtils {
 
     /**
      * 通过URI获取文件大小
+     *
      * @param context 上下文
-     * @param uri 文件URI
+     * @param uri     文件URI
      * @return 文件大小（字节数），如果无法获取则返回-1
      */
     public static long getFileSizeFromUri(Context context, Uri uri) {
@@ -463,7 +449,6 @@ public class ImageUtils {
         Cursor cursor = null;
 
         try {
-            // 尝试从OpenableColumns获取文件大小（适用于内容URI）
             cursor = contentResolver.query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
@@ -472,25 +457,21 @@ public class ImageUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
 
-        // 如果通过OpenableColumns无法获取，则尝试其他方式
         String scheme = uri.getScheme();
         if (ContentResolver.SCHEME_FILE.equals(scheme)) {
-            // 文件URI，直接获取文件大小
             File file = new File(uri.getPath());
             return file.exists() ? file.length() : -1;
         } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
-            // 内容URI，如果是MediaStore相关，则尝试特殊处理
             String authority = uri.getAuthority();
             if (authority != null) {
                 if (authority.startsWith("com.android.providers.media")) {
-                    // 对于媒体存储，尝试直接查询
                     try {
                         cursor = contentResolver.query(uri, new String[]{MediaStore.MediaColumns.SIZE}, null, null, null);
                         if (cursor != null && cursor.moveToFirst()) {
@@ -500,7 +481,7 @@ public class ImageUtils {
                             }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                     } finally {
                         if (cursor != null) {
                             cursor.close();
@@ -509,28 +490,26 @@ public class ImageUtils {
                 }
             }
 
-            // 如果还是无法获取，可以通过InputStream获取文件大小（仅作为最后手段）
-            // 注意：某些类型的URI可能会导致实际读取整个文件，因此谨慎使用
             try {
                 ParcelFileDescriptor pfd = contentResolver.openFileDescriptor(uri, "r");
                 if (pfd != null) {
                     FileDescriptor fd = pfd.getFileDescriptor();
-                    long size = new File(fd.toString()).length(); // 此方法不一定准确
+                    long size = new File(fd.toString()).length();
                     pfd.close();
                     return size;
                 }
             } catch (Exception e) {
-                // 忽略异常
             }
         }
 
-        return -1; // 无法获取文件大小
+        return -1;
     }
 
     /**
      * 异步获取文件大小
-     * @param context 上下文
-     * @param uri 文件URI
+     *
+     * @param context  上下文
+     * @param uri      文件URI
      * @param callback 回调接口，用于返回结果
      */
     public static void getFileSizeFromUriAsync(Context context, Uri uri, OnFileSizeCallback callback) {
@@ -564,34 +543,18 @@ public class ImageUtils {
         return null;
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
     public static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
     public static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
@@ -608,45 +571,61 @@ public class ImageUtils {
                 Bitmap bmp = BitmapFactory.decodeStream(is);
                 return writeToTempImageAndGetPathUri(context, bmp);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             } finally {
                 try {
                     if (is != null) {
                         is.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
         }
         return null;
     }
 
+    // CWE-1108: MediaStore.Images.Media.insertImage 在 API 29+ 已废弃，OEM 上行为不稳定。
+    // 改用 ContentValues + openOutputStream + IS_PENDING（Q+）/ 旧 ContentResolver.insert（pre-Q）。
     public static Uri writeToTempImageAndGetPathUri(Context inContext, Bitmap inImage) {
-        if (inContext.getContentResolver() != null && inImage != null) {
-            ByteArrayOutputStream bytes = null;
+        if (inContext == null || inContext.getContentResolver() == null || inImage == null) {
+            return null;
+        }
+        String fileName = "IMG_" + System.currentTimeMillis() + ".jpg";
+        android.content.ContentValues values = new android.content.ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                    android.os.Environment.DIRECTORY_PICTURES + "/Sobot");
+            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+        }
+        Uri uri = inContext.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if (uri == null) {
+            return null;
+        }
+        java.io.OutputStream out = null;
+        try {
+            out = inContext.getContentResolver().openOutputStream(uri);
+            if (out != null) {
+                inImage.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                values.clear();
+                values.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                inContext.getContentResolver().update(uri, values, null, null);
+            }
+            return uri;
+        } catch (Exception e) {
+            LogUtils.e("writeToTempImage failed", e);
+            return null;
+        } finally {
             try {
-                bytes = new ByteArrayOutputStream();
-                inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-                String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG" + Calendar.getInstance().getTime(), null);
-                if (path != null) {
-                    return Uri.parse(path);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (bytes != null) {
-                        bytes.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                if (out != null) out.close();
+            } catch (Exception ignore) {
             }
         }
-        return null;
     }
-
 
     public static Bitmap getBitmapFromUri(Context context, Uri uri) {
         try {
@@ -657,7 +636,7 @@ public class ImageUtils {
             parcelFileDescriptor.close();
             return image;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return null;
     }
@@ -671,7 +650,6 @@ public class ImageUtils {
             Uri baseUri = Uri.parse("content://media/external/images/media");
             return Uri.withAppendedPath(baseUri, "" + id);
         } else {
-            // 如果图片不在手机的共享图片数据库，就先把它插入。
             if (new File(path).exists()) {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DATA, path);
@@ -713,12 +691,6 @@ public class ImageUtils {
         return null;
     }
 
-    /**
-     * 解决手机上获取图片路径为null的情况
-     *
-     * @param intent
-     * @return
-     */
     public static Uri getUri(android.content.Intent intent, Context context) {
         Uri uri = intent.getData();
         String type = intent.getType();
@@ -736,11 +708,9 @@ public class ImageUtils {
                 int index = 0;
                 for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
                     index = cur.getColumnIndex(MediaStore.Images.ImageColumns._ID);
-                    // set _id value
                     index = cur.getInt(index);
                 }
                 if (index == 0) {
-                    // do nothing
                 } else {
                     Uri uri_temp = Uri.parse("content://media/external/images/media/" + index);
                     if (uri_temp != null) {
@@ -761,12 +731,10 @@ public class ImageUtils {
      */
     private static String uriToFileApiQ(Context context, Uri uri) {
         File file = null;
-        //android10以上转换
         if (uri.getScheme().equals(ContentResolver.SCHEME_FILE)) {
             file = new File(uri.getPath());
         } else if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
             try {
-                //把文件复制到沙盒目录
                 ContentResolver contentResolver = context.getContentResolver();
                 Cursor cursor = contentResolver.query(uri, null, null, null, null);
                 if (cursor.moveToFirst()) {
@@ -774,20 +742,26 @@ public class ImageUtils {
                     if (cIndex > -1) {
                         String displayName = cursor.getString(cIndex);
                         if (!TextUtils.isEmpty(displayName)) {
-                            String[] temp = displayName.split("/");
-                            if (temp.length > 0) {
-                                displayName = temp[temp.length - 1];
+                            // 安全：displayName 来自外部 ContentProvider，强制取 basename，
+                            // 防御 "/"、"\\"、".." 等路径分隔符注入（CWE-22）。空/".." 兜底为 UUID。
+                            displayName = new File(displayName).getName();
+                            if (TextUtils.isEmpty(displayName) || "..".equals(displayName) || ".".equals(displayName)) {
+                                displayName = java.util.UUID.randomUUID().toString();
                             }
                             InputStream is = null;
                             FileOutputStream fos = null;
                             try {
                                 is = contentResolver.openInputStream(uri);
-                                File cache = new File(context.getExternalCacheDir().getAbsolutePath(), System.currentTimeMillis() + displayName);
-                                fos = new FileOutputStream(cache);
-                                IOUtils.copyFileWithStream(fos, is);
-                                file = cache;
+                                // 添加空指针保护
+                                File externalCacheDir = context.getExternalCacheDir();
+                                if (externalCacheDir != null) {
+                                    File cache = new File(externalCacheDir.getAbsolutePath(), System.currentTimeMillis() + displayName);
+                                    fos = new FileOutputStream(cache);
+                                    IOUtils.copyFileWithStream(fos, is);
+                                    file = cache;
+                                }
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                LogUtils.e("uncaught", e);
                             } finally {
                                 try {
                                     if (cursor != null) {
@@ -797,21 +771,21 @@ public class ImageUtils {
                                         fos.close();
                                     }
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                                 try {
                                     if (is != null) {
                                         is.close();
                                     }
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                             }
                         }
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         if (file == null) {
@@ -834,7 +808,6 @@ public class ImageUtils {
         }).start();
     }
 
-    // 添加回调接口
     public interface OnUriToFileCallback {
         void onResult(String filePath);
     }

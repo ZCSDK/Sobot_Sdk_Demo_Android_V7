@@ -6,14 +6,15 @@
     android:background="@drawable/sobot_bg_loading_dialog"
     android:gravity="center"
     android:orientation="vertical">
+
     <com.sobot.chat.widget.LoadingView.SobotLoadingView
         android:id="@+id/progress_loading"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center"
-        app:backgroundColor="#33FFFFFF"
-        app:progressColor="@color/sobot_color"
-        app:strokeWidth="2dp" />
+        app:sobot_background_color="#33FFFFFF"
+        app:sobot_progress_color="@color/sobot_color"
+        app:sobot_strokeWidth="2dp" />
 
     <TextView
         android:id="@+id/tv_loading"

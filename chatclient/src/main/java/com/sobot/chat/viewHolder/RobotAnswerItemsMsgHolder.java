@@ -98,6 +98,7 @@ public class RobotAnswerItemsMsgHolder extends MsgHolderBase implements View.OnC
 
     /**
      * 判断数据是否为历史记录
+     *
      * @param message
      * @return
      */

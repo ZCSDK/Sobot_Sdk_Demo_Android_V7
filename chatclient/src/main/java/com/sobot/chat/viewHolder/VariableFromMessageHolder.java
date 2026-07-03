@@ -14,7 +14,6 @@ import com.sobot.chat.api.apiUtils.SobotApp;
 import com.sobot.chat.api.model.SobotOptionModel;
 import com.sobot.chat.api.model.SobotVariableModel;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
-import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
@@ -45,9 +44,9 @@ public class VariableFromMessageHolder extends MsgHolderBase implements View.OnT
         if (changeThemeColor) {
             sobot_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
             Drawable drawable =
-                    ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_btn_bg_28, null);
+                    ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_theme_color_28dp, null);
             if (drawable != null) {
-                sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mContext)));
+                sobot_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(drawable, ThemeUtils.getThemeColor(mContext)));
             }
         }
     }
@@ -99,13 +98,13 @@ public class VariableFromMessageHolder extends MsgHolderBase implements View.OnT
                         }
                         List<SobotOptionModel> list1;
                         Map<String, List<SobotOptionModel>> map = variableModel.getEnumListMap();
-                        if(null!=map) {
+                        if (null != map) {
                             if (map.containsKey(lan) && null != map.get(lan)) {
-                                list1=map.get(lan);
+                                list1 = map.get(lan);
                             } else {
                                 // 获取第一个key对应的list
                                 String firstKey = variableModel.getEnumListMap().keySet().iterator().next();
-                                list1=variableModel.getEnumListMap().get(firstKey);
+                                list1 = variableModel.getEnumListMap().get(firstKey);
                             }
                         } else {
                             list1 = new ArrayList<>();
@@ -126,22 +125,22 @@ public class VariableFromMessageHolder extends MsgHolderBase implements View.OnT
                             }
                         });
                     }
-                    if(StringUtils.isNoEmpty(list.get(i).getVariableValue())){
+                    if (StringUtils.isNoEmpty(list.get(i).getVariableValue())) {
                         inputView.setInputValue(list.get(i).getVariableValue());
                     }
-                    if(StringUtils.isNoEmpty(list.get(i).getErrorMsg())){
+                    if (StringUtils.isNoEmpty(list.get(i).getErrorMsg())) {
                         inputView.showError(list.get(i).getErrorMsg());
-                    }else{
+                    } else {
                         inputView.hideError();
                     }
                     sobot_ll_variable.addView(inputView);
                 }
             }
-            if(this.message.isVariableSubmiting()){
+            if (this.message.isVariableSubmiting()) {
                 sobot_submit.setClickable(false);
                 sobot_submit.setEnabled(false);
                 sobot_submit.getBackground().setAlpha(102);
-            }else{
+            } else {
                 sobot_submit.setClickable(true);
                 sobot_submit.setEnabled(true);
                 sobot_submit.getBackground().setAlpha(255);
@@ -161,7 +160,8 @@ public class VariableFromMessageHolder extends MsgHolderBase implements View.OnT
     }
 
     /**
-     *  获取变量的值
+     * 获取变量的值
+     *
      * @return 是否有空值
      */
     private List<SobotVariableModel> getvalue() {

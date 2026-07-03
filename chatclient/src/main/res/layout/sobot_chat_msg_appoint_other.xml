@@ -5,7 +5,7 @@
     style="@style/sobot_msg_appoint_hollow_bg_style"
     android:minWidth="240dp"
     android:orientation="vertical"
-    app:sobot_max_width="@dimen/sobot_msg_max_width">
+    app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
     <LinearLayout
         android:layout_width="wrap_content"

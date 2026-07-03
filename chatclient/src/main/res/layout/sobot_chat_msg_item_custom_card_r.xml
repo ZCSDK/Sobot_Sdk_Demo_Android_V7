@@ -13,7 +13,7 @@
         style="@style/sobot_center_remind_time" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge_card"
@@ -35,7 +35,7 @@
 
         <LinearLayout
             android:id="@+id/ll_status"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:gravity="center_vertical|end"
@@ -66,14 +66,14 @@
 
             <LinearLayout
                 android:id="@+id/sobot_msg_ll"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <!--消息内容 -->
                 <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                     android:id="@+id/sobot_msg_content_ll"
                     style="@style/sobot_msg_content_ll_hollow_bg_style"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <!--标题-->
@@ -88,7 +88,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
-                            android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
                             android:textSize="@dimen/sobot_text_font_14"
                             android:textStyle="bold" />
@@ -99,7 +98,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:ellipsize="end"
-                            android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
                             android:textSize="@dimen/sobot_text_font_12" />
                     </LinearLayout>
@@ -124,7 +122,7 @@
                     <!--竖向 订单商品信息-->
                     <LinearLayout
                         android:id="@+id/ll_order_good_info"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:background="@drawable/sobot_layout_custom_card_order_bg"
@@ -273,7 +271,7 @@
                     <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/sobot_order_good_des_h"
                         style="@style/SobotCardMargin_right"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:ellipsize="end"
@@ -284,7 +282,7 @@
                     <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/sobot_order_good_count_h"
                         style="@style/SobotCardMargin_right"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:ellipsize="end"
@@ -295,7 +293,7 @@
                     <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/sobot_goods_price_h"
                         style="@style/SobotCardMargin_right"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:layout_marginTop="12dp"

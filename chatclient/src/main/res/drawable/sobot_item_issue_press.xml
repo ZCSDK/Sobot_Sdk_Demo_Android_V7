@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/sobot_item_issuse_press" />
+            <solid android:color="@color/sobot_press_color" />
             <corners android:radius="8dp" />
         </shape>
     </item>

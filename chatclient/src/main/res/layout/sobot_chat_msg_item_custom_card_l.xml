@@ -45,15 +45,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/sobot_msg_content_ll_hollow_bg_style"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
                 <com.sobot.chat.widget.ReceivingLinearLayout
                     android:id="@+id/sobot_card_rll"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
                     <!--标题-->
                     <LinearLayout
                         android:id="@+id/ll_title"
@@ -66,7 +64,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
-                            android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
                             android:textSize="@dimen/sobot_text_font_14"
                             android:textStyle="bold" />
@@ -77,7 +74,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:ellipsize="end"
-                            android:maxLines="1"
                             android:textColor="@color/sobot_goods_title_text_color"
                             android:textSize="@dimen/sobot_text_font_12" />
                     </LinearLayout>
@@ -97,7 +93,7 @@
                         android:id="@+id/rv_goods_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"/>
+                        android:layout_marginTop="20dp" />
 
                     <!--竖向 订单商品信息-->
                     <LinearLayout
@@ -229,7 +225,7 @@
                         android:layout_width="9dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/sobot_notice_arrow_down" />
+                        android:src="@drawable/sobot_arrow_down" />
                 </LinearLayout>
                 <!--按钮   -->
                 <LinearLayout
@@ -237,14 +233,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:orientation="vertical"
-                   />
+                    android:orientation="vertical" />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
             <!--横向 订单商品信息-->
             <LinearLayout
                 android:id="@+id/ll_order_good_info_h"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="56dp"
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
@@ -277,7 +272,7 @@
                 <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_order_good_des_h"
                     style="@style/SobotCardMargin"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
@@ -288,7 +283,7 @@
                 <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_goods_price_h"
                     style="@style/SobotCardMargin"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
                     android:layout_marginTop="12dp"
@@ -301,7 +296,7 @@
                 <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_order_good_count_h"
                     style="@style/SobotCardMargin"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:ellipsize="end"

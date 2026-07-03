@@ -3,10 +3,12 @@ package com.sobot.chat.viewHolder;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +21,7 @@ import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
@@ -47,16 +50,25 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
         tv_expand = convertView.findViewById(R.id.tv_expand);
         if (tv_expand != null) {
             tv_expand.setTextColor(themeColor);
+            tv_expand.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            v.setAlpha(0.8f);
+                            break;
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            v.setAlpha(1.0f);
+                            break;
+                    }
+                    return false;
+                }
+            });
         }
         goods_list = convertView.findViewById(R.id.rv_goods_list);
         sobot_msg_content_ll = convertView.findViewById(R.id.sobot_msg_content_ll);
         ll_expand = convertView.findViewById(R.id.ll_expand);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        // 设置RecyclerView的LayoutManager
-        if(goods_list!=null) {
-            goods_list.setLayoutManager(layoutManager);
-        }
-
     }
 
     @Override
@@ -66,9 +78,10 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
         if (customCard != null) {
             if (mTitle != null) {
                 if (StringUtils.isNoEmpty(customCard.getCardGuide())) {
-                    mTitle.setText(customCard.getCardGuide());
+                    HtmlTools.getInstance(mContext).setRichText(mTitle,customCard.getCardGuide(),getLinkTextColor());
                     mTitle.setVisibility(View.VISIBLE);
                 } else {
+                    mTitle.setText("");
                     mTitle.setVisibility(View.GONE);
                 }
             }
@@ -115,7 +128,8 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                     ll_expand.setVisibility(View.GONE);
                 }
             }
-            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight,  message.getSugguestionsFontColor() == 1);
+            setupGoodsListLayoutManager(context, list);
+            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight, message.getSugguestionsFontColor() == 1);
             aiCardAdapter.setOnItemClickListener(new SobotAiCardAdapter.OnItemListener() {
                 @Override
                 public void onSendClick(String menuName, SobotChatCustomGoods goods) {
@@ -161,6 +175,65 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
         refreshReadStatus();
     }
 
+    /**
+     * 根据资源 integer sobot_ai_card_span_count 选择 LayoutManager：
+     * - spanCount <= 1（手机竖屏 / Pad / 折叠屏内屏）：单列 LinearLayoutManager
+     * - spanCount >= 2（手机横屏 2 列）：GridLayoutManager，按贪心规则分配 span：
+     *   1) 带自定义字段的 item 独占一行（span = spanCount）
+     *   2) 相邻两个均无自定义字段 → 各占半行（span = 1）
+     *   3) 无自定义字段但相邻有自定义字段（或落单）→ 独占一行
+     */
+    private void setupGoodsListLayoutManager(Context context, List<SobotChatCustomGoods> list) {
+        if (goods_list == null) {
+            return;
+        }
+        final int spanCount = context.getResources().getInteger(R.integer.sobot_ai_card_span_count);
+        if (spanCount <= 1) {
+            goods_list.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+            return;
+        }
+        final int[] spans = calcGoodsSpans(list, spanCount);
+        GridLayoutManager gridManager = new GridLayoutManager(context, spanCount);
+        gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position < 0 || position >= spans.length) {
+                    return spanCount;
+                }
+                return spans[position];
+            }
+        });
+        goods_list.setLayoutManager(gridManager);
+    }
+
+    /**
+     * 预计算每个 item 的 span：1 表示半行（多列里一格），spanCount 表示独占整行
+     */
+    private int[] calcGoodsSpans(List<SobotChatCustomGoods> list, int spanCount) {
+        int size = list == null ? 0 : list.size();
+        int[] spans = new int[size];
+        int i = 0;
+        while (i < size) {
+            boolean curHasCustom = hasCustomField(list.get(i));
+            if (curHasCustom) {
+                spans[i] = spanCount;
+                i++;
+            } else if (i + 1 < size && !hasCustomField(list.get(i + 1))) {
+                spans[i] = 1;
+                spans[i + 1] = 1;
+                i += 2;
+            } else {
+                spans[i] = spanCount;
+                i++;
+            }
+        }
+        return spans;
+    }
+
+    private boolean hasCustomField(SobotChatCustomGoods goods) {
+        return goods != null && goods.getCustomField() != null && !goods.getCustomField().isEmpty();
+    }
+
     @Override
     public void onClick(View v) {
         if (v == sobot_msg_content_ll) {
@@ -168,17 +241,8 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                 LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                 return;
             }
-            if (SobotOption.hyperlinkListener != null) {
-                SobotOption.hyperlinkListener.onUrlClick(customCard.getCardLink());
+            if (SobotOption.dispatchUrlClick(mContext, customCard.getCardLink())) {
                 return;
-            }
-
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, customCard.getCardLink());
-                if (isIntercept) {
-                    return;
-                }
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", customCard.getCardLink());

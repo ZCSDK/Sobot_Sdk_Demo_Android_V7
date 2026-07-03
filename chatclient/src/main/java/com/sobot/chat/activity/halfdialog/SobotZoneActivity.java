@@ -39,7 +39,7 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear,sobot_iv_search;
+    private ImageView iv_clear, sobot_iv_search;
     private TextView tv_nodata;
     private TextView sobot_tv_title;
     private SobotCusFieldConfig cusFieldConfig;//当前自定义字段
@@ -69,7 +69,7 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
         if (cusFieldConfig == null) {
             finish();
         }
-        if(cusFieldConfig.getTimezone()!=null){
+        if (cusFieldConfig.getTimezone() != null) {
             selectStauts = cusFieldConfig.getTimezone();
         }
 
@@ -166,6 +166,10 @@ public class SobotZoneActivity extends SobotDialogBaseActivity implements View.O
             }
         });
         sobot_tv_title.setText(R.string.sobot_time_zone);
+        View dContent = findViewById(R.id.sobot_dialog_content);
+        if(dContent!=null) {
+            displayInNotch(dContent);
+        }
     }
 
     private void setIv_search() {

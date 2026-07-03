@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 邮件引用内容区域左侧竖线背景 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="2dp"
+        android:gravity="start">
+        <shape>
+            <solid android:color="@color/sobot_color_line_divider_2" />
+        </shape>
+    </item>
+</layer-list>

@@ -84,7 +84,7 @@ public class SobotDeleteWorkOrderDialog extends Dialog {
         return true;
     }
 
-    private void initView(){
+    private void initView() {
         tv_photo_hint = (TextView) findViewById(R.id.tv_photo_hint);
         tv_photo_hint.setText(R.string.sobot_title);
         btn_pick_photo = (Button) findViewById(R.id.btn_pick_photo);

@@ -4,47 +4,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/send_voice_robot_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/sobot_colot_audio_to_text_tip"
-        android:breakStrategy="simple"
-        android:gravity="center"
-        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-        android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingTop="8dp"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge"
-        android:paddingBottom="8dp"
-        android:textColor="@color/sobot_color_wenzi_white_to_gray"
-        android:textSize="@dimen/sobot_text_font_12"
-        android:visibility="gone" />
-    <!--快捷菜单-->
-    <HorizontalScrollView
-        android:id="@+id/sobot_custom_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingStart="@dimen/sobot_msg_margin_edge"
-        android:paddingEnd="@dimen/sobot_msg_margin_edge"
-        android:scrollbars="none"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:id="@+id/sobot_custom_menu_linearlayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
-
-    </HorizontalScrollView>
-    <!--引用-->
     <LinearLayout
         android:id="@+id/ll_chat_keyboard_panle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="17dp"
+        android:layout_marginStart="@dimen/sobot_msg_margin_edge"
+        android:layout_marginTop="@dimen/sobot_custom_menu_panel_margin"
+        android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
         android:layout_marginBottom="16dp"
         android:background="@drawable/sobot_bg_chat_bottom_edit_shadow"
         android:elevation="16dp"
@@ -52,9 +18,9 @@
         android:orientation="vertical"
         android:outlineSpotShadowColor="@color/sobot_color_shadow"
         android:paddingStart="8dp"
-        android:paddingTop="7dp"
+        android:paddingTop="@dimen/sobot_chat_bottom_panel_padding"
         android:paddingEnd="8dp"
-        android:paddingBottom="7dp"
+        android:paddingBottom="@dimen/sobot_chat_bottom_panel_padding"
         android:translationY="6dp">
         <!-- 引用 -->
         <LinearLayout
@@ -76,6 +42,7 @@
                 android:id="@+id/tv_appoint_temp_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
                 android:layout_marginBottom="1dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
@@ -90,8 +57,10 @@
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_marginStart="8dp"
+                android:background="@drawable/sobot_bg_preess_color_2dp"
                 android:padding="2dp"
-                android:src="@drawable/sobot_appoint_clear" />
+                android:src="@drawable/sobot_appoint_clear"
+                android:stateListAnimator="@animator/sobot_icon_alpha_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -112,7 +81,8 @@
                     android:id="@+id/iv_model_edit"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/sobot_icon_vioce_normal" />
+                    android:src="@drawable/sobot_icon_vioce_normal"
+                    android:stateListAnimator="@animator/sobot_icon_alpha_selector" />
             </LinearLayout>
 
             <!-- 按住说话  start -->
@@ -195,7 +165,8 @@
                     android:id="@+id/iv_emoji"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/sobot_emoticon_normal" />
+                    android:src="@drawable/sobot_emoticon_normal"
+                    android:stateListAnimator="@animator/sobot_icon_alpha_selector" />
             </LinearLayout>
 
             <!-- 加号-->
@@ -210,7 +181,8 @@
                     android:id="@+id/iv_add_or_close"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/sobot_picture_add_normal" />
+                    android:src="@drawable/sobot_picture_add_normal"
+                    android:stateListAnimator="@animator/sobot_icon_alpha_selector" />
             </LinearLayout>
 
             <!-- 发送-->
@@ -258,8 +230,8 @@
             <!--删除表情按钮区域-->
             <LinearLayout
                 android:id="@+id/ll_del_emoji"
-                android:layout_width="100dp"
-                android:layout_height="92dp"
+                android:layout_width="@dimen/sobot_del_emoji_width"
+                android:layout_height="@dimen/sobot_del_emoji_height"
                 android:layout_gravity="end|bottom"
                 android:background="@color/sobot_color_bg_first"
                 android:gravity="center_vertical|end"
@@ -300,15 +272,8 @@
         android:id="@+id/sobot_ll_restart_talk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:background="@color/sobot_color_chat_bg"
         android:visibility="gone">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/sobot_color_line_divider" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -424,7 +389,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="8dp"
+        android:includeFontPadding="false"
         android:text="@string/sobot_str_aiagent_tip"
         android:textColor="@color/sobot_color_text_third"
         android:textSize="@dimen/sobot_text_font_11"

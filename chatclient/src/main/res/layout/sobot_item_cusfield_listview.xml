@@ -12,6 +12,7 @@
         android:orientation="horizontal"
         android:paddingStart="@dimen/sobot_dialog_margin"
         android:paddingEnd="@dimen/sobot_dialog_margin">
+
         <ImageView
             android:id="@+id/sobot_duo_cusfield_listview_items_ishave"
             android:layout_width="14dp"
@@ -20,6 +21,7 @@
             android:contentDescription="@null"
             android:src="@drawable/sobot_radio_btn_selector"
             android:visibility="gone" />
+
         <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_activity_cusfield_listview_items_title"
             android:layout_width="wrap_content"

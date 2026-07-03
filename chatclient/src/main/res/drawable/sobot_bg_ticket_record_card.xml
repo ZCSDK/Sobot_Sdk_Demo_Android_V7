@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言记录 item 横屏卡片背景。
+  完全参照 sobot_item_hot_bg.xml 结构：单 shape + 不透明 solid + 0.6dp 描边 + 圆角，
+  让外层 view 的 elevation/outlineSpotShadowColor 阴影能正确渲染。
+  避坑：之前用 selector + 透明 solid，导致 elevation 阴影"向内扩散"或不显示。
+  仅 layout-w600dp/sobot_ticket_info_item.xml 引用；竖屏 item 仍用 @drawable/sobot_bg_ticket_info
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/sobot_color_bg_first" />
+    <stroke
+        android:width="0.6dp"
+        android:color="@color/sobot_color_line_divider" />
+    <corners android:radius="@dimen/sobot_ticket_card_radius" />
+</shape>

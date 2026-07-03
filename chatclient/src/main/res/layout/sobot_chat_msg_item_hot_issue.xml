@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
+    style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/sobot_msg_top_bottom_style_card"
     android:orientation="vertical">
 
     <!-- 中间提醒内容 -->
@@ -72,21 +72,36 @@
                     android:layout_gravity="bottom"
                     android:background="@color/sobot_color_line_divider_3" />
 
-                <HorizontalScrollView
-                    android:id="@+id/tab_hot_title"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="8dp"
-                    android:scrollbars="none">
+                    android:orientation="vertical">
 
-                    <LinearLayout
-                        android:id="@+id/horizontalScrollView_ll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal" />
-                </HorizontalScrollView>
+                    <HorizontalScrollView
+                        android:id="@+id/tab_hot_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="2dp"
+                        android:scrollbars="none">
 
+                        <LinearLayout
+                            android:id="@+id/horizontalScrollView_ll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
 
+                    <View
+                        android:id="@+id/sobot_tab_line"
+                        android:layout_width="40dp"
+                        android:layout_height="2dp"
+                        android:layout_marginStart="0dp"
+                        android:layout_marginTop="9dp"
+                        android:background="@color/sobot_color"
+                        android:visibility="gone" />
+
+                </LinearLayout>
             </FrameLayout>
 
             <!-- 列表-->
@@ -106,11 +121,12 @@
                 android:layout_below="@+id/lin_question_list"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingStart="20dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="20dp">
+                android:paddingTop="4dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="4dp">
 
                 <ImageView
                     android:layout_width="14dp"
@@ -123,15 +139,12 @@
                     android:id="@+id/sobot_tv_switch_list"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:includeFontPadding="false"
-                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
                     android:text="@string/sobot_switch_text"
                     android:textColor="@color/sobot_color_text_third"
                     android:textSize="@dimen/sobot_text_font_14" />
             </LinearLayout>
+
         </RelativeLayout>
     </LinearLayout>
 

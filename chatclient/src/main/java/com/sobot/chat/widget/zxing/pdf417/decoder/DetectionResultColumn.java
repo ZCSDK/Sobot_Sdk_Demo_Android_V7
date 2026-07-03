@@ -23,73 +23,73 @@ import java.util.Formatter;
  */
 class DetectionResultColumn {
 
-  private static final int MAX_NEARBY_DISTANCE = 5;
+    private static final int MAX_NEARBY_DISTANCE = 5;
 
-  private final com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox boundingBox;
-  private final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[] codewords;
+    private final com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox boundingBox;
+    private final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[] codewords;
 
-  DetectionResultColumn(com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox boundingBox) {
-    this.boundingBox = new com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox(boundingBox);
-    codewords = new com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[boundingBox.getMaxY() - boundingBox.getMinY() + 1];
-  }
-
-  final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword getCodewordNearby(int imageRow) {
-    com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword = getCodeword(imageRow);
-    if (codeword != null) {
-      return codeword;
+    DetectionResultColumn(com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox boundingBox) {
+        this.boundingBox = new com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox(boundingBox);
+        codewords = new com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[boundingBox.getMaxY() - boundingBox.getMinY() + 1];
     }
-    for (int i = 1; i < MAX_NEARBY_DISTANCE; i++) {
-      int nearImageRow = imageRowToCodewordIndex(imageRow) - i;
-      if (nearImageRow >= 0) {
-        codeword = codewords[nearImageRow];
+
+    final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword getCodewordNearby(int imageRow) {
+        com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword = getCodeword(imageRow);
         if (codeword != null) {
-          return codeword;
+            return codeword;
         }
-      }
-      nearImageRow = imageRowToCodewordIndex(imageRow) + i;
-      if (nearImageRow < codewords.length) {
-        codeword = codewords[nearImageRow];
-        if (codeword != null) {
-          return codeword;
+        for (int i = 1; i < MAX_NEARBY_DISTANCE; i++) {
+            int nearImageRow = imageRowToCodewordIndex(imageRow) - i;
+            if (nearImageRow >= 0) {
+                codeword = codewords[nearImageRow];
+                if (codeword != null) {
+                    return codeword;
+                }
+            }
+            nearImageRow = imageRowToCodewordIndex(imageRow) + i;
+            if (nearImageRow < codewords.length) {
+                codeword = codewords[nearImageRow];
+                if (codeword != null) {
+                    return codeword;
+                }
+            }
         }
-      }
+        return null;
     }
-    return null;
-  }
 
-  final int imageRowToCodewordIndex(int imageRow) {
-    return imageRow - boundingBox.getMinY();
-  }
-
-  final void setCodeword(int imageRow, com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword) {
-    codewords[imageRowToCodewordIndex(imageRow)] = codeword;
-  }
-
-  final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword getCodeword(int imageRow) {
-    return codewords[imageRowToCodewordIndex(imageRow)];
-  }
-
-  final com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox getBoundingBox() {
-    return boundingBox;
-  }
-
-  final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[] getCodewords() {
-    return codewords;
-  }
-
-  @Override
-  public String toString() {
-    try (Formatter formatter = new Formatter()) {
-      int row = 0;
-      for (com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword : codewords) {
-        if (codeword == null) {
-          formatter.format("%3d:    |   %n", row++);
-          continue;
-        }
-        formatter.format("%3d: %3d|%3d%n", row++, codeword.getRowNumber(), codeword.getValue());
-      }
-      return formatter.toString();
+    final int imageRowToCodewordIndex(int imageRow) {
+        return imageRow - boundingBox.getMinY();
     }
-  }
+
+    final void setCodeword(int imageRow, com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword) {
+        codewords[imageRowToCodewordIndex(imageRow)] = codeword;
+    }
+
+    final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword getCodeword(int imageRow) {
+        return codewords[imageRowToCodewordIndex(imageRow)];
+    }
+
+    final com.sobot.chat.widget.zxing.pdf417.decoder.BoundingBox getBoundingBox() {
+        return boundingBox;
+    }
+
+    final com.sobot.chat.widget.zxing.pdf417.decoder.Codeword[] getCodewords() {
+        return codewords;
+    }
+
+    @Override
+    public String toString() {
+        try (Formatter formatter = new Formatter()) {
+            int row = 0;
+            for (com.sobot.chat.widget.zxing.pdf417.decoder.Codeword codeword : codewords) {
+                if (codeword == null) {
+                    formatter.format("%3d:    |   %n", row++);
+                    continue;
+                }
+                formatter.format("%3d: %3d|%3d%n", row++, codeword.getRowNumber(), codeword.getValue());
+            }
+            return formatter.toString();
+        }
+    }
 
 }

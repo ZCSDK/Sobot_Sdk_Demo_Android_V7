@@ -43,21 +43,23 @@
             android:textColor="@color/sobot_color_text_third"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="gone" />
+
         <View
             android:layout_width="match_parent"
             android:layout_marginTop="20dp"
             android:background="@color/sobot_dialog_line"
-            android:layout_height="1dp"/>
+            android:layout_height="1dp" />
 
         <TextView
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="40dp"
             android:layout_marginStart="@dimen/sobot_dialog_margin"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
             android:layout_marginEnd="@dimen/sobot_dialog_margin"
-            android:background="@drawable/sobot_btn_bg_28"
+            android:background="@drawable/sobot_bg_theme_color_28dp"
             android:gravity="center"
             android:padding="9dp"
             android:singleLine="true"

@@ -1,14 +1,16 @@
 package com.sobot.chat.widget.horizontalscroll;
 
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+
+import com.sobot.chat.utils.LogUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +77,7 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
      */
     protected void loadNextImg() {
         // 数组边界值计算
-        if (mAdapter ==null || mCurrentIndex == mAdapter.getCount() - 1) {
+        if (mAdapter == null || mCurrentIndex == mAdapter.getCount() - 1) {
             return;
         }
         //移除第一张图片，且将水平滚动位置置0
@@ -97,7 +99,8 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
         }
 
     }
-    public void next(){
+
+    public void next() {
         mCurrentIndex++;
         loadNextImg();
     }
@@ -172,12 +175,12 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
             view.measure(w, h);
             mChildHeight = view.getMeasuredHeight();
             mChildWidth = view.getMeasuredWidth();
-            Log.e(TAG, view.getMeasuredWidth() + "," + view.getMeasuredHeight());
+            LogUtils.e(view.getMeasuredWidth() + "," + view.getMeasuredHeight());
             mChildHeight = view.getMeasuredHeight();
             // 计算每次加载多少个View
             mCountOneScreen = mScreenWidth / mChildWidth + 2;
 
-            Log.e(TAG, "mCountOneScreen = " + mCountOneScreen
+            LogUtils.e("mCountOneScreen = " + mCountOneScreen
                     + " ,mChildWidth = " + mChildWidth);
 
 
@@ -185,7 +188,7 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
         //判断加载的图片是否小于一个屏幕加载数
         if (mAdapter.getCount() < mCountOneScreen) {
             mCountOneScreen = mAdapter.getCount();
-        }else{
+        } else {
 
         }
         //初始化第一屏幕的元素
@@ -220,7 +223,7 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements View
     public boolean onTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_MOVE:
-//			Log.e(TAG, getScrollX() + "");
+//			LogUtils.e(getScrollX() + "");
 
                 int scrollX = getScrollX();
                 // 如果当前scrollX为view的宽度，加载下一张，移除第一张

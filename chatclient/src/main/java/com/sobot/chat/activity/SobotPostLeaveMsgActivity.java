@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +17,7 @@ import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
 import com.sobot.chat.widget.toast.ToastUtil;
@@ -82,7 +82,7 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
         sobot_post_et_content = (EditText) findViewById(R.id.sobot_post_et_content);
         sobot_tv_problem_description = (TextView) findViewById(R.id.sobot_tv_problem_description);
         String test = "<font color='#f9676f'>*&nbsp;</font>" + getResources().getString(R.string.sobot_problem_description);
-        sobot_tv_problem_description.setText(Html.fromHtml(test));
+        sobot_tv_problem_description.setText(WebViewSecurityUtil.safeFromHtml(test));
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         sobot_btn_submit.setText(R.string.sobot_btn_submit_text);
         sobot_btn_submit.setOnClickListener(this);
@@ -90,7 +90,7 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
         if (ThemeUtils.isChangedThemeColor(this)) {
             Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, ThemeUtils.getThemeColor(this)));
             }
         }
     }
@@ -116,7 +116,7 @@ public class SobotPostLeaveMsgActivity extends SobotChatBaseActivity implements 
             @Override
             public void onSuccess(SobotOfflineLeaveMsgModel offlineLeaveMsgModel) {
                 if (offlineLeaveMsgModel != null) {
-                    sobot_tv_post_msg.setText(TextUtils.isEmpty(offlineLeaveMsgModel.getMsgLeaveTxt()) ? "" : Html.fromHtml(offlineLeaveMsgModel.getMsgLeaveTxt()));
+                    sobot_tv_post_msg.setText(TextUtils.isEmpty(offlineLeaveMsgModel.getMsgLeaveTxt()) ? "" : WebViewSecurityUtil.safeFromHtml(offlineLeaveMsgModel.getMsgLeaveTxt()));
                     sobot_post_et_content.setHint(TextUtils.isEmpty(offlineLeaveMsgModel.getMsgLeaveContentTxt()) ? "" : offlineLeaveMsgModel.getMsgLeaveContentTxt());
                     if (!TextUtils.isEmpty(offlineLeaveMsgModel.getLeaveExplain())) {
                         sobot_tv_leaveExplain.setVisibility(View.VISIBLE);

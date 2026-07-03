@@ -42,6 +42,7 @@ public class SobotMonthAdapter implements SobotWheelAdapter {
         }
 
     }
+
     private List<String> getMonths(String language) {
         String[] monthArr;
         // 英语
@@ -61,7 +62,7 @@ public class SobotMonthAdapter implements SobotWheelAdapter {
             monthArr = new String[]{"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"};
         }
         // 日语+中文
-        else if (language.equals("ja")||language.contains("zh")) {
+        else if (language.equals("ja") || language.contains("zh")) {
             monthArr = new String[]{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"};
         }
         // 韩语

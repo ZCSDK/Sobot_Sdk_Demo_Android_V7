@@ -4,6 +4,9 @@ import static com.sobot.chat.SobotUIConfig.sobot_webview_title_display;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -11,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +41,7 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.widget.toast.ToastUtil;
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -98,13 +103,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                 Rect r = new Rect();
                 mWebView.getWindowVisibleDisplayFrame(r);
                 int screenHeight = mWebView.getRootView().getHeight();
-                // 计算键盘高度，考虑工具栏
                 int keyboardHeight = screenHeight - r.bottom;
-                //自定义导航栏高度
-                View toolBar = getToolBar();
-                if (toolBar != null && toolBar.getVisibility() == View.VISIBLE) {
-                    keyboardHeight -= toolBar.getHeight();
-                }
                 if (keyboardHeight < 0) {
                     keyboardHeight = 0;
                 }
@@ -121,6 +120,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                     resetWebViewLayout();
                 }
             } catch (Exception e) {
+                LogUtils.e("WebViewActivity keyboard layout adjust failed", e);
             }
         }
     };
@@ -133,6 +133,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             params.height = mWebView.getHeight() - keyboardHeight;
             mWebView.setLayoutParams(params);
         } catch (Exception e) {
+            LogUtils.e("adjustWebViewForKeyboard failed", e);
         }
     }
 
@@ -144,6 +145,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
             params.height = LinearLayout.LayoutParams.MATCH_PARENT;
             mWebView.setLayoutParams(params);
         } catch (Exception e) {
+            LogUtils.e("resetWebViewLayout failed", e);
         }
     }
 
@@ -176,6 +178,7 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                 btnReconnect.setBackground(btnReconnectBg);
             }
         } catch (Exception e) {
+            LogUtils.e("WebViewActivity initView theme apply failed", e);
         }
 
         if (isChangeThemeColor) {
@@ -196,7 +199,12 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
 
     private void loadUrl() {
         if (isUrlOrText) {
-            //加载url
+            //安全：仅允许 https，拒绝 http 明文，避免 MITM 注入恶意 JS（CWE-319）
+            if (TextUtils.isEmpty(mUrl) || !mUrl.startsWith("https://")) {
+                LogUtils.i("WebViewActivity refuse non-https url");
+                finish();
+                return;
+            }
             mWebView.loadUrl(mUrl);
             sobot_webview_copy.setVisibility(View.VISIBLE);
         } else {
@@ -221,13 +229,14 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
                     "            }" +
                     "        </style>\n" +
                     "    </head>\n" +
-                    "    <body>" + mUrl + "  </body>\n" +
+                    "    <body>" + WebViewSecurityUtil.sanitizeHtml(mUrl) + "  </body>\n" +
                     "</html>";
             //显示文本内容
             mWebView.loadDataWithBaseURL("about:blank", mUrl.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"), "text/html", "utf-8", null);
         }
-        LogUtils.i("webViewActivity---" + mUrl);
+        LogUtils.i("webViewActivity loadUrl, isUrl=" + isUrlOrText + ", len=" + (mUrl == null ? 0 : mUrl.length()));
     }
+
 
     @Override
     protected void initData() {
@@ -260,10 +269,19 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         if (TextUtils.isEmpty(url)) {
             return;
         }
-        LogUtils.i("API是大于11");
-        android.content.ClipboardManager cmb = (android.content.ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        cmb.setText(url);
-        cmb.getText();
+        ClipboardManager cmb = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (cmb == null) {
+            return;
+        }
+        ClipData clipData = ClipData.newPlainText("url", url);
+        // 安全：API 33+ 标记剪贴板内容为敏感，系统通知/输入法/无障碍服务不显示明文预览（CWE-200）。
+        // 顺便替换已弃用的 ClipboardManager.setText(CharSequence)。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PersistableBundle extras = new PersistableBundle();
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+            clipData.getDescription().setExtras(extras);
+        }
+        cmb.setPrimaryClip(clipData);
         ToastUtil.showToast(getApplicationContext(), CommonUtils.getResString(WebViewActivity.this, "sobot_ctrl_v_success"));
     }
 
@@ -288,18 +306,24 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         try {
             mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                //检测到下载文件就打开系统浏览器
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Uri content = Uri.parse(url);
-                intent.setData(content);
-                startActivity(intent);
+                if (!WebViewSecurityUtil.isHttpOrHttps(url)) {
+                    LogUtils.i("WebView download refuse non-http(s)");
+                    return;
+                }
+                // 安全：隐式 ACTION_VIEW 无法保证有 Activity 处理（如平板裁剪版无浏览器），
+                // 缺 try-catch 会抛 ActivityNotFoundException 杀宿主进程。
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    LogUtils.e("WebView download dispatch failed", e);
+                }
             }
         });
         // 注册键盘监听器
@@ -310,19 +334,21 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         mWebView.getSettings().setDefaultFontSize(16);
         mWebView.getSettings().setTextZoom(100);
         mWebView.getSettings().setAllowFileAccess(false);
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setAllowFileAccessFromFileURLs(false);
+        mWebView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        // 安全：仅外部 http(s) URL 才启用 JS；text 分支仅渲染服务端 HTML，关闭 JS 阻断 sanitizer 绕过型 XSS
+        mWebView.getSettings().setJavaScriptEnabled(isUrlOrText);
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-        // 设置可以使用localStorage
-        mWebView.getSettings().setDomStorageEnabled(true);
+        // localStorage 跟随 JS 开关，text 分支不需要
+        mWebView.getSettings().setDomStorageEnabled(isUrlOrText);
         mWebView.getSettings().setLoadsImagesAutomatically(true);
         mWebView.getSettings().setBlockNetworkImage(false);
         mWebView.getSettings().setSavePassword(false);
 //        mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + " sobot");
 
-        //关于webview的http和https的混合请求的，从Android5.0开始，WebView默认不支持同时加载Https和Http混合模式。
-        // 在API>=21的版本上面默认是关闭的，在21以下就是默认开启的，直接导致了在高版本上面http请求不能正确跳转。
+        //安全：禁止 HTTPS 页面加载 HTTP 资源，避免中间人攻击注入脚本
         if (Build.VERSION.SDK_INT >= 21) {
-            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         }
 
         //Android 4.4 以下的系统中存在一共三个有远程代码执行漏洞的隐藏接口
@@ -330,22 +356,39 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
         mWebView.removeJavascriptInterface("accessibility");
         mWebView.removeJavascriptInterface("accessibilityTraversal");
 
-        // 应用可以有数据库
-        mWebView.getSettings().setDatabaseEnabled(true);
+        // 安全：关闭 WebSQL，防止恶意页面通过数据库存大量数据
+        mWebView.getSettings().setDatabaseEnabled(false);
 
         mWebView.setWebViewClient(new WebViewClient() {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                //注释的地方是打开其它应用，比如qq
-                /*if (url.startsWith("http") || url.startsWith("https")) {
-                    return false;
-                } else {
-                    Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(in);
+                if (TextUtils.isEmpty(url)) {
                     return true;
-                }*/
-                return false;
+                }
+                String lower = url.toLowerCase();
+                //安全：仅放行 https，http 明文一律拦截（CWE-319）
+                if (lower.startsWith("https://")) {
+                    return false;
+                }
+                if (lower.startsWith("http://")) {
+                    LogUtils.i("WebView block http(non-tls) navigation");
+                    return true;
+                }
+                //tel / mailto 交给系统 ACTION_VIEW 处理
+                if (lower.startsWith("tel:") || lower.startsWith("mailto:")) {
+                    try {
+                        Intent dispatchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        dispatchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dispatchIntent);
+                    } catch (Exception e) {
+                        LogUtils.e("WebView dispatch intent failed", e);
+                    }
+                    return true;
+                }
+                //其余 scheme（file/intent/javascript/data/...）一律拦截
+                LogUtils.i("WebView block non-whitelist scheme");
+                return true;
             }
 
             @Override
@@ -537,23 +580,13 @@ public class WebViewActivity extends SobotChatBaseActivity implements View.OnCli
      * 打开文件系统选取文件上传
      */
     private void chooseFile(String[] acceptTypes) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        if (acceptTypes != null && acceptTypes.length > 0) {
-            if (acceptTypes.length == 1) {
-                if (StringUtils.isEmpty(acceptTypes[0])) {
-                    intent.setType("*/*"); // 默认所有类型
-                } else {
-                    intent.setType(acceptTypes[0]); // 单一类型，如 image/*, application/pdf
-                }
-            } else {
-                intent.setType("*/*"); // 多种类型，使用通配符并配合 EXTRA_MIME_TYPES
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, acceptTypes);
-            }
-        } else {
-            intent.setType("*/*"); // 默认所有类型
+        try {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, REQUEST_CODE_ALBUM);
+        } catch (Exception ignored) {
         }
-        startActivityForResult(intent, REQUEST_CODE_ALBUM);
     }
 
     @Override

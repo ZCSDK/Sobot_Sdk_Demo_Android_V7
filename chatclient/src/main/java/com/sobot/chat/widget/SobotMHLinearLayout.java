@@ -83,14 +83,14 @@ public class SobotMHLinearLayout extends LinearLayout {
 
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        int widthSize=MeasureSpec.getSize(widthMeasureSpec);
-        LogUtils.e(heightSize+"\t"+mMaxHHeight);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        LogUtils.e(heightSize + "\t" + mMaxHHeight);
         if (isScreenOriatationPortrait(getContext())) {//竖屏
             heightSize = getVHeightSize(heightMode, heightSize);
-        }else{
+        } else {
             heightSize = getHHeightSize(heightMode, heightSize);
         }
-        LogUtils.e(heightSize+"\t"+mMaxHHeight);
+        LogUtils.e(heightSize + "\t" + mMaxHHeight);
         int maxHeightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST);
         super.onMeasure(widthMeasureSpec, maxHeightMeasureSpec);
 

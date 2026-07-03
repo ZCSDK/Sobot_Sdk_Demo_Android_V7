@@ -45,7 +45,7 @@ public class PagerGridSnapHelper extends SnapHelper {
     public int[] calculateDistanceToFinalSnap(@NonNull RecyclerView.LayoutManager layoutManager,
                                               @NonNull View targetView) {
         int pos = layoutManager.getPosition(targetView);
-        LogUtils.e( "findTargetSnapPosition, pos = " + pos);
+        LogUtils.e("findTargetSnapPosition, pos = " + pos);
         int[] offset = new int[2];
         if (layoutManager instanceof PagerGridLayoutManager) {
             PagerGridLayoutManager manager = (PagerGridLayoutManager) layoutManager;
@@ -83,7 +83,7 @@ public class PagerGridSnapHelper extends SnapHelper {
     public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager,
                                       int velocityX, int velocityY) {
         int target = RecyclerView.NO_POSITION;
-        LogUtils.e( "findTargetSnapPosition, velocityX = " + velocityX + ", velocityY" + velocityY);
+        LogUtils.e("findTargetSnapPosition, velocityX = " + velocityX + ", velocityY" + velocityY);
         if (null != layoutManager && layoutManager instanceof PagerGridLayoutManager) {
             PagerGridLayoutManager manager = (PagerGridLayoutManager) layoutManager;
             if (manager.canScrollHorizontally()) {
@@ -100,7 +100,7 @@ public class PagerGridSnapHelper extends SnapHelper {
                 }
             }
         }
-        LogUtils.e( "findTargetSnapPosition, target = " + target);
+        LogUtils.e("findTargetSnapPosition, target = " + target);
         return target;
     }
 
@@ -122,7 +122,7 @@ public class PagerGridSnapHelper extends SnapHelper {
             return false;
         }
         int minFlingVelocity = PagerConfig.getFlingThreshold();
-        LogUtils.e( "minFlingVelocity = " + minFlingVelocity);
+        LogUtils.e("minFlingVelocity = " + minFlingVelocity);
         return (Math.abs(velocityY) > minFlingVelocity || Math.abs(velocityX) > minFlingVelocity)
                 && snapFromFling(layoutManager, velocityX, velocityY);
     }

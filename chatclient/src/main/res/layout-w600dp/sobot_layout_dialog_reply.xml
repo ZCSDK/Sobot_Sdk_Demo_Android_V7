@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言回复 横屏专用布局（w >= 600dp）— Figma node 745:58709
+  - 外层 LinearLayout：match_parent + gravity=bottom，把回复栏定位到屏幕底部
+    （values-w600dp/styles.xml 把 theme 改为非 floating 全屏，需要外层 gravity 控制位置）
+  - 内层 LinearLayout：wrap_content，紧凑回复栏 60dp 高
+  - Row 1：📎 + 单行输入框 + 发送 + ✕
+  - Row 2：附件横向 chip 列表（visibility=gone，仅 pic_list 非空时切 VISIBLE）
+  - 与竖屏 layout/sobot_layout_dialog_reply.xml 的所有 view ID 严格保持一致
+    （findViewById 在两份布局下表现一致，业务流程零侵入）
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sobot_color_transparent"
+    android:fitsSystemWindows="true"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <!-- 底部紧凑回复栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sobot_color_bg_first"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <!-- Row 1: 📎 + 输入框 + 发送 + ✕  (高度 wrap，让 40dp 子元素完整显示) -->
+        <LinearLayout
+            android:id="@+id/ll_sobot_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <!-- 📎 附件按钮（圆形背景） -->
+            <ImageView
+                android:id="@+id/sobot_btn_file"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/sobot_bg_side_btn_default"
+                android:contentDescription="@null"
+                android:padding="11dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/sobot_upload_file" />
+
+            <!-- 单行胶囊输入框（FrameLayout 强制 36dp 锁高，防 setLayoutParams 撑大） -->
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1">
+
+                <com.sobot.chat.widget.SobotEditText
+                    android:id="@+id/sobot_reply_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/sobot_bg_reply_input_pill"
+                    android:enabled="true"
+                    android:gravity="center_vertical"
+                    android:hint="@string/sobot_please_input"
+                    android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
+                    android:includeFontPadding="false"
+                    android:inputType="text"
+                    android:maxLength="200"
+                    android:maxLines="1"
+                    android:paddingStart="16dp"
+                    android:paddingTop="0dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="0dp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textColorHint="@color/sobot_color_text_third"
+                    android:textCursorDrawable="@drawable/sobot_cursor_drawable"
+                    android:textSize="@dimen/sobot_text_font_14" />
+            </FrameLayout>
+
+            <!-- 发送按钮（Java initView 会按 setText + ThemeUtils 染色覆盖默认样式） -->
+            <TextView
+                android:id="@+id/sobot_btn_submit"
+                android:layout_width="120dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/sobot_bg_reply_send_pill"
+                android:gravity="center"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:text="@string/sobot_button_send"
+                android:textColor="@color/sobot_color_white"
+                android:textSize="@dimen/sobot_text_font_14" />
+
+            <!-- ✕ 关闭（圆形） -->
+            <TextView
+                android:id="@+id/sobot_btn_cancel"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/sobot_bg_side_btn_default"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="✕"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Row 2: 附件横向 chip 列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/sobot_reply_msg_pic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:listSelector="@android:color/transparent"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

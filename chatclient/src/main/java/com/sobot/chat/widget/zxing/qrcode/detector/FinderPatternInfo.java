@@ -24,26 +24,26 @@ package com.sobot.chat.widget.zxing.qrcode.detector;
  */
 public final class FinderPatternInfo {
 
-  private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern bottomLeft;
-  private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern topLeft;
-  private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern topRight;
+    private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern bottomLeft;
+    private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern topLeft;
+    private final com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern topRight;
 
-  public FinderPatternInfo(com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern[] patternCenters) {
-    this.bottomLeft = patternCenters[0];
-    this.topLeft = patternCenters[1];
-    this.topRight = patternCenters[2];
-  }
+    public FinderPatternInfo(com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern[] patternCenters) {
+        this.bottomLeft = patternCenters[0];
+        this.topLeft = patternCenters[1];
+        this.topRight = patternCenters[2];
+    }
 
-  public com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern getBottomLeft() {
-    return bottomLeft;
-  }
+    public com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern getBottomLeft() {
+        return bottomLeft;
+    }
 
-  public com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern getTopLeft() {
-    return topLeft;
-  }
+    public com.sobot.chat.widget.zxing.qrcode.detector.FinderPattern getTopLeft() {
+        return topLeft;
+    }
 
-  public FinderPattern getTopRight() {
-    return topRight;
-  }
+    public FinderPattern getTopRight() {
+        return topRight;
+    }
 
 }

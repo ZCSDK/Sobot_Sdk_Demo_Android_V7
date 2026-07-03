@@ -135,7 +135,7 @@
     <string name="sobot_delete">ลบทิ้ง</string>
     <string name="sobot_data_wrong_hint">ข้อมูลผิดพลาด</string>
     <string name="sobot_cus_service">บริการลูกค้า</string>
-    <string name="sobot_ctrl_v_success">คัดลอกสำเร็จแล้ว!</string>
+    <string name="sobot_ctrl_v_success">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
     <string name="sobot_ctrl_copy">คัดลอก</string>
     <string name="sobot_created_1">สร้างขึ้นแล้ว</string>
     <string name="sobot_count_down">นับถอยหลัง</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">ค้นหาจังหวัดทั้งหมด (เขต)</string>
     <string name="sobot_region_level4">ค้นหาถนนทั้งหมด</string>
     <string name="sobot_permission_use_info">คำแนะนำในการใช้สิทธิ์</string>
-    <string name="sobot_album_permission_yongtu">กำลังยื่นขอสิทธิ์ในการเข้าถึงและใช้ภาพถ่ายและวิดีโอของคุณ รูปถ่ายและวิดีโอสามารถส่งได้เมื่อปรึกษาฝ่ายบริการลูกค้าและข้อความเมื่อได้รับอนุญาต</string>
     <string name="sobot_please_open_album">ขออนุญาตใช้อัลบั้ม</string>
     <string name="sobot_use_album">สำหรับการเข้าถึงและใช้ภาพถ่ายและวิดีโอบนอุปกรณ์นี้</string>
-    <string name="sobot_camera_permission_yongtu">กำลังยื่นขอสิทธิ์ในการใช้กล้องของคุณ เมื่อได้รับอนุญาตสามารถถ่ายภาพและบันทึกวิดีโอเพื่ออัปโหลดเมื่อปรึกษาฝ่ายบริการลูกค้าและข้อความ</string>
     <string name="sobot_please_open_camera">ขออนุญาตเปิดกล้อง</string>
     <string name="sobot_use_camera">สำหรับการรับสิทธิ์การใช้งานกล้อง</string>
-    <string name="sobot_microphone_permission_yongtu">กำลังยื่นขอสิทธิ์การใช้ไมโครโฟนของคุณ เมื่อได้รับอนุญาตแล้วสามารถส่งข้อความเสียงได้เมื่อปรึกษาฝ่ายบริการลูกค้า</string>
     <string name="sobot_please_open_microphone">ขออนุญาตเปิดไมโครโฟน</string>
     <string name="sobot_use_microphone">ใช้เพื่อรับสิทธิ์การใช้งานไมโครโฟน</string>
     <string name="sobot_storage_permission_yongtu">กำลังยื่นขอสิทธิ์ในการเข้าถึงและใช้งานไฟล์ของคุณ เมื่อได้รับอนุญาตแล้วสามารถส่งเอกสารได้เมื่อปรึกษาฝ่ายบริการลูกค้าและข้อความ</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">ไม่มีการตอบกลับ</string>
     <string name="sobot_please_input">โปรดป้อน...</string>
     <string name="sobot_ticket_update_file_hite">อัปโหลดได้สูงสุด %s ขนาดไม่เกิน %s</string>
-    <string name="sobot_ticket_update_file_max_hite">ถึงขีดจำกัด 15</string>
+    <string name="sobot_ticket_update_file_max_hite">ถึงขีดจำกัด %1$d</string>
     <string name="sobot_cus_level_all">ทั้งหมด</string>
     <string name="sobot_please_choice">โปรดเลือก...</string>
     <string name="sobot_skill_no_service">ไม่มีตัวแทนออนไลน์ คลิกเพื่อส่งข้อเสนอ</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">วิธีบันทึกเสียง ให้อนุญาตสิทธิ์เข้าถึงไมโครโฟนใน \"การตั้งค่า\" > \"แอป\" > \"%s\" > \"สิทธิ์\" ของอุปกรณ์ของคุณ</string>
     <string name="sobot_continue_shooting">ทำการบันทึกต่อไป</string>
     <string name="sobot_audio_go_setting">ไม่ได้เปิดใช้งานไมโครโฟน ไม่สามารถบันทึกเสียงได้</string>
-    <string name="sobot_microphone_permission_yongtu_camera">กำลังขออนุญาตใช้ไมโครโฟน หลังจากอนุญาตแล้ว คุณสามารถส่ง/อัปโหลดวิดีโอที่บันทึกไว้เมื่อติดต่อฝ่ายบริการลูกค้าหรือฝากข้อความได้</string>
     <string name="sobot_agree_agreement">ฉันได้อ่านและยอมรับ%sแล้ว</string>
     <string name="sobot_agree">ยอมรับ</string>
     <string name="sobot_keep_queuing">ให้คลิกเพื่อเข้าคิวต่อไป</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">อ้างอิงจากเอกสาร %d ฉบับ</string>
     <string name="sobot_start_chat">เริ่มให้คำปรึกษา</string>
     <string name="sobot_variable_title">กรอกข้อมูล</string>
+    <string name="sobot_ctrl_ticket_success">ได้คัดลอกหมายเลขคำสั่งงานแล้ว</string>
+    <string name="sobot_album_permission_yongtu">ขอสิทธิ์ใช้รูปภาพเพื่อส่งข้อความรูปภาพ ปฏิเสธได้และแอปยังใช้งานได้ตามปกติ</string>
+    <string name="sobot_microphone_permission_yongtu">โปรดอนุญาตแอปพลิเคชันเข้าถึงกล้องถ่ายภาพในการตั้งค่า-ความเป็นส่วนตัว--ไมโครโฟน</string>
+    <string name="sobot_camera_permission_yongtu">ขอสิทธิ์ใช้กล้องเพื่อส่งรูปภาพและวิดีโอ ปฏิเสธได้และแอปยังใช้งานได้ตามปกติ</string>
 </resources>

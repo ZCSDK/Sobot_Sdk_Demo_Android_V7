@@ -1,29 +1,31 @@
 package com.sobot.chat.camera.util;
 
-import android.util.Log;
+
+import com.sobot.chat.utils.LogUtils;
 
 public class StCmeraLog {
 
     private static final String DEFAULT_TAG = "sobotCamera";
     private static final boolean isDebug = false;
+
     public static void i(String tag, String msg) {
         if (isDebug)
-            Log.i(tag, msg);
+            LogUtils.i(msg);
     }
 
     public static void v(String tag, String msg) {
         if (isDebug)
-            Log.v(tag, msg);
+            LogUtils.v(msg);
     }
 
     public static void d(String tag, String msg) {
         if (isDebug)
-            Log.d(tag, msg);
+            LogUtils.d(msg);
     }
 
     public static void e(String tag, String msg) {
         if (isDebug)
-            Log.e(tag, msg);
+            LogUtils.e(msg);
     }
 
     public static void i(String msg) {

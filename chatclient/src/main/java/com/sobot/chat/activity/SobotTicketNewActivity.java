@@ -16,7 +16,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -26,8 +25,6 @@ import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
@@ -39,8 +36,6 @@ import com.sobot.chat.activity.halfdialog.SobotPostCategoryActivity;
 import com.sobot.chat.activity.halfdialog.SobotPostRegionActivity;
 import com.sobot.chat.activity.halfdialog.SobotTimeZoneActivity;
 import com.sobot.chat.activity.halfdialog.SobotZoneActivity;
-import com.sobot.chat.adapter.SobotUploadFileAdapter;
-import com.sobot.chat.api.ResultCallBack;
 import com.sobot.chat.api.model.CommonModelBase;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.PostParamModel;
@@ -53,7 +48,6 @@ import com.sobot.chat.api.model.SobotLeaveMsgParamModel;
 import com.sobot.chat.api.model.SobotTimezone;
 import com.sobot.chat.api.model.UploadInitModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
-import com.sobot.chat.api.model.ZhiChiMessage;
 import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.listener.SobotCusFieldListener;
 import com.sobot.chat.listener.SobotFunctionType;
@@ -64,7 +58,6 @@ import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ImageUtils;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.MediaFileUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
@@ -76,15 +69,14 @@ import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
-import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.SobotInputView;
 import com.sobot.chat.widget.SobotUploadView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
+import com.sobot.chat.widget.dialog.SobotCusFieldImagePreviewDialog;
 import com.sobot.chat.widget.dialog.SobotDeleteWorkOrderDialog;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 import com.sobot.chat.widget.dialog.SobotFreeAccountTipDialog;
 import com.sobot.chat.widget.dialog.SobotSelectPicAndFileDialog;
-import com.sobot.chat.widget.dialog.SobotSelectPicDialog;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.SobotResultCallBack;
 import com.sobot.network.http.callback.StringResultCallBack;
@@ -94,83 +86,95 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 新建留言工单
+ * 新建留言工单页面
+ * <p>
+ * 根据模板配置动态生成工单表单，包含以下字段（均可通过后台配置显示/隐藏/必填）：
+ * - 标题、问题分类、问题描述、邮箱、手机号（支持区号选择）
+ * - 自定义字段（文本、下拉、单选、多选、级联、地区、日期、时间、时区、文件上传等）
+ * - 附件上传（支持图片、视频、文件，最多15个，支持分片上传大文件）
+ * - 隐私协议勾选（后台配置是否开启）
+ * <p>
+ * 页面流程：
+ * 1. 获取企业是否开通大文件上传 → 2. 获取模板配置 → 3. 渲染表单 → 4. 用户填写提交
+ * <p>
+ * 提交成功后显示完成页面，用户可选择"前往留言记录"或"完成"返回。
+ * 监听 {@link ChatUtils#SOBOT_ACTION_CLOSE_TIKET} 广播，用于关联页面联动关闭。
  */
 public class SobotTicketNewActivity extends SobotChatBaseActivity implements View.OnClickListener, SobotCusFieldListener {
 
-    private SobotLeaveMsgConfig mConfig;
-    private String mUid = "";
-    private String mGroupId = "";
-    private String mCustomerId = "";
-    private String mCompanyId = "";
+    private SobotLeaveMsgConfig mConfig;    // 留言模板配置（字段显示/隐藏/必填规则）
+    private String mUid = "";               // 用户ID
+    private String mGroupId = "";           // 技能组ID
+    private String mCustomerId = "";        // 客户ID
+    private String mCompanyId = "";         // 企业ID
 
-    //新建工单完成
-    private LinearLayout mLlCompleted;
-    private TextView mTvTicket;
-    private TextView mTvCompleted;
-    private TextView mTvLeaveMsgCreateSuccess;
-    private TextView mTvLeaveMsgCreateSuccessDes;
-    private ImageView mIvLeaveMsgCreateSuccessDes;
+    // ==================== 新建工单完成页面控件 ====================
+    private LinearLayout mLlCompleted;              // 完成页面容器
+    private TextView mTvTicket;                     // "前往留言记录"按钮
+    private TextView mTvCompleted;                  // "完成"按钮
+    private TextView mTvLeaveMsgCreateSuccess;      // 提交成功提示文字
+    private TextView mTvLeaveMsgCreateSuccessDes;   // 提交成功描述文字
+    private ImageView mIvLeaveMsgCreateSuccessDes;  // 提交成功图标
 
-    //新建工单
-    private SobotInputView sobot_post_title;//标题
-    private SobotInputView sobot_post_type;//分类
-    private SobotInputView sobot_post_description;//描述
-    private SobotInputView sobot_post_email;//邮箱
-    private SobotInputView sobot_post_phone;//手机
-    private LinearLayout mllContainer;
-    private TextView sobot_tv_post_msg;
-    private TextView sobot_btn_submit;
-    private LinearLayout sobot_post_customer_field;
-    private LinearLayout ll_upload_file;//上传附件
-    private TextView sobot_btn_file, sobot_file_hite, sobot_file_error;//上传按钮、提示、错误提示
-    private RecyclerView sobot_reply_msg_pic;
-    private ArrayList<SobotFileModel> pic_list = new ArrayList<>();
-    private ArrayList<SobotFileModel> cus_pic_list = new ArrayList<>();
-    private SobotUploadFileAdapter adapter;
-    private SobotSelectPicDialog selectPicDialog;
-    private SobotSelectPicAndFileDialog selectPicAndFileDialog;
-    //上传图片成功后知道是那个字段，上传成功或失败后清空变量
-    private SobotCusFieldConfig uploadFieldConfig;
-    //上传图片成功或失败后显示的view
-    private SobotUploadView uploadView;
-    private String phoneCode;
+    // ==================== 新建工单表单控件 ====================
+    private SobotInputView sobot_post_title;        // 标题输入
+    private SobotInputView sobot_post_type;         // 问题分类选择
+    private SobotInputView sobot_post_description;  // 问题描述输入（多行）
+    private SobotInputView sobot_post_email;        // 邮箱输入
+    private SobotInputView sobot_post_phone;        // 手机号输入（支持区号）
+    private LinearLayout mllContainer;              // 表单容器
+    private TextView sobot_tv_post_msg;             // 留言引导文案（支持富文本）
+    private TextView sobot_btn_submit;              // 提交按钮
+    private LinearLayout sobot_post_customer_field; // 自定义字段容器
+
+    // ==================== 附件上传相关 ====================
+    /** 附件上传张数上限 */
+    private static final int MAX_FILE_COUNT = 15;
+    /**
+     * 上传附件 widget（复用自定义字段附件 widget，统一视觉与交互）。
+     * 字段名沿用 ll_upload_file 保持其他文件 setVisibility 等调用兼容；类型由 LinearLayout 升级为 SobotUploadView。
+     */
+    private SobotUploadView ll_upload_file;
+    private ArrayList<SobotFileModel> pic_list = new ArrayList<>();  // 已上传文件数据列表（提交时拼 fileStr 的真相源；widget 仅 UI 投影）
+    private SobotSelectPicAndFileDialog selectPicAndFileDialog;      // 选择图片/文件弹窗
+    private SobotCusFieldConfig uploadFieldConfig;  // 当前正在上传的自定义字段配置（上传完成后清空）
+    private SobotUploadView uploadView;             // 当前正在上传的自定义字段视图（用于回显上传结果）
+    private String phoneCode;                       // 手机区号
 
     /**
-     * 删除图片弹窗
+     * 删除附件确认弹窗
      */
     protected SobotDeleteWorkOrderDialog seleteMenuWindow;
 
-    private ArrayList<SobotFieldModel> mFields;
+    private ArrayList<SobotFieldModel> mFields;     // 自定义字段列表
+    private Information information;                // 用户配置信息
+    private MessageReceiver mReceiver;              // 本地广播接收器
+    private SobotFreeAccountTipDialog sobotFreeAccountTipDialog;  // 免费账号提示弹窗
+    private String mTempId;                         // 模板ID（从模板选择页传入）
+    private LinearLayout mllLoading;                // 加载中容器
+    private SobotLoadingView loading;               // 加载动画
 
-    private Information information;
+    private ScrollView sobot_sv_root;               // 页面根滚动视图（用于校验失败时滚动到对应位置）
 
+    // ==================== 隐私协议相关 ====================
+    private TextView sobot_tv_policy;               // 协议文案（含可点击链接）
+    private ImageView cb_policy;                    // 协议勾选框图标
+    private LinearLayout sobot_ll_policy;           // 协议区域容器
+    private boolean flag_policy = false;            // 是否已勾选协议
+    private SobotChunkedUploadManager uploadManager;  // 分片上传管理器
 
-    private MessageReceiver mReceiver;
-
-
-    private SobotFreeAccountTipDialog sobotFreeAccountTipDialog;
-
-    private String mTempId;//模板id
-
-    private LinearLayout mllLoading;//加载中
-    private SobotLoadingView loading;//加载中
-
-    //滚动
-    private ScrollView sobot_sv_root;
-
-    //隐私协议
-    private TextView sobot_tv_policy;
-    private ImageView cb_policy;
-    private LinearLayout sobot_ll_policy;
-    private boolean flag_policy = false;
-    private SobotChunkedUploadManager uploadManager;
+    private boolean hasBigFileUpload = false;       // 企业是否开通大文件上传（开通后上限为500M，否则50M）
+    private String hideTxt = "";                    // 附件提示文案模板
 
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_ticket_new;
     }
 
+    /**
+     * 从 Intent 中解析传递的参数
+     * 包括用户ID、企业ID、客户ID、技能组ID、模板配置、模板ID等
+     */
     protected void initBundleData(Bundle savedInstanceState) {
         if (getIntent() != null) {
             mUid = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_UID);
@@ -191,6 +195,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         REQUEST_TAG = "SobotTicketNewActivity";
     }
 
+    /**
+     * 初始化视图控件
+     * - 初始化分片上传管理器
+     * - 初始化隐私协议区域、完成页面控件、表单输入控件
+     * - 设置问题分类选择点击事件、附件上传点击事件
+     * - 设置主题色和键盘隐藏监听
+     */
     @Override
     protected void initView() {
         list = new ArrayList<>();
@@ -208,16 +219,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         loading = findViewById(R.id.iv_loading);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
         mllContainer = (LinearLayout) findViewById(R.id.sobot_ll_container);
+        displayInNotch(mllContainer);
         mLlCompleted = findViewById(R.id.sobot_ll_completed);
+        displayInNotch(mLlCompleted);
         mTvTicket = (TextView) findViewById(R.id.sobot_tv_ticket);
         mTvTicket.setText(R.string.sobot_leaveMsg_to_ticket);
-        if (ChatUtils.isRtl(getSobotBaseActivity())) {
-            Drawable rigthDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_icon_right_arrow_rtl, null);
-            if (rigthDrawable != null) {
-                rigthDrawable.setBounds(0, 0, rigthDrawable.getMinimumWidth(), rigthDrawable.getMinimumHeight());
-                mTvTicket.setCompoundDrawables(rigthDrawable, null, null, null);
-            }
-        }
+        // 设计稿要求："前往留言记录"按钮无箭头 — 原 setCompoundDrawables RTL 镜像箭头逻辑已删除
         mTvCompleted = (TextView) findViewById(R.id.sobot_tv_completed);
         mTvCompleted.setText(R.string.sobot_leaveMsg_create_complete);
         mTvLeaveMsgCreateSuccess = (TextView) findViewById(R.id.sobot_tv_leaveMsg_create_success);
@@ -229,10 +236,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         mTvCompleted.setOnClickListener(this);
         mTvCompleted.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         initReceiver();
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTvCompleted.getLayoutParams();
-            lp.topMargin = ScreenUtils.dip2px(SobotTicketNewActivity.this, 40);
-        }
+        // 完成态按钮排列：宽屏（横屏/折叠内屏/平板）走横向、翻转按钮顺序；竖屏走 XML 默认 vertical
+        bindCompletedActionsByOrientation();
 
         //新建工单
         sobot_post_title = findViewById(R.id.sobot_post_title);
@@ -242,24 +247,18 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_post_email.setViweType("email");
         sobot_btn_submit = findViewById(R.id.sobot_btn_submit);
         ll_upload_file = findViewById(R.id.ll_upload_file);
-        sobot_btn_file = findViewById(R.id.sobot_btn_file);
-        sobot_btn_file.setOnClickListener(this);
-        sobot_file_hite = findViewById(R.id.sobot_file_hite);
-        sobot_file_error = findViewById(R.id.sobot_file_error);
-        String hideTxt = getResources().getString(R.string.sobot_ticket_update_file_hite);
-        sobot_file_hite.setText(String.format(hideTxt, "15", "50M"));
-        sobot_reply_msg_pic = findViewById(R.id.sobot_reply_msg_pic);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        // 设置RecyclerView的LayoutManager
-        sobot_reply_msg_pic.setLayoutManager(layoutManager);
-        sobot_reply_msg_pic.addItemDecoration(new SobotGridSpacingItemDecoration(1, ScreenUtils.dip2px(this, 4), false, ChatUtils.isRtl(getSobotBaseActivity())));
+        hideTxt = getResources().getString(R.string.sobot_ticket_update_file_hite);
+        // 复用自定义字段附件 widget：默认上限 50 → 改 15，文案先按 50M（getProductByCode 异步回调若开通大文件再改 500M）
+        ll_upload_file.setMaxCount(MAX_FILE_COUNT);
+        ll_upload_file.setTipText(50);
+        ll_upload_file.setCusCallBack(uploadCallback, ll_upload_file);
 
         sobot_post_phone = findViewById(R.id.sobot_post_phone);
         sobot_post_phone.setCusCallBack(this);
         sobot_tv_post_msg = (TextView) findViewById(R.id.sobot_tv_post_msg);
         sobot_post_type.setTitle(getResources().getString(R.string.sobot_problem_types), true);
         sobot_post_customer_field = (LinearLayout) findViewById(R.id.sobot_post_customer_field);
-
+        displayInNotch(sobot_btn_submit);
         sobot_post_type.getLlSelectOne().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,6 +300,68 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     };
 
+    /**
+     * 完成态按钮排列：宽屏（横屏 / 折叠屏内屏 / 平板）下切换为水平布局并翻转顺序
+     * （前往留言记录左、完成右，间距由 marginStart 控制）；竖屏沿用 XML 默认 vertical。
+     * 设计稿要求两按钮在横屏下等宽并排：把 XML 的 match_parent 改成 0dp + weight=1。
+     */
+    private void bindCompletedActionsByOrientation() {
+        LinearLayout actions = findViewById(R.id.sobot_completed_actions);
+        if (actions == null) {
+            return;
+        }
+        if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+            actions.setOrientation(LinearLayout.HORIZONTAL);
+            // 翻转按钮顺序：前往留言记录在前、完成在后
+            actions.removeView(mTvCompleted);
+            actions.addView(mTvCompleted);
+            int gap = getResources().getDimensionPixelSize(R.dimen.sobot_completed_btn_gap);
+            // "前往留言记录"按钮：等宽两列左项，top margin 清零，无 start margin
+            LinearLayout.LayoutParams ticketLp = (LinearLayout.LayoutParams) mTvTicket.getLayoutParams();
+            ticketLp.width = 0;
+            ticketLp.weight = 1;
+            ticketLp.topMargin = 0;
+            ticketLp.setMarginStart(0);
+            mTvTicket.setLayoutParams(ticketLp);
+            // "完成"按钮：等宽两列右项，间距由 marginStart 控制
+            LinearLayout.LayoutParams completedLp = (LinearLayout.LayoutParams) mTvCompleted.getLayoutParams();
+            completedLp.width = 0;
+            completedLp.weight = 1;
+            completedLp.topMargin = 0;
+            completedLp.setMarginStart(gap);
+            mTvCompleted.setLayoutParams(completedLp);
+        }
+    }
+
+    /**
+     * 横屏 两列行容器整行可见性兜底：
+     * 仅在 layout-w600dp XML 下 findViewById 才能命中行容器；
+     * - 两个 cell 都隐藏：整行 GONE
+     * - 仅一个 cell 隐藏：把对应 Space 也 GONE，剩余 cell 通过 weight=1 撑满整行
+     */
+    private void applyTwoColRowVisibility() {
+        View rowTitleType = findViewById(R.id.sobot_row_title_type);
+        if (rowTitleType != null && sobot_post_title != null && sobot_post_type != null) {
+            boolean titleVisible = sobot_post_title.getVisibility() == View.VISIBLE;
+            boolean typeVisible = sobot_post_type.getVisibility() == View.VISIBLE;
+            rowTitleType.setVisibility(titleVisible || typeVisible ? View.VISIBLE : View.GONE);
+            View spaceTitleType = findViewById(R.id.sobot_space_title_type);
+            if (spaceTitleType != null) {
+                spaceTitleType.setVisibility(titleVisible && typeVisible ? View.VISIBLE : View.GONE);
+            }
+        }
+        View rowEmailPhone = findViewById(R.id.sobot_row_email_phone);
+        if (rowEmailPhone != null && sobot_post_email != null && sobot_post_phone != null) {
+            boolean emailVisible = sobot_post_email.getVisibility() == View.VISIBLE;
+            boolean phoneVisible = sobot_post_phone.getVisibility() == View.VISIBLE;
+            rowEmailPhone.setVisibility(emailVisible || phoneVisible ? View.VISIBLE : View.GONE);
+            View spaceEmailPhone = findViewById(R.id.sobot_space_email_phone);
+            if (spaceEmailPhone != null) {
+                spaceEmailPhone.setVisibility(emailVisible && phoneVisible ? View.VISIBLE : View.GONE);
+            }
+        }
+    }
+
 
     private void clearFocus() {
         View view = getCurrentFocus();
@@ -310,6 +371,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
+    /**
+     * 标题栏返回按钮点击处理
+     * 如果当前显示的是完成页面，发送广播关闭所有留言相关页面；否则执行默认返回
+     */
     @Override
     protected void onLeftMenuClick(View view) {
         if (mLlCompleted.getVisibility() == View.VISIBLE) {
@@ -322,6 +387,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
+    /**
+     * 初始化数据
+     * 1. 获取用户配置信息和初始化模型
+     * 2. 检测免费账号并弹出提示
+     * 3. 查询企业是否开通大文件上传，然后加载模板配置
+     */
     @Override
     protected void initData() {
         information = (Information) SharedPreferencesUtil.getObject(this, "sobot_last_current_info");
@@ -342,12 +413,38 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         setTitle(R.string.sobot_please_leave_a_message);
 
         showLeftMenu(true);
-        if (mConfig != null) {
-            showTempConfig();
-        } else if (StringUtils.isNoEmpty(mTempId)) {
-            //请求模板配置
-            requestTempConfig(mTempId);
-        }
+        getIsOpenBigFileUpload();
+    }
+
+    /**
+     * 获取企业是否开通大文件上传
+     */
+    private void getIsOpenBigFileUpload() {
+        zhiChiApi.getProductByCode(REQUEST_TAG, mCompanyId, new SobotResultCallBack<Boolean>() {
+            @Override
+            public void onSuccess(Boolean bigFileUpload) {
+                hasBigFileUpload = bigFileUpload;
+                if (bigFileUpload) {
+                    ll_upload_file.setTipText(500);
+                }
+                if (mConfig != null) {
+                    showTempConfig();
+                } else if (StringUtils.isNoEmpty(mTempId)) {
+                    //请求模板配置
+                    requestTempConfig(mTempId);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+                if (mConfig != null) {
+                    showTempConfig();
+                } else if (StringUtils.isNoEmpty(mTempId)) {
+                    //请求模板配置
+                    requestTempConfig(mTempId);
+                }
+            }
+        });
     }
 
     /**
@@ -516,6 +613,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             sobot_tv_policy.setMovementMethod(LinkMovementMethod.getInstance());
 
             sobot_ll_policy.setVisibility(View.VISIBLE);
+            displayInNotch(sobot_ll_policy);
             sobot_btn_submit.setClickable(false);
             sobot_btn_submit.setEnabled(false);
             sobot_btn_submit.getBackground().setAlpha(102);
@@ -553,7 +651,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 if (result != null) {
                     if (result.getField() != null && result.getField().size() != 0) {
                         mFields = result.getField();
-                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseContext(), mFields, sobot_post_customer_field, SobotTicketNewActivity.this);
+                        // 横屏：非铺满类型字段两列展示（附件 / 多行文本始终单列），由 Presenter 内部处理配对
+                        StCusFieldPresenter.addWorkOrderCusFieldsNew(getSobotBaseContext(), mFields, sobot_post_customer_field, SobotTicketNewActivity.this, getResources().getInteger(R.integer.sobot_list_span_count) > 1);
                     }
                 }
             }
@@ -608,6 +707,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         if (mConfig.isTicketTitleShowFlag()) {
             sobot_post_title.setTitle(getResources().getString(R.string.sobot_title), true);
         }
+        // 横屏 两列行容器整行可见性兜底（仅 layout-w600dp 下生效，竖屏 findViewById 为 null 跳过）
+        applyTwoColRowVisibility();
     }
 
     /**
@@ -638,6 +739,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         LocalBroadcastManager.getInstance(getSobotBaseActivity()).registerReceiver(mReceiver, filter);
     }
 
+    /**
+     * 页面销毁时：
+     * 1. 注销广播接收器
+     * 2. 通知外部留言页面已关闭
+     * 3. 关闭进度弹窗和提示弹窗
+     * 4. 如果有正在上传的文件，调用 finishUpload() 清理缓存
+     */
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(getSobotBaseActivity()).unregisterReceiver(mReceiver);
@@ -653,6 +761,14 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         super.onDestroy();
     }
 
+    /**
+     * 点击事件处理
+     * - "前往留言记录"按钮：发送关闭广播，跳转到留言记录列表
+     * - "完成"按钮：发送关闭广播，返回上一页
+     * - 上传附件按钮：检查附件数量上限，弹出选择图片/文件弹窗
+     * - 隐私协议区域：切换勾选状态，控制提交按钮可用性
+     * - 提交按钮：执行自定义字段校验并提交工单
+     */
     @Override
     public void onClick(View v) {
         clearFocus();
@@ -668,14 +784,6 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             CommonUtils.sendLocalBroadcast(SobotTicketNewActivity.this, intent);
             //完成
             onBackPressed();
-        } else if (v == sobot_btn_file) {
-            if (pic_list.size() >= 15) {
-                //图片上限15张
-                ToastUtil.showToast(this, getResources().getString(R.string.sobot_ticket_update_file_max_hite));
-            } else {
-                selectPicDialog = new SobotSelectPicDialog(this, itemsOnClick);
-                selectPicDialog.show();
-            }
         } else if (v == sobot_ll_policy) {
             //隐私协议
             flag_policy = !flag_policy;
@@ -695,7 +803,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     }
 
     /**
-     * 提交
+     * 提交前的自定义字段校验
+     * 先校验自定义字段，校验通过后执行 checkSubmit() 校验标准字段
      */
     private void setCusFieldValue() {
         //自定义表单校验结果:为空,校验通过,可以提交;不为空,说明自定义字段校验不通过，不能提交留言表单;
@@ -706,6 +815,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     }
 
 
+    /**
+     * 校验标准字段（标题、分类、描述、附件、邮箱、手机号）
+     * 校验顺序按表单从上到下排列，校验不通过时显示错误提示并 return。
+     * 全部校验通过后调用 postMsg() 提交工单
+     */
     private void checkSubmit() {
         String userPhone = "", userEamil = "", title = "";
 
@@ -732,7 +846,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             for (int i = 0; i < mFields.size(); i++) {
                 if (1 == mFields.get(i).getCusFieldConfig().getFillFlag()) {
                     if (mFields.get(i).getCusFieldConfig().getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD) {
-                        if (null == mFields.get(i).getCusFieldConfig().getCacheFile()) {
+                        java.util.List<SobotCacheFile> files = mFields.get(i).getCusFieldConfig().getCacheFileList();
+                        if (files == null || files.isEmpty()) {
                             showHint(mFields.get(i).getCusFieldConfig().getFieldName() + "  " + getResources().getString(R.string.sobot__is_null));
                             return;
                         }
@@ -757,11 +872,10 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
         if (mConfig.isEnclosureShowFlag() && mConfig.isEnclosureFlag()) {
             if (TextUtils.isEmpty(getFileStr())) {
-                sobot_file_error.setText(getResources().getString(R.string.sobot_please_load));
-                sobot_file_error.setVisibility(View.VISIBLE);
+                ll_upload_file.showError(getResources().getString(R.string.sobot_please_load));
                 return;
             } else {
-                sobot_file_error.setVisibility(View.GONE);
+                ll_upload_file.hideError();
             }
         }
 
@@ -855,6 +969,17 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         postMsg(userPhone, userEamil, title, flag_policy);
     }
 
+    /**
+     * 提交留言工单
+     * 组装所有表单数据（包括自定义字段、扩展参数等）调用接口提交。
+     * 提交期间禁用提交按钮防止重复提交。
+     * 成功后隐藏表单，显示完成页面。
+     *
+     * @param userPhone      手机号
+     * @param userEamil      邮箱
+     * @param title          标题
+     * @param authorizeAgree 是否同意隐私协议
+     */
     private void postMsg(String userPhone, String userEamil, String title, boolean authorizeAgree) {
         sobot_btn_submit.setAlpha(0.5f);
         sobot_btn_submit.setEnabled(false);
@@ -913,7 +1038,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     }
                 } catch (Exception e) {
                     showHint(base.getMsg());
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
 
@@ -931,25 +1056,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         });
     }
 
-    // 为弹出窗口popupwindow实现监听类
-    private View.OnClickListener itemsOnClick = new View.OnClickListener() {
-        public void onClick(View v) {
-            selectPicDialog.dismiss();
-            if (v.getId() == R.id.btn_take_photo) {
-                LogUtils.i("拍照");
-                selectPicFromCamera();
-            }
-            if (v.getId() == R.id.btn_pick_photo) {
-                LogUtils.i("选择照片");
-                selectPicFromLocal();
-            }
-            if (v.getId() == R.id.btn_pick_vedio) {
-                LogUtils.i("选择视频");
-                selectVedioFromLocal();
-            }
-
-        }
-    };
+    /**
+     * 选择图片/文件弹窗的按钮点击监听（拍照、选择照片、选择视频、选择文件、取消）
+     */
     private View.OnClickListener itemsOnClick2 = new View.OnClickListener() {
         public void onClick(View v) {
             selectPicAndFileDialog.dismiss();
@@ -977,10 +1086,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     };
 
+    /**
+     * 自定义字段点击回调
+     * 根据字段类型打开对应的选择页面：日期/时间选择器、下拉/单选/多选、级联选择、地区选择
+     */
     @Override
     public void onClickCusField(TextView view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
         clearFocus();
-        //清空获得焦点
         if (cusField == null) return;
         final SobotCusFieldConfig cusFieldConfig = cusField.getCusFieldConfig();
         switch (fieldConfig.getFieldType()) {
@@ -1020,13 +1132,18 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
+    /**
+     * 手机号输入框左侧区号点击回调，打开区号选择页面
+     */
     @Override
     public void inputLeftOnclick() {
-        //选择区号
         Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhoneCodeDialog.class);
         startActivityForResult(intent, 4001);
     }
 
+    /**
+     * 本地广播接收器，监听关闭留言页面的广播事件
+     */
     public class MessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1036,14 +1153,17 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
+    /**
+     * 根据主题色更新提交按钮、完成按钮、成功图标的颜色
+     */
     public void updateUIByThemeColor() {
         if (ThemeUtils.isChangedThemeColor(getSobotBaseContext())) {
 
             int color = ThemeUtils.getThemeColor(getSobotBaseContext());
             Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
-                mTvCompleted.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, color));
+                mTvCompleted.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, color));
             }
             sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
             mTvCompleted.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
@@ -1052,77 +1172,117 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     }
 
     /**
-     * 初始化图片选择的控件
+     * 初始化图片选择的控件。
+     * 改造后 SobotUploadView 已在 onCreate 初始化（setMaxCount + setTipText + setCusCallBack），
+     * 此方法保留为兼容入口（旧调用点 showTempConfig 仍调用），方法体为空。
      */
     private void initPicListView() {
-        adapter = new SobotUploadFileAdapter(SobotTicketNewActivity.this, pic_list, true, new SobotUploadFileAdapter.Listener() {
-            @Override
-            public void downFileLister(SobotFileModel model) {
+        // no-op：SobotUploadView 自管 UI，pic_list 由 addPicView 维护，删除走 uploadCallback.onClickDelete
+    }
 
+    /**
+     * 上传 widget 回调（onClickUpload / onClickPreview / onClickDelete 三个核心，其余空实现）。
+     * D0：删除直接生效，不弹"是否删除"确认 dialog，与自定义字段附件交互完全一致。
+     */
+    private final SobotCusFieldListener uploadCallback = new SobotCusFieldListener() {
+        @Override
+        public void onClickUpload(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+            // 这里的 onClickUpload 是 ticket_new 主附件的上传按钮触发的（fieldConfig 为 null）
+            // 自定义字段附件的上传走 SobotCustomFieldUtils 的另一条调用链，不复用此回调
+            if (fieldConfig != null) {
+                return;
             }
+            if (pic_list.size() >= MAX_FILE_COUNT) {
+                // 附件上限兜底（widget 内部已隐藏上传按钮，此处仅防御）
+                ToastUtil.showToast(SobotTicketNewActivity.this,
+                        String.format(getResources().getString(R.string.sobot_ticket_update_file_max_hite), MAX_FILE_COUNT));
+                return;
+            }
+            selectPicAndFileDialog = new SobotSelectPicAndFileDialog(SobotTicketNewActivity.this, itemsOnClick2);
+            selectPicAndFileDialog.show();
+        }
 
-            @Override
-            public void previewMp4(SobotFileModel fileModel) {
-                File file = new File(fileModel.getFileUrl());
-                SobotCacheFile cacheFile = new SobotCacheFile();
-                cacheFile.setFileName(file.getName());
-                cacheFile.setUrl(fileModel.getFileUrl());
-                cacheFile.setFilePath(fileModel.getFileUrl());
-                cacheFile.setFileType(FileTypeConfig.getFileType(FileUtil.checkFileEndWith(fileModel.getFileUrl())));
-                cacheFile.setMsgId("" + System.currentTimeMillis());
+        @Override
+        public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
+            // 自定义字段附件预览走自己的回调链，这里只处理主附件区域
+            if (fieldConfig != null || cacheFile == null) {
+                return;
+            }
+            String url = cacheFile.getUrl();
+            if (TextUtils.isEmpty(url)) {
+                return;
+            }
+            if (MediaFileUtils.isVideoFileType(url)) {
                 Intent intent = SobotVideoActivity.newIntent(getSobotBaseActivity(), cacheFile);
                 startActivity(intent);
-            }
-
-            @Override
-            public void deleteFile(final SobotFileModel fileModel) {
-                String popMsg = getResources().getString(R.string.sobot_do_you_delete_picture);
-                if (fileModel != null) {
-                    if (!TextUtils.isEmpty(fileModel.getFileUrl()) && MediaFileUtils.isVideoFileType(fileModel.getFileUrl())) {
-                        popMsg = getResources().getString(R.string.sobot_do_you_delete_video);
-                    }
-                }
-                if (seleteMenuWindow != null) {
-                    seleteMenuWindow.dismiss();
-                    seleteMenuWindow = null;
-                }
-                if (seleteMenuWindow == null) {
-                    seleteMenuWindow = new SobotDeleteWorkOrderDialog(getSobotBaseActivity(), popMsg, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            seleteMenuWindow.dismiss();
-                            if (v.getId() == R.id.btn_pick_photo) {
-                                Log.e("onClick: ", seleteMenuWindow.getPosition() + "");
-                                pic_list.remove(fileModel);
-                                if (pic_list.size() > 0) {
-                                    sobot_reply_msg_pic.setVisibility(View.VISIBLE);
-                                } else {
-                                    sobot_reply_msg_pic.setVisibility(View.GONE);
-                                }
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
-                }
-                seleteMenuWindow.show();
-            }
-
-            @Override
-            public void previewPic(String fileUrl, String fileName) {
+            } else {
                 if (SobotOption.imagePreviewListener != null) {
-                    //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(getSobotBaseActivity(), fileUrl);
+                    boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(getSobotBaseActivity(), url);
                     if (isIntercept) {
                         return;
                     }
                 }
                 Intent intent = new Intent(getSobotBaseActivity(), SobotPhotoActivity.class);
-                intent.putExtra("imageUrL", fileUrl);
+                intent.putExtra("imageUrL", url);
                 startActivity(intent);
             }
-        });
+        }
 
-        sobot_reply_msg_pic.setAdapter(adapter);
+        @Override
+        public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
+            // 自定义字段附件删除走自己的 cusFieldConfig.removeCacheFile，这里只处理主附件区域
+            if (fieldConfig != null || cacheFile == null) {
+                return;
+            }
+            // widget 已自动移除 UI（D0）；这里只同步 pic_list（按 fileUrl 匹配定位）
+            String url = cacheFile.getUrl();
+            if (TextUtils.isEmpty(url)) {
+                return;
+            }
+            java.util.Iterator<SobotFileModel> it = pic_list.iterator();
+            while (it.hasNext()) {
+                SobotFileModel m = it.next();
+                if (url.equals(m.getFileUrl())) {
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
+        // 以下 4 个回调与附件无关（手机区号 / 时区 / 自定义字段点击），主附件场景空实现
+        @Override
+        public void onClickCusField(TextView view, SobotCusFieldConfig fieldConfig, SobotFieldModel cusField) {
+        }
+
+        @Override
+        public void inputLeftOnclick() {
+        }
+
+        @Override
+        public void selectLeftOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
+        }
+
+        @Override
+        public void selectRightOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
+        }
+    };
+
+    /**
+     * SobotFileModel → SobotCacheFile 转换（widget 内部用 SobotCacheFile 渲染 chip）。
+     * pic_list 仍以 SobotFileModel 为真相，widget 仅作 UI 镜像。
+     */
+    private SobotCacheFile toCacheFile(SobotFileModel item) {
+        SobotCacheFile cacheFile = new SobotCacheFile();
+        cacheFile.setUrl(item.getFileUrl());
+        cacheFile.setFilePath(!TextUtils.isEmpty(item.getFileLocalPath()) ? item.getFileLocalPath() : item.getFileUrl());
+        cacheFile.setFileName(item.getFileName());
+        // SobotFileModel.fileType 是 String（"jpg"/"mp4"...），SobotCacheFile.fileType 是 int（ZhiChiConstant.MSGTYPE_FILE_*）
+        // 必须用 ChatUtils.getFileType（返回 ZhiChiConstant 体系，PIC=22）；
+        // 不能用 FileTypeConfig.getFileType（返回 FileTypeConfig 体系，PIC=1）——否则 onClickPreview / SobotUploadView.addPicView
+        // 中按 ZhiChiConstant.MSGTYPE_FILE_PIC 的判断永远不成立，图片附件会被当文件打开
+        cacheFile.setFileType(ChatUtils.getFileType(item.getFileType()));
+        cacheFile.setMsgId("" + System.currentTimeMillis());
+        return cacheFile;
     }
 
     public void showHint(String content) {
@@ -1131,45 +1291,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
-    private ChatUtils.SobotSendFileListener sendPicListener = new ChatUtils.SobotSendFileListener() {
-        @Override
-        public void onSuccess(final String filePath) {
-            zhiChiApi.fileUploadForPostMsg(SobotTicketNewActivity.this, mConfig.getCompanyId(), mUid, filePath, new ResultCallBack<ZhiChiMessage>() {
-                @Override
-                public void onSuccess(ZhiChiMessage zhiChiMessage) {
-                    SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
-                    if (zhiChiMessage.getData() != null) {
-                        SobotFileModel item = new SobotFileModel();
-                        item.setFileUrl(zhiChiMessage.getData().getUrl());
-                        item.setFileLocalPath(filePath);
-                        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-                        item.setFileName(fileName);
-                        item.setFileType(fileType);
-                        addPicView(item);
-                    }
-                }
-
-                @Override
-                public void onFailure(Exception e, String des) {
-                    SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
-                    showHint(TextUtils.isEmpty(des) ? getResources().getString(R.string.sobot_net_work_err) : des);
-                }
-
-                @Override
-                public void onLoading(long total, long current, boolean isUploading) {
-
-                }
-            });
-        }
-
-        @Override
-        public void onError() {
-            SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
-        }
-    };
     /**
-     * 分片上传文件
+     * 文件上传回调监听
+     * 文件选择/压缩完成后触发分片上传，上传成功后：
+     * - 如果是自定义字段的上传：回显到对应的自定义字段视图
+     * - 如果是附件上传：添加到附件列表并刷新
      */
     private ChatUtils.SobotSendFileListener sendFileListener = new ChatUtils.SobotSendFileListener() {
         @Override
@@ -1179,7 +1305,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
                 return;
             }
-            if(null == uploadManager){
+            if (null == uploadManager) {
                 uploadManager = new SobotChunkedUploadManager(getSobotBaseActivity(), zhiChiApi);
             }
             uploadManager.uploadFile(file, mCompanyId, new SobotChunkedUploadManager.UploadCallback() {
@@ -1187,17 +1313,27 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 public void onSuccess(UploadInitModel result) {
                     SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
                     if (uploadFieldConfig != null && result != null) {
-                        uploadFieldConfig.setText(result.getFileName());
+                        //自定义字段：追加到多文件列表
                         SobotCacheFile cacheFile = new SobotCacheFile();
                         cacheFile.setFileType(ChatUtils.getFileType(result.getFileName()));
                         cacheFile.setFilePath(filePath);
                         cacheFile.setUrl(result.getFileUrl());
                         cacheFile.setFileName(result.getFileName());
-                        uploadFieldConfig.setCacheFile(cacheFile);
-                        uploadView.addPicView(uploadFieldConfig);
+                        uploadFieldConfig.addCacheFile(cacheFile);
+                        uploadView.addPicView(cacheFile);
 
+                        uploadFieldConfig = null;
+                    } else {
+                        //附件
+                        SobotFileModel item = new SobotFileModel();
+                        item.setFileUrl(result.getFileUrl());
+                        item.setFileLocalPath(filePath);
+                        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+                        String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+                        item.setFileName(fileName);
+                        item.setFileType(fileType);
+                        addPicView(item);
                     }
-                    uploadFieldConfig = null;
                 }
 
                 @Override
@@ -1222,19 +1358,21 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     };
 
+    /**
+     * 添加附件到已上传列表并刷新显示。
+     * pic_list 是真相（提交时拼 fileStr 用），widget 仅 UI 投影。
+     */
     public void addPicView(SobotFileModel item) {
-        if (sobot_reply_msg_pic.getVisibility() == View.GONE) {
-            sobot_reply_msg_pic.setVisibility(View.VISIBLE);
-        }
         pic_list.add(item);
-        if (pic_list.size() > 0) {
-            sobot_reply_msg_pic.setVisibility(View.VISIBLE);
-        } else {
-            sobot_reply_msg_pic.setVisibility(View.GONE);
-        }
-        adapter.notifyDataSetChanged();
+        // widget 内部自动管理上传按钮 / 列表显隐（addPicView 内调用 updateUploadButtonVisibility）
+        ll_upload_file.addPicView(toCacheFile(item));
+        // 上传成功后清除"请上传附件"红字错误提示（widget 的 addPicView 内部已隐藏，但此处显式调用更明确）
+        ll_upload_file.hideError();
     }
 
+    /**
+     * 获取所有已上传附件的 URL 拼接字符串（分号分隔），用于提交工单
+     */
     public String getFileStr() {
         String tmpStr = "";
         if (!mConfig.isEnclosureShowFlag()) {
@@ -1247,22 +1385,15 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         return tmpStr;
     }
 
-    public String getFileNameStr() {
-        String tmpStr = "";
-        if (!mConfig.isEnclosureShowFlag()) {
-            return tmpStr;
-        }
-        for (int i = 0; i < pic_list.size(); i++) {
-            if (!TextUtils.isEmpty(pic_list.get(i).getFileLocalPath())) {
-                tmpStr += pic_list.get(i).getFileLocalPath().substring(pic_list.get(i).getFileLocalPath().lastIndexOf("/") + 1);
-            }
-            if (i != (pic_list.size() - 1)) {
-                tmpStr += "<br/>";
-            }
-        }
-        return tmpStr;
-    }
 
+    /**
+     * 处理子页面返回结果
+     * - 隐私协议页面返回：更新勾选状态
+     * - 图片/视频/文件选择返回：执行文件上传
+     * - 问题分类选择返回：更新分类显示
+     * - 区号选择返回：更新区号显示
+     * - 自定义字段选择返回：更新自定义字段值
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1280,7 +1411,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             }
         } else if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ZhiChiConstant.REQUEST_CODE_picture) { // 发送本地图片
-                sobot_file_error.setVisibility(View.GONE);
+                ll_upload_file.hideError();
                 if (data != null && data.getData() != null) {
                     SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
                     Uri selectedImage = data.getData();
@@ -1292,38 +1423,14 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                         @Override
                         public void onResult(String path) {
                             if (!StringUtils.isEmpty(path)) {
+                                File selectedFile = new File(path);
+                                int maxStorage = 50;
                                 if (uploadFieldConfig != null) {
-                                    File selectedFile = new File(path);
-                                    ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
-                                } else {
-                                    if (MediaFileUtils.isVideoFileType(path)) {
-                                        try {
-
-                                            File selectedFile = new File(path);
-                                            if (selectedFile.exists()) {
-                                                if (selectedFile.length() > 50 * 1024 * 1024) {
-                                                    ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_file_upload_failed));
-                                                    return;
-                                                }
-                                            }
-                                            String fName = MD5Util.encode(path);
-                                            String filePath = null;
-                                            try {
-                                                filePath = FileUtil.saveImageFile(getSobotBaseActivity(), finalSelectedImage, fName + FileUtil.getFileEndWith(path), path);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                                ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_pic_type_error));
-                                                return;
-                                            }
-                                            sendPicListener.onSuccess(filePath);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    } else {
-                                        ChatUtils.sendPicByUriPost(getSobotBaseActivity(), finalSelectedImage, sendPicListener, false);
-                                    }
+                                    maxStorage = uploadFieldConfig.getMaxStorage();
+                                } else if (hasBigFileUpload) {
+                                    maxStorage = 500;
                                 }
+                                ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, maxStorage, sendFileListener);
                             } else {
                                 SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
                                 showHint(getResources().getString(R.string.sobot_did_not_get_picture_path));
@@ -1335,54 +1442,76 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     showHint(getResources().getString(R.string.sobot_did_not_get_picture_path));
                 }
             } else if (requestCode == ZhiChiConstant.REQUEST_CODE_makePictureFromCamera) {
-                sobot_file_error.setVisibility(View.GONE);
+                ll_upload_file.hideError();
                 if (cameraFile != null && cameraFile.exists()) {
                     SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                    int maxStorage = 50;
                     if (uploadFieldConfig != null) {
-                        ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
-                    } else {
-                        ChatUtils.sendPicByFilePath(getSobotBaseActivity(), cameraFile.getAbsolutePath(), sendPicListener, true);
+                        maxStorage = uploadFieldConfig.getMaxStorage();
+                    } else if (hasBigFileUpload) {
+                        maxStorage = 500;
                     }
+                    ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, maxStorage, sendFileListener);
                 } else {
                     showHint(getResources().getString(R.string.sobot_pic_select_again));
                 }
             } else if (requestCode == ZhiChiConstant.REQUEST_COCE_TO_CHOOSE_FILE) {
                 //上传文件
+                ll_upload_file.hideError();
                 Uri selectedImage = data.getData();
                 if (null == selectedImage) {
                     File selectedFile = (File) data.getSerializableExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE);
                     //文件的上传
-                    if (uploadFieldConfig != null && selectedFile != null) {
-                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                        ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
+                    int maxStorage = 50;
+                    if (uploadFieldConfig != null) {
+                        maxStorage = uploadFieldConfig.getMaxStorage();
+                    } else if (hasBigFileUpload) {
+                        maxStorage = 500;
                     }
+                    SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                    ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, maxStorage, sendFileListener);
                 } else {
-                    if (selectedImage == null) {
-                        selectedImage = ImageUtils.getUri(data, getSobotBaseActivity());
+                    // 先弹 loading，再走异步解析路径（大文件 content:// 复制到 cache 耗时 1~3s，
+                    // 同步 getPath 会阻塞主线程白屏）
+                    SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                    final int maxStorage;
+                    if (uploadFieldConfig != null) {
+                        maxStorage = uploadFieldConfig.getMaxStorage();
+                    } else if (hasBigFileUpload) {
+                        maxStorage = 500;
+                    } else {
+                        maxStorage = 50;
                     }
-                    String path = ImageUtils.getPath(getSobotBaseActivity(), selectedImage);//耗时
-                    if (TextUtils.isEmpty(path)) {
-                        ToastUtil.showToast(getSobotBaseActivity(), getResources().getString(R.string.sobot_cannot_open_file));
-                        return;
-                    }
-                    File selectedFile = new File(path);
-                    //文件的上传
-                    if (uploadFieldConfig != null && selectedFile != null) {
-                        SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                        ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
-                    }
+                    ImageUtils.getPathAsync(getSobotBaseActivity(), selectedImage, new ImageUtils.OnPathCallback() {
+                        @Override
+                        public void onResult(String path) {
+                            if (TextUtils.isEmpty(path)) {
+                                SobotDialogUtils.stopProgressDialog(getSobotBaseActivity());
+                                ToastUtil.showToast(getSobotBaseActivity(), getResources().getString(R.string.sobot_cannot_open_file));
+                                return;
+                            }
+                            File selectedFile = new File(path);
+                            ChatUtils.sendByFilePost(getSobotBaseActivity(), selectedFile, maxStorage, sendFileListener);
+                        }
+                    });
                 }
             }
         } else if (resultCode == SobotCameraActivity.RESULT_CODE) {
             if (requestCode == ChatUtils.REQUEST_CODE_CAMERA) {
-                sobot_file_error.setVisibility(View.GONE);
+                ll_upload_file.hideError();
                 int actionType = SobotCameraActivity.getActionType(data);
                 if (actionType == SobotCameraActivity.ACTION_TYPE_VIDEO) {
                     File videoFile = new File(SobotCameraActivity.getSelectedVideo(data));
                     if (videoFile.exists()) {
                         cameraFile = videoFile;
                         SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
-                        sendPicListener.onSuccess(videoFile.getAbsolutePath());
+                        int maxStorage = 50;
+                        if (uploadFieldConfig != null) {
+                            maxStorage = uploadFieldConfig.getMaxStorage();
+                        } else if (hasBigFileUpload) {
+                            maxStorage = 500;
+                        }
+                        ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, maxStorage, sendFileListener);
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
@@ -1391,11 +1520,13 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                     if (tmpPic.exists()) {
                         cameraFile = tmpPic;
                         SobotDialogUtils.startProgressDialog(getSobotBaseActivity());
+                        int maxStorage = 50;
                         if (uploadFieldConfig != null) {
-                            ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, uploadFieldConfig.getMaxStorage(), sendFileListener);
-                        } else {
-                            ChatUtils.sendPicByFilePath(getSobotBaseActivity(), tmpPic.getAbsolutePath(), sendPicListener, true);
+                            maxStorage = uploadFieldConfig.getMaxStorage();
+                        } else if (hasBigFileUpload) {
+                            maxStorage = 500;
                         }
+                        ChatUtils.sendByFilePost(getSobotBaseActivity(), cameraFile, maxStorage, sendFileListener);
                     } else {
                         showHint(getResources().getString(R.string.sobot_pic_select_again));
                     }
@@ -1477,12 +1608,14 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
-    private ArrayList<SobotTimezone> list;
-    private int requestCount = 0;//请求的次数
+    private ArrayList<SobotTimezone> list;       // 时区列表数据缓存
+    private int requestCount = 0;               // 时区请求重试次数（最多5次）
 
+    /**
+     * 自定义字段时区选择左侧（时区）点击回调
+     */
     @Override
     public void selectLeftOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
-        //时区
         if (list == null || list.size() == 0) {
             requestZone(true, fieldConfig);
         } else {
@@ -1490,9 +1623,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
+    /**
+     * 自定义字段时区选择右侧（时间）点击回调
+     */
     @Override
     public void selectRightOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
-        //时间
         if (fieldConfig != null) {
             Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
             Bundle bundle = new Bundle();
@@ -1502,37 +1637,56 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         }
     }
 
-    //================自定义字段上传======start===========
+    // ==================== 自定义字段上传回调 ====================
+
+    /**
+     * 自定义字段删除附件回调（列表已在 SobotUploadView 内部更新，此处无需额外处理）
+     */
     @Override
-    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
 
     }
 
+    /**
+     * 自定义字段附件预览回调，根据文件类型跳转图片预览或文件预览页面
+     */
     @Override
-    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
-        //预览，加载本地文件
-        if (fieldConfig != null && fieldConfig.getCacheFile() != null) {
-            if (fieldConfig.getCacheFile().getFileType() == ZhiChiConstant.MSGTYPE_FILE_PIC) {
-                //图片预览
-                Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhotoActivity.class);
-                intent.putExtra("imageUrL", fieldConfig.getCacheFile().getFilePath());
-                startActivity(intent);
-            } else {
-                //文件预览
-                Intent intent = new Intent(SobotTicketNewActivity.this, SobotFileDetailActivity.class);
-                fieldConfig.getCacheFile().setMsgId("" + System.currentTimeMillis());
-                intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, fieldConfig.getCacheFile());
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
+        if (cacheFile == null) return;
+        if (cacheFile.getFileType() == ZhiChiConstant.MSGTYPE_FILE_PIC) {
+            // 收集字段中所有图片，支持左右滑动预览
+            List<SobotCacheFile> imageList = new ArrayList<>();
+            int startIndex = 0;
+            if (fieldConfig != null && fieldConfig.getCacheFileList() != null) {
+                for (SobotCacheFile f : fieldConfig.getCacheFileList()) {
+                    if (f.getFileType() == ZhiChiConstant.MSGTYPE_FILE_PIC) {
+                        if (f == cacheFile) {
+                            startIndex = imageList.size();
+                        }
+                        imageList.add(f);
+                    }
+                }
             }
+            if (imageList.isEmpty()) {
+                imageList.add(cacheFile);
+            }
+            SobotCusFieldImagePreviewDialog dialog =
+                    new SobotCusFieldImagePreviewDialog(SobotTicketNewActivity.this, imageList, startIndex);
+            dialog.show();
+        } else {
+            Intent intent = new Intent(SobotTicketNewActivity.this, SobotFileDetailActivity.class);
+            cacheFile.setMsgId("" + System.currentTimeMillis());
+            intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, cacheFile);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 
+    /**
+     * 自定义字段上传按钮点击回调，记录当前上传的字段和视图，弹出文件选择弹窗
+     */
     @Override
     public void onClickUpload(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
-        if (uploadFieldConfig != null) {
-            //清空上次的上传数据
-        }
         uploadView = view;
         uploadFieldConfig = fieldConfig;
         selectPicAndFileDialog = new SobotSelectPicAndFileDialog(this, itemsOnClick2);
@@ -1541,9 +1695,11 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 //================自定义字段上传======end===========
 
     /**
-     * 请求时区
+     * 请求时区列表数据
+     * 请求失败时自动重试，最多重试5次
      *
-     * @param showDialog
+     * @param showDialog  请求成功后是否弹出时区选择弹窗
+     * @param fieldConfig 关联的自定义字段配置
      */
     private void requestZone(final boolean showDialog, SobotCusFieldConfig fieldConfig) {
         if (requestCount > 5) {
@@ -1574,6 +1730,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         });
     }
 
+    /**
+     * 弹出时区选择页面
+     */
     private void showZoneDialog(SobotCusFieldConfig fieldConfig) {
         Intent intent = new Intent(this, SobotZoneActivity.class);
         intent.putExtra("cusFieldConfig", fieldConfig);

@@ -1,5 +1,6 @@
 package com.sobot.chat.widget.subscaleview.decoder;
 
+
 import static android.content.Context.ACTIVITY_SERVICE;
 
 import android.app.ActivityManager;
@@ -17,12 +18,12 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.subscaleview.SobotScaleImageView;
 
 import java.io.File;
@@ -98,6 +99,7 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
 
     /**
      * Controls logging of debug messages. All instances are affected.
+     *
      * @param debug true to enable debug logging, false to disable.
      */
     @Keep
@@ -224,7 +226,9 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
                 }
             } finally {
                 if (inputStream != null) {
-                    try { inputStream.close(); } catch (Exception e) { /* Ignore */ }
+                    try {
+                        inputStream.close();
+                    } catch (Exception e) { /* Ignore */ }
                 }
             }
         }
@@ -315,8 +319,9 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
      * Called before creating a new decoder. Based on number of CPU cores, available memory, and the
      * size of the image file, determines whether another decoder can be created. Subclasses can
      * override and customise this.
+     *
      * @param numberOfDecoders the number of decoders that have been created so far
-     * @param fileLength the size of the image file in bytes. Creating another decoder will use approximately this much native memory.
+     * @param fileLength       the size of the image file in bytes. Creating another decoder will use approximately this much native memory.
      * @return true if another decoder can be created.
      */
     @SuppressWarnings("WeakerAccess")
@@ -334,7 +339,7 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
             debug("No additional encoders allowed, memory is low");
             return false;
         }
-        debug("Additional decoder allowed, current count is " + numberOfDecoders + ", estimated native memory " + ((fileLength * numberOfDecoders)/(1024 * 1024)) + "Mb");
+        debug("Additional decoder allowed, current count is " + numberOfDecoders + ", estimated native memory " + ((fileLength * numberOfDecoders) / (1024 * 1024)) + "Mb");
         return true;
     }
 
@@ -437,6 +442,7 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
     /**
      * Gets the number of cores available in this device, across all processors.
      * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+     *
      * @return The number of cores, or 1 if failed to get result
      */
     private int getNumCoresOldPhones() {
@@ -450,13 +456,13 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
             File dir = new File("/sys/devices/system/cpu/");
             File[] files = dir.listFiles(new CpuFilter());
             return files.length;
-        } catch(Exception e) {
+        } catch (Exception e) {
             return 1;
         }
     }
 
     private boolean isLowMemory() {
-        ActivityManager activityManager = (ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         if (activityManager != null) {
             ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
             activityManager.getMemoryInfo(memoryInfo);
@@ -468,7 +474,7 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
 
     private void debug(String message) {
         if (debug) {
-            Log.d(TAG, message);
+            LogUtils.d(message);
         }
     }
 

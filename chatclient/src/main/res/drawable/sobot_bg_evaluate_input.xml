@@ -3,9 +3,9 @@
     android:shape="rectangle">
     <stroke
         android:width="0.6dp"
-        android:color="@color/sobot_dialog_input" />
+        android:color="@color/sobot_evaluate_btn" />
 
-    <solid android:color="@color/sobot_color_transparent" />
+    <solid android:color="@color/sobot_evaluate_btn_bg" />
 
     <corners android:radius="8dp" />
 </shape>

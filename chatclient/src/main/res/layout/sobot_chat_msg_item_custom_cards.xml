@@ -12,14 +12,12 @@
         android:id="@+id/sobot_v_h"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
         <!--商品列表-->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_goods_list_h"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-             />
+            android:layout_height="wrap_content" />
     </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
 </LinearLayout>

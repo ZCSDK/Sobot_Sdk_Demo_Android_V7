@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.fragment.app.Fragment;
 
@@ -67,16 +68,22 @@ public class StCusFieldPresenter {
                 try {
                     if (cusFieldConfig != null && !StringUtils.isEmpty(cusFieldConfig.getFieldId())) {
                         if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD) {
-                            //附件类型
+                            //附件类型：将多文件列表序列化为 JSONArray
                             JSONArray array = new JSONArray();
-                            JSONObject value = new JSONObject();
-                            if (field.get(i).getCusFieldConfig().getCacheFile() != null) {
-                                try {
-                                    value.put("fileUrl", field.get(i).getCusFieldConfig().getCacheFile().getUrl());
-                                    value.put("fileName", field.get(i).getCusFieldConfig().getCacheFile().getFileName());
-                                    array.put(value);
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
+                            java.util.List<com.sobot.chat.api.model.SobotCacheFile> files =
+                                    field.get(i).getCusFieldConfig().getCacheFileList();
+                            if (files != null) {
+                                for (com.sobot.chat.api.model.SobotCacheFile f : files) {
+                                    if (f != null) {
+                                        try {
+                                            JSONObject value = new JSONObject();
+                                            value.put("fileUrl", f.getUrl());
+                                            value.put("fileName", f.getFileName());
+                                            array.put(value);
+                                        } catch (JSONException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
                                 }
                             }
                             model.put("id", field.get(i).getCusFieldConfig().getFieldId());
@@ -244,10 +251,10 @@ public class StCusFieldPresenter {
             if ("null".equals(id) || TextUtils.isEmpty(id)) {
                 return;
             }
-            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE){
+            if (fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE) {
                 //时区
                 SobotTimezone timezone = (SobotTimezone) data.getSerializableExtra("selectStauts");
-                if(null!=timezone){
+                if (null != timezone) {
                     for (int i = 0; i < field.size(); i++) {
                         SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
                         if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
@@ -258,7 +265,7 @@ public class StCusFieldPresenter {
                         }
                     }
                 }
-            }else {
+            } else {
                 String value = data.getStringExtra("category_typeName");//选项的名字
                 String dataValue = data.getStringExtra("category_typeValue");//选项的值
                 if (field != null && !StringUtils.isEmpty(value) && !StringUtils.isEmpty(dataValue)) {
@@ -270,81 +277,14 @@ public class StCusFieldPresenter {
                             model.setId(id);
                             model.setShowName(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
                             SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
-                            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE_TIME) {
+                            if (fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE_TIME) {
                                 Date date1 = DateUtil.parse(value, new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()));
                                 //时区中的时间
                                 Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
                                 String fomamet = DateUtil.getDateTimeFormatByLanguage(locale);
                                 view.setSelectRightValue(DateUtil.dateToString(context, date1, fomamet));
                                 view.getTv_select_two_right().setTag(dataValue);
-                            }else{
-                                view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                            }
-                            view.getTvSelect().setSelected(true);
-                        }
-                    }
-                } else {
-                    //还原样式
-                    SobotInputView view = post_customer_field.findViewWithTag(id);
-                    if (view != null) {
-                        view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                    }
-                    if (StringUtils.isEmpty(dataValue)) {
-                        for (int i = 0; i < field.size(); i++) {
-                            //清空上次选中
-                            SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
-                            if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
-                                model.setChecked(false);
-                                model.setValue(dataValue);
-                                model.setId(id);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    public static void onStCusFieldFileActivityResult(Context context, Intent data, ArrayList<SobotFieldModel> field, ViewGroup post_customer_field) {
-        if (data != null && "CATEGORYSMALL".equals(data.getStringExtra("CATEGORYSMALL")) && -1 != data.getIntExtra("fieldType", -1)) {
-            int fieldType = data.getIntExtra("fieldType", -1);//自定义类型
-            String id = data.getStringExtra("category_fieldId");//自定义变量
-            if ("null".equals(id) || TextUtils.isEmpty(id)) {
-                return;
-            }
-            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD){
-                //文件类型
-                SobotTimezone timezone = (SobotTimezone) data.getSerializableExtra("selectStauts");
-                if(null!=timezone){
-                    for (int i = 0; i < field.size(); i++) {
-                        SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
-                        if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
-                            model.setChecked(true);
-                            model.setTimezone(timezone);
-                            SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
-                            view.setSelectLeftValue(timezone.getTimezoneValue());
-                        }
-                    }
-                }
-            }else {
-                String value = data.getStringExtra("category_typeName");//选项的名字
-                String dataValue = data.getStringExtra("category_typeValue");//选项的值
-                if (field != null && !StringUtils.isEmpty(value) && !StringUtils.isEmpty(dataValue)) {
-                    for (int i = 0; i < field.size(); i++) {
-                        SobotCusFieldConfig model = field.get(i).getCusFieldConfig();
-                        if (model != null && model.getFieldId() != null && model.getFieldId().equals(id)) {
-                            model.setChecked(true);
-                            model.setValue(dataValue);
-                            model.setId(id);
-                            model.setShowName(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
-                            SobotInputView view = post_customer_field.findViewWithTag(model.getFieldId());
-                            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_ZONE_TIME) {
-                                Date date1 = DateUtil.parse(value, new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()));
-                                //时区中的时间
-                                Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
-                                String fomamet = DateUtil.getDateTimeFormatByLanguage(locale);
-                                view.setSelectRightValue(DateUtil.dateToString(context, date1, fomamet));
-                                view.getTv_select_two_right().setTag(dataValue);
-                            }else{
+                            } else {
                                 view.setInputValue(value.endsWith(",") ? value.substring(0, value.length() - 1) : value);
                             }
                             view.getTvSelect().setSelected(true);
@@ -380,16 +320,19 @@ public class StCusFieldPresenter {
      * @return String 自定义表单校验结果:为空,可以提交;不为空,说明自定义字段校验不通过，不能提交留言表单;
      */
     public static boolean formatCusFieldVal(Context context, ViewGroup sobot_container, List<SobotFieldModel> field) {
-        boolean  isError = false;
+        boolean isError = false;
         if (field != null && field.size() != 0) {
             for (int j = 0; j < field.size(); j++) {
-                String errorStr ="";
+                String errorStr = "";
                 if (field.get(j).getCusFieldConfig() == null) {
                     continue;
                 }
-                if(ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD == field.get(j).getCusFieldConfig().getFieldType()){
+                if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD == field.get(j).getCusFieldConfig().getFieldType()) {
                     SobotUploadView view = sobot_container.findViewWithTag(field.get(j).getCusFieldConfig().getFieldId());
-                    if (1 == field.get(j).getCusFieldConfig().getFillFlag() && null==field.get(j).getCusFieldConfig().getCacheFile()) {
+                    java.util.List<com.sobot.chat.api.model.SobotCacheFile> files =
+                            field.get(j).getCusFieldConfig().getCacheFileList();
+                    boolean isEmpty = (files == null || files.isEmpty());
+                    if (1 == field.get(j).getCusFieldConfig().getFillFlag() && isEmpty) {
                         errorStr = field.get(j).getCusFieldConfig().getFieldName() + context.getResources().getString(R.string.sobot_required);
                     }
                     if (StringUtils.isNoEmpty(errorStr)) {
@@ -398,7 +341,7 @@ public class StCusFieldPresenter {
                     } else {
                         view.hideError();
                     }
-                }else {
+                } else {
                     SobotInputView view = sobot_container.findViewWithTag(field.get(j).getCusFieldConfig().getFieldId());
 
                     if (view != null) {
@@ -478,104 +421,194 @@ public class StCusFieldPresenter {
 
         }
     }
-    //新版 自定义字段
+
+    //新版 自定义字段（兼容旧调用：竖屏模式，单列铺满）
     public static void addWorkOrderCusFieldsNew(final Context context, final ArrayList<SobotFieldModel> cusFieldList, ViewGroup containerLayout, final SobotCusFieldListener callBack) {
-        if (containerLayout != null) {
-            containerLayout.setVisibility(View.VISIBLE);
-            containerLayout.removeAllViews();
-            if (cusFieldList != null && cusFieldList.size() != 0) {
-                for (int i = 0; i < cusFieldList.size(); i++) {
-                    final SobotFieldModel model = cusFieldList.get(i);
-                    final SobotCusFieldConfig cusFieldConfig = model.getCusFieldConfig();
-                   if (cusFieldConfig == null) {
-                        continue;
-                    }
-                   if(ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD == cusFieldConfig.getFieldType()){
-                       //文件上传
-                       SobotUploadView view = new SobotUploadView(context);
-                       view.setTag(cusFieldConfig.getFieldId());
-                       view.setCusFieldConfig(cusFieldConfig);
-                       //设置标题
-                       view.setTitle(cusFieldConfig.getFieldName(), 1 == cusFieldConfig.getFillFlag(), cusFieldConfig.getFinalExplain());
-                       //设置提示语
-                       view.setTipText(cusFieldConfig.getMaxStorage());
-                       containerLayout.addView(view);
-                       view.setCusCallBack(callBack,view);
-                   }else {
-                       SobotInputView view = new SobotInputView(context);
-                       view.setTag(cusFieldConfig.getFieldId());
-                       view.setCusFieldConfig(cusFieldConfig);
-                       view.setCusFields(model);
-                       view.setCusCallBack(callBack);
-                       //设置标题
-                       view.setTitle(cusFieldConfig.getFieldName(), 1 == cusFieldConfig.getFillFlag(), cusFieldConfig.getFinalExplain());
-                       if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_SINGLE_LINE_TYPE == cusFieldConfig.getFieldType() || ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_NUMBER_TYPE == cusFieldConfig.getFieldType()) {
-                           //单行文本
-                           view.setInputType("single_line");
+        addWorkOrderCusFieldsNew(context, cusFieldList, containerLayout, callBack, false);
+    }
 
-                           //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式
-                           if (!StringUtils.isEmpty(cusFieldConfig.getLimitOptions())) {
-                               if (cusFieldConfig.getLimitOptions().contains("5")) {
-                                   view.setViweType("number");
-                               }
-                               if (cusFieldConfig.getLimitOptions().contains("7")) {
-                                   view.setViweType("email");
-                               }
-                               if (cusFieldConfig.getLimitOptions().contains("8")) {
-                                   view.setViweType("phone");
-                               }
-                               if (cusFieldConfig.getLimitOptions().contains("6")) {
-                                   view.setInputLengthLimit(Integer.parseInt(cusFieldConfig.getLimitChar()));
-                               }
-                           }
+    /**
+     * 新版自定义字段渲染（带横屏两列支持）
+     * <p>
+     * 当 {@code isWideScreen=true} 时，按以下规则两列排版：
+     * <ul>
+     *   <li>附件（{@link ZhiChiConstant#WORK_ORDER_CUSTOMER_FIELD_UPLOAD}）和
+     *       多行文本（{@link ZhiChiConstant#WORK_ORDER_CUSTOMER_FIELD_MORE_LINE_TYPE}）始终铺满</li>
+     *   <li>其余类型尝试两两配对放入横向行容器，列间距取 {@code R.dimen.sobot_ticket_form_h_space}</li>
+     *   <li>若与下一字段无法配对（下一为铺满 或 为最后一个 eligible），当前字段占左半（weight=1，右侧留空）</li>
+     * </ul>
+     * 竖屏（{@code isWideScreen=false}）和其他调用点保持原有单列铺满行为。
+     */
+    public static void addWorkOrderCusFieldsNew(final Context context, final ArrayList<SobotFieldModel> cusFieldList, ViewGroup containerLayout, final SobotCusFieldListener callBack, boolean isWideScreen) {
+        if (containerLayout == null) {
+            return;
+        }
+        containerLayout.setVisibility(View.VISIBLE);
+        containerLayout.removeAllViews();
+        if (cusFieldList == null || cusFieldList.size() == 0) {
+            return;
+        }
+        // 横屏两列间距，竖屏取 0
+        int hGap = isWideScreen
+                ? context.getResources().getDimensionPixelSize(R.dimen.sobot_ticket_form_h_space)
+                : 0;
+        int halfGap = hGap / 2;
 
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_MORE_LINE_TYPE == cusFieldConfig.getFieldType()) {
-                           //多行文本
-                           view.setInputType("many_lines");
+        int i = 0;
+        while (i < cusFieldList.size()) {
+            SobotFieldModel model1 = cusFieldList.get(i);
+            SobotCusFieldConfig cfg1 = model1 == null ? null : model1.getCusFieldConfig();
+            if (cfg1 == null) {
+                i++;
+                continue;
+            }
+            boolean fullWidth1 = isFullWidthCusField(cfg1.getFieldType());
 
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE == cusFieldConfig.getFieldType()) {
-                           //日期
-                           view.setInputType("select");
-                           Drawable img = context.getResources().getDrawable(R.drawable.sobot_cur_data);
-                           view.setSelectIcon(img);
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_TYPE == cusFieldConfig.getFieldType()) {
-                           //时间
-                           view.setInputType("select");
-                           Drawable img = context.getResources().getDrawable(R.drawable.sobot_cur_time);
-                           view.setSelectIcon(img);
+            // 横屏 且 当前可两列 → 进入两列分支
+            if (isWideScreen && !fullWidth1) {
+                SobotFieldModel model2 = null;
+                SobotCusFieldConfig cfg2 = null;
+                if (i + 1 < cusFieldList.size()) {
+                    model2 = cusFieldList.get(i + 1);
+                    cfg2 = model2 == null ? null : model2.getCusFieldConfig();
+                }
+                boolean canPair = cfg2 != null && !isFullWidthCusField(cfg2.getFieldType());
 
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_SPINNER_TYPE == cusFieldConfig.getFieldType() || ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_RADIO_TYPE == cusFieldConfig.getFieldType()) {
-                           //下拉列表和单选框
-                           view.setInputType("select");
+                if (canPair) {
+                    // 两个普通字段配对成双列
+                    LinearLayout row = new LinearLayout(context);
+                    row.setOrientation(LinearLayout.HORIZONTAL);
+                    row.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
 
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE == cusFieldConfig.getFieldType()) {
-                           //复选框
-                           view.setInputType("select");
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE == cusFieldConfig.getFieldType()) {
-                           //级联
-                           view.setInputType("select");
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE == cusFieldConfig.getFieldType()) {
-                           //地区级联
-                           view.setInputType("select");
-                           //赋值
-                           if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
-                               view.setInputValue(cusFieldConfig.getText());
-                               view.getTvSelect().setTag(cusFieldConfig.getValue());
-                           }
-                       } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE == cusFieldConfig.getFieldType()) {
-                           //时区
-                           view.setInputType("timezone");
-                           //赋值
-                           if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
-                               view.setInputValue(cusFieldConfig.getText());
-                               view.getTvSelect().setTag(cusFieldConfig.getValue());
-                           }
-                       }
+                    View v1 = buildCusFieldView(context, model1, cfg1, callBack);
+                    LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(
+                            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                    lp1.setMarginEnd(halfGap);
+                    v1.setLayoutParams(lp1);
+                    row.addView(v1);
 
-                       containerLayout.addView(view);
-                   }
+                    View v2 = buildCusFieldView(context, model2, cfg2, callBack);
+                    LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+                            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                    lp2.setMarginStart(halfGap);
+                    v2.setLayoutParams(lp2);
+                    row.addView(v2);
+
+                    containerLayout.addView(row);
+                    i += 2;
+                } else {
+                    // 单字段无法配对（下一字段通栏 或 已是最后一个）→ 当前字段通栏，避免出现单列占位
+                    View v1 = buildCusFieldView(context, model1, cfg1, callBack);
+                    containerLayout.addView(v1);
+                    i += 1;
+                }
+                continue;
+            }
+
+            // 单字段铺满：竖屏，或 横屏附件/多行文本
+            View v = buildCusFieldView(context, model1, cfg1, callBack);
+            containerLayout.addView(v);
+            i++;
+        }
+    }
+
+    /**
+     * 横屏两列规则下哪些字段类型仍需铺满整行
+     */
+    private static boolean isFullWidthCusField(int fieldType) {
+        return fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD
+                || fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_MORE_LINE_TYPE;
+    }
+
+    /**
+     * 构建单个自定义字段视图：附件 → {@link SobotUploadView}，其余 → {@link SobotInputView}。
+     * 抽取此方法只为支持两列配对，业务逻辑（限制、图标、回填）与原实现完全一致。
+     */
+    private static View buildCusFieldView(Context context, SobotFieldModel model,
+                                          SobotCusFieldConfig cusFieldConfig,
+                                          SobotCusFieldListener callBack) {
+        if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_UPLOAD == cusFieldConfig.getFieldType()) {
+            //文件上传
+            SobotUploadView view = new SobotUploadView(context);
+            view.setTag(cusFieldConfig.getFieldId());
+            view.setCusFieldConfig(cusFieldConfig);
+            //设置标题
+            view.setTitle(cusFieldConfig.getFieldName(), 1 == cusFieldConfig.getFillFlag(), cusFieldConfig.getFinalExplain());
+            //设置提示语
+            view.setTipText(cusFieldConfig.getMaxStorage());
+            view.setCusCallBack(callBack, view);
+            return view;
+        }
+
+        SobotInputView view = new SobotInputView(context);
+        view.setTag(cusFieldConfig.getFieldId());
+        view.setCusFieldConfig(cusFieldConfig);
+        view.setCusFields(model);
+        view.setCusCallBack(callBack);
+        //设置标题
+        view.setTitle(cusFieldConfig.getFieldName(), 1 == cusFieldConfig.getFillFlag(), cusFieldConfig.getFinalExplain());
+        int t = cusFieldConfig.getFieldType();
+        if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_SINGLE_LINE_TYPE == t
+                || ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_NUMBER_TYPE == t) {
+            //单行文本
+            view.setInputType("single_line");
+            //限制方式  1禁止输入空格   2 禁止输入小数点  3 小数点后只允许2位  4 禁止输入特殊字符  5只允许输入数字 6最多允许输入字符  7判断邮箱格式  8判断手机格式
+            if (!StringUtils.isEmpty(cusFieldConfig.getLimitOptions())) {
+                if (cusFieldConfig.getLimitOptions().contains("5")) {
+                    view.setViweType("number");
+                }
+                if (cusFieldConfig.getLimitOptions().contains("7")) {
+                    view.setViweType("email");
+                }
+                if (cusFieldConfig.getLimitOptions().contains("8")) {
+                    view.setViweType("phone");
+                }
+                if (cusFieldConfig.getLimitOptions().contains("6")) {
+                    view.setInputLengthLimit(Integer.parseInt(cusFieldConfig.getLimitChar()));
                 }
             }
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_MORE_LINE_TYPE == t) {
+            //多行文本
+            view.setInputType("many_lines");
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_DATE_TYPE == t) {
+            //日期
+            view.setInputType("select");
+            Drawable img = context.getResources().getDrawable(R.drawable.sobot_cur_data);
+            view.setSelectIcon(img);
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_TYPE == t) {
+            //时间
+            view.setInputType("select");
+            Drawable img = context.getResources().getDrawable(R.drawable.sobot_cur_time);
+            view.setSelectIcon(img);
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_SPINNER_TYPE == t
+                || ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_RADIO_TYPE == t) {
+            //下拉列表和单选框
+            view.setInputType("select");
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE == t) {
+            //复选框
+            view.setInputType("select");
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CASCADE_TYPE == t) {
+            //级联
+            view.setInputType("select");
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE == t) {
+            //地区级联
+            view.setInputType("select");
+            //赋值
+            if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
+                view.setInputValue(cusFieldConfig.getText());
+                view.getTvSelect().setTag(cusFieldConfig.getValue());
+            }
+        } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE == t) {
+            //时区
+            view.setInputType("timezone");
+            //赋值
+            if (!TextUtils.isEmpty(cusFieldConfig.getText())) {
+                view.setInputValue(cusFieldConfig.getText());
+                view.getTvSelect().setTag(cusFieldConfig.getValue());
+            }
         }
+        return view;
     }
 }

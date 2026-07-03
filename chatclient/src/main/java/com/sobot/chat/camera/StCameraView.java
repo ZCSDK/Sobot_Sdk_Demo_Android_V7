@@ -1,5 +1,6 @@
 package com.sobot.chat.camera;
 
+
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,6 +33,7 @@ import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.camera.util.ScreenUtils;
 import com.sobot.chat.camera.util.StCmeraLog;
 import com.sobot.chat.camera.view.StICameraView;
+import com.sobot.chat.utils.LogUtils;
 
 
 public class StCameraView extends FrameLayout implements CameraInterface.CameraOpenOverCallback, SurfaceHolder
@@ -299,7 +300,9 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
     public void onResume() {
         StCmeraLog.i("JCameraView onResume");
         resetState(TYPE_DEFAULT); //重置状态
-        CameraInterface.getInstance().registerSensorManager(getContext());
+        if (MarkConfig.getON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR)) {
+            CameraInterface.getInstance().registerSensorManager(getContext());
+        }
         CameraInterface.getInstance().setSwitchView(mSwitchCamera);
         machine.start(mVideoView.getHolder(), screenProp);
     }
@@ -311,7 +314,9 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
         resetState(TYPE_PICTURE);
         CameraInterface.getInstance().stopRecord(true, null);
         CameraInterface.getInstance().isPreview(false);
-        CameraInterface.getInstance().unregisterSensorManager(getContext());
+        if (MarkConfig.getON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR)) {
+            CameraInterface.getInstance().unregisterSensorManager(getContext());
+        }
     }
 
     //SurfaceView生命周期
@@ -354,7 +359,7 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
                     setFocusViewWidthAnimation(event.getX(), event.getY());
                 }
                 if (event.getPointerCount() == 2) {
-                    Log.i("CJT", "ACTION_DOWN = " + 2);
+                    LogUtils.i("ACTION_DOWN = " + 2);
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -380,7 +385,7 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
                         firstTouch = true;
                         machine.zoom(result - firstTouchLength, CameraInterface.TYPE_CAPTURE);
                     }
-//                    Log.i("CJT", "result = " + (result - firstTouchLength));
+//                    LogUtils.i("result = " + (result - firstTouchLength));
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -546,7 +551,7 @@ public class StCameraView extends FrameLayout implements CameraInterface.CameraO
             mMediaPlayer.setLooping(true);
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 

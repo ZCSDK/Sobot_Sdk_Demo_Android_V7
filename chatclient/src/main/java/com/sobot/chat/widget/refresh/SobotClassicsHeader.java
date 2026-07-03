@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.refresh.layout.api.RefreshHeader;
 import com.sobot.chat.widget.refresh.layout.api.RefreshLayout;
 import com.sobot.chat.widget.refresh.layout.constant.RefreshState;
@@ -235,7 +236,7 @@ public class SobotClassicsHeader extends ClassicsAbstract<SobotClassicsHeader> i
                 }
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         KEY_LAST_UPDATE_TIME += context.getClass().getName();

@@ -31,7 +31,7 @@ public class RobotTemplateMessageHolder5 extends MsgHolderBase {
     public void bindData(final Context context, final ZhiChiMessageBase message) {
         sobot_template5_title.setMaxWidth(msgMaxWidth);
         sobot_template5_msg.setMaxWidth(msgMaxWidth);
-        this.message=message;
+        this.message = message;
         if (message.getAnswer() != null && message.getAnswer().getMultiDiaRespInfo() != null) {
             checkShowTransferBtn();
             final SobotMultiDiaRespInfo multiDiaRespInfo = message.getAnswer().getMultiDiaRespInfo();

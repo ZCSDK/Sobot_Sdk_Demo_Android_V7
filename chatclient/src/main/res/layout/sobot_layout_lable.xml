@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="30dp"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
     android:layout_marginEnd="@dimen/sobot_layout_lable_margin_right"
-    android:background="@drawable/sobot_layout_lable_nomal_selector"
+    android:background="@drawable/sobot_layout_lable_selector"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingStart="12dp"

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  横屏宽屏档（w >= 600dp）theme 覆盖
+  专用于解决 SobotReplyActivity 横屏的键盘交互问题：
+  - 原 theme sobot_AppThemeDialogIsTranslucent2 用 windowIsFloating=true
+    导致软键盘 ADJUST_PAN 把整个窗口往上推到屏幕顶部，且 ADJUST_RESIZE 完全失效
+  - 此处覆盖为：非 floating + 透明背景 + 全屏 → ADJUST_RESIZE 可生效，
+    键盘弹起时窗口下边界自然上移，gravity=BOTTOM 的回复栏自动贴在键盘上方
+  - 只对 w>=600dp 命中（竖屏不动），manifest 里同名 theme 引用自动按资源限定符切换
+-->
+<resources>
+
+    <style name="sobot_AppThemeDialogIsTranslucent2" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimAmount">0.0</item>
+        <item name="android:windowAnimationStyle">@style/sobot_AnimBottom</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <!-- windowIsTranslucent=true：让 Activity 真正透明（Detail 页面可透过看见）。
+             之前担心和 adjustResize 冲突，现在窗口已改为 MATCH_PARENT 全屏 +
+             清掉 FLAG_FULLSCREEN（在 SobotReplyActivity.onCreate），adjustResize 仍能生效 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 在 theme 里直接设 adjustResize：比 Java setSoftInputMode 更早生效（Activity 启动时就锁定） -->
+        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
+        <!-- 状态栏透明，让底层 Detail 的状态栏区域透出（否则 AppCompat 父主题默认 ?colorPrimaryDark 渲染成黑条）。
+             不能用 FLAG_HIDE_STATUS_BAR / FLAG_FULLSCREEN：会让 adjustResize 失效，键盘又会遮挡回复栏 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <!--
+      评价弹窗 - 手机横屏覆盖式 theme 覆盖（w >= 600dp）
+      与 values/styles.xml 同名 theme 相比关键差异：
+      - windowIsFloating: true → false（让 layout 的 match_parent 真正撑开为全屏窗口）
+      - windowFullscreen: false（不用 FLAG_FULLSCREEN 是因为它与 SOFT_INPUT_ADJUST_RESIZE 互斥；
+        改用 Java 端 SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN 让内容延伸到状态栏下方达到"全屏铺到顶"视觉）
+      - statusBarColor=transparent：状态栏区域透出弹窗白底，达到"无黑条"效果
+      - 配套 layout-w600dp/sobot_layout_evaluate.xml 的 dialog_root match_parent + heightRatio=1.0
+    -->
+    <style name="sobot_AppThemeDialogIsTranslucent" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFrame">@null</item>
+        <!-- 关键：横屏不再 floating，让窗口尺寸由 layout match_parent 决定 -->
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+        <item name="android:windowAnimationStyle">@style/sobot_AnimBottom</item>
+        <!-- 不用 FLAG_FULLSCREEN（与 ADJUST_RESIZE 互斥）；改用 Java 端 LAYOUT_FULLSCREEN 让内容延伸 -->
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
+    </style>
+
+</resources>

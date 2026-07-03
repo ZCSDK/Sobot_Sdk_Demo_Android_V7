@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言详情 横屏右侧面板 主操作（回复）圆形按钮：纯色圆
+  填充色由 Java 端通过 ThemeUtils.applyColorWithMultiplyMode() 替换为主题色
+  此处用白色作为基底，染色时按主题色相乘
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/sobot_color_dialog_bg" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/sobot_color_dialog_bg" />
+        </shape>
+    </item>
+
+</selector>

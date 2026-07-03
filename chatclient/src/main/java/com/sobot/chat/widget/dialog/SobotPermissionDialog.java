@@ -29,7 +29,7 @@ public class SobotPermissionDialog extends Dialog implements View.OnClickListene
 
     private Button sobot_btn_cancle_conversation, sobot_btn_temporary_leave;
     private LinearLayout coustom_pop_layout;
-    private ClickViewListener viewListenern ;
+    private ClickViewListener viewListenern;
     private final int screenHeight;
     private TextView titleView;
     private String title;
@@ -37,7 +37,7 @@ public class SobotPermissionDialog extends Dialog implements View.OnClickListene
 
     public SobotPermissionDialog(Activity context, ClickViewListener itemsOnClick) {
         super(context, R.style.sobot_noAnimDialogStyle);
-        this.viewListenern=itemsOnClick;
+        this.viewListenern = itemsOnClick;
         screenHeight = ScreenUtils.getScreenHeight(context);
         mContext = context;
         // 修改Dialog(Window)的弹出位置
@@ -55,8 +55,8 @@ public class SobotPermissionDialog extends Dialog implements View.OnClickListene
     }
 
     public SobotPermissionDialog(Activity activity, String title, ClickViewListener clickViewListener) {
-        this(activity,  clickViewListener);
-        this.title=title;
+        this(activity, clickViewListener);
+        this.title = title;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SobotPermissionDialog extends Dialog implements View.OnClickListene
     }
 
     private void initView() {
-        titleView=(TextView) findViewById(R.id.sobot_dialog_title);
+        titleView = (TextView) findViewById(R.id.sobot_dialog_title);
         titleView.setText(R.string.sobot_no_permission_text);
         if (!TextUtils.isEmpty(title)) {
             titleView.setText(title);
@@ -109,21 +109,22 @@ public class SobotPermissionDialog extends Dialog implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        if (v==sobot_btn_cancle_conversation){
-            if (viewListenern!=null){
-                viewListenern.clickLeftView(getContext(),this);
+        if (v == sobot_btn_cancle_conversation) {
+            if (viewListenern != null) {
+                viewListenern.clickLeftView(getContext(), this);
             }
         }
-        if (v==sobot_btn_temporary_leave){
-            if (viewListenern!=null){
-                viewListenern.clickRightView(getContext(),this);
+        if (v == sobot_btn_temporary_leave) {
+            if (viewListenern != null) {
+                viewListenern.clickRightView(getContext(), this);
             }
         }
 
     }
 
-    public interface ClickViewListener{
+    public interface ClickViewListener {
         void clickRightView(Context context, SobotPermissionDialog dialog);
+
         void clickLeftView(Context context, SobotPermissionDialog dialog);
     }
 }

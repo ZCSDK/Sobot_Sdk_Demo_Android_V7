@@ -15,9 +15,11 @@
         android:orientation="vertical"
         android:paddingBottom="40dp"
         app:sobot_mhv_HeightRatio="0.9">
+
         <include layout="@layout/sobot_dialog_title" />
 
         <LinearLayout
+            android:id="@+id/sobot_dialog_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -33,8 +35,7 @@
                 android:layout_weight="1"
                 android:background="@color/sobot_color_transparent"
                 android:minHeight="536dp"
-                android:overScrollMode="never"
-                 />
+                android:overScrollMode="never" />
 
             <TextView
                 android:id="@+id/tv_nodata"

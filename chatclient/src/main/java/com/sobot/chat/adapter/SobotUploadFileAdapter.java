@@ -37,7 +37,8 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
         this.clickListener = clickListener;
         this.isEdit = isEdit;
     }
-    public SobotUploadFileAdapter(Context context, ArrayList<SobotFileModel> arrayList, boolean isEdit,boolean isReply, Listener clickListener) {
+
+    public SobotUploadFileAdapter(Context context, ArrayList<SobotFileModel> arrayList, boolean isEdit, boolean isReply, Listener clickListener) {
         this.context = context;
         this.arrayList = arrayList;
         this.clickListener = clickListener;
@@ -50,9 +51,9 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view;
-        if(isReply){
+        if (isReply) {
             view = LayoutInflater.from(context).inflate(R.layout.sobot_item_upload_file_small, viewGroup, false);
-        }else {
+        } else {
             view = LayoutInflater.from(context).inflate(R.layout.sobot_item_upload_file, viewGroup, false);
         }
         ViewHolder viewHolder = new ViewHolder(view);
@@ -65,11 +66,11 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
         viewHolder.sobot_file_name.setText(fileModel.getFileName());
         LogUtils.e(i + "\t" + fileModel.getFileType() + "\t" + fileModel.getFileUrl());
 //        viewHolder.sobot_file_size.setText(fileModel.getf);
-        final int type=FileTypeConfig.getFileType(fileModel.getFileType());
+        final int type = FileTypeConfig.getFileType(fileModel.getFileType());
         if (FileTypeConfig.getFileType(fileModel.getFileType()) == FileTypeConfig.MSGTYPE_FILE_PIC || FileTypeConfig.getFileType(fileModel.getFileType()) == FileTypeConfig.MSGTYPE_FILE_MP4) {
-            viewHolder.sobot_file_thumbnail.setImageUrlWithScaleType(CommonUtils.encode(fileModel.getFileUrl()),ImageView.ScaleType.CENTER_INSIDE);
+            viewHolder.sobot_file_thumbnail.setImageUrlWithScaleType(CommonUtils.encode(fileModel.getFileUrl()), ImageView.ScaleType.CENTER_INSIDE);
         } else {
-            viewHolder.sobot_file_thumbnail.setImageLocal(FileTypeConfig.getFileIcon(context, type),ImageView.ScaleType.CENTER_INSIDE);
+            viewHolder.sobot_file_thumbnail.setImageLocal(FileTypeConfig.getFileIcon(context, type), ImageView.ScaleType.CENTER_INSIDE);
         }
         viewHolder.sobot_file_delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +122,9 @@ public class SobotUploadFileAdapter extends RecyclerView.Adapter<SobotUploadFile
 
     public interface Listener {
         void downFileLister(SobotFileModel model);
+
         void previewMp4(SobotFileModel fileModel);
+
         void deleteFile(SobotFileModel fileModel);
 
         void previewPic(String fileUrl, String fileName);

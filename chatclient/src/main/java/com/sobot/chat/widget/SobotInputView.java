@@ -8,7 +8,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
-import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -32,6 +31,7 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.widget.dialog.SobotDialogUtils;
 
 /**
@@ -52,7 +52,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
     private ImageView iv_select_icon;
     //地区或者手机区号
     private LinearLayout sobot_input_two;
-    private RelativeLayout sobot_select_two ;
+    private RelativeLayout sobot_select_two;
     private View v_select_line, v_input_line;
     private TextView tv_select_two_left, tv_select_two_right, tv_input_two_left;
     private EditText et_input_two_right;
@@ -457,7 +457,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
             titleText = title;
         }
         if (tvTitle == null) return;
-        tvTitle.setText(Html.fromHtml(titleText));
+        tvTitle.setText(WebViewSecurityUtil.safeFromHtml(titleText));
     }
 
     /**
@@ -491,7 +491,7 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
         }
 
         if (tvTitle == null) return;
-        tvTitle.setText(Html.fromHtml(titleText));
+        tvTitle.setText(WebViewSecurityUtil.safeFromHtml(titleText));
     }
 
     public TextView getTvTitle() {
@@ -645,9 +645,10 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
      */
     public void setInputHint(String hint) {
         hintText = hint;
-        singleLineInput.setHint(Html.fromHtml(hint));
-        manyLineInput.setHint(Html.fromHtml(hint));
-        tvSelect.setHint(Html.fromHtml(hint));
+        android.text.Spanned safeHint = WebViewSecurityUtil.safeFromHtml(hint);
+        singleLineInput.setHint(safeHint);
+        manyLineInput.setHint(safeHint);
+        tvSelect.setHint(safeHint);
     }
 
     /**
@@ -758,10 +759,11 @@ public class SobotInputView extends LinearLayout implements View.OnClickListener
 
     /**
      * 创建输入框背景 Drawable（对应 sobot_bg_dialog_input）
-     * @param context 上下文
-     * @param strokeColor 边框颜色
-     * @param strokeWidth 边框宽度（dp）
-     * @param fillColor 填充颜色
+     *
+     * @param context      上下文
+     * @param strokeColor  边框颜色
+     * @param strokeWidth  边框宽度（dp）
+     * @param fillColor    填充颜色
      * @param cornerRadius 圆角半径（dp）
      * @return GradientDrawable
      */

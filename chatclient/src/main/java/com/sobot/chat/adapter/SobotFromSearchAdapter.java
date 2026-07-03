@@ -31,42 +31,47 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
     private Activity mActivity;
     private SobotListener listener;
     private String select = "";
-    public SobotFromSearchAdapter(Activity context, List<FormNodeInfo> list,  SobotListener listener){
+
+    public SobotFromSearchAdapter(Activity context, List<FormNodeInfo> list, SobotListener listener) {
         this.mActivity = context;
         this.list = list;
         this.listener = listener;
     }
+
     public void setDate(String select) {
         this.select = select;
         notifyDataSetChanged();
     }
+
     public List<FormNodeInfo> getList() {
         return list;
     }
-    public void setList(List<FormNodeInfo> date){
+
+    public void setList(List<FormNodeInfo> date) {
         list.clear();
         list.addAll(date);
         notifyDataSetChanged();
     }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(mActivity).inflate(R.layout.sobot_item_cusfield_listview, viewGroup, false);
-        return  new MyViewHolder(mActivity,v);
+        return new MyViewHolder(mActivity, v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         final FormNodeInfo checkin = list.get(i);
         MyViewHolder vh = (MyViewHolder) viewHolder;
-        if(checkin!=null){
+        if (checkin != null) {
             String name = checkin.getName();
             SpannableString spannableString = new SpannableString(name);
             if (name.contains(select)) {
                 spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#09AEB0")), name.indexOf(select), name.indexOf(select) + select.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             vh.categorySmallTitle.setText(spannableString);
-            if(checkin.isChecked()){
+            if (checkin.isChecked()) {
                 vh.categorySmallIshave.setVisibility(View.VISIBLE);
                 if (ThemeUtils.isChangedThemeColor(mActivity)) {
                     int themeColor = ThemeUtils.getThemeColor(mActivity);
@@ -76,7 +81,7 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
                     }
                 }
                 vh.categorySmallTitle.setTypeface(null, Typeface.BOLD);
-            }else{
+            } else {
                 vh.categorySmallTitle.setTypeface(null, Typeface.NORMAL);
                 vh.categorySmallIshave.setVisibility(View.GONE);
             }
@@ -85,7 +90,7 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
                 public void onClick(View v) {
                     checkin.setChecked(true);
                     notifyDataSetChanged();
-                    if(listener!=null){
+                    if (listener != null) {
                         listener.select(checkin);
                     }
                 }
@@ -97,12 +102,13 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         return list.size();
     }
-    class MyViewHolder extends RecyclerView.ViewHolder{
+
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private TextView categorySmallTitle;
         private ImageView categorySmallIshave;
         private Activity mActivity;
 
-        public MyViewHolder(Activity activity,@NonNull View itemView) {
+        public MyViewHolder(Activity activity, @NonNull View itemView) {
             super(itemView);
             this.mActivity = activity;
             categorySmallTitle = (TextView) itemView.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
@@ -110,7 +116,8 @@ public class SobotFromSearchAdapter extends RecyclerView.Adapter {
 
         }
     }
-    public interface  SobotListener {
+
+    public interface SobotListener {
         void select(FormNodeInfo model);
     }
 }

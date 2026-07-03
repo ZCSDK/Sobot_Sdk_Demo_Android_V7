@@ -49,7 +49,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     private List<FormNodeRelInfo> relationshipList;//数据关系
     private FormInfoModel formInfoModel;//原数据
     private LinearLayout ll_list;
-    private TextView topView,bottomView;
+    private TextView topView, bottomView;
     private ScrollView sobot_scroll_v;
     private TextView btnSubmit, tv_nodata;
     private String formExplain = "";
@@ -163,7 +163,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         coustom_pop_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            // 隐藏软键盘并清除所有输入框的焦点
+                // 隐藏软键盘并清除所有输入框的焦点
                 hideAllEditTextFocus();
             }
         });
@@ -200,7 +200,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
             int themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = btnSubmit.getBackground();
             if (bg != null) {
-                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                btnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
             btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
@@ -210,10 +210,10 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         tv_nodata.setVisibility(View.GONE);
         ll_list.setVisibility(View.VISIBLE);
         ll_list.removeAllViews();
-        if(topView !=null){
-            ll_list.addView(topView,0);
+        if (topView != null) {
+            ll_list.addView(topView, 0);
         }
-        if(bottomView !=null){
+        if (bottomView != null) {
             ll_list.addView(bottomView);
         }
         addList(datas);
@@ -225,7 +225,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         int index = 0;
         for (int i = 0; i < ll_list.getChildCount(); i++) {
             View view1 = ll_list.getChildAt(i);
-            if (view1.getTag()!=null && view1.getTag().toString().equals(pid)) {
+            if (view1.getTag() != null && view1.getTag().toString().equals(pid)) {
                 index = i;
             }
         }
@@ -328,7 +328,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         SobotInputView view = ll_list.findViewWithTag(selectNode.getId());
                         //删除选项之后的view
                         delectList(selectNode.getId());
-                        if(bottomView!=null){
+                        if (bottomView != null) {
                             ll_list.addView(bottomView);
                         }
                         //找到下个节点的线
@@ -347,7 +347,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     public void submit() {
         List<FormNodeInfo> submitData = new ArrayList<>();
         for (int i = 0; i < ll_list.getChildCount(); i++) {
-            if(ll_list.getChildAt(i) instanceof SobotInputView) {
+            if (ll_list.getChildAt(i) instanceof SobotInputView) {
                 FormNodeInfo info = new FormNodeInfo();
                 SobotInputView view = (SobotInputView) ll_list.getChildAt(i);
                 FormNodeInfo oldInfo = (FormNodeInfo) view.getTvTitle().getTag();
@@ -540,14 +540,16 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     v.setViweType("phone");
                 }
             }
-            if(bottomView!=null){
-                ll_list.addView(v,ll_list.getChildCount()-1);
-            }else {
+            if (bottomView != null) {
+                ll_list.addView(v, ll_list.getChildCount() - 1);
+            } else {
                 ll_list.addView(v);
             }
         }
     }
-    /**b
+
+    /**
+     * b
      * 隐藏所有EditText的焦点并收起软键盘
      */
     private void hideAllEditTextFocus() {

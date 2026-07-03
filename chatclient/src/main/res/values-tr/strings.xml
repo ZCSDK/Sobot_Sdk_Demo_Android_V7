@@ -135,7 +135,7 @@
     <string name="sobot_delete">Sil</string>
     <string name="sobot_data_wrong_hint">Veriler yanlış</string>
     <string name="sobot_cus_service">Müşteri hizmeti</string>
-    <string name="sobot_ctrl_v_success">Başarıyla kopyalandı!</string>
+    <string name="sobot_ctrl_v_success">Panoya kopyalandı</string>
     <string name="sobot_ctrl_copy">Kopyala</string>
     <string name="sobot_created_1">Kuruldu</string>
     <string name="sobot_count_down">Geri sayım</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">Bütün eyaletleri araştır (bölgeler)</string>
     <string name="sobot_region_level4">Bütün sokakları arayın</string>
     <string name="sobot_permission_use_info">İzin kullanma talimatları</string>
-    <string name="sobot_album_permission_yongtu">We are applying for your photo and video access and usage rights. İzninizden sonra, müşteri hizmetlerine danıştığında fotoğraflar ve videolar gönderebilir ve mesajlar bıraktığında</string>
     <string name="sobot_please_open_album">Requesting permission to use album</string>
     <string name="sobot_use_album">Bu cihazda fotoğraflar ve videolar kullanmak için kullanılır</string>
-    <string name="sobot_camera_permission_yongtu">Kamerayı kullanmak için izin istiyorum. İzninizden sonra, müşteri hizmeti danıştırırken fotoğrafları ve videoları kaydetebilirsiniz.</string>
     <string name="sobot_please_open_camera">Kamera izinlerini etkinleştirmek iste</string>
     <string name="sobot_use_camera">Kamera kullanma izinlerini almak için kullanılır</string>
-    <string name="sobot_microphone_permission_yongtu">Mikrofonunuzu kullanmak için izin istiyorum. İzninizden sonra, müşteri hizmeti danıştığında sesli mesajlar gönderilir</string>
     <string name="sobot_please_open_microphone">Mikrofonu etkinleştirmek için izin iste</string>
     <string name="sobot_use_microphone">Mikrofonları kullanmak için izni almak için kullanılır</string>
     <string name="sobot_storage_permission_yongtu">We are applying for your file access and usage rights. İzninizden sonra, müşteri hizmeti danıştırırken ve mesajları terk ettiğinde dosyalar gönderilebilir.</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">Cevap yok</string>
     <string name="sobot_please_input">Lütfen girin...</string>
     <string name="sobot_ticket_update_file_hite">%s\'e kadar yükleyin, boyut %s\'i geçmiyor</string>
-    <string name="sobot_ticket_update_file_max_hite">15 sınırına ulaşıldı</string>
+    <string name="sobot_ticket_update_file_max_hite">%1$d sınırına ulaşıldı</string>
     <string name="sobot_cus_level_all">Tüm</string>
     <string name="sobot_please_choice">Lütfen seçin...</string>
     <string name="sobot_skill_no_service">Çevrimiçi acente yok. Gönderimi bırakmak için tıklayın</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">Ses kaydı yapmak için, cihazınızın \“Ayarlar\” > \“Uygulamalar\” > \“%s\” > \“İzinler\” bölümünden mikrofon iznini açın.</string>
     <string name="sobot_continue_shooting">Kayda devam et</string>
     <string name="sobot_audio_go_setting">Mikrofon etkin değil. Ses kaydedilemiyor.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Mikrofon kullanım izni talep ediliyor. İzin verildikten sonra, müşteri hizmetlerine başvururken ve mesaj bırakırken kaydedilen videoyu gönderebilir/yükleyebilirsiniz.</string>
     <string name="sobot_agree_agreement">%s\'ı okudum ve kabul ediyorum.</string>
     <string name="sobot_agree">Kabul Et</string>
     <string name="sobot_keep_queuing">Sıraya devam et</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">%d kaynak inceleyin</string>
     <string name="sobot_start_chat">Danışmaya başla</string>
     <string name="sobot_variable_title">Bilgileri doldurun</string>
+    <string name="sobot_ctrl_ticket_success">İş emri numarası kopyalandı</string>
+    <string name="sobot_album_permission_yongtu">Resimli mesaj göndermek için fotoğraf izni gereklidir. Reddedilse bile uygulama normal çalışır.</string>
+    <string name="sobot_microphone_permission_yongtu">Sesli/görüntülü mesaj göndermek için mikrofon izni gereklidir. Reddedilse bile uygulama normal çalışır.</string>
+    <string name="sobot_camera_permission_yongtu">Resim/video göndermek için kamera izni gereklidir. Reddedilse bile uygulama normal çalışır.</string>
 </resources>

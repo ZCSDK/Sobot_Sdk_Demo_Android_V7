@@ -81,7 +81,7 @@ public class AiCardRightMessageHolder extends MsgHolderBase {
                 }
                 if (!TextUtils.isEmpty(customGoods.getCustomCardThumbnail())) {
                     SobotBitmapUtil.display(context, CommonUtils.encode(customGoods.getCustomCardThumbnail())
-                            , sobot_goods_pic);
+                            , sobot_goods_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                     sobot_goods_pic.setVisibility(View.VISIBLE);
                 } else {
                     sobot_goods_pic.setVisibility(View.GONE);
@@ -105,7 +105,7 @@ public class AiCardRightMessageHolder extends MsgHolderBase {
                         price += customGoods.getCustomCardAmountSymbol();
                     }
                     if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
-                        price += StringUtils.getMoney(customGoods.getCustomCardAmount());
+                        price += customGoods.getCustomCardAmount();
                     }
                     sobot_price.setVisibility(View.VISIBLE);
                     sobot_price.setText(price);

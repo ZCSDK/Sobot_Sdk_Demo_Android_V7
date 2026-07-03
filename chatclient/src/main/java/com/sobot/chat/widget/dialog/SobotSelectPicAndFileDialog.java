@@ -27,7 +27,7 @@ import com.sobot.chat.utils.ScreenUtils;
 public class SobotSelectPicAndFileDialog extends Dialog {
 
     private View view_take_photo_split;//拍照分割线
-    private TextView btn_take_photo, btn_pick_photo, btn_pick_vedio,sobot_choose_file, btn_cancel;
+    private TextView btn_take_photo, btn_pick_photo, btn_pick_vedio, sobot_choose_file, btn_cancel;
     private LinearLayout coustom_pop_layout;
     private View.OnClickListener itemsOnClick;
     private Context context;
@@ -66,7 +66,7 @@ public class SobotSelectPicAndFileDialog extends Dialog {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (!(event.getX() >= -10 && event.getY() >= -10)
                     || event.getY() <= (screenHeight - coustom_pop_layout.getHeight() - 20)) {//如果点击位置在当前View外部则销毁当前视图,其中10与20为微调距离
-                if(itemsOnClick!=null){
+                if (itemsOnClick != null) {
                     itemsOnClick.onClick(btn_cancel);
                 }
                 dismiss();
@@ -86,24 +86,24 @@ public class SobotSelectPicAndFileDialog extends Dialog {
     }
 
     private void initView() {
-        view_take_photo_split= findViewById(R.id.btn_take_photo);
+        view_take_photo_split = findViewById(R.id.btn_take_photo);
         btn_take_photo = findViewById(R.id.btn_take_photo);
         btn_take_photo.setText(R.string.sobot_attach_take_pic);
         try {
-            Information information=ZCSobotApi.getCurrentInfoSetting(getContext());
-            if (information!=null&&information.isHideTicketCameraBtn()){
+            Information information = ZCSobotApi.getCurrentInfoSetting(getContext());
+            if (information != null && information.isHideTicketCameraBtn()) {
                 btn_take_photo.setVisibility(View.GONE);
-                if (view_take_photo_split!=null){
+                if (view_take_photo_split != null) {
                     view_take_photo_split.setVisibility(View.GONE);
                 }
             }
         } catch (Exception e) {
         }
-        btn_pick_photo =findViewById(R.id.btn_pick_photo);
+        btn_pick_photo = findViewById(R.id.btn_pick_photo);
         btn_pick_photo.setText(R.string.sobot_choice_form_picture);
-        btn_pick_vedio =findViewById(R.id.btn_pick_vedio);
+        btn_pick_vedio = findViewById(R.id.btn_pick_vedio);
         btn_pick_vedio.setText(R.string.sobot_choice_form_vedio);
-        sobot_choose_file =findViewById(R.id.btn_pick_file);
+        sobot_choose_file = findViewById(R.id.btn_pick_file);
         sobot_choose_file.setText(R.string.sobot_choose_file);
         btn_cancel = findViewById(R.id.btn_cancel);
         btn_cancel.setText(R.string.sobot_btn_cancle);

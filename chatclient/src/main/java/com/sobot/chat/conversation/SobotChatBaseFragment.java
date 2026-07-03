@@ -1,5 +1,6 @@
 package com.sobot.chat.conversation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,7 +21,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.DisplayCutout;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowInsets;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -253,19 +257,22 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
                     if (notchScreenInfo.hasNotch) {
                         for (Rect rect : notchScreenInfo.notchRects) {
+                            // 用 rect.width() 表示刘海宽度；rect.right 是绝对 x 坐标，
+                            // 刘海在右侧时 ≈ 屏幕宽度，会把 padding 撑爆导致控件坍缩
+                            int notchWidth = Math.max(rect.width(), 90);
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 14);
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 14);
+                                layoutParams.setMarginEnd(notchWidth + 14);
+                                layoutParams.setMarginStart(notchWidth + 14);
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 14);
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 14);
+                                layoutParams.setMarginEnd(notchWidth + 14);
+                                layoutParams.setMarginStart(notchWidth + 14);
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                LogUtils.d("rect.right==" + rect.right);
-                                view.setPadding((Math.max(rect.right, 90)) + view.getPaddingLeft(), view.getPaddingTop(), (Math.max(rect.right, 90)) + view.getPaddingRight(), view.getPaddingBottom());
+                                LogUtils.d("notchWidth==" + notchWidth);
+                                view.setPadding(notchWidth + view.getPaddingLeft(), view.getPaddingTop(), notchWidth + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
@@ -275,30 +282,116 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
         }
     }
 
-    public void displayInNotchOnlyLeft(final View view) {
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
-            // 获取刘海屏信息
-            NotchScreenManager.getInstance().getNotchInfo(getActivity(), new INotchScreen.NotchScreenCallback() {
-                @Override
-                public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
-                    if (notchScreenInfo.hasNotch) {
-                        for (Rect rect : notchScreenInfo.notchRects) {
-                            if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
-                                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 14);
-                                view.setLayoutParams(layoutParams);
-                            } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
-                                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 14);
-                                view.setLayoutParams(layoutParams);
-                            } else {
-                                view.setPadding((Math.max(rect.right, 90)) + view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
-                            }
+    /**
+     * 单侧刘海屏适配：根据当前横屏方向自动只在带刘海的一侧（左或右）加 padding/margin。
+     * API 28+ 走系统 {@link android.view.DisplayCutout}，旋转后由系统自动重新派发 insets；
+     * API < 28 走旧 NotchScreenManager + rotation 判定，区分 home 键在左 / 在右两种横屏方向。
+     */
+    public void displayInNotchSingleSide(final View view) {
+        if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
+                || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
+                || view == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // API 28+：用系统 WindowInsets.getDisplayCutout()，系统会在旋转后自动派发新的 insets，
+            // 自动适配双向横屏（ROTATION_90↔ROTATION_270），无需手动检测 rotation
+            applyDisplayCutoutPaddingListener(view);
+            return;
+        }
+        // API < 28：用 NotchScreenManager + rotation 判定（区分 home 键左右两种横屏方向）
+        final Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        NotchScreenManager.getInstance().getNotchInfo(activity, new INotchScreen.NotchScreenCallback() {
+            @Override
+            public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
+                if (!notchScreenInfo.hasNotch || notchScreenInfo.notchRects == null || notchScreenInfo.notchRects.isEmpty()) {
+                    return;
+                }
+                // rotation == 270 时刘海在物理右侧（home 键在左），其余横屏（90）刘海在物理左侧
+                int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+                boolean notchOnRight = (rotation == Surface.ROTATION_270);
+                for (Rect rect : notchScreenInfo.notchRects) {
+                    int inset = Math.max(rect.width(), 90) + 14;
+                    if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
+                        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) view.getLayoutParams();
+                        if (notchOnRight) {
+                            lp.setMarginEnd(inset);
+                        } else {
+                            lp.setMarginStart(inset);
+                        }
+                        view.setLayoutParams(lp);
+                    } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
+                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                        if (notchOnRight) {
+                            lp.setMarginEnd(inset);
+                        } else {
+                            lp.setMarginStart(inset);
+                        }
+                        view.setLayoutParams(lp);
+                    } else {
+                        int padInset = Math.max(rect.width(), 90);
+                        if (notchOnRight) {
+                            view.setPadding(view.getPaddingLeft(), view.getPaddingTop(),
+                                    padInset + view.getPaddingRight(), view.getPaddingBottom());
+                        } else {
+                            view.setPadding(padInset + view.getPaddingLeft(), view.getPaddingTop(),
+                                    view.getPaddingRight(), view.getPaddingBottom());
                         }
                     }
                 }
-            });
+            }
+        });
+    }
 
+    /**
+     * API 28+ 的刘海屏适配：通过 OnApplyWindowInsetsListener 让系统自动派发 DisplayCutout，
+     * 旋转后由系统重新触发 insets 派发，自动切换左右侧适配方向。
+     */
+    private void applyDisplayCutoutPaddingListener(final View view) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return;
+        }
+        // 用带 key 的 setTag 缓存原始 padding，避免占用全局 tag 槽位被业务/三方库覆盖（覆盖会导致旋转时累加）
+        int[] base = (int[]) view.getTag(R.id.sobot_tag_origin_padding);
+        if (base == null) {
+            base = new int[]{view.getPaddingLeft(), view.getPaddingRight()};
+            view.setTag(R.id.sobot_tag_origin_padding, base);
+        }
+        final int origLeft = base[0];
+        final int origRight = base[1];
+        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                DisplayCutout cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    v.setPadding(origLeft + cutout.getSafeInsetLeft(),
+                            v.getPaddingTop(),
+                            origRight + cutout.getSafeInsetRight(),
+                            v.getPaddingBottom());
+                } else {
+                    v.setPadding(origLeft, v.getPaddingTop(), origRight, v.getPaddingBottom());
+                }
+                return insets;
+            }
+        });
+        // 首次进入时主动请求一次派发；若 view 尚未 attach，requestApplyInsets 会被忽略，因此用 attach 监听兜底
+        if (view.isAttachedToWindow()) {
+            view.requestApplyInsets();
+        } else {
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    v.requestApplyInsets();
+                    v.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                }
+            });
         }
     }
 
@@ -348,7 +441,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             NotificationUtils.cancleAllNotification(appContext);
         }
 
-        if (_sensorManager != null) {
+        if (MarkConfig.getON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR) && _sensorManager != null) {
             _sensorManager.registerListener(this, mProximiny, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
@@ -361,11 +454,24 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
 
     /**
      * fragment是否有效
+     * 注意：Activity.finish() 之后 isAdded() 仍会返回 true，直到 onDetach() 才变 false，
+     * 中间会有 onPause -> onStop -> onDestroy 的异步窗口期，期间发起的接口请求来不及取消。
+     * 所以这里同时校验宿主 Activity 是否处于 finishing / destroyed 状态，让回调能更早短路。
      *
      * @return
      */
     protected boolean isActive() {
-        return isAdded();
+        if (!isAdded()) {
+            return false;
+        }
+        Activity activity = getActivity();
+        if (activity == null || activity.isFinishing()) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && activity.isDestroyed()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -540,6 +646,10 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
         //滑动到最后一条
     }
 
+    protected void gotoLastItem() {
+
+    }
+
     /**
      * 通过消息实体 zhiChiMessage进行封装
      *
@@ -659,6 +769,13 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     //uestionFlag-0-普通类型，1-点击类型,2-多轮会话中点击
     protected void sendHttpRobotMessage(String msgType, final String msgId, final String requestText,
                                         String uid, final String cid, final String fromEnum, final Handler handler, final int questionFlag, final String question, String serverInternationalLanguage, final String fromQuickMenuType, Map<String, Object> customerParams) {
+        // 仅人工模式下不应进入机器人消息发送流程，视为会话异常，直接结束会话，用户可点击"重建会话"按钮重新发起
+        if (type == ZhiChiConstant.type_custom_only) {
+            LogUtils.d("仅人工模式下不允许发送机器人消息，结束会话");
+            sendTextMessageToHandler(msgId, null, handler, 0, UPDATE_TEXT);
+            customerServiceOffline(getInitModel(), 5);
+            return;
+        }
         final Map<String, Object> params = new HashMap<>();
         String appointMessageStr = "";
         if (appointMessage != null) {
@@ -774,7 +891,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                     //第一次收到消息时修改id,这样就能找到之前的三个点占位的那个气泡，这是就可以替换了
                                     msg.setId("aiagent" + msgId);
                                     LogUtils.d("ai===收到消息1 第一次收到有内容消息时，更新id： " + msg.getId());
-                                }else {
+                                } else {
                                     msg.setId(StringUtils.checkStringIsNull(msg.getMsgId()));
                                 }
                                 if (customerParams != null && customerParams.containsKey("newRobot")) {
@@ -824,7 +941,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                         aiPollingDelay = msg.getDelay();
                                         getPollingHandler().postDelayed(aiPollingRun, msg.getDelay() * 1000L);
                                     }
-                                    if (msg.getRobotAnswerMessageType() != null && !msg.getRobotAnswerMessageType().equals("FORM_SUBMIT_ERROR")) {
+                                    if (msg.getRobotAnswerMessageType() != null && !msg.getRobotAnswerMessageType().equals("FORM_SUBMIT_ERROR") && !msg.getRobotAnswerMessageType().equals("ASR_TRANSFER_ERROR")) {
                                         if (msg.getRobotAnswerMessageType().contains("ERROR")) {
                                             //异常处理
                                             if (msg.getRobotAnswerMessageType().equals("SESSION_ERROR_ADMIN")) {
@@ -913,7 +1030,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
         if (!isActive()) {
             return;
         }
-        if (isOpenUnread && current_client_model == ZhiChiConstant.client_model_customService) {
+        if (isOpenUnread) {
             simpleMessage.setReadStatus(1);
             unReadMsgIds.put(simpleMessage.getMsgId(), simpleMessage);
         }
@@ -1266,7 +1383,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             LogUtils.i(selectedFile.toString());
             String fileName = selectedFile.getName().toLowerCase();
             if (fileName.endsWith(".gif") || fileName.endsWith(".jpg") || fileName.endsWith(".png")) {
-                ChatUtils.sendPicLimitBySize(isOpenUnread && current_client_model == ZhiChiConstant.client_model_customService ? 1 : 0, selectedFile.getAbsolutePath(), getInitModel().getCid(),
+                ChatUtils.sendPicLimitBySize(isOpenUnread ? 1 : 0, selectedFile.getAbsolutePath(), getInitModel().getCid(),
                         getInitModel().getPartnerid(), handler, getSobotActivity(), messageAdapter, isCamera, current_client_model, getInitModel(), info);
             } else {
                 if (selectedFile.length() > 50 * 1024 * 1024) {
@@ -1371,7 +1488,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
         try {
             filePath = FileUtil.saveImageFile(getSobotActivity(), fileUri, fName + FileUtil.getFileEndWith(videoFile.getAbsolutePath()), videoFile.getAbsolutePath());
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("saveImageFile failed", e);
             ToastUtil.showToast(getSobotActivity(), getResources().getString(R.string.sobot_pic_type_error));
             return;
         }
@@ -1403,13 +1520,13 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             updateUiMessage(messageAdapter, ChatUtils.getUploadVideoModel(getContext(), readFlag, tmpMsgId, new File(filePath), snapshotPath, info));
             isAboveZero = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("video frame extract failed", e);
             ToastUtil.showToast(getSobotActivity(), getResources().getString(R.string.sobot_pic_type_error));
         } finally {
             try {
                 media.release();
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("MediaMetadataRetriever release failed", e);
             }
         }
     }
@@ -1582,13 +1699,15 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                     isAboveZero = true;
                                     restartMyTimeTask(handler);
                                     sendVoiceMessageToHandler(voiceMsgId, filePath, voiceTimeLongStr, 1, UPDATE_VOICE, handler);
-                                    if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only && null != zhiChiMessage.getData()) {
-                                        LogUtils.d("大模型 异步接待 转人工进入待分配池， 仅人工模式 发送语音消息");
-                                        sendByAssigment(filePath, "2");
-                                    } else {
-                                        //如果当前模式是机器人模式，就把上传的语音的url 发给机器人，只显示问答的结果
-                                        sendHttpRobotMessage("2", voiceMsgId, filePath, getInitModel().getPartnerid(),
-                                                getInitModel().getCid(), "", handler, 1, "", info.getLocale(), "", null);
+                                    if (null != zhiChiMessage.getData()) {
+                                        if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only && null != zhiChiMessage.getData()) {
+                                            LogUtils.d("大模型 异步接待 转人工进入待分配池， 仅人工模式 发送语音消息");
+                                            sendByAssigment(StringUtils.checkStringIsNull(zhiChiMessage.getData().getUrl()), "2");
+                                        } else {
+                                            //如果当前模式是机器人模式，就把上传的语音的url 发给机器人，只显示问答的结果
+                                            sendHttpRobotMessage("2", voiceMsgId, StringUtils.checkStringIsNull(zhiChiMessage.getData().getUrl()), getInitModel().getPartnerid(),
+                                                    getInitModel().getCid(), "", handler, 1, "", info.getLocale(), "", null);
+                                        }
                                     }
                                 }
 
@@ -1923,7 +2042,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                             });
                         }
                     } catch (Exception e) {
-//						e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                     }
                 }
             }
@@ -1943,12 +2062,14 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     public void initAudioManager() {
         if (audioManager == null)
             audioManager = (AudioManager) getSobotActivity().getSystemService(Context.AUDIO_SERVICE);
-        if (_sensorManager == null)
-            _sensorManager = (SensorManager) getSobotActivity().getSystemService(Context.SENSOR_SERVICE);
+        if (MarkConfig.getON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR)) {
+            if (_sensorManager == null)
+                _sensorManager = (SensorManager) getSobotActivity().getSystemService(Context.SENSOR_SERVICE);
 
-        if (_sensorManager != null) {
-            mProximiny = _sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-            _sensorManager.registerListener(this, mProximiny, SensorManager.SENSOR_DELAY_NORMAL);
+            if (_sensorManager != null) {
+                mProximiny = _sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+                _sensorManager.registerListener(this, mProximiny, SensorManager.SENSOR_DELAY_NORMAL);
+            }
         }
         if (audioManager != null) {
             audioManager.setSpeakerphoneOn(true);// 打开扬声器
@@ -2060,7 +2181,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 }
             }
         } catch (Exception e) {
-//			e.printStackTrace();
+//			LogUtils.e("uncaught", e);
         }
     }
 
@@ -2249,6 +2370,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 @Override
                 public void onSuccess(Object o) {
                     createCustomCardContent(handler, info.getCustomCard());
+
                 }
 
                 @Override
@@ -2342,6 +2464,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                         messageBase.setSenderType(ZhiChiConstant.message_sender_type_system);
                         messageBase.setCustomCard(cardContent);
                         updateUiMessage(messageAdapter, messageBase);
+                        gotoLastItem();
                     }
 
                     @Override
@@ -2363,6 +2486,9 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             zhiChiApi.checkUserTicketInfo(SobotChatBaseFragment.this, getInitModel().getPartnerid(), getInitModel().getCompanyId(), getInitModel().getCustomerId(), new StringResultCallBack<SobotUserTicketInfoFlag>() {
                 @Override
                 public void onSuccess(SobotUserTicketInfoFlag data) {
+                    if (!isActive() || data == null) {
+                        return;
+                    }
                     if (data.isExistFlag()) {
                         ZhiChiMessageBase base = new ZhiChiMessageBase();
                         base.setT(System.currentTimeMillis() + "");
@@ -2776,7 +2902,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                     }
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                LogUtils.e("polling ack JSON parse failed", e);
             }
             if (acks != null && acks.length() > 0) {
                 ackParams.put("content", acks.toString());

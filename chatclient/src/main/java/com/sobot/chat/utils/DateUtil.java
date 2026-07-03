@@ -63,7 +63,7 @@ public class DateUtil {
         try {
             time = format.format(new Date(millisecondDate));
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         return time;
@@ -76,7 +76,7 @@ public class DateUtil {
                 seconds.setTime(DATE_FORMAT4.parse(date));
                 return seconds.get(Calendar.SECOND);
             } catch (ParseException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         return 0;
@@ -87,7 +87,7 @@ public class DateUtil {
             try {
                 return DATE_FORMAT.parse(date).getTime() / 1000;
             } catch (ParseException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         return 0;
@@ -121,10 +121,11 @@ public class DateUtil {
             }
             return longToDateStr(timestamp, dateFormat, locale);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return "";
         }
     }
+
     public static String getTimeStr(Context context, long times) {
         String tempT = String.valueOf(times);
         String time = "";
@@ -167,7 +168,7 @@ public class DateUtil {
                 return toDate(Long.parseLong(time), DATE_FORMAT3);
             }
         } catch (Exception e) {
-//            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return "";
         }
     }
@@ -287,7 +288,7 @@ public class DateUtil {
         try {
             date = df.parse(datestr);
         } catch (ParseException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return date;
     }
@@ -414,7 +415,7 @@ public class DateUtil {
             Date inputDate = sdf.parse(timeStr);
             return isThisYear(inputDate.getTime());
         } catch (ParseException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return true;
         }
     }
@@ -437,7 +438,7 @@ public class DateUtil {
             // 比较年份是否相同
             return currentYear == inputYear;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return true;
         }
     }
@@ -461,7 +462,7 @@ public class DateUtil {
                     && currentCalendar.get(Calendar.MONTH) == inputCalendar.get(Calendar.MONTH)
                     && currentCalendar.get(Calendar.DAY_OF_MONTH) == inputCalendar.get(Calendar.DAY_OF_MONTH);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return false;
         }
     }
@@ -489,7 +490,7 @@ public class DateUtil {
             Date inputDate = sdf.parse(timeStr);
             return isToday(inputDate.getTime());
         } catch (ParseException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return false;
         }
     }
@@ -611,22 +612,23 @@ public class DateUtil {
             return isFullFormat ? "MMM d, yyyy HH:mm" : "MMM d, HH:mm";
         }
     }
+
     /**
      * 根据语言环境获取日期时间格式化规则字符串
      *
-     * @param locale       语言环境
+     * @param locale 语言环境
      * @return 格式化规则字符串
      */
     public static String getDateTimeFormatByLanguage(Locale locale) {
         if (locale == null) {
-            return  "yyyy年M月d日 HH:mm" ;
+            return "yyyy年M月d日 HH:mm";
         }
 
         String language = locale.getLanguage();
         String country = locale.getCountry();
 
         // 中文（简体和繁体）
-        if ("zh".equals(language)||"ja".equals(language)) {
+        if ("zh".equals(language) || "ja".equals(language)) {
             if (!TextUtils.isEmpty(country) && ("TW".equals(country) || "HK".equals(country))) {
                 // 繁体中文
                 return "yyyy年M月d日 HH:mm";
@@ -645,7 +647,7 @@ public class DateUtil {
         }
         // 葡萄牙语
         else if ("pt".equals(language)) {
-            return  "d 'de' MMM 'de' yyyy HH:mm" ;
+            return "d 'de' MMM 'de' yyyy HH:mm";
         }
         // 西班牙语
         else if ("es".equals(language)) {
@@ -653,7 +655,7 @@ public class DateUtil {
         }
         // 俄语
         else if ("ru".equals(language)) {
-            return "d MMM yyyy HH:mm" ;
+            return "d MMM yyyy HH:mm";
         }
         // 意大利语
         else if ("it".equals(language)) {
@@ -663,15 +665,15 @@ public class DateUtil {
 
         // 韩语
         else if ("ko".equals(language)) {
-            return  "yyyy년 M월 d일 HH:mm" ;
+            return "yyyy년 M월 d일 HH:mm";
         }
         // 德语
         else if ("de".equals(language)) {
-            return "d. MMM yyyy HH:mm" ;
+            return "d. MMM yyyy HH:mm";
         }
         // 印度尼西亚语
         else if ("in".equals(language) || "id".equals(language)) {
-            return  "d MMM yyyy HH:mm";
+            return "d MMM yyyy HH:mm";
         }
         // 荷兰语
         else if ("nl".equals(language)) {
@@ -679,19 +681,19 @@ public class DateUtil {
         }
         // 马来语
         else if ("ms".equals(language)) {
-            return "d MMM yyyy HH:mm" ;
+            return "d MMM yyyy HH:mm";
         }
         // 泰语
         else if ("th".equals(language)) {
-            return "d MMM yyyy HH:mm" ;
+            return "d MMM yyyy HH:mm";
         }
         // 越南语
         else if ("vi".equals(language)) {
-            return  "d MMM yyyy HH:mm" ;
+            return "d MMM yyyy HH:mm";
         }
         // 阿拉伯语
         else if ("ar".equals(language)) {
-            return "d MMM yyyy HH:mm" ;
+            return "d MMM yyyy HH:mm";
         }
         // 土耳其语
         else if ("tr".equals(language)) {

@@ -28,7 +28,6 @@ import java.util.Locale;
  * 自定义字段 --时区 时间
  */
 public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements View.OnClickListener {
-    private View v_top;
 
     private TextView btnSubmit;//确定
     private TextView sobot_tv_title;
@@ -68,14 +67,12 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
         sobot_tv_title = findViewById(R.id.sobot_tv_title);
         type = new boolean[]{true, true, true, true, true, false};//显示类型 默认全部显示
         btnSubmit = findViewById(R.id.btnSubmit);
-        v_top = findViewById(R.id.v_top);
-        v_top.setOnClickListener(this);
         btnSubmit.setOnClickListener(this);
 
 // 时间转轮 自定义控件
         LinearLayout timePickerView = (LinearLayout) findViewById(R.id.timepicker);
 
-        wheelTime = new SobotWheelTime(timePickerView, type, gravity, Size_Content,true);
+        wheelTime = new SobotWheelTime(timePickerView, type, gravity, Size_Content, true);
         Intent intent = getIntent();
         if (intent == null) {
             finish();
@@ -107,10 +104,15 @@ public class SobotTimeZoneActivity extends SobotDialogBaseActivity implements Vi
         if (changeThemeColor) {
             Drawable bg = btnSubmit.getBackground();
             if (bg != null) {
-                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                btnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
         }
         btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
+        //适配刘海屏
+        View dContent = findViewById(R.id.sobot_dialog_content);
+        if(dContent!=null) {
+            displayInNotch(dContent);
+        }
     }
 
     /**

@@ -16,13 +16,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.SobotUIConfig;
-import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.SobotVisitorSchemeExtModel;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
@@ -75,12 +74,9 @@ public class FunctionMenuPageView extends LinearLayout {
 
     private void init() {
         initData();
+        //按资源 qualifier 自动选行/列数（values / values-w600dp / values-w600dp-h600dp-* 等）
         rows = getContext().getResources().getInteger(R.integer.sobot_plus_menu_line);
         columns = getContext().getResources().getInteger(R.integer.sobot_plus_menu_row);
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-            rows = getContext().getResources().getInteger(R.integer.sobot_plus_menu_line_h);
-            columns = getContext().getResources().getInteger(R.integer.sobot_plus_menu_row_h);
-        }
         realRows = rows;
         // 初始化 RecyclerView
         recyclerView = new RecyclerView(getContext());
@@ -255,7 +251,7 @@ public class FunctionMenuPageView extends LinearLayout {
 
             return validPanelHeight;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return 0;
         }
     }
@@ -513,6 +509,14 @@ public class FunctionMenuPageView extends LinearLayout {
 
     public List<SobotPlusEntity> getOperatorList() {
         return operatorList;
+    }
+
+    /**
+     * 返回当前模式（机器人/人工）下经 updateFunctionViews 处理后实际展示的功能项列表。
+     * 返回不可变视图，避免外部 mutate 破坏内部状态。
+     */
+    public List<SobotPlusEntity> getShowList() {
+        return Collections.unmodifiableList(showList);
     }
 
 

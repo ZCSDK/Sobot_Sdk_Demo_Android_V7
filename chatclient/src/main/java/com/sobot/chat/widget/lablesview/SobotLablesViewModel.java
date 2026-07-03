@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by Administrator on 2017/12/11.
  */
 
-public class SobotLablesViewModel implements Serializable{
+public class SobotLablesViewModel implements Serializable {
 
     private String title;
     private String anchor;

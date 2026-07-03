@@ -14,7 +14,7 @@ public class HorizontalItemSpacingDecoration extends RecyclerView.ItemDecoration
     // 构造方法：传入间距（建议在代码中用dp转px，避免适配问题）
     public HorizontalItemSpacingDecoration(int spacing, boolean isRTL) {
         this.spacing = spacing;
-        this.isRTL=isRTL;
+        this.isRTL = isRTL;
     }
 
     @Override

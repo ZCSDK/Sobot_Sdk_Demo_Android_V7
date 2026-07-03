@@ -73,7 +73,7 @@ public class StMapOpenHelper {
             context.startActivity(intent);
             return true;
         } catch (Exception e) {
-            //ignore
+            LogUtils.e("uncaught", e);
         }
 
         return false;
@@ -88,7 +88,7 @@ public class StMapOpenHelper {
                 return intent;
             }
         } catch (Exception e) {
-            //ignore
+            LogUtils.e("uncaught", e);
         }
         return null;
     }
@@ -105,7 +105,7 @@ public class StMapOpenHelper {
                 return intent;
             }
         } catch (Exception e) {
-            //ignore
+            LogUtils.e("uncaught", e);
         }
         return null;
     }

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/sobot_item_issue_selector"
     android:gravity="center"
-    android:minHeight="34dp"
+    android:minHeight="36dp"
     android:paddingStart="6dp"
     android:paddingEnd="6dp">
 

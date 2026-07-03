@@ -8,6 +8,7 @@ import android.view.View;
 
 import androidx.core.app.ShareCompat;
 
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotOption;
 
 public class EmailSpan extends ClickableSpan {
@@ -18,7 +19,7 @@ public class EmailSpan extends ClickableSpan {
 
     public EmailSpan(Context context, String email, int color) {
         this.email = email;
-        this.context=context;
+        this.context = context;
         try {
             this.color = context.getResources().getColor(color);
         } catch (Exception e) {
@@ -28,17 +29,8 @@ public class EmailSpan extends ClickableSpan {
 
     @Override
     public void onClick(View widget) {
-        if (SobotOption.hyperlinkListener != null) {
-            SobotOption.hyperlinkListener.onEmailClick(email);
+        if (SobotOption.dispatchEmailClick(context, email)) {
             return;
-        }
-
-        if (SobotOption.newHyperlinkListener != null) {
-            //如果返回true,拦截;false 不拦截
-            boolean isIntercept = SobotOption.newHyperlinkListener.onEmailClick(context,email);
-            if (isIntercept) {
-                return;
-            }
         }
         try {
             ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder
@@ -49,7 +41,7 @@ public class EmailSpan extends ClickableSpan {
             builder.setChooserTitle("");
             builder.startChooser();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 

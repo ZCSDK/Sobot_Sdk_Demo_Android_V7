@@ -36,7 +36,6 @@ import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.ReceivingLinearLayout;
-import com.sobot.chat.widget.SobotAntoLineEquidistanceLayout;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.ArrayList;
@@ -128,7 +127,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
         tv_expand = convertView.findViewById(R.id.tv_expand_icon);
         ll_expand = convertView.findViewById(R.id.ll_expand);
         if (sobot_card_rll != null && iv_expand_icon != null && tv_expand != null) {
-            sobot_card_rll.bindExpandButton(ll_expand, iv_expand_icon, tv_expand, R.drawable.sobot_notice_arrow_down, R.drawable.sobot_notice_arrow_up);
+            sobot_card_rll.bindExpandButton(ll_expand, iv_expand_icon, tv_expand, R.drawable.sobot_arrow_down, R.drawable.sobot_arrow_up);
             sobot_card_rll.setLimitHeight(ScreenUtils.dip2px(mContext, 468));//设置折叠的临界高度
             //view加载完成时回调
             sobot_card_rll.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -173,7 +172,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                     sobot_card_rll.setSupportExpand(false);
                 }
             }
-            //平铺：0, "平铺" 1, "列表"
+            //平铺：0, 1:"列表"
             if (customCard.getCardStyle() == 0) {
                 //平铺，横向滑动，除了列表，其他都不展示
                 sobot_msg_content_ll.setVisibility(View.GONE);
@@ -199,17 +198,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                                     LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                                     return;
                                 }
-                                if (SobotOption.hyperlinkListener != null) {
-                                    SobotOption.hyperlinkListener.onUrlClick(customCard.getCustomCards().get(0).getCustomCardLink());
+                                if (SobotOption.dispatchUrlClick(mContext, customCard.getCustomCards().get(0).getCustomCardLink())) {
                                     return;
-                                }
-
-                                if (SobotOption.newHyperlinkListener != null) {
-                                    //如果返回true,拦截;false 不拦截
-                                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, customCard.getCustomCards().get(0).getCustomCardLink());
-                                    if (isIntercept) {
-                                        return;
-                                    }
                                 }
                                 Intent intent = new Intent(mContext, WebViewActivity.class);
                                 intent.putExtra("url", customCard.getCustomCards().get(0).getCustomCardLink());
@@ -219,11 +209,11 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                         }
                     });
                     //商品列表
-                    if (null != customCard.getCustomCards() && customCard.getCustomCards().size() > 0) {
+                    if (null != customCard.getCustomCards() && !customCard.getCustomCards().isEmpty()) {
                         SobotChatCustomGoods goods = customCard.getCustomCards().get(0);
                         if (!TextUtils.isEmpty(goods.getCustomCardThumbnail())) {
                             SobotBitmapUtil.display(context, CommonUtils.encode(goods.getCustomCardThumbnail())
-                                    , sobot_order_good_pic_h);
+                                    , sobot_order_good_pic_h, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                             sobot_order_good_pic_h.setVisibility(View.VISIBLE);
                         } else {
                             sobot_order_good_pic_h.setVisibility(View.GONE);
@@ -246,8 +236,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                                 s1.append("\n");
                             }
                             if (!TextUtils.isEmpty(goods.getCustomCardAmount())) {
-                                s.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount()));
-                                s1.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount()));
+                                s.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + goods.getCustomCardAmount());
+                                s1.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + goods.getCustomCardAmount());
                             }
                             sobot_order_good_count_h.setText(s);
                             final StringBuilder finalS = s1;
@@ -260,7 +250,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                                     }
                                 }
                             });
-//                            + context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount()));
+//                            + context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + goods.getCustomCardAmount());
                         } else {
                             sobot_order_good_count_h.setVisibility(View.GONE);
                             if (sobot_goods_price_h != null) {
@@ -273,7 +263,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                                         price = goods.getCustomCardAmountSymbol();
                                     }
                                     if (!StringUtils.isEmpty(goods.getCustomCardAmount())) {
-                                        price += StringUtils.getMoney(goods.getCustomCardAmount());
+                                        price += goods.getCustomCardAmount();
                                     }
                                     //第一个字符小
                                     SpannableString spannableString = new SpannableString(price);
@@ -356,10 +346,10 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 if (!TextUtils.isEmpty(CommonUtils.encode(customCard.getCardImg()))) {
                     mPic.setVisibility(View.VISIBLE);
                     SobotBitmapUtil.display(context, CommonUtils.encode(customCard.getCardImg())
-                            , mPic, defaultPicResId, defaultPicResId);
+                            , mPic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
 //                    mPic.setOnClickListener(new MsgHolderBase.ImageClickLisenter(context, customCard.getCardImg(), isRight));
-                    if(isTop && mPic.getLayoutParams() instanceof LinearLayout.LayoutParams){
-                        ( (LinearLayout.LayoutParams)mPic.getLayoutParams()).setMargins(0, 0, 0, 0);
+                    if (isTop && mPic.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                        ((LinearLayout.LayoutParams) mPic.getLayoutParams()).setMargins(0, 0, 0, 0);
                     }
                     isTop = false;
                 } else {
@@ -415,8 +405,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 // 0, "订单卡片",1, "商品卡片"
                 if (customCard.getCardType() == 0) {
                     ll_order_good_info.setVisibility(View.VISIBLE);
-                    if(isTop && ll_order_good_info.getLayoutParams() instanceof LinearLayout.LayoutParams){
-                        ( (LinearLayout.LayoutParams)ll_order_good_info.getLayoutParams()).setMargins(0, 0, 0, 0);
+                    if (isTop && ll_order_good_info.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                        ((LinearLayout.LayoutParams) ll_order_good_info.getLayoutParams()).setMargins(0, 0, 0, 0);
                     }
                     ll_order_good_info_h.setVisibility(View.GONE);
                     goods_list.setVisibility(View.GONE);
@@ -432,17 +422,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                                         LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                                         return;
                                     }
-                                    if (SobotOption.hyperlinkListener != null) {
-                                        SobotOption.hyperlinkListener.onUrlClick(customCard.getCustomCards().get(0).getCustomCardLink());
+                                    if (SobotOption.dispatchUrlClick(mContext, customCard.getCustomCards().get(0).getCustomCardLink())) {
                                         return;
-                                    }
-
-                                    if (SobotOption.newHyperlinkListener != null) {
-                                        //如果返回true,拦截;false 不拦截
-                                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, customCard.getCustomCards().get(0).getCustomCardLink());
-                                        if (isIntercept) {
-                                            return;
-                                        }
                                     }
                                     Intent intent = new Intent(mContext, WebViewActivity.class);
                                     intent.putExtra("url", customCard.getCustomCards().get(0).getCustomCardLink());
@@ -453,7 +434,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                         });
                         if (!TextUtils.isEmpty(goods.getCustomCardThumbnail())) {
                             SobotBitmapUtil.display(context, CommonUtils.encode(goods.getCustomCardThumbnail())
-                                    , sobot_order_good_pic);
+                                    , sobot_order_good_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                             sobot_order_good_pic.setVisibility(View.VISIBLE);
                         } else {
                             sobot_order_good_pic.setVisibility(View.GONE);
@@ -469,7 +450,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                             s.append("\n");
                         }
                         if (!TextUtils.isEmpty(goods.getCustomCardAmount())) {
-                            s.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + StringUtils.getMoney(goods.getCustomCardAmount()));
+                            s.append(context.getResources().getString(R.string.sobot_order_total_money) + " " + goods.getCustomCardAmountSymbol() + goods.getCustomCardAmount());
                         }
                         if (!TextUtils.isEmpty(s)) {
                             sobot_order_good_count.setVisibility(View.VISIBLE);
@@ -505,8 +486,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                     ll_order_good_info.setVisibility(View.GONE);
                     ll_order_good_info_h.setVisibility(View.GONE);
                     goods_list.setVisibility(View.VISIBLE);
-                    if(isTop && goods_list.getLayoutParams() instanceof LinearLayout.LayoutParams){
-                        ((LinearLayout.LayoutParams)goods_list.getLayoutParams()).setMargins(0, 0, 0, 0);
+                    if (isTop && goods_list.getLayoutParams() instanceof LinearLayout.LayoutParams) {
+                        ((LinearLayout.LayoutParams) goods_list.getLayoutParams()).setMargins(0, 0, 0, 0);
                     }
                     //列表，设置左右间距
                     LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
@@ -610,64 +591,14 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
         refreshReadStatus();
     }
 
-    private void createMenuView(SobotAntoLineEquidistanceLayout antoLineLayout, final List<SobotChatCustomMenu> tmpData, final SobotChatCustomCard customCard) {
-        if (antoLineLayout != null) {
-            for (int i = 0; i < tmpData.size(); i++) {
-                final SobotChatCustomMenu menu = tmpData.get(i);
-                final TextView view = (TextView) View.inflate(mContext, R.layout.sobot_chat_msg_item_card_btn, null);
-                if (view instanceof TextView) {
-                    Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_28);
-                    drawable = ThemeUtils.applyColorToDrawable(drawable, themeColor);
-                    if (i == 0) {
-                        view.setBackground(drawable);
-                        ((TextView) view).setTextColor(mContext.getResources().getColor(R.color.sobot_color_white));
-                    } else {
-                        view.setBackground(mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_line_28));
-                        ((TextView) view).setTextColor(mContext.getResources().getColor(R.color.sobot_goods_title_text_color));
-                    }
-                }
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 28));
-                params.topMargin = ScreenUtils.dip2px(mContext, 10);
-                params.gravity= Gravity.CENTER;
-                view.setLayoutParams(params);
-                view.setText(menu.getMenuName());
-                if (!menu.isDisable()) {
-                    view.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            //如果是发送按钮，需要发送
-                            if (menu.getMenuType() == 2) {
-                                msgCallBack.sendCardMsg(menu, customCard);
-                            } else {
-                                msgCallBack.clickCardMenu(menu);
-                                if (menu.getMenuType() == 1) {
-                                    menu.setDisable(true);
-                                    setMenuDisableById(menu.getMenuId());
-                                    v.setEnabled(false);
-                                    v.setClickable(false);
-                                    view.setTextColor(mContext.getResources().getColor(R.color.sobot_goods_des_text_color));
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    view.setEnabled(false);
-                    view.setClickable(false);
-                    view.setTextColor(mContext.getResources().getColor(R.color.sobot_goods_des_text_color));
-                }
-                antoLineLayout.addView(view);
-            }
-        }
-    }
-
     private void createMenuView(LinearLayout antoLineLayout, final List<SobotChatCustomMenu> tmpData, final SobotChatCustomCard customCard) {
         if (antoLineLayout != null) {
             for (int i = 0; i < tmpData.size(); i++) {
                 final SobotChatCustomMenu menu = tmpData.get(i);
                 final TextView view = (TextView) View.inflate(mContext, R.layout.sobot_chat_msg_item_card_btn, null);
                 if (view instanceof TextView) {
-                    Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_btn_bg_28);
-                    drawable = ThemeUtils.applyColorToDrawable(drawable, themeColor);
+                    Drawable drawable = mContext.getResources().getDrawable(R.drawable.sobot_bg_theme_color_28dp);
+                    drawable = ThemeUtils.applyColorWithMultiplyMode(drawable, themeColor);
                     if (i == 0) {
                         view.setBackground(drawable);
                         ((TextView) view).setTextColor(mContext.getResources().getColor(R.color.sobot_color_white));
@@ -678,7 +609,7 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 }
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.topMargin = ScreenUtils.dip2px(mContext, 10);
-                params.gravity= Gravity.CENTER;
+                params.gravity = Gravity.CENTER;
                 view.setLayoutParams(params);
                 view.setText(menu.getMenuName());
                 if (!menu.isDisable()) {
@@ -727,17 +658,8 @@ public class CustomCardMessageHolder extends MsgHolderBase implements View.OnCli
                 LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                 return;
             }
-            if (SobotOption.hyperlinkListener != null) {
-                SobotOption.hyperlinkListener.onUrlClick(customCard.getCardLink());
+            if (SobotOption.dispatchUrlClick(mContext, customCard.getCardLink())) {
                 return;
-            }
-
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, customCard.getCardLink());
-                if (isIntercept) {
-                    return;
-                }
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", customCard.getCardLink());

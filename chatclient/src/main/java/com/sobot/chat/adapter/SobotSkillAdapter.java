@@ -102,7 +102,7 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
                 viewHolder.sobot_tv_group_name.setText(zhiChiSkillIModel.getGroupName());
                 if (!TextUtils.isEmpty(zhiChiSkillIModel.getGroupPic())) {
                     SobotBitmapUtil.display(mContext, CommonUtils.encode(zhiChiSkillIModel.getGroupPic())
-                            , viewHolder.sobot_iv_group_img);
+                            , viewHolder.sobot_iv_group_img, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 }
             } else if (zhiChiSkillIModel.getGroupStyle() == STYLE_PIC_TEXT_DES) {
                 //图文+描述样式
@@ -110,7 +110,7 @@ public class SobotSkillAdapter extends RecyclerView.Adapter<SobotSkillAdapter.Vi
                 viewHolder.sobot_tv_group_desc.setText(zhiChiSkillIModel.getDescription());
                 if (!TextUtils.isEmpty(zhiChiSkillIModel.getGroupPic())) {
                     SobotBitmapUtil.display(mContext, CommonUtils.encode(zhiChiSkillIModel.getGroupPic())
-                            , viewHolder.sobot_iv_group_img);
+                            , viewHolder.sobot_iv_group_img, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 }
             } else {
                 //纯文本

@@ -70,12 +70,12 @@
                 android:textSize="@dimen/sobot_text_font_12"
                 android:visibility="gone" />
 
-            <com.sobot.chat.widget.SobotTextView
+            <TextView
                 android:id="@+id/sobot_goods_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/sobot_btn_bg_28"
+                android:background="@drawable/sobot_bg_theme_color_28dp"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:lines="1"
@@ -85,10 +85,9 @@
                 android:paddingBottom="8dp"
                 android:textColor="@color/sobot_color_white"
                 android:textSize="@dimen/sobot_text_font_14"
-                android:text="是的是的发送"
                 android:visibility="visible" />
 
-            <com.sobot.chat.widget.SobotTextView
+            <TextView
                 android:id="@+id/sobot_goods_btn2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +104,7 @@
                 android:textSize="@dimen/sobot_text_font_14"
                 android:visibility="gone" />
 
-            <com.sobot.chat.widget.SobotTextView
+            <TextView
                 android:id="@+id/sobot_goods_btn3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

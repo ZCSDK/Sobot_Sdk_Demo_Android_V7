@@ -73,7 +73,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear,sobot_iv_search;
+    private ImageView iv_clear, sobot_iv_search;
 
     //搜索内容
     private LinearLayout ll_search_data;
@@ -139,7 +139,7 @@ public class SobotPostRegionActivity extends SobotDialogBaseActivity implements 
             int themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = btnSubmit.getBackground();
             if (bg != null) {
-                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                btnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
         }
         btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));

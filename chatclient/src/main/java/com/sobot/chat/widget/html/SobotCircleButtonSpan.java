@@ -110,6 +110,20 @@ public class SobotCircleButtonSpan extends ReplacementSpan {
         }
 
         totalWidth += contentWidth;
+
+        // 调整行高以适应按钮高度，避免多行按钮之间间隙太小
+        if (fm != null && totalHeight > 0) {
+            int requiredHeight = (int) (totalHeight + offsetY);
+            int fontHeight = fm.descent - fm.ascent;
+            if (requiredHeight > fontHeight) {
+                int halfDiff = (requiredHeight - fontHeight) / 2;
+                fm.ascent -= halfDiff;
+                fm.descent += (requiredHeight - fontHeight - halfDiff);
+                fm.top = fm.ascent;
+                fm.bottom = fm.descent;
+            }
+        }
+
         return (int) totalWidth;
     }
 

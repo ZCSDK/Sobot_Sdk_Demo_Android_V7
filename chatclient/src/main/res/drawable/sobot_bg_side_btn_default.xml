@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言详情 横屏右侧面板 普通圆形按钮 selector：白底 + 1dp 描边
+  尺寸：宿主 ImageView 通过 padding 控制视觉与点击区域（推荐视觉 24dp + padding 8dp = 40dp 点击区）
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/sobot_ticket_item_press" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/sobot_color_line_divider" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/sobot_color_dialog_bg" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/sobot_color_line_divider" />
+        </shape>
+    </item>
+
+</selector>

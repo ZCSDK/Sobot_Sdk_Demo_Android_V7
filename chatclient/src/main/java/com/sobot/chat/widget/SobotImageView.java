@@ -75,7 +75,7 @@ public class SobotImageView extends ImageView {
 
     private int dip2px(float dpValue) {
         final float scale = getContext().getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale+0.5f);
+        return (int) (dpValue * scale + 0.5f);
     }
 
     private void initCustomAttr(int attr, TypedArray typedArray) {

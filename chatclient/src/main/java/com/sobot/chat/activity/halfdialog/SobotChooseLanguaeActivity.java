@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
@@ -39,7 +39,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear,iv_search;
+    private ImageView iv_clear, iv_search;
     private TextView tv_nodata;
     private TextView sobot_tv_title;
 
@@ -107,7 +107,9 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
             }
         });
         rv_list = findViewById(R.id.rv_list);
-        rv_list.setLayoutManager(new LinearLayoutManager(this));
+        displayInNotch(rv_list);
+        int spanCount = getResources().getInteger(R.integer.sobot_dialog_languae_span_count);
+        rv_list.setLayoutManager(new GridLayoutManager(this, spanCount));
 
         ll_search = findViewById(R.id.ll_search);
         et_search = findViewById(R.id.et_search);
@@ -118,9 +120,9 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
         et_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_search_bg, null);
                 if (hasFocus) {
                     showSoftKeyboard();
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_search_line_bg, null);
                     if (bgDrawable != null) {
                         try {
                             ll_search.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getSobotBaseActivity())));
@@ -129,6 +131,7 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
                     }
                 } else {
                     hideKeyboard();
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_search_bg, null);
                     if (bgDrawable != null) {
                         ll_search.setBackground(bgDrawable);
                     }

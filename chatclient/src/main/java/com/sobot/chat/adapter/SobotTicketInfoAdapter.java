@@ -1,8 +1,13 @@
 package com.sobot.chat.adapter;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Rect;
-import android.text.Html;
+import android.os.Build;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,8 +28,11 @@ import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.util.List;
 import java.util.Locale;
@@ -69,13 +77,22 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
         if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
             vh.tv_title.setText(data.getTicketTitle());
         }
+        if (data != null && !TextUtils.isEmpty(data.getTicketCode())) {
+            vh.tv_ticket_code.setText("#" + data.getTicketCode());
+            vh.tv_ticket_code.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    copyTicket(data);
+                }
+            });
+        }
         if (data != null && !TextUtils.isEmpty(data.getContent())) {
             String tempStr = data.getContent().replaceAll("<br/>", "").replace("<p></p>", "")
                     .replaceAll("<p>", "").replaceAll("</p>", "").replaceAll("\n", "");
             if (tempStr.contains("<img")) {
                 tempStr = tempStr.replaceAll("<img[^>]*>", " [" + activity.getResources().getString(R.string.sobot_upload) + "] ");
             }
-            vh.tv_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : Html.fromHtml(tempStr));
+            vh.tv_content.setText(TextUtils.isEmpty(data.getContent()) ? "" : WebViewSecurityUtil.safeFromHtml(tempStr));
         }
         SobotTicketStatus status = getStatus(data.getTicketStatus());
         if (status != null) {
@@ -90,16 +107,17 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
                 //已解决
                 vh.tv_ticket_status.setTextColor(activity.getResources().getColor(R.color.sobot_ticket_resolved_text));
             }
-        }else{
-            vh.tv_ticket_status.setText((statusList==null)+"=="+data.getTicketStatus());
+        } else {
+            LogUtils.d((statusList == null) + "==" + data.getTicketStatus());
+            vh.tv_ticket_status.setText("");
         }
         vh.sobot_tv_new.setVisibility(data.isNewFlag() ? View.VISIBLE : View.GONE);
         Locale locale = (Locale) SharedPreferencesUtil.getObject(activity, ZhiChiConstant.SOBOT_LANGUAGE);
         String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
         vh.tv_time.setText(DateUtil.longStrToDateStr(data.getTime(), formatString, locale));
-        if(i>3 && i==list.size()-1){
+        if (i > 3 && i == list.size() - 1) {
             vh.v_end.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             vh.v_end.setVisibility(View.GONE);
         }
 
@@ -118,6 +136,24 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
         });
     }
 
+    //复制工单编号
+    private void copyTicket(SobotUserTicketInfo data) {
+        if (activity != null && data != null && !TextUtils.isEmpty(data.getTicketCode())) {
+            ClipboardManager cmb = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            if (cmb != null) {
+                ClipData clipData = ClipData.newPlainText("ticket code", data.getTicketCode());
+                // 安全：API 33+ 标记剪贴板内容为敏感，系统通知/输入法/无障碍服务不显示明文预览（CWE-200）。
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    PersistableBundle extras = new PersistableBundle();
+                    extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+                    clipData.getDescription().setExtras(extras);
+                }
+                cmb.setPrimaryClip(clipData);
+            }
+            ToastUtil.showCustomToast(activity, activity.getResources().getString(R.string.sobot_ctrl_ticket_success));
+        }
+    }
+
     @Override
     public int getItemCount() {
         return list.size();
@@ -125,7 +161,8 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
 
     class TicketInfoViewHolder extends RecyclerView.ViewHolder {
         private TextView tv_ticket_status;
-        private TextView tv_content,tv_title;
+        private TextView tv_ticket_code;
+        private TextView tv_content, tv_title;
         private TextView tv_time;
         private ImageView sobot_tv_new;
         private View v_end;
@@ -134,6 +171,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             super(view);
             tv_ticket_status = view.findViewById(R.id.sobot_tv_ticket_status);
             tv_content = view.findViewById(R.id.sobot_tv_content);
+            tv_ticket_code = view.findViewById(R.id.tv_ticket_code);
             tv_title = view.findViewById(R.id.sobot_tv_title);
             tv_time = view.findViewById(R.id.sobot_tv_time);
             sobot_tv_new = view.findViewById(R.id.sobot_tv_new);
@@ -144,7 +182,7 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
     public SobotTicketStatus getStatus(int code) {
         if (statusList != null && statusList.size() > 0) {
             for (int i = 0; i < statusList.size(); i++) {
-                if (code==statusList.get(i).getStatusCode()) {
+                if (code == statusList.get(i).getStatusCode()) {
                     return statusList.get(i);
                 }
             }
@@ -154,6 +192,13 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
 
     public void displayInNotch(final View view) {
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
+            // 横屏卡片样式（layout-w600dp，sobot_list_span_count=2）下，每个 item 是固定宽度卡片，
+            // 不撑满屏幕宽度，刘海区域由 RecyclerView padding 统一避让，无需再对 TextView 单独加 paddingLeft；
+            // 否则会让 tv_content / tv_time 的内容被强制右推，视觉上"内容前面留白 + 文字居右"
+            if (activity != null
+                    && activity.getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+                return;
+            }
             // 支持显示到刘海区域
             NotchScreenManager.getInstance().setDisplayInNotch(activity);
             // 设置Activity全屏

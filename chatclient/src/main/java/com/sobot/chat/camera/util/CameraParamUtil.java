@@ -1,11 +1,12 @@
 package com.sobot.chat.camera.util;
 
+
 import android.content.Context;
 import android.hardware.Camera;
-import android.util.Log;
 
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.utils.LogUtils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +32,7 @@ public class CameraParamUtil {
 
     /**
      * 预览尺寸
+     *
      * @param list 所有尺寸
      * @param th
      * @param rate
@@ -44,7 +46,7 @@ public class CameraParamUtil {
         int i = 0;
         for (Camera.Size s : list) {
             if ((s.width > th) && equalRate(s, rate)) {
-                Log.i(TAG, "MakeSure Preview :w = " + s.width + " h = " + s.height);
+                LogUtils.i("MakeSure Preview :w = " + s.width + " h = " + s.height);
                 break;
             }
             i++;
@@ -61,7 +63,7 @@ public class CameraParamUtil {
         int i = 0;
         for (Camera.Size s : list) {
             if ((s.width > th) && equalRate(s, rate)) {
-                Log.i(TAG, "MakeSure Picture :w = " + s.width + " h = " + s.height);
+                LogUtils.i("MakeSure Picture :w = " + s.width + " h = " + s.height);
                 break;
             }
             i++;
@@ -73,16 +75,16 @@ public class CameraParamUtil {
         }
     }
 
-    public Camera.Size getSmallPictureSize(Camera camera){
-        if(camera != null){
+    public Camera.Size getSmallPictureSize(Camera camera) {
+        if (camera != null) {
             List<Camera.Size> sizes = camera.getParameters().getSupportedPictureSizes();
             Camera.Size temp = sizes.get(0);
-            for(int i = 1;i < sizes.size();i ++){
-                float scale = (float)(sizes.get(i).height) / sizes.get(i).width;
-                if(temp.width > sizes.get(i).width && scale < 0.6f && scale > 0.5f)
+            for (int i = 1; i < sizes.size(); i++) {
+                float scale = (float) (sizes.get(i).height) / sizes.get(i).width;
+                if (temp.width > sizes.get(i).width && scale < 0.6f && scale > 0.5f)
                     temp = sizes.get(i);
             }
-            Log.i(TAG, "MakeSure Picture :w = " + temp.width + " h = " + temp.height);
+            LogUtils.i("MakeSure Picture :w = " + temp.width + " h = " + temp.height);
             return temp;
         }
         return null;
@@ -111,22 +113,22 @@ public class CameraParamUtil {
     public boolean isSupportedFocusMode(List<String> focusList, String focusMode) {
         for (int i = 0; i < focusList.size(); i++) {
             if (focusMode.equals(focusList.get(i))) {
-                Log.i(TAG, "FocusMode supported " + focusMode);
+                LogUtils.i("FocusMode supported " + focusMode);
                 return true;
             }
         }
-        Log.i(TAG, "FocusMode not supported " + focusMode);
+        LogUtils.i("FocusMode not supported " + focusMode);
         return false;
     }
 
     public boolean isSupportedPictureFormats(List<Integer> supportedPictureFormats, int jpeg) {
         for (int i = 0; i < supportedPictureFormats.size(); i++) {
             if (jpeg == supportedPictureFormats.get(i)) {
-                Log.i(TAG, "Formats supported " + jpeg);
+                LogUtils.i("Formats supported " + jpeg);
                 return true;
             }
         }
-        Log.i(TAG, "Formats not supported " + jpeg);
+        LogUtils.i("Formats not supported " + jpeg);
         return false;
     }
 
@@ -148,6 +150,7 @@ public class CameraParamUtil {
         }
 
     }
+
     /**
      * 获取预览画面要校正的角度。
      */
@@ -156,16 +159,16 @@ public class CameraParamUtil {
         //根据横竖屏开关来显示
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
             //横屏
-            result=0;
-        }else{
+            result = 0;
+        } else {
             //竖屏
-            result=90;
+            result = 90;
         }
         /*Camera.CameraInfo info = new Camera.CameraInfo();
         try {
             Camera.getCameraInfo(cameraId, info);
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int rotation = 0;

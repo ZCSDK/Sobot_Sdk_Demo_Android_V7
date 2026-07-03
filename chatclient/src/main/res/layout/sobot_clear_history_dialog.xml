@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/sobot_line_height_dp"
             android:background="@color/sobot_color_line_divider"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/sobot_btn_cancel"

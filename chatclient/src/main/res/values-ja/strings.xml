@@ -135,7 +135,7 @@
     <string name="sobot_delete">削除</string>
     <string name="sobot_data_wrong_hint">データエラー</string>
     <string name="sobot_cus_service">エージェント</string>
-    <string name="sobot_ctrl_v_success">コピーできました!</string>
+    <string name="sobot_ctrl_v_success">クリップボードにコピーしました</string>
     <string name="sobot_ctrl_copy">コピー</string>
     <string name="sobot_created_1">作成済</string>
     <string name="sobot_count_down">カウントダウン</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">全県を検索</string>
     <string name="sobot_region_level4">すべてのストリートを検索</string>
     <string name="sobot_permission_use_info">権限の使用方法の説明</string>
-    <string name="sobot_album_permission_yongtu">写真とビデオへのアクセスと使用権限を申請しています。許可後、カスタマーサービスやメッセージに問い合わせた際に写真や動画を送信することができます</string>
     <string name="sobot_please_open_album">アルバム権限の使用を要求</string>
     <string name="sobot_use_album">このデバイス上の写真とビデオへのアクセスと使用</string>
-    <string name="sobot_camera_permission_yongtu">カメラの使用権限を申請しています。許可後、カスタマーサービスやメッセージの問い合わせ時に写真や動画を撮影してアップロードすることができます</string>
     <string name="sobot_please_open_camera">カメラのオープン権限の要求</string>
     <string name="sobot_use_camera">カメラの使用権限の取得</string>
-    <string name="sobot_microphone_permission_yongtu">マイクの使用権限を申請しています。許可後、カスタマーサービスに問い合わせる際に音声メッセージを送信することができます</string>
     <string name="sobot_please_open_microphone">マイクのオープン権限の要求</string>
     <string name="sobot_use_microphone">マイクの使用権限の取得</string>
     <string name="sobot_storage_permission_yongtu">ファイルへのアクセスと使用権限を申請しています。許可後、カスタマーサービスや伝言の問い合わせ時にファイルを送信することができます</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">リプライなし</string>
     <string name="sobot_please_input">入力する...</string>
     <string name="sobot_ticket_update_file_hite">最大 %s 個アップロードし、サイズ %s 以下</string>
-    <string name="sobot_ticket_update_file_max_hite">上限15個に達しました</string>
+    <string name="sobot_ticket_update_file_max_hite">上限%1$d個に達しました</string>
     <string name="sobot_cus_level_all">すべて</string>
     <string name="sobot_please_choice">選択...</string>
     <string name="sobot_skill_no_service">オンラインのエージェントがいません。クリックして送信してください</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">オーディオを録音するには、デバイスの「設定」>「アプリ」>「%s」>「権限」でマイクの権限を許可してください。</string>
     <string name="sobot_continue_shooting">撮影を続ける</string>
     <string name="sobot_audio_go_setting">機能が有効になっていません。音声を録音できません。</string>
-    <string name="sobot_microphone_permission_yongtu_camera">マイクの使用許可を申請中です。許可されると、コンサルティングエージェントへの相談時やメッセージを送る際に録画した動画を送信/アップロードできます。</string>
     <string name="sobot_agree_agreement">%sを読み同意します。</string>
     <string name="sobot_agree">同意する</string>
     <string name="sobot_keep_queuing">クリックして順番を続けます</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">%d 件の資料を参照してください</string>
     <string name="sobot_start_chat">相談開始</string>
     <string name="sobot_variable_title">情報を入力してください</string>
+    <string name="sobot_ctrl_ticket_success">チケット番号がコピーされました</string>
+    <string name="sobot_album_permission_yongtu">写真へのアクセスをリクエストします（画像メッセージ送信用）。拒否してもアプリは通常通り使用可能。</string>
+    <string name="sobot_microphone_permission_yongtu">マイクへのアクセスをリクエストします（音声・ビデオメッセージ送信用）。拒否してもアプリは通常通り使用可能。</string>
+    <string name="sobot_camera_permission_yongtu">カメラへのアクセスをリクエストします（画像・ビデオ送信用）。拒否してもアプリは通常通り使用可能。</string>
 </resources>

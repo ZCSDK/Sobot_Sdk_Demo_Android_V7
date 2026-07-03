@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  手机横屏专用档（w600dp，不含 h600dp 限定符）
+  仅覆盖与 values/ 基准不同的整型；相同项回落到 values/
+-->
+<resources>
+
+    <!--列表列数（Pad 2 列）-->
+    <integer name="sobot_list_span_count">2</integer>
+
+    <!--语言列表列数（手机横屏 2 列）-->
+    <integer name="sobot_languae_list_span_count">2</integer>
+
+    <!--语言选择弹窗列数（Pad / 大屏 2 列）-->
+    <integer name="sobot_dialog_languae_span_count">2</integer>
+
+    <!--加号里 功能菜单区域 每页几行（手机横屏）-->
+    <integer name="sobot_plus_menu_line">2</integer>
+    <!--加号里 功能菜单区域 每行几列（手机横屏）-->
+    <integer name="sobot_plus_menu_row">3</integer>
+    <!--加号里边表情区域 一行显示几个表情（手机横屏）-->
+    <integer name="sobot_emoji_span_count">7</integer>
+
+    <!--多轮模板（Template1 / 2 / 3 共用）选项列数（手机横屏 2 列）-->
+    <integer name="sobot_robot_template_columns">2</integer>
+
+    <!--多轮模板（Template1 / 3）每页行数（手机横屏 2 行）；每页总数 = rows × columns = 2 × 2 = 4-->
+    <integer name="sobot_robot_template_rows">2</integer>
+
+    <!--AiCard 商品列表列数（手机横屏 2 列）-->
+    <integer name="sobot_ai_card_span_count">2</integer>
+
+</resources>

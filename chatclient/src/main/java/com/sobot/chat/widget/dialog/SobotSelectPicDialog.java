@@ -83,22 +83,22 @@ public class SobotSelectPicDialog extends Dialog {
     }
 
     private void initView() {
-        view_take_photo_split= findViewById(R.id.btn_take_photo);
+        view_take_photo_split = findViewById(R.id.btn_take_photo);
         btn_take_photo = findViewById(R.id.btn_take_photo);
         btn_take_photo.setText(R.string.sobot_attach_take_pic);
         try {
-            Information information=ZCSobotApi.getCurrentInfoSetting(getContext());
-            if (information!=null&&information.isHideTicketCameraBtn()){
+            Information information = ZCSobotApi.getCurrentInfoSetting(getContext());
+            if (information != null && information.isHideTicketCameraBtn()) {
                 btn_take_photo.setVisibility(View.GONE);
-                if (view_take_photo_split!=null){
+                if (view_take_photo_split != null) {
                     view_take_photo_split.setVisibility(View.GONE);
                 }
             }
         } catch (Exception e) {
         }
-        btn_pick_photo =findViewById(R.id.btn_pick_photo);
+        btn_pick_photo = findViewById(R.id.btn_pick_photo);
         btn_pick_photo.setText(R.string.sobot_choice_form_picture);
-        btn_pick_vedio =findViewById(R.id.btn_pick_vedio);
+        btn_pick_vedio = findViewById(R.id.btn_pick_vedio);
         btn_pick_vedio.setText(R.string.sobot_choice_form_vedio);
         btn_cancel = findViewById(R.id.btn_cancel);
         btn_cancel.setText(R.string.sobot_btn_cancle);

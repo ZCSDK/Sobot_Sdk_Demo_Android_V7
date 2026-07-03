@@ -1,10 +1,12 @@
 package com.sobot.chat.viewHolder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -44,6 +46,7 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
@@ -149,7 +152,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                         sobot_tv_icon.setVisibility(message.isLeaveMsgFlag() ? View.VISIBLE : View.GONE);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
 
@@ -231,7 +234,10 @@ public class AppointTextMessageHolder extends MsgHolderBase {
             SobotMsgManager.getInstance(mContext).getZhiChiApi().getHtmlAnalysis(context, content, new StringResultCallBack<SobotLink>() {
                 @Override
                 public void onSuccess(SobotLink link) {
-                    if (link != null) {
+                    if (link != null && view != null && mContext != null) {
+                        if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                            return;
+                        }
                         message.setSobotLink(link);
                         TextView tv_title = view.findViewById(R.id.tv_title);
                         TextView tv_des = view.findViewById(R.id.tv_des);
@@ -254,7 +260,10 @@ public class AppointTextMessageHolder extends MsgHolderBase {
 
                 @Override
                 public void onFailure(Exception e, String s) {
-                    if (view != null) {
+                    if (view != null && mContext != null) {
+                        if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                            return;
+                        }
                         TextView tv_title = view.findViewById(R.id.tv_title);
                         tv_title.setText(content);
                         ImageView image_link = view.findViewById(R.id.image_link);
@@ -266,12 +275,8 @@ public class AppointTextMessageHolder extends MsgHolderBase {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (SobotOption.newHyperlinkListener != null) {
-                    //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, content);
-                    if (isIntercept) {
-                        return;
-                    }
+                if (SobotOption.dispatchUrlClick(mContext, content)) {
+                    return;
                 }
                 Intent intent = new Intent(context, WebViewActivity.class);
                 intent.putExtra("url", content);
@@ -399,7 +404,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             } else if (msgType == 4) {
                 //文件
@@ -414,7 +419,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                         showFileView(sobot_rich_ll, context, cacheFile, false, true);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             } else if (msgType == 3) {
                 //视频
@@ -431,7 +436,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                         showVideoView(sobot_rich_ll, context, cacheFile, true);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             } else if (msgType == 5) {
                 //对象， 当msgType=5 时，根据content里边的 type 判断具体的时哪种消息0-富文本 1-多伦会话 2-位置 3-小卡片 4-订单卡片 6-小程序 17-文章 21-自定义卡片
@@ -637,12 +642,8 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                     cardView.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            if (SobotOption.newHyperlinkListener != null) {
-                                                //如果返回true,拦截;false 不拦截
-                                                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, consultingContent.getSobotGoodsFromUrl());
-                                                if (isIntercept) {
-                                                    return;
-                                                }
+                                            if (SobotOption.dispatchUrlClick(context, consultingContent.getSobotGoodsFromUrl())) {
+                                                return;
                                             }
                                             Intent intent = new Intent(context, WebViewActivity.class);
                                             intent.putExtra("url", consultingContent.getSobotGoodsFromUrl());
@@ -652,7 +653,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                     });
                                     setCopyAndAppointView(context, cardView);
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                             }
                         } else if ("4".equals(contentJsonObject.optString("type"))) {
@@ -707,7 +708,7 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                     });
                                     setCopyAndAppointView(context, otherView);
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                             }
                         } else if ("17".equals(contentJsonObject.optString("type"))) {
@@ -800,12 +801,8 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                         if (StringUtils.isEmpty(chatCustomGoods.getCustomCardLink())) {
                                             return;
                                         }
-                                        if (SobotOption.newHyperlinkListener != null) {
-                                            //如果返回true,拦截;false 不拦截
-                                            boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, chatCustomGoods.getCustomCardLink());
-                                            if (isIntercept) {
-                                                return;
-                                            }
+                                        if (SobotOption.dispatchUrlClick(context, chatCustomGoods.getCustomCardLink())) {
+                                            return;
                                         }
                                         Intent intent = new Intent(context, WebViewActivity.class);
                                         intent.putExtra("url", chatCustomGoods.getCustomCardLink());
@@ -959,7 +956,29 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                     @Override
                     public boolean onLongClick(View view) {
                         if (!TextUtils.isEmpty(msg.getText().toString())) {
-                            showCopyAndAppointPopWindows(context, sobot_msg_content_ll, msg.getText().toString().replace("&amp;", "&"), 0, 18);
+                            // 先显示遮罩
+                            showPressMask();
+
+                            // 延迟一点时间再显示弹窗，确保遮罩已经渲染
+                            sobot_msg_content_ll.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showCopyAndAppointPopWindows(context, sobot_msg_content_ll, msg.getText().toString().replace("&amp;", "&"), 0, 18);
+                                }
+                            }, 50);
+
+                            // 监听触摸事件，手指抬起时移除遮罩
+                            view.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v2, MotionEvent event) {
+                                    if (event.getAction() == MotionEvent.ACTION_UP ||
+                                            event.getAction() == MotionEvent.ACTION_CANCEL) {
+                                        removePressMask();
+                                        view.setOnTouchListener(null);
+                                    }
+                                    return false;
+                                }
+                            });
                         }
                         return true;
                     }

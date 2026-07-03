@@ -29,7 +29,7 @@ public class SobotChatMsgItemSDKHistoryR extends MsgHolderBase {
                 StringBuilder sbuffer = new StringBuilder();
                 for (int i = 0; i < listMap.size(); i++) {
                     Map<String, String> map = listMap.get(i);
-                    if (map != null && map.size() > 0){
+                    if (map != null && map.size() > 0) {
                         sbuffer.append(map.get("title"));
                     }
                 }

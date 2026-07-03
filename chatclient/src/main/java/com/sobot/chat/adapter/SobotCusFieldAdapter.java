@@ -85,9 +85,9 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
             if (StringUtils.isNoEmpty(data)) {
                 SpannableString spannableString = new SpannableString(data);
                 if (StringUtils.isNoEmpty(searchText)) {
-                    if (data.toLowerCase().contains(searchText.toLowerCase()) ) {
+                    if (data.toLowerCase().contains(searchText.toLowerCase())) {
                         int index = data.toLowerCase().indexOf(searchText.toLowerCase());
-                        if(index>=0) {
+                        if (index >= 0) {
                             spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), index, index + searchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
@@ -96,7 +96,7 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
             } else {
                 myViewHolder.categorySmallTitle.setText("");
             }
-            if(fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE){
+            if (fieldType == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_CHECKBOX_TYPE) {
                 myViewHolder.categorySmallIshave.setVisibility(View.GONE);
                 myViewHolder.categoryDuoIshave.setVisibility(View.VISIBLE);
                 //多选
@@ -110,7 +110,7 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
                             myViewHolder.categoryDuoIshave.setImageDrawable(ThemeUtils.applyColorToDrawable(bg, themeColor));
                         }
                     }
-                }else{
+                } else {
                     Drawable bg = context.getResources().getDrawable(R.drawable.sobot_icon_radio_btn_normal);
                     if (bg != null) {
                         myViewHolder.categoryDuoIshave.setImageDrawable(bg);
@@ -118,7 +118,7 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
                     myViewHolder.categorySmallTitle.setTypeface(null, Typeface.NORMAL);
                     myViewHolder.categoryDuoIshave.setSelected(false);
                 }
-            }else {
+            } else {
                 myViewHolder.categoryDuoIshave.setVisibility(View.GONE);
                 if (displayList.get(position).isChecked()) {
                     myViewHolder.categorySmallTitle.setTypeface(null, Typeface.BOLD);

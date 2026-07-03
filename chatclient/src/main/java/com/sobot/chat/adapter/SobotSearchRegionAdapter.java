@@ -30,7 +30,7 @@ public class SobotSearchRegionAdapter extends RecyclerView.Adapter {
     private Context mContext;
     private List<RegionModel> mData;
     private OnItemClickListener itemListener;
-    private String select ="",tempCode="";
+    private String select = "", tempCode = "";
 
     public SobotSearchRegionAdapter(Context mContext, List<RegionModel> mData, OnItemClickListener itemListener) {
         this.mContext = mContext;
@@ -45,30 +45,32 @@ public class SobotSearchRegionAdapter extends RecyclerView.Adapter {
         RecyclerView.ViewHolder vh = new ViewHolder(v);
         return vh;
     }
+
     public void setDate(String select) {
         this.select = select;
         notifyDataSetChanged();
     }
+
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vh, int i) {
         ViewHolder viewHolder = (ViewHolder) vh;
         final RegionModel info = mData.get(i);
 
         String text = info.getProvince();
-        String code=info.getProvinceCode();
-        if(!TextUtils.isEmpty(info.getCity())){
-            text+="/"+info.getCity();
-            code+=info.getCityCode();
+        String code = info.getProvinceCode();
+        if (!TextUtils.isEmpty(info.getCity())) {
+            text += "/" + info.getCity();
+            code += info.getCityCode();
         }
-        if(!TextUtils.isEmpty(info.getArea())){
-            text+="/"+info.getArea();
-            code+=info.getAreaCode();
+        if (!TextUtils.isEmpty(info.getArea())) {
+            text += "/" + info.getArea();
+            code += info.getAreaCode();
         }
-        if(!TextUtils.isEmpty(info.getStreet())){
-            text+="/"+info.getStreet();
-            code+=info.getStreetCode();
+        if (!TextUtils.isEmpty(info.getStreet())) {
+            text += "/" + info.getStreet();
+            code += info.getStreetCode();
         }
-        if(tempCode.equals(code)){
+        if (tempCode.equals(code)) {
             if (ThemeUtils.isChangedThemeColor(mContext)) {
                 int themeColor = ThemeUtils.getThemeColor(mContext);
                 Drawable bg = mContext.getResources().getDrawable(R.drawable.sobot_icon_item_selected);
@@ -77,12 +79,12 @@ public class SobotSearchRegionAdapter extends RecyclerView.Adapter {
                 }
             }
             viewHolder.iv_exts.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             viewHolder.iv_exts.setVisibility(View.GONE);
         }
         SpannableString spannableString = new SpannableString(text);
-        if(text.contains(select)){
-            spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), text.lastIndexOf(select),text.lastIndexOf(select)+select.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (text.contains(select)) {
+            spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), text.lastIndexOf(select), text.lastIndexOf(select) + select.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         viewHolder.tv_ext.setText(spannableString);
         viewHolder.tv_selected.setVisibility(View.GONE);
@@ -90,14 +92,14 @@ public class SobotSearchRegionAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
                 tempCode = info.getProvinceCode();
-                if(!TextUtils.isEmpty(info.getCity())){
-                    tempCode+=info.getCityCode();
+                if (!TextUtils.isEmpty(info.getCity())) {
+                    tempCode += info.getCityCode();
                 }
-                if(!TextUtils.isEmpty(info.getArea())){
-                    tempCode+=info.getAreaCode();
+                if (!TextUtils.isEmpty(info.getArea())) {
+                    tempCode += info.getAreaCode();
                 }
-                if(!TextUtils.isEmpty(info.getStreet())){
-                    tempCode+=info.getStreetCode();
+                if (!TextUtils.isEmpty(info.getStreet())) {
+                    tempCode += info.getStreetCode();
                 }
                 notifyDataSetChanged();
                 if (itemListener != null) {

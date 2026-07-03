@@ -31,7 +31,7 @@ public class MiniProgramMessageHolder extends MsgHolderBase implements View.OnCl
         tv_mimi_logo = convertView.findViewById(R.id.tv_mimi_logo);
         tv_mimi_des = convertView.findViewById(R.id.tv_mimi_des);
         tv_mimi_title = convertView.findViewById(R.id.tv_mimi_title);
-        tv_mimi_thumbUrl =  convertView.findViewById(R.id.tv_mimi_thumbUrl);
+        tv_mimi_thumbUrl = convertView.findViewById(R.id.tv_mimi_thumbUrl);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class MiniProgramMessageHolder extends MsgHolderBase implements View.OnCl
         miniProgramModel = message.getMiniProgramModel();
         if (miniProgramModel != null) {
             if (!TextUtils.isEmpty(miniProgramModel.getLogo())) {
-                SobotBitmapUtil.display(mContext, miniProgramModel.getLogo(), tv_mimi_logo);
+                SobotBitmapUtil.display(mContext, miniProgramModel.getLogo(), tv_mimi_logo, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 tv_mimi_logo.setVisibility(View.VISIBLE);
             } else {
                 tv_mimi_logo.setVisibility(View.GONE);
@@ -58,7 +58,7 @@ public class MiniProgramMessageHolder extends MsgHolderBase implements View.OnCl
             }
 
             if (!TextUtils.isEmpty(miniProgramModel.getThumbUrl())) {
-                SobotBitmapUtil.display(mContext, miniProgramModel.getThumbUrl(), tv_mimi_thumbUrl);
+                SobotBitmapUtil.display(mContext, miniProgramModel.getThumbUrl(), tv_mimi_thumbUrl, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 tv_mimi_thumbUrl.setVisibility(View.VISIBLE);
             } else {
                 tv_mimi_thumbUrl.setVisibility(View.GONE);

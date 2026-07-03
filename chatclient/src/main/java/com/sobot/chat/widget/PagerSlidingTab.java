@@ -76,7 +76,7 @@ public class PagerSlidingTab extends HorizontalScrollView {
     private int dividerPadding = 12;
     private int tabPadding = 10;
     private int dividerWidth = 1;
-    private int paddingBottom=4;//距离底部
+    private int paddingBottom = 4;//距离底部
 
     private int tabTextSize = 14;//title字体的大小
     private int tabTextColor = 0xFFACB5C4;
@@ -123,32 +123,32 @@ public class PagerSlidingTab extends HorizontalScrollView {
 
         // get system attrs (android:textSize and android:textColor)
 
-		TypedArray a = context.obtainStyledAttributes(attrs, ATTRS);
+        TypedArray a = context.obtainStyledAttributes(attrs, ATTRS);
 
-		tabTextSize = a.getDimensionPixelSize(0, tabTextSize);
-		tabTextColor = a.getColor(1, tabTextColor);
+        tabTextSize = a.getDimensionPixelSize(0, tabTextSize);
+        tabTextColor = a.getColor(1, tabTextColor);
 
-		a.recycle();
+        a.recycle();
 
-		// get custom attrs
+        // get custom attrs
 
-		a = context.obtainStyledAttributes(attrs, R.styleable.sobot_PagerSlidingTab);
+        a = context.obtainStyledAttributes(attrs, R.styleable.sobot_PagerSlidingTab);
 
         curTabTextColor = a.getColor(R.styleable.sobot_PagerSlidingTab_curTabTextColor, curTabTextColor);
         tabTextColor = a.getColor(R.styleable.sobot_PagerSlidingTab_tabTextColor, tabTextColor);
-		indicatorColor = a.getColor(R.styleable.sobot_PagerSlidingTab_indicatorColor, indicatorColor);
-		underlineColor = a.getColor(R.styleable.sobot_PagerSlidingTab_underlineColor, underlineColor);
-		dividerColor = a.getColor(R.styleable.sobot_PagerSlidingTab_sobotdividerColor, dividerColor);
-		indicatorHeight = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_indicatorHeight, indicatorHeight);
-		underlineHeight = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_underlineHeight, underlineHeight);
-		dividerPadding = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_pst_dividerPadding, dividerPadding);
-		tabPadding = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_tabPaddingLeftRight, tabPadding);
-		tabBackgroundResId = a.getResourceId(R.styleable.sobot_PagerSlidingTab_tabBackground, tabBackgroundResId);
-		shouldExpand = a.getBoolean(R.styleable.sobot_PagerSlidingTab_shouldExpand, shouldExpand);
-		scrollOffset = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_scrollOffset, scrollOffset);
-		textAllCaps = a.getBoolean(R.styleable.sobot_PagerSlidingTab_pst_textAllCaps, textAllCaps);
+        indicatorColor = a.getColor(R.styleable.sobot_PagerSlidingTab_indicatorColor, indicatorColor);
+        underlineColor = a.getColor(R.styleable.sobot_PagerSlidingTab_underlineColor, underlineColor);
+        dividerColor = a.getColor(R.styleable.sobot_PagerSlidingTab_sobotdividerColor, dividerColor);
+        indicatorHeight = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_indicatorHeight, indicatorHeight);
+        underlineHeight = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_underlineHeight, underlineHeight);
+        dividerPadding = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_pst_dividerPadding, dividerPadding);
+        tabPadding = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_tabPaddingLeftRight, tabPadding);
+        tabBackgroundResId = a.getResourceId(R.styleable.sobot_PagerSlidingTab_tabBackground, tabBackgroundResId);
+        shouldExpand = a.getBoolean(R.styleable.sobot_PagerSlidingTab_shouldExpand, shouldExpand);
+        scrollOffset = a.getDimensionPixelSize(R.styleable.sobot_PagerSlidingTab_scrollOffset, scrollOffset);
+        textAllCaps = a.getBoolean(R.styleable.sobot_PagerSlidingTab_pst_textAllCaps, textAllCaps);
 
-		a.recycle();
+        a.recycle();
         tabBackgroundResId = R.drawable.sobot_background_tab;
         rectPaint = new Paint();
         rectPaint.setAntiAlias(true);
@@ -226,7 +226,7 @@ public class PagerSlidingTab extends HorizontalScrollView {
         TextView tab = new TextView(getContext());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             tab.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
-            tab.setAutoSizeTextTypeUniformWithConfiguration(12,16,2,TypedValue.COMPLEX_UNIT_SP);
+            tab.setAutoSizeTextTypeUniformWithConfiguration(12, 16, 2, TypedValue.COMPLEX_UNIT_SP);
         }
         tab.setWidth(120);
         tab.setEllipsize(TextUtils.TruncateAt.END);
@@ -234,7 +234,7 @@ public class PagerSlidingTab extends HorizontalScrollView {
         tab.setText(title);
         tab.setFocusable(true);
         tab.setGravity(Gravity.CENTER);
-        tab.setMinHeight(ScreenUtils.dip2px(getContext(),44));
+        tab.setMinHeight(ScreenUtils.dip2px(getContext(), 44));
         tab.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));//加粗
         tab.setOnClickListener(new OnClickListener() {
             @Override
@@ -374,13 +374,13 @@ public class PagerSlidingTab extends HorizontalScrollView {
         }
         float curTabWidth = currentTab.getWidth();
         //绘制指示线
-       // canvas.drawRect(lineLeft + curTabWidth * 3 / 7, height - indicatorHeight, lineRight - curTabWidth * 3 / 7, height, rectPaint);
+        // canvas.drawRect(lineLeft + curTabWidth * 3 / 7, height - indicatorHeight, lineRight - curTabWidth * 3 / 7, height, rectPaint);
         //绘制圆角指示线
-        if (Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP){
-            canvas.drawRoundRect(lineLeft + curTabWidth * 40 / 70, (float) (height - indicatorHeight-paddingBottom), lineRight - curTabWidth * 4 / 7, (float) (height-paddingBottom),20,20 ,rectPaint);
-        }else{
-            RectF rect =new RectF(lineLeft + curTabWidth * 3 / 7, (float) (height - indicatorHeight-paddingBottom), lineRight - curTabWidth * 3 / 7, (float) (height-paddingBottom));
-            canvas.drawRoundRect(rect,20,20 ,rectPaint);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            canvas.drawRoundRect(lineLeft + curTabWidth * 40 / 70, (float) (height - indicatorHeight - paddingBottom), lineRight - curTabWidth * 4 / 7, (float) (height - paddingBottom), 20, 20, rectPaint);
+        } else {
+            RectF rect = new RectF(lineLeft + curTabWidth * 3 / 7, (float) (height - indicatorHeight - paddingBottom), lineRight - curTabWidth * 3 / 7, (float) (height - paddingBottom));
+            canvas.drawRoundRect(rect, 20, 20, rectPaint);
         }
 
         //绘制在上边的线

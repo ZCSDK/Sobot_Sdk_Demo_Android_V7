@@ -723,7 +723,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             }
         }
         list.addAll(0, msgLists);
-        notifyDataSetChanged();
+        notifyItemRangeInserted(0,
+                msgLists.size());
         if (mMsgCallBack != null) {
             mMsgCallBack.checkUnReadMsg();
             mMsgCallBack.unReadMsgIndex(unReadIndex);
@@ -732,6 +733,14 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     public void addData(ZhiChiMessageBase message) {
         if (message == null) {
+            return;
+        }
+        // msgId 去重:避免 socket 重复推送/server 重发同一条消息时被插入两份。
+        // msgId 为空则不参与去重,保留本地构造、尚未拿到 server msgId 的消息。
+        // 此处早 return 会跳过下面的 action_remind_connt_success 字段改写与 7 处 removeByAction 副作用,
+        // 这是有意为之 —— 同一 msgId 的消息在第 1 次入栈时这些副作用已执行过,重复消息不应重复执行。
+        if (!TextUtils.isEmpty(message.getMsgId()) && containsMsgId(message.getMsgId())) {
+            LogUtils.d("SobotMsgAdapter addData: skip duplicate msgId=" + message.getMsgId());
             return;
         }
         if (message.getAction() != null && ZhiChiConstant.action_remind_connt_success.equals(message.getAction())) {
@@ -782,9 +791,26 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         justAddData(message);
     }
 
-    public void justAddData(ZhiChiMessageBase message) {
+    /**
+     * 把单条消息追加到列表末尾;支持 multi-answer / multiGuideStrip 拆分。
+     * <p>
+     * 内部按 msgId 去重:相同 msgId 的消息只会被加入一次(空 msgId 不参与去重)。
+     *
+     * @param message 待加入的消息,null 直接忽略
+     * @return true 表示消息已实际加入列表;false 表示入参为 null 或被 msgId 去重(重复消息)。
+     * 调用方（如 socket 推送路径）可据此决定是否累加未读计数、触发新消息提示等。
+     */
+    public boolean justAddData(ZhiChiMessageBase message) {
         if (message == null) {
-            return;
+            return false;
+        }
+        // msgId 去重:socket 推送/SDK 内部路径会直接调 justAddData,绕过 addData(单条);
+        // 在最外层 message 入口判断 msgId,避免与 history/已有列表中的同一条消息重复。
+        // 内部 multi-answer 拆分调用 addMsg,不会再触发本判断,保留业务上"故意复用 msgId 的多条 answer"。
+        // msgId 为空不参与去重,保留本地未拿到 server msgId 的消息。
+        if (!TextUtils.isEmpty(message.getMsgId()) && containsMsgId(message.getMsgId())) {
+            LogUtils.d("SobotMsgAdapter justAddData: skip duplicate msgId=" + message.getMsgId());
+            return false;
         }
         if (TextUtils.isEmpty(message.getT())) {
             message.setT(System.currentTimeMillis() + "");
@@ -832,6 +858,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         } else {
             addMsg(message);
         }
+        return true;
     }
 
     private void addMsg(ZhiChiMessageBase message) {
@@ -881,21 +908,22 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
     /**
      * 添加到指定位置
+     *
      * @param message
      * @param position
      */
-    public void addMsg(ZhiChiMessageBase message,int position) {
+    public void addMsg(ZhiChiMessageBase message, int position) {
         if (message == null) {
             return;
         }
-        LogUtils.d("===addMsg==="+position+"===="+(list.size()-1));
-        if(list.size()-1<0){
-            position =0;
-        }else{
-            position = list.size()-1;
+        LogUtils.d("===addMsg===" + position + "====" + (list.size() - 1));
+        if (list.size() - 1 < 0) {
+            position = 0;
+        } else {
+            position = list.size() - 1;
         }
-        if( position<list.size()){
-            list.add(position,message);
+        if (position < list.size()) {
+            list.add(position, message);
             notifyDataSetChanged();
 //        notifyItemInserted(list.size() - 1);
             if (mMsgCallBack != null) {
@@ -940,7 +968,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             for (int i = 0; i < list.size(); i++) {
                 if (StringUtils.isNoEmpty(list.get(i).getVariableFormId()) && list.get(i).getVariableFormId().equals(variableFormId)) {
                     if (null != list.get(i).getVariableModels() && !list.get(i).isCheckFormSubmitOver()) {
-                        posttion =i;
+                        posttion = i;
                         list.remove(i);
                         notifyItemRemoved(i);
                         break;
@@ -948,11 +976,11 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
                 }
             }
-            if(posttion>0 && list.size()>=posttion){
+            if (posttion > 0 && list.size() >= posttion) {
                 //判断是否是欢迎语，如果是，删除欢迎语
-                if(list.get(posttion-1).getSenderType()==ZhiChiConstant.message_sender_type_robot_welcome_msg){
-                    list.remove(posttion-1);
-                    notifyItemRemoved(posttion-1);
+                if (list.get(posttion - 1).getSenderType() == ZhiChiConstant.message_sender_type_robot_welcome_msg) {
+                    list.remove(posttion - 1);
+                    notifyItemRemoved(posttion - 1);
                 }
             }
         }
@@ -1193,7 +1221,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
                 //SENSITIVE_WORD 是敏感词，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
-            }else if (data.getCustomCard()!=null) {
+            } else if (data.getCustomCard() != null) {
                 //自定义卡片，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
             } else {
@@ -1252,18 +1280,38 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                     //如果最后一条以"  |"结束，则把最后一条richList item的msg去掉"  |"
                     subLoadingStr(newRichList, endStr);
                 }
+                // newRichList相邻两条item.getType()=0 是文本类型，就合并成一个文本
+                List<ChatMessageRichListModel> mergedRichList = new ArrayList<>();
+                for (int i = 0; i < newRichList.size(); i++) {
+                    ChatMessageRichListModel currentItem = newRichList.get(i);
+                    if (currentItem.getType() == 0 && !mergedRichList.isEmpty()) {
+                        // 当前项是文本类型，检查mergedRichList最后一项是否也是文本类型
+                        ChatMessageRichListModel lastItem = mergedRichList.get(mergedRichList.size() - 1);
+                        if (lastItem.getType() == 0) {
+                            // 合并文本：将当前文本追加到最后一项(表格也当作文本)
+                            String mergedMsg = (lastItem.getMsg() != null ? lastItem.getMsg() : "") +
+                                    (currentItem.getMsg() != null ? currentItem.getMsg() : "");
+                            lastItem.setMsg(mergedMsg);
+                            continue; // 跳过添加，因为已经合并
+                        }
+                    }
+                    // 非文本类型或前一项不是文本类型，直接添加
+                    mergedRichList.add(currentItem);
+                }
                 //最终显示的richList
                 List<ChatMessageRichListModel> resultRichList = new ArrayList<>();
-                // 循环处理newRichList
-                for (ChatMessageRichListModel item : newRichList) {
+                // 循环处理mergedRichList
+                for (ChatMessageRichListModel item : mergedRichList) {
                     if (item.getType() != 0) {
                         // 如果不是文本类型，直接加入resultRichList
                         resultRichList.add(item);
                     } else {
                         // 如果是文本类型，解析文本并加入到resultRichList
-                        parseTextToRichList(item.getMsg(), resultRichList);
+                        // 关键修复：SSE 未结束时（!isEnd），跳过表格处理，保持原始 Markdown 格式
+                        parseTextToRichList(item.getMsg(), resultRichList, !isEnd);
                     }
                 }
+
                 newAnswer.setRichList(resultRichList);//最终新的richList(气泡里边的内容)
                 msgInfo.setAnswer(newAnswer);
                 msgInfo.setRevaluateState(data.getRevaluateState());
@@ -1303,15 +1351,29 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
     }
 
-    // 解析文本到富文本列表
-    private static void parseTextToRichList(String content, List<ChatMessageRichListModel> resultRichList) {
-        if ((ChatUtils.isHasPictureInMarkdown(content) || ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
-            String[] temp = ChatUtils.parseMarkdownToArr(content);
+    /**
+     * 解析文本到富文本列表
+     *
+     * @param content             文本内容
+     * @param resultRichList      结果列表
+     * @param skipTableProcessing 是否跳过表格处理（SSE 流式传输期间为 true）
+     */
+    private static void parseTextToRichList(String content, List<ChatMessageRichListModel> resultRichList, boolean skipTableProcessing) {
+        if (StringUtils.isEmpty(content)) {
+            return;
+        }
+
+        // 检查是否包含图片或表格
+        boolean hasPicture = ChatUtils.isHasPictureInMarkdown(content);
+        boolean hasTable = !skipTableProcessing && ChatUtils.isMarkdownTable(content);
+
+        if ((hasPicture || hasTable) && ChatUtils.parseMarkdownToArr(content, skipTableProcessing) != null) {
+            String[] temp = ChatUtils.parseMarkdownToArr(content, skipTableProcessing);
             for (int i = 0; i < temp.length; i++) {
                 ChatMessageRichListModel model = new ChatMessageRichListModel();
                 if (StringUtils.isNoEmpty(temp[i])) {
-                    if (temp[i].startsWith("<table")) {
-                        //md 表格
+                    if (!skipTableProcessing && temp[i].startsWith("<table")) {
+                        //md 表格（仅在非流式模式下转换为 HTML）
                         model.setMsg(temp[i]);
                         model.setType(5);
                     } else if (temp[i].startsWith("http")) {
@@ -1319,7 +1381,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         model.setMsg(temp[i]);
                         model.setType(1);
                     } else {
-                        //文本
+                        //文本（流式模式下表格保持为文本）
                         model.setMsg(ChatUtils.parseMarkdownData(temp[i]));
                         model.setType(0);
                     }
@@ -1334,16 +1396,40 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         }
     }
 
-    //处理markdown数据
+    /**
+     * 处理 Markdown 数据
+     *
+     * @param content 文本内容
+     * @param answer  答案对象
+     */
     private static void doMarkDownData(String content, ZhiChiReplyAnswer answer) {
-        if ((ChatUtils.isHasPictureInMarkdown(content) || ChatUtils.isMarkdownTable(content)) && ChatUtils.parseMarkdownToArr(content) != null) {
-            String[] temp = ChatUtils.parseMarkdownToArr(content);
+        doMarkDownData(content, answer, false);
+    }
+
+    /**
+     * 处理 Markdown 数据
+     *
+     * @param content             文本内容
+     * @param answer              答案对象
+     * @param skipTableProcessing 是否跳过表格处理（SSE 流式传输期间为 true）
+     */
+    private static void doMarkDownData(String content, ZhiChiReplyAnswer answer, boolean skipTableProcessing) {
+        if (StringUtils.isEmpty(content)) {
+            return;
+        }
+
+        // 检查是否包含图片或表格
+        boolean hasPicture = ChatUtils.isHasPictureInMarkdown(content);
+        boolean hasTable = !skipTableProcessing && ChatUtils.isMarkdownTable(content);
+
+        if ((hasPicture || hasTable) && ChatUtils.parseMarkdownToArr(content, skipTableProcessing) != null) {
+            String[] temp = ChatUtils.parseMarkdownToArr(content, skipTableProcessing);
             List<ChatMessageRichListModel> richList = new ArrayList<>();
             for (int i = 0; i < temp.length; i++) {
                 ChatMessageRichListModel model = new ChatMessageRichListModel();
                 if (StringUtils.isNoEmpty(temp[i])) {
-                    if (temp[i].startsWith("<table")) {
-                        //md 表格
+                    if (!skipTableProcessing && temp[i].startsWith("<table")) {
+                        //md 表格（仅在非流式模式下转换为 HTML）
                         model.setMsg(temp[i]);
                         model.setType(5);
                     } else if (temp[i].startsWith("http")) {
@@ -1351,7 +1437,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         model.setMsg(temp[i]);
                         model.setType(1);
                     } else {
-                        //文本
+                        //文本（流式模式下表格保持为文本）
                         model.setMsg(ChatUtils.parseMarkdownData(temp[i]));
                         model.setType(0);
                     }
@@ -1778,10 +1864,12 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 baseHolder.reminde_time_Text.setPadding(0, ScreenUtils.dip2px(context, 20), 0, ScreenUtils.dip2px(context, 20));
             }
         } else {
-            if (message.getCid() != null && message.getCid().equals(lastCid)) {
+            if (message.getCid() != null && message.getCid().equals(lastCid) && ZhiChiConstant.message_sender_type_notice == message.getSenderType()) {
+                //非指定通告不显示时间
                 baseHolder.reminde_time_Text.setVisibility(View.GONE);
             } else {
-                if (message.getCid() != null && !message.getCid().equals(list.get(position - 1).getCid())) {
+                if (message.getCid() != null && (!message.getCid().equals(list.get(position - 1).getCid()) || (list.get(position - 1).getSenderType() == ZhiChiConstant.message_sender_type_notice))) {
+                    //如果用户发送消息时，如果列表里边最后一条是通告，那发送的这条消息也显示
                     time = getTimeStr(message);
                     baseHolder.reminde_time_Text.setVisibility(View.VISIBLE);
                     baseHolder.reminde_time_Text.setPadding(0, 0, 0, ScreenUtils.dip2px(context, 20));
@@ -1850,6 +1938,31 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
             list = new ArrayList<>();
             return list;
         }
+    }
+
+    /**
+     * 返回当前消息数据源列表（只读访问，请勿在外部直接修改）。
+     */
+    public List<ZhiChiMessageBase> getList() {
+        return getDatas();
+    }
+
+    /**
+     * 判断当前列表中是否已存在指定 msgId。
+     * <p>
+     * 内部供 addData(单条) / justAddData 去重使用;同时对外暴露,方便上层在调用 add 之前
+     * 提前判断重复推送场景(如 socket 推送时跳过未读计数累加、新消息徽标更新等)。
+     *
+     * @param msgId 待判断的 msgId,空串/null 视为不存在
+     * @return true 表示已存在
+     */
+    public boolean containsMsgId(String msgId) {
+        if (TextUtils.isEmpty(msgId) || list == null) return false;
+        for (int i = 0; i < list.size(); i++) {
+            ZhiChiMessageBase m = list.get(i);
+            if (m != null && msgId.equals(m.getMsgId())) return true;
+        }
+        return false;
     }
 
     public void removeKeyWordTranferItem() {
@@ -1965,7 +2078,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
         void chooseByAllLangaue(ArrayList<SobotlanguaeModel> sobotlanguaeModelList, ZhiChiMessageBase messageBase);
 
-        void goToLastIndexItem();
+        void goToCheckIndexItem(String msgId);
 
         void variableFrom(SobotRobot newRobotId, List<SobotVariableModel> variables);
     }

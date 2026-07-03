@@ -14,6 +14,7 @@
         <item name="android:windowAnimationStyle">@style/BottomDialogAnimation</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
     <style name="BottomDialogAnimation">
         <item name="android:windowEnterAnimation">@anim/sobot_pickerview_dialog_scale_in</item>
         <item name="android:windowExitAnimation">@anim/sobot_pickerview_dialog_scale_out</item>
@@ -115,6 +116,28 @@
         <item name="android:windowAnimationStyle">@style/sobot_AnimBottom</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+    <!-- 半屏弹窗主题（横屏适配版）：与 sobot_AppThemeDialogIsTranslucent 区别：
+         - 删 windowFullscreen=true：避免横屏下 dialog 全屏 flag 让 statusBar 区域填充默认黑色
+         - 加 statusBarColor=transparent：状态栏透明，可见底层 Activity
+         - dimAmount=0.5：横竖屏统一的灰色半透明蒙层。旧主题默认 dim 0.6 + windowFullscreen
+           组合在横屏下会让上半屏整片纯黑；删了 fullscreen 后单纯 dim 0.5 会和底层
+           Activity 叠加成灰色，横竖屏视觉一致。
+         用于：横屏需要正确显示状态栏 + 灰色蒙层的半屏弹窗（如分类选择、地区选择、
+         级联选择、日期时间选择、自定义字段多选等）。
+         不用于：评价相关 Activity（仍走 IsTranslucent 主题），待下版本评价横屏改版统一处理。-->
+    <style name="sobot_AppThemeDialogIsTranslucent3" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:statusBarColor">@color/sobot_color_transparent</item>
+        <item name="android:windowAnimationStyle">@style/sobot_AnimBottom</item>
+    </style>
+
     <!-- 底色是透明的-留言回复-->
     <style name="sobot_AppThemeDialogIsTranslucent2" parent="Theme.AppCompat.Dialog">
         <item name="android:windowActionBar">false</item>
@@ -372,8 +395,6 @@
 
     <!--消息气泡背景 空心边框 文章 小程序 位置等-->
     <style name="sobot_msg_content_ll_hollow_bg_no_padding_style">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
         <item name="android:elevation">16dp</item>
         <item name="android:layout_marginTop">6dp</item>
         <item name="android:layout_marginStart">10dp</item>
@@ -520,8 +541,8 @@
         <item name="android:paddingBottom">16dp</item>
         <item name="android:gravity">start</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginStart">@dimen/sobot_dialog_margin</item>
-        <item name="android:layout_marginEnd">@dimen/sobot_dialog_margin</item>
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:layout_marginEnd">20dp</item>
         <item name="android:lineSpacingExtra">@dimen/sobot_text_line_spacing_extra</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>

@@ -15,32 +15,59 @@
         android:paddingStart="@dimen/sobot_msg_margin_edge"
         android:paddingEnd="@dimen/sobot_msg_margin_edge">
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/sobot_ticket_icon" />
-
-        <TextView
-            android:id="@+id/sobot_tv_ticket_status"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/sobot_ticket_detail_status_deal"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:lines="1"
+            android:background="@drawable/sobot_bg_ticker_code"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:paddingStart="8dp"
-            android:paddingTop="3dp"
+            android:paddingTop="4dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="3dp"
-            android:text="处理中"
-            android:textColor="@color/sobot_ticket_deal_text"
-            android:textSize="@dimen/sobot_text_font_12" />
+            android:paddingBottom="4dp">
 
-        <View
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/sobot_ticket_icon" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="@color/sobot_color_line_divider_to_transparent_four" />
+
+            <TextView
+                android:id="@+id/tv_ticket_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sobot_color_text_first"
+                android:textSize="@dimen/sobot_text_font_12" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/sobot_tv_ticket_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/sobot_ticket_detail_status_deal"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:lines="1"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
+                android:textColor="@color/sobot_ticket_deal_text"
+                android:textSize="@dimen/sobot_text_font_12" />
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/sobot_tv_time"
@@ -72,6 +99,48 @@
         android:paddingEnd="@dimen/sobot_msg_margin_edge"
         android:textColor="@color/sobot_color_text_first"
         android:textSize="@dimen/sobot_text_font_14" />
+    <!-- 邮件引用 ... 展开按钮（有邮件引用内容时显示，padding 扩大点击区域） -->
+    <ImageView
+        android:id="@+id/sobot_btn_email_quote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:clickable="true"
+        android:contentDescription=""
+        android:layout_marginStart="20dp"
+        android:focusable="true"
+        android:paddingStart="0dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:src="@drawable/sobot_email_quote"
+        android:visibility="gone" />
+
+    <!-- 邮件引用展开区域（默认折叠） -->
+    <LinearLayout
+        android:id="@+id/sobot_ll_email_quote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:visibility="gone">
+
+        <!-- 引用内容（左侧 2dp 竖线作为背景，paddingStart 留出间距） -->
+        <TextView
+            android:id="@+id/sobot_tv_email_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/sobot_email_quote_content_bg"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingStart="14dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="4dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sobot_attachment_file_layout"

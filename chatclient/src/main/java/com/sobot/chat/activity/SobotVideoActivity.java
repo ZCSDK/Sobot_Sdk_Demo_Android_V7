@@ -161,8 +161,7 @@ public class SobotVideoActivity extends FragmentActivity implements View.OnClick
             }
 
         } catch (Exception e) {
-            //ignore
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 

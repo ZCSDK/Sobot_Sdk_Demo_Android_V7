@@ -107,7 +107,7 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
                     }
                 });
             } else {
-                if(null!=vh.tv_pinyin_title) {
+                if (null != vh.tv_pinyin_title) {
                     vh.tv_pinyin_title.setText(checkin.getPinyin());
                 }
             }
@@ -131,7 +131,7 @@ public class SobotPhoneCodeAdapter extends RecyclerView.Adapter {
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView iv_img;
-        private TextView tv_title,tv_pinyin_title;
+        private TextView tv_title, tv_pinyin_title;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

@@ -27,7 +27,7 @@ public class InputHelper {
             return;
         }
         //模仿软键盘实现软键盘的删除功能
-        int  keyCode = KeyEvent.KEYCODE_DEL;
+        int keyCode = KeyEvent.KEYCODE_DEL;
         KeyEvent keyEventDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
         KeyEvent keyEventUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
         editText.onKeyDown(keyCode, keyEventDown);

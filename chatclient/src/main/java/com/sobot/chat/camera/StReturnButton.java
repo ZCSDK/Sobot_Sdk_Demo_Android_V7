@@ -50,9 +50,9 @@ public class StReturnButton extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        path.moveTo(strokeWidth, strokeWidth/2);
-        path.lineTo(center_X, center_Y - strokeWidth/2);
-        path.lineTo(size - strokeWidth, strokeWidth/2);
+        path.moveTo(strokeWidth, strokeWidth / 2);
+        path.lineTo(center_X, center_Y - strokeWidth / 2);
+        path.lineTo(size - strokeWidth, strokeWidth / 2);
         canvas.drawPath(path, paint);
     }
 }

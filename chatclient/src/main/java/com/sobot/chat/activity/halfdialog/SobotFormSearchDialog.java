@@ -40,7 +40,7 @@ public class SobotFormSearchDialog extends SobotDialogBaseActivity implements Vi
     //搜索框
     private LinearLayout ll_search;
     private EditText et_search;//搜索
-    private ImageView iv_clear,iv_search;
+    private ImageView iv_clear, iv_search;
     private TextView tv_nodata;
     private int type;
 
@@ -65,24 +65,24 @@ public class SobotFormSearchDialog extends SobotDialogBaseActivity implements Vi
     protected void initData() {
         list = (ArrayList<FormNodeInfo>) getIntent().getSerializableExtra("List");
         String title = getIntent().getStringExtra("title");
-        type = getIntent().getIntExtra("type",0);
+        type = getIntent().getIntExtra("type", 0);
         defualtValue = getIntent().getStringExtra("defualtValue");
         sobot_tv_title.setText(title);
         if (list == null) {
             list = new ArrayList<>();
         }
         List<FormNodeInfo> temList = new ArrayList();
-        if(StringUtils.isNoEmpty(defualtValue)){
+        if (StringUtils.isNoEmpty(defualtValue)) {
             for (int i = 0; i < list.size(); i++) {
-               if(list.get(i).getName().equals(defualtValue)) {
-                   list.get(i).setChecked(true);
-               }else{
-                   list.get(i).setChecked(false);
-               }
+                if (list.get(i).getName().equals(defualtValue)) {
+                    list.get(i).setChecked(true);
+                } else {
+                    list.get(i).setChecked(false);
+                }
             }
         }
         temList.addAll(list);
-        adapter = new SobotFromSearchAdapter(this, temList,  new SobotFromSearchAdapter.SobotListener() {
+        adapter = new SobotFromSearchAdapter(this, temList, new SobotFromSearchAdapter.SobotListener() {
             @Override
             public void select(FormNodeInfo model) {
                 selectStauts = model;
@@ -105,6 +105,7 @@ public class SobotFormSearchDialog extends SobotDialogBaseActivity implements Vi
         } else {
 //            单选不显示搜索
             ll_search.setVisibility(View.GONE);
+            findViewById(R.id.sobot_search_title_line).setVisibility(View.GONE);
         }
     }
 

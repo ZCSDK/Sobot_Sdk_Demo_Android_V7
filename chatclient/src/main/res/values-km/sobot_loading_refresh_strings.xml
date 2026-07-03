@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">រកមិនឃើញទិដ្ឋភាពមាតិកា។ តើអ្នកភ្លេចបន្ថែមវានៅក្នុងឯកសារ XML layout ទេ?</string>
+    <string name="sobot_srl_header_pulling">ទាញចុះដើម្បីផ្ទុកឡើងវិញ</string>
+    <string name="sobot_srl_header_refreshing">កំពុងផ្ទុកឡើងវិញ…</string>
+    <string name="sobot_srl_header_loading">រង់ចាំការផ្ទុកខាងក្រោមបញ្ចប់…</string>
+    <string name="sobot_srl_header_release">លែងដៃដើម្បីផ្ទុកឡើងវិញភ្លាម</string>
+    <string name="sobot_srl_header_finish">ផ្ទុកឡើងវិញបានបញ្ចប់</string>
+    <string name="sobot_srl_header_failed">ផ្ទុកឡើងវិញបរាជ័យ</string>
+    <string name="sobot_srl_header_update">ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ %s</string>
+    <string name="sobot_srl_header_secondary">លែងដៃដើម្បីចូលជាន់ទីពីរ</string>
+    <string name="sobot_srl_footer_pulling">ទាញឡើងដើម្បីផ្ទុកបន្ថែម</string>
+    <string name="sobot_srl_footer_release">លែងដៃដើម្បីផ្ទុកភ្លាម</string>
+    <string name="sobot_srl_footer_loading">កំពុងផ្ទុក…</string>
+    <string name="sobot_srl_footer_refreshing">រង់ចាំការផ្ទុកឡើងវិញខាងលើបញ្ចប់…</string>
+    <string name="sobot_srl_footer_finish">ការផ្ទុកបានបញ្ចប់</string>
+    <string name="sobot_srl_footer_failed">ការផ្ទុកបរាជ័យ</string>
+    <string name="sobot_srl_footer_nothing">គ្មានទិន្នន័យបន្ថែមទៀតទេ</string>
+    <string name="sobot_no_data_string">គ្មានទិន្នន័យ</string>
+    <string name="sobot_no_net_string">គ្មានការតភ្ជាប់បណ្តាញ សូមពិនិត្យបណ្តាញរបស់អ្នក...</string>
+    <string name="sobot_error_click_reload_string">ការផ្ទុកបរាជ័យ ចុចដើម្បីព្យាយាមម្តងទៀត~~</string>
+    <string name="sobot_loading_string">កំពុងផ្ទុក...</string>
+</resources>

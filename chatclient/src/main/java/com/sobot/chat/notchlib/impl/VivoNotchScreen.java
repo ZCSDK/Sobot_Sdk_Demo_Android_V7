@@ -1,13 +1,14 @@
 package com.sobot.chat.notchlib.impl;
 
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
-import android.util.Log;
 
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.utils.ScreenUtil;
+import com.sobot.chat.utils.LogUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class VivoNotchScreen implements INotchScreen {
             Object object = cls.newInstance();
             value = (boolean) hideMethod.invoke(object, mask);
         } catch (Exception e) {
-            Log.e("tag", "get error() ", e);
+            LogUtils.e("get error() ", e);
         }
         return value;
     }

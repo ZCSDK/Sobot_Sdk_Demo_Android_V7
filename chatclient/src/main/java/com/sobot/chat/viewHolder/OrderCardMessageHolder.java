@@ -3,6 +3,7 @@ package com.sobot.chat.viewHolder;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -154,7 +155,7 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                         break;
                 }
                 cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_status_lable)));
-                TextView status=getRightText(statusStr);
+                TextView status = getRightText(statusStr);
                 status.setTextColor(mContext.getResources().getColor(R.color.sobot_order_status_text_color));
                 cusrLayout.addView(status);
             }
@@ -168,7 +169,7 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                 Locale locale = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
                 String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
                 cusrLayout.addView(getLeftText(mContext.getResources().getString(R.string.sobot_order_time_lable)));
-                cusrLayout.addView(getRightText( DateUtil.longStrToDateStr(orderCardContent.getCreateTime(), formatString, locale)));
+                cusrLayout.addView(getRightText(DateUtil.longStrToDateStr(orderCardContent.getCreateTime(), formatString, locale)));
             }
 
             if (orderCardContent.getExtendFields() != null) {
@@ -184,7 +185,22 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                 mSeeAllSplitTV.setVisibility(View.GONE);
                 mSeeAllTV.setVisibility(View.GONE);
             }
-            mSeeAllTV.setTextColor(ThemeUtils.getThemeColor(mContext));
+            // 创建颜色状态选择器
+            int[][] states = new int[][]{
+                    new int[]{android.R.attr.state_pressed},    // pressed 状态
+                    new int[]{}                                   // default 状态
+            };
+
+            int themeColor = ThemeUtils.getThemeColor(mContext);
+            int pressColor = Color.argb(
+                    (int) (Color.alpha(themeColor) * 0.8),
+                    Color.red(themeColor),
+                    Color.green(themeColor),
+                    Color.blue(themeColor)
+            );
+
+            int[] colors = new int[]{pressColor, themeColor};
+            mSeeAllTV.setTextColor(new android.content.res.ColorStateList(states, colors));
 
             if (isRight) {
                 try {
@@ -218,23 +234,20 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                         handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
         }
         sobot_msg_content_ll.setOnClickListener(this);
         refreshReadStatus();
-        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
-        }
     }
 
     /**
      * 自定义字段左侧的view
+     *
      * @param textStr 显示的文字
      */
-    private TextView getLeftText(String textStr){
+    private TextView getLeftText(String textStr) {
         TextView title = new TextView(mContext);
         title.setText(textStr);
         title.setMaxLines(3);
@@ -248,9 +261,10 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
 
     /**
      * 自定义字段右侧的view
+     *
      * @param textStr 文本
      */
-    private TextView getRightText(String textStr){
+    private TextView getRightText(String textStr) {
         TextView value = new TextView(mContext);
         value.setMaxLines(3);
         value.setTextColor(mContext.getResources().getColor(R.color.sobot_color_text_first));
@@ -271,16 +285,8 @@ public class OrderCardMessageHolder extends MsgHolderBase implements View.OnClic
                 SobotOption.orderCardListener.onClickOrderCradMsg(orderCardContent);
                 return;
             }
-            if (SobotOption.hyperlinkListener != null) {
-                SobotOption.hyperlinkListener.onUrlClick(orderCardContent.getOrderUrl());
+            if (SobotOption.dispatchUrlClick(mContext, orderCardContent.getOrderUrl())) {
                 return;
-            }
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, orderCardContent.getOrderUrl());
-                if (isIntercept) {
-                    return;
-                }
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", orderCardContent.getOrderUrl());

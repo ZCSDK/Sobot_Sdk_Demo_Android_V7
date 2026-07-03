@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.sobot.chat.utils.LogUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -86,9 +88,9 @@ class SpecialBarFontUtils {
             try {
                 mSetStatusBarColorIcon.invoke(activity, color);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         } else {
             boolean whiteColor = isBlackColor(color, 50);
@@ -114,7 +116,7 @@ class SpecialBarFontUtils {
                 setStatusBarDarkIcon(window.getDecorView(), true);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -147,13 +149,13 @@ class SpecialBarFontUtils {
                 return true;
             }
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } catch (Throwable e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return false;
     }
@@ -193,7 +195,7 @@ class SpecialBarFontUtils {
                     window.setAttributes(winParams);
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
     }
@@ -219,9 +221,9 @@ class SpecialBarFontUtils {
             try {
                 mSetStatusBarDarkIcon.invoke(activity, dark);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         } else {
             if (flag) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style_card"
     android:layout_width="match_parent"
@@ -12,7 +13,7 @@
         style="@style/sobot_center_remind_time"
         android:visibility="gone" />
     <!-- 我的消息的内容 -->
-    <LinearLayout
+    <com.sobot.chat.widget.SobotMaxSizeLinearLayout
         android:id="@+id/sobot_ll_variable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,6 +24,7 @@
         android:elevation="16dp"
         android:orientation="vertical"
         android:outlineSpotShadowColor="@color/sobot_color_shadow"
+        app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
         android:paddingBottom="20dp"
         android:translationY="6dp">
 
@@ -39,7 +41,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp"
-            android:background="@drawable/sobot_btn_bg_28"
+            android:background="@drawable/sobot_bg_theme_color_28dp"
             android:gravity="center"
             android:includeFontPadding="false"
             android:padding="10dp"
@@ -47,6 +49,6 @@
             android:textColor="@color/sobot_color_white"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="visible" />
-    </LinearLayout>
+    </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
 </LinearLayout>

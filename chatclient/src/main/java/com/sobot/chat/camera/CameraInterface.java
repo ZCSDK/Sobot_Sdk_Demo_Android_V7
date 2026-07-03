@@ -1,5 +1,6 @@
 package com.sobot.chat.camera;
 
+
 import static android.graphics.Bitmap.createBitmap;
 
 import android.Manifest;
@@ -21,7 +22,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaRecorder;
 import android.os.Build;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
@@ -37,6 +37,7 @@ import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.camera.util.ScreenUtils;
 import com.sobot.chat.camera.util.StCmeraLog;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -313,7 +314,7 @@ public class CameraInterface implements Camera.PreviewCallback {
         try {
             this.mCamera = Camera.open(id);
         } catch (Exception var3) {
-            var3.printStackTrace();
+            LogUtils.e("uncaught", var3);
             if (this.errorLisenter != null) {
                 this.errorLisenter.onError();
             }
@@ -323,8 +324,8 @@ public class CameraInterface implements Camera.PreviewCallback {
             try {
                 this.mCamera.enableShutterSound(false);
             } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("CJT", "enable shutter sound faild");
+                LogUtils.e("uncaught", e);
+                LogUtils.e("enable shutter sound faild");
             }
         }
     }
@@ -343,7 +344,7 @@ public class CameraInterface implements Camera.PreviewCallback {
             try {
                 this.mCamera.enableShutterSound(false);
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         StCmeraLog.i("open end");
@@ -404,9 +405,9 @@ public class CameraInterface implements Camera.PreviewCallback {
                 mCamera.setPreviewCallback(this); //每一帧回调
                 mCamera.startPreview();//启动浏览
                 isPreviewing = true;
-                Log.i(TAG, "=== Start Preview ===");
+                LogUtils.i("=== Start Preview ===");
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
     }
@@ -422,9 +423,9 @@ public class CameraInterface implements Camera.PreviewCallback {
                 //这句要在stopPreview后执行，不然会卡顿或者花屏
                 mCamera.setPreviewDisplay(null);
                 isPreviewing = false;
-                Log.i(TAG, "=== Stop Preview ===");
+                LogUtils.i("=== Stop Preview ===");
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
     }
@@ -448,7 +449,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 mCamera.release();
                 mCamera = null;
 //                destroyCameraInterface();
-                Log.i(TAG, "=== Destroy Camera ===");
+                LogUtils.i("=== Destroy Camera ===");
             } catch (Exception e) {
                 if (null != errorLisenter) {
                     errorLisenter.onError();
@@ -456,7 +457,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 destroyCameraInterface();
             }
         } else {
-            Log.i(TAG, "=== Camera  Null===");
+            LogUtils.i("=== Camera  Null===");
         }
 
     }
@@ -479,7 +480,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 break;
         }
 //
-        Log.i("CJT", angle + " = " + cameraAngle + " = " + nowAngle);
+        LogUtils.i(angle + " = " + cameraAngle + " = " + nowAngle);
 
         try {
             mCamera.takePicture(null, null, new Camera.PictureCallback() {
@@ -505,7 +506,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -600,7 +601,7 @@ public class CameraInterface implements Camera.PreviewCallback {
             videoSize = CameraParamUtil.getInstance().getPreviewSize(mParams.getSupportedVideoSizes(), 600,
                     screenProp);
         }
-        Log.i(TAG, "setVideoSize    width = " + videoSize.width + "height = " + videoSize.height);
+        LogUtils.i("setVideoSize    width = " + videoSize.width + "height = " + videoSize.height);
         if (videoSize.width == videoSize.height) {
             mediaRecorder.setVideoSize(preview_width, preview_height);
         } else {
@@ -657,21 +658,21 @@ public class CameraInterface implements Camera.PreviewCallback {
             mediaRecorder.start();
             isRecorder = true;
         } catch (IllegalStateException e) {
-            e.printStackTrace();
-            Log.i("CJT", "startRecord IllegalStateException");
+            LogUtils.e("uncaught", e);
+            LogUtils.i("startRecord IllegalStateException");
             if (this.errorLisenter != null) {
                 this.errorLisenter.onError();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            Log.i("CJT", "startRecord IOException");
+            LogUtils.e("uncaught", e);
+            LogUtils.i("startRecord IOException");
             if (this.errorLisenter != null) {
                 this.errorLisenter.onError();
             }
         } catch (RuntimeException e) {
-            Log.i("CJT", "startRecord RuntimeException");
+            LogUtils.i("startRecord RuntimeException");
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -687,7 +688,7 @@ public class CameraInterface implements Camera.PreviewCallback {
             try {
                 mediaRecorder.stop();
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
                 mediaRecorder = null;
                 mediaRecorder = new MediaRecorder();
             } finally {
@@ -745,7 +746,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 focusAreas.add(new Camera.Area(focusRect, 800));
                 params.setFocusAreas(focusAreas);
             } else {
-                Log.i(TAG, "focus areas not supported");
+                LogUtils.i("focus areas not supported");
                 callback.focusSuccess();
                 return;
             }
@@ -769,7 +770,7 @@ public class CameraInterface implements Camera.PreviewCallback {
                 }
             });
         } catch (Exception e) {
-            Log.e(TAG, "autoFocus failer");
+            LogUtils.e("autoFocus failer");
         }
     }
 

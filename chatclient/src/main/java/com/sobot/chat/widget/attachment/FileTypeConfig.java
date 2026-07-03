@@ -14,12 +14,12 @@ public class FileTypeConfig {
     public static final int MSGTYPE_FILE_MP3 = 17;
     public static final int MSGTYPE_FILE_MP4 = 18;
     public static final int MSGTYPE_FILE_TXT = 20;
-    public static final int MSGTYPE_FILE_PIC=1;
+    public static final int MSGTYPE_FILE_PIC = 1;
     public static final int MSGTYPE_FILE_OTHER = 10;
 
 
     public static int getFileType(String endWith) {
-        if (TextUtils.isEmpty(endWith)){
+        if (TextUtils.isEmpty(endWith)) {
             return MSGTYPE_FILE_OTHER;
         }
         switch (endWith) {

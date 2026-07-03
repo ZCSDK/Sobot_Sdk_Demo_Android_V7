@@ -46,8 +46,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/sobot_chat_msg_boundary_to_empty_width"
-                android:minWidth="240dp"
-                android:orientation="horizontal">
+                android:minWidth="@dimen/sobot_msg_min_width"
+                android:orientation="horizontal"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                 <RelativeLayout
                     android:id="@+id/rl_content"

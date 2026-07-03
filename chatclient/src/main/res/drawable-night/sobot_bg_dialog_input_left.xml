@@ -7,5 +7,7 @@
 
     <solid android:color="@color/sobot_common_btn_bg" />
 
-    <corners android:topLeftRadius="4dp" android:bottomLeftRadius="4dp"/>
+    <corners
+        android:topLeftRadius="4dp"
+        android:bottomLeftRadius="4dp" />
 </shape>

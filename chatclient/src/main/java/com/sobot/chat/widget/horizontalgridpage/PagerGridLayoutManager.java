@@ -822,8 +822,8 @@ public class PagerGridLayoutManager extends RecyclerView.LayoutManager
      * 是否最后一页
      */
     public boolean isLastPage() {
-        LogUtils.i("getPageIndexByOffset = " + (getPageIndexByOffset()+1) + "   mLastPageCount=" + mLastPageCount + ")");
-        if ((getPageIndexByOffset()+1) == mLastPageCount) {
+        LogUtils.i("getPageIndexByOffset = " + (getPageIndexByOffset() + 1) + "   mLastPageCount=" + mLastPageCount + ")");
+        if ((getPageIndexByOffset() + 1) == mLastPageCount) {
             return true;
         }
         return false;

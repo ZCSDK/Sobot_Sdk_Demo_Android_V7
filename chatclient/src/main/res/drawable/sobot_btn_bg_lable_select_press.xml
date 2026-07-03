@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <layer-list>
+            <!-- 底层：背景 + 边框 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_light_evaluate_btn_bg" />
+                    <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_ten_evaluate_select" />
+                    <corners android:radius="16dp" />
+                </shape>
+            </item>
+            <!-- 上层：6% 黑色遮罩（只遮罩背景，不遮罩边框） -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color" />
+                    <corners android:radius="16dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+</selector>

@@ -22,7 +22,8 @@
     <color name="sobot_common_hese">#FA8314</color>
     <!--左边气泡，部分按钮，输入框，留言附件消息-->
     <color name="sobot_common_gray4">#262628</color>
-
+    <!-- 自定义卡片背景   -->
+    <color name="sobot_common_gray10">#1AFFFFFF</color>
 
     <!--暗黑模式-->
     <!--文字颜色 白色变灰色-->
@@ -66,6 +67,8 @@
     <color name="sobot_color_text_first">#FFFFFF</color>
     <!--文字颜色 次要文本色-->
     <color name="sobot_color_text_second">#ADB0B3</color>
+    <!--文字颜色 次要文本色 按压-->
+    <color name="sobot_color_text_second_press">#CCADB0B3</color>
     <!--文字颜色 占位文本色-->
     <color name="sobot_color_text_third">#87888A</color>
     <!--背景色 一级-->
@@ -88,6 +91,10 @@
     <color name="sobot_color_line_divider_to_transparent_second">#00FFFFFF</color>
     <!--线条 分割线颜色 夜间模式也是一样的-->
     <color name="sobot_color_line_divider_to_transparent_third">#F0F0F0</color>
+    <!--线条 分割线颜色 夜间模式12%#ffffff-->
+    <color name="sobot_color_line_divider_to_transparent_four">#1FFFFFFF</color>
+    <!--线条 分割线颜色 夜间模式是完全透明的-->
+    <color name="sobot_color_line_divider_to_transparent_five">#00FFFFFF</color>
     <!--线条 分割线颜色2-->
     <color name="sobot_color_line_divider_2">#595959</color>
     <!--线条 分割线颜色3-->
@@ -161,7 +168,7 @@
     <!--引用消息 小方块 占位背景色-->
     <color name="sobot_chat_appoint_zhanwei_bg">@color/sobot_color_bg_first</color>
     <!--带有预加载效果图片控件背景色-->
-    <color name="sobot_color_progress_image_bg">#353535</color>
+    <color name="sobot_color_progress_image_bg">#0DFFFFFF</color>
     <!--历史记录里 引导问题中的问题的颜色-->
     <color name="sobot_color_suggestion_history">@color/sobot_color_text_first</color>
 
@@ -182,8 +189,6 @@
     <color name="sobot_lable_stroke_color">@color/sobot_color_bg_second</color>
     <!--自定义标签默认填充颜色-->
     <color name="sobot_lable_nomal_bg_color">@color/sobot_color_chat_bottom_bg</color>
-    <!--自定义标签 按压 上边的叠加颜色-->
-    <color name="sobot_lable_nomal_bg_press_color">#1AFFFFFF</color>
     <!--自定义标签字体颜色-->
     <color name="sobot_lable_text_color">@color/sobot_color_text_first</color>
 
@@ -299,12 +304,9 @@
 
     <!--    对话框关背景色-->
     <color name="sobot_dialog_bg_color">@color/sobot_color_bg_four</color>
-    <color name="sobot_dialog_close_press_color">#1AFFFFFF</color>
     <color name="sobot_dialog_line">#595959</color>
     <!--   #FFFFFF 的10% -->
     <color name="sobot_dialog_item_default_color">#1AFFFFFF</color>
-    <!--   #FFFFFF 的20% -->
-    <color name="sobot_dialog_item_selected_color">#33FFFFFF</color>
 
     <!--自动补全 背景色-->
     <color name="sobot_auto_complete_press">@color/sobot_color_bg_third</color>
@@ -330,6 +332,7 @@
     <color name="sobot_common_btn_bg_four">#0DFFFFFF</color>
     <color name="sobot_dialog_btn_line">@color/sobot_dialog_item_default_color</color>
     <!--表单-->
+    <color name="sobot_ticket_item">#353535</color>
     <color name="sobot_ticket_item_press">#353535</color>
     <color name="sobot_ticket_text_desc">#FFFFFF</color>
     <color name="sobot_ticket_text_time">#87888A</color>
@@ -340,7 +343,6 @@
     <!-- 热门问题-->
     <color name="sobot_item_hot_bg">#404040</color>
     <color name="sobot_item_hot_bg_line">#404040</color>
-    <color name="sobot_item_issuse_press">@color/sobot_common_btn_bg</color>
     <color name="sobot_color_ten_point">@color/sobot_common_btn_bg</color>
 
     <!--    常见问题-->
@@ -351,4 +353,27 @@
     <color name="sobot_rich_textview_icon_bg_first">#1AFFFFFF</color>
     <!-- 文本控件textview 大模型生成按钮 矩形-->
     <color name="sobot_rich_textview_icon_bg_second">#FFFFFF</color>
+    <!--工单编号背景色  -->
+    <color name="sobot_ticket_code_bg">#0FFFFFFF</color>
+    <!--工单处理中状态  -->
+    <color name="sobot_ticket_deal_text">#D87A16</color>
+    <color name="sobot_ticket_deal_bg">#332214</color>
+
+    <!-- 按压通用颜色 15% 不透明度白色-->
+    <color name="sobot_press_color">#26FFFFFF</color>
+    <!-- 内容由ai生成 背景色-->
+    <color name="sobot_ai_bg_color">#80000000</color>
+    <!-- 切换语言 按压颜色 4% 透明度 -->
+    <color name="sobot_press_color_third">#1AFFFFFF</color>
+    <!-- 按压通用颜色 10% 不透明度-->
+    <color name="sobot_press_color_five">#1AFFFFFF</color>
+    <!-- 按压通用颜色 3% 不透明度黑色-->
+    <color name="sobot_press_color_six">#26FFFFFF</color>
+    <!--    评价顶踩按钮边框-->
+    <color name="sobot_evaluate_btn">@color/sobot_color_transparent</color>
+    <!--    评价顶踩按钮背景-->
+    <color name="sobot_evaluate_btn_bg">#1AFFFFFF</color>
+
+    <!-- 卡片阴影色（暗夜版）：30% 黑替代 6% 黑，让 elevation 阴影在 #111111 深色背景上仍可见 -->
+    <color name="sobot_color_shadow">#4D000000</color>
 </resources>

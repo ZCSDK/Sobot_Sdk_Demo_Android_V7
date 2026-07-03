@@ -1,6 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--加号 餐单按钮 背景颜色-->
-    <solid android:color="@color/sobot_color_bottom_btn_bg_color" />
-    <corners android:radius="10dp" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--加号 菜单按钮 背景颜色-->
+    <item android:state_pressed="true">
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_color_bottom_btn_bg_color" />
+                    <corners android:radius="10dp" />
+                </shape>
+            </item>
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color" />
+                    <corners android:radius="10dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/sobot_color_bottom_btn_bg_color" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+</selector>

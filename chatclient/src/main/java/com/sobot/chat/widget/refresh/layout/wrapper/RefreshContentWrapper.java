@@ -23,6 +23,7 @@ import androidx.core.view.NestedScrollingParent;
 import androidx.viewpager.widget.ViewPager;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.refresh.layout.api.RefreshContent;
 import com.sobot.chat.widget.refresh.layout.api.RefreshKernel;
 import com.sobot.chat.widget.refresh.layout.listener.CoordinatorLayoutListener;
@@ -81,7 +82,7 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
         View scrollableView = null;
         Queue<View> views = new LinkedList<>();
         //noinspection unchecked
-        List<View> list = (List<View>)views;
+        List<View> list = (List<View>) views;
         list.add(content);
         while (list.size() > 0 && scrollableView == null) {
             View view = views.poll();
@@ -223,7 +224,7 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
                 frameLayout.addView(fixedHeader, 1, lp);
             }
             if (fixedFooter != null) {
-                fixedFooter.setTag(R.id.sobot_srl_tag,"fixed-bottom");
+                fixedFooter.setTag(R.id.sobot_srl_tag, "fixed-bottom");
                 ViewGroup.LayoutParams lp = fixedFooter.getLayoutParams();
                 ViewGroup parent = (ViewGroup) fixedFooter.getParent();
                 index = parent.indexOfChild(fixedFooter);
@@ -268,13 +269,13 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
         try {
             float dy = (value - mLastSpinner) * mScrollableView.getScaleY();
             if (mScrollableView instanceof AbsListView) {
-                scrollListBy((AbsListView) mScrollableView, (int)dy);
+                scrollListBy((AbsListView) mScrollableView, (int) dy);
             } else {
-                mScrollableView.scrollBy(0, (int)dy);
+                mScrollableView.scrollBy(0, (int) dy);
             }
         } catch (Throwable e) {
             //根据用户反馈，此处可能会有BUG
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         mLastSpinner = value;
     }

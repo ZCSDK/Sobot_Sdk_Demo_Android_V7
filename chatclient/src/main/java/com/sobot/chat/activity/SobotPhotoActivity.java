@@ -179,7 +179,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
                         mImageView.setImage(ImageSource.bitmap(bitmap));
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
                 mImageView.setVisibility(View.VISIBLE);
 
@@ -270,7 +270,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
                             | Gravity.CENTER_HORIZONTAL, 0, 0); // 设置layout在PopupWindow中显示的位置
                 } catch (Exception e) {
                     menuWindow = null;
-//						e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
             return false;
@@ -311,8 +311,9 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
     }
 
     public File getFilesDir(Context context, String tag) {
-        if (isSdCardExist() == true) {
-            return context.getExternalFilesDir(tag);
+        if (isSdCardExist()) {
+            File externalFilesDir = context.getExternalFilesDir(tag);
+            return externalFilesDir != null ? externalFilesDir : context.getFilesDir();
         } else {
             return context.getFilesDir();
         }
@@ -342,7 +343,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
             try {
                 menuWindow.dismiss();
             } catch (Exception e) {
-//				e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
             menuWindow = null;
         }
@@ -359,7 +360,7 @@ public class SobotPhotoActivity extends Activity implements View.OnLongClickList
                 menuWindow.showAtLocation(sobot_rl_gif, Gravity.BOTTOM
                         | Gravity.CENTER_HORIZONTAL, 0, 0); // 设置layout在PopupWindow中显示的位置
             } catch (Exception e) {
-//				e.printStackTrace();
+                LogUtils.e("uncaught", e);
                 menuWindow = null;
             }
         }

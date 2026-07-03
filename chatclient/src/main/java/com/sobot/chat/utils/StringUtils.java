@@ -9,11 +9,10 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 
 import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -160,11 +159,19 @@ public final class StringUtils {
         if (isEmpty(html)) {
             return "";
         }
-        //html.replaceAll("\\&[a-zA-Z]{0,9};", "").replaceAll("<[^>]*>", "");
-        String regEx = "</?[^>]+>";
-        Pattern p = Pattern.compile(regEx);
-        Matcher m = p.matcher(html);
-        String s = m.replaceAll("");
+        String s = html;
+        // 先去掉脚本/样式/HTML 注释（含跨行），避免内容被误当作纯文本保留
+        s = s.replaceAll("(?is)<\\s*script[^>]*>.*?<\\s*/\\s*script\\s*>", "");
+        s = s.replaceAll("(?is)<\\s*style[^>]*>.*?<\\s*/\\s*style\\s*>", "");
+        s = s.replaceAll("(?is)<!--.*?-->", "");
+        // 反复剥离标签，处理嵌套或畸形 HTML
+        String prev;
+        int safety = 0;
+        do {
+            prev = s;
+            s = s.replaceAll("(?is)<[^<>]+>", "");
+            safety++;
+        } while (!s.equals(prev) && safety < 8);
         return s;
     }
 
@@ -218,7 +225,7 @@ public final class StringUtils {
                     n += String.valueOf(temp).getBytes("GBK").length;
                 }
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
 
             if (n <= length - 3) {
@@ -349,7 +356,7 @@ public final class StringUtils {
         char[] codeSeq = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
                 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < count; i++) {
             String r = String.valueOf(codeSeq[random.nextInt(codeSeq.length)]);
@@ -366,7 +373,7 @@ public final class StringUtils {
      */
     public static String getRandomNum(int count) {
         char[] codeSeq = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < count; i++) {
             String r = String.valueOf(codeSeq[random.nextInt(codeSeq.length)]);
@@ -384,19 +391,6 @@ public final class StringUtils {
             return true;
         else
             return false;
-    }
-
-    public static String getMoney(String money) {
-        try {
-            float value = Float.parseFloat(money);
-            DecimalFormat decimal = new DecimalFormat("0.00");
-            return decimal.format(value);
-        } catch (NumberFormatException e) {
-            return money;
-        } catch (Exception e) {
-            return money;
-        }
-
     }
 
 

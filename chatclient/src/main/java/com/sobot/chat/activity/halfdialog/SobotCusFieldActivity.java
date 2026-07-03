@@ -1,6 +1,7 @@
 package com.sobot.chat.activity.halfdialog;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -56,9 +58,9 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
     private StringBuffer dataValue = new StringBuffer();
     private TextView sobot_tv_title;
     private TextView sobot_btn_submit;
-    private ImageView sobot_iv_clear,sobot_iv_search;
+    private ImageView sobot_iv_clear, sobot_iv_search;
     private EditText sobot_et_search;
-    private LinearLayout sobot_ll_search,sobot_dialog_content;
+    private LinearLayout sobot_ll_search, sobot_dialog_content;
     private View v_search_line;
     private float screenHeight70;
     private int themeColor = 0;
@@ -199,7 +201,7 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
             themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, ThemeUtils.getThemeColor(this)));
             }
             sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
@@ -214,6 +216,16 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
                 }
             }
         });
+        displayInNotch(sobot_dialog_content);
+        // floating dialog + WRAP_CONTENT 时系统不会触发 adjustResize，键盘弹出会把整个弹窗推到屏幕外（搜索框被遮 / 列表被挤）。
+        // 改 window 高度为 MATCH_PARENT，让系统按 adjustResize 收缩可用区域，子布局自适应剩余空间。
+        if (getWindow() != null) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            getWindow().setAttributes(lp);
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                    | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        }
     }
 
     protected void onSumbitClick() {
@@ -288,16 +300,19 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
         }
 
         //是否显示搜索框
+        int screenHeightPixels = getContext().getResources().getDisplayMetrics().heightPixels;
+        boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         if (cusFieldConfig != null && cusFieldConfig.getQueryFlag() == 1) {
             sobot_ll_search.setVisibility(View.VISIBLE);
             v_search_line.setVisibility(View.VISIBLE);
-//            // 设置高度为屏幕的90%
-//            sobot_dialog_content.setMinimumHeight((int) (getContext().getResources().getDisplayMetrics().heightPixels * 0.9));
+            // 有搜索框：横屏 90%、竖屏 70%（Pad / 折叠屏内屏回落到竖屏）
+            float ratio = isLandscape ? 0.9f : 0.7f;
+            sobot_dialog_content.setMinimumHeight((int) (screenHeightPixels * ratio));
         } else {
             sobot_ll_search.setVisibility(View.GONE);
             v_search_line.setVisibility(View.GONE);
-//            // 设置高度为屏幕的50%
-//            sobot_dialog_content.setMinimumHeight((int) (getContext().getResources().getDisplayMetrics().heightPixels * 0.5));
+            // 无搜索框：屏幕 50%
+            sobot_dialog_content.setMinimumHeight((int) (screenHeightPixels * 0.5));
         }
 
         if (model != null && model.getCusFieldDataInfoList().size() != 0) {

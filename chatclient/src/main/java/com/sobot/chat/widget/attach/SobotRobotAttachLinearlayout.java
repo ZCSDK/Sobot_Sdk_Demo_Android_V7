@@ -26,6 +26,7 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
     private int mRootTopY = 0;
     private boolean customIsAttach;
     private boolean customIsDrag;
+    private int maxMoveRange; // 最大移动范围（靠边 40dp）
 
     public SobotRobotAttachLinearlayout(Context context) {
         this(context, null);
@@ -84,6 +85,8 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
                         mRootMeasuredWidth = mViewGroup.getMeasuredWidth();
                         //获取父布局顶点的坐标
                         mRootTopY = location[1];
+                        //初始化最大移动范围为靠边 0dp
+                        maxMoveRange = ScreenUtils.dip2px(getContext(), 0);
                     }
                     break;
                 case MotionEvent.ACTION_MOVE://手指滑动
@@ -92,9 +95,9 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
                     if (Math.abs(moveX - downX) > 10 || Math.abs(moveY - downY) > 10) {
                         // 拖动事件处理
                         if (mRawX >= 0 && mRawX <= mRootMeasuredWidth && mRawY >= mRootTopY && mRawY <= (mRootMeasuredHeight + mRootTopY)) {
-                            //手指X轴滑动距离
+                            //手指 X 轴滑动距离
                             float differenceValueX = mRawX - mLastRawX;
-                            //手指Y轴滑动距离
+                            //手指 Y 轴滑动距离
                             float differenceValueY = mRawY - mLastRawY;
                             //判断是否为拖动操作
                             if (!isDrug) {
@@ -104,21 +107,39 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
                                     isDrug = true;
                                 }
                             }
-                            //获取手指按下的距离与控件本身X轴的距离
+                            //获取手指按下的距离与控件本身 X 轴的距离
                             float ownX = getX();
-                            //获取手指按下的距离与控件本身Y轴的距离
+                            //获取手指按下的距离与控件本身 Y 轴的距离
                             float ownY = getY();
-                            //理论中X轴拖动的距离
+                            //理论中 X 轴拖动的距离
                             float endX = ownX + differenceValueX;
-                            //理论中Y轴拖动的距离
+                            //理论中 Y 轴拖动的距离
                             float endY = ownY + differenceValueY;
-                            //X轴可以拖动的最大距离
+                            //X 轴可以拖动的最大距离
                             float maxX = mRootMeasuredWidth - getWidth();
-                            //Y轴可以拖动的最大距离 95 =底部输入框加快捷菜单
-                            float maxY = mRootMeasuredHeight - getHeight() - ScreenUtils.dip2px(getContext(), 95);
-                            //X轴边界限制
+                            //Y 轴可以拖动的最大距离 95 =底部输入框加快捷菜单
+                            float maxY = mRootMeasuredHeight - getHeight() - ScreenUtils.dip2px(getContext(), 105);
+
+                            // 添加靠边 40dp 移动范围限制
+                            // 左侧限制：只能在左边 40dp 或右边 40dp 范围内移动
+                            boolean isInLeftRange = endX <= maxMoveRange;
+                            boolean isInRightRange = endX >= (maxX - maxMoveRange);
+
+                            // 如果不在允许的范围内，则限制移动
+                            if (!isInLeftRange && !isInRightRange) {
+                                // 判断应该吸附到左边还是右边
+                                if (endX < maxX / 2) {
+                                    // 靠近左边，限制在左边界 40dp 内
+                                    endX = Math.min(endX, maxMoveRange);
+                                } else {
+                                    // 靠近右边，限制在右边界 40dp 内
+                                    endX = Math.max(endX, maxX - maxMoveRange);
+                                }
+                            }
+
+                            //X 轴边界限制
                             endX = endX < 0 ? 0 : endX > maxX ? maxX : endX;
-                            //Y轴边界限制
+                            //Y 轴边界限制
                             endY = endY < 0 ? 0 : endY > maxY ? maxY : endY;
                             //开始移动
                             setX(endX);
@@ -137,7 +158,7 @@ public class SobotRobotAttachLinearlayout extends LinearLayout {
                         if (isDrug) {
                             float center = mRootMeasuredWidth / 2;
                             Paint paint = new Paint();
-                            // 设置Paint的文字大小与TextView相同
+                            // 设置 Paint 的文字大小与 TextView 相同
                             paint.setTextSize(ScreenUtils.sp2px(getContext(), 14));
                             // 测量 换业务 文字的宽度，向右移动该宽度
                             float width = paint.measureText(getResources().getString(R.string.sobot_switch_business));

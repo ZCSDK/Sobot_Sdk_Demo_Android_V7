@@ -1,5 +1,6 @@
 <resources>
-    <style name="sobot_activity_def_theme" parent="Theme.AppCompat.DayNight.NoActionBar" >
+
+    <style name="sobot_activity_def_theme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:statusBarColor">@color/sobot_color_transparent</item> <!-- 状态栏颜色 -->
         <item name="android:navigationBarColor">@color/sobot_color_bg_first</item> <!-- 导航栏颜色 -->
     </style>

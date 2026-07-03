@@ -13,6 +13,7 @@ import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.ConsultingContent;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.CommonUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
@@ -102,7 +103,7 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
                         handler.postDelayed(loadingRunnable, ZCSobotConstant.LOADING_TIME);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
 
@@ -110,26 +111,13 @@ public class CardMessageHolder extends MsgHolderBase implements View.OnClickList
         sobot_msg_content_ll.setOnClickListener(this);
         setLongClickListener(sobot_msg_content_ll);
         refreshReadStatus();
-        if (sobot_msg_content_ll != null && sobot_msg_content_ll instanceof SobotMaxSizeLinearLayout) {
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMaxWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
-            ((SobotMaxSizeLinearLayout) sobot_msg_content_ll).setMinimumWidth(msgMaxWidth + ScreenUtils.dip2px(mContext, 16 + 16));
-        }
     }
 
     @Override
     public void onClick(View v) {
         if (v == sobot_msg_content_ll && mConsultingContent != null) {
-            if (SobotOption.hyperlinkListener != null) {
-                SobotOption.hyperlinkListener.onUrlClick(mConsultingContent.getSobotGoodsFromUrl());
+            if (SobotOption.dispatchUrlClick(mContext, mConsultingContent.getSobotGoodsFromUrl())) {
                 return;
-            }
-
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, mConsultingContent.getSobotGoodsFromUrl());
-                if (isIntercept) {
-                    return;
-                }
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", mConsultingContent.getSobotGoodsFromUrl());

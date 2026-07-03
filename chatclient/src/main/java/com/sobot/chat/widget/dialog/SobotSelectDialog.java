@@ -32,9 +32,9 @@ public class SobotSelectDialog extends Dialog {
     private SobotSelectAdapter adapter;
     private ListView listView;
     private TextView sobot_tv_title;
-    private ImageView sobot_iv_clear,sobot_iv_search;
+    private ImageView sobot_iv_clear, sobot_iv_search;
     private SobotEditText sobot_et_search;
-    private LinearLayout sobot_dialog_content,sobot_ll_search;
+    private LinearLayout sobot_dialog_content, sobot_ll_search;
     private View v_search_line;
     private String title;
     private OnSelectListener listener;

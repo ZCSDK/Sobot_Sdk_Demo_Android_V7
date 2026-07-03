@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
@@ -28,6 +27,7 @@ import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.horizontalgridpage.SobotRecyclerCallBack;
+import com.sobot.chat.widget.recycler.GridSpacingItemDecoration;
 import com.sobot.network.http.callback.StringResultCallBack;
 
 import java.util.ArrayList;
@@ -70,6 +70,7 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         mPressenter = StPostMsgPresenter.newInstance(SobotSkillGroupActivity.this, SobotSkillGroupActivity.this);
         sobot_rcy_skill = (RecyclerView) findViewById(R.id.rv_list);
+        displayInNotch(sobot_rcy_skill);
         sobotSkillAdapter = new SobotSkillAdapter(this, list_skill, msgFlag, new SobotRecyclerCallBack() {
             @Override
             public void onItemClickListener(View view, int position) {
@@ -116,8 +117,6 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
             }
         });
         sobot_rcy_skill.setAdapter(sobotSkillAdapter);
-
-        displayInNotch(this, sobot_rcy_skill);
     }
 
     public boolean onTouchEvent(MotionEvent event) {
@@ -158,29 +157,39 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
             @Override
             public void onSuccess(ZhiChiGroup zhiChiGroup) {
                 list_skill = zhiChiGroup.getData();
-                if (list_skill != null && list_skill.size() > 0 && sobotSkillAdapter != null) {
-                    if (list_skill.get(0).getGroupStyle() == 1) {
+                if (list_skill != null && !list_skill.isEmpty() && sobotSkillAdapter != null) {
+                    // 横屏 / Pad 走宽屏布局（由 sobot_list_span_count 资源限定符决定，>1 即宽屏）
+                    int spanFromRes = getResources().getInteger(R.integer.sobot_list_span_count);
+                    boolean isWideLayout = spanFromRes > 1;
+                    int size = list_skill.size();
+                    int groupStyle = list_skill.get(0).getGroupStyle();
+                    int spanCount = 1;
+                    int spacingDp = 0;
+                    if (groupStyle == 1) {
                         //图文样式
-                        GridLayoutManager gridlayoutmanager = new GridLayoutManager(SobotSkillGroupActivity.this, 3);
-                        sobot_rcy_skill.setLayoutManager(gridlayoutmanager);
-                        sobot_rcy_skill.setPadding(0, ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24), 0, ScreenUtils.dip2px(SobotSkillGroupActivity.this, 24));
-                        // 简单的间距设置 待测试
-//                        sobot_rcy_skill.addItemDecoration(new RecyclerView.ItemDecoration() {
-//                            @Override
-//                            public void getItemOffsets(android.graphics.Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-//                                int spacing = ScreenUtils.dip2px(SobotSkillGroupActivity.this, 8);
-//                                outRect.set(spacing, spacing, spacing, spacing);
-//                            }
-//                        });
-
-                    } else if (list_skill.get(0).getGroupStyle() == 2) {
-                        //图文加描述
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SobotSkillGroupActivity.this);
-                        sobot_rcy_skill.setLayoutManager(linearLayoutManager);
+                        if (isWideLayout) {
+                            // 横屏 / Pad：≤6 时按数量平分，>6 时固定 6 列
+                            spanCount = Math.min(size, 6);
+                        } else {
+                            // 竖屏：2 / 4 → 2 列，其余 3 列
+                            spanCount = (size == 2 || size == 4) ? 2 : 3;
+                        }
+                    } else if (groupStyle == 2) {
+                        //图文加描述：宽屏 2 列、竖屏单列，间距 8dp
+                        spanCount = spanFromRes;
+                        spacingDp = 8;
                     } else {
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SobotSkillGroupActivity.this);
-                        sobot_rcy_skill.setLayoutManager(linearLayoutManager);
+                        //其他模式：宽屏 2 列、竖屏单列，间距 10dp
+                        spanCount = spanFromRes;
+                        spacingDp = 10;
                     }
+                    sobot_rcy_skill.setLayoutManager(new GridLayoutManager(SobotSkillGroupActivity.this, spanCount));
+                    // 防止接口重试时重复回调导致 ItemDecoration 累加
+                    while (sobot_rcy_skill.getItemDecorationCount() > 0) {
+                        sobot_rcy_skill.removeItemDecorationAt(0);
+                    }
+                    int spacingPx = ScreenUtils.dip2px(SobotSkillGroupActivity.this, spacingDp);
+                    sobot_rcy_skill.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacingPx, false));
 
                     sobotSkillAdapter.setList(list_skill);
                     sobotSkillAdapter.setMsgFlag(msgFlag);

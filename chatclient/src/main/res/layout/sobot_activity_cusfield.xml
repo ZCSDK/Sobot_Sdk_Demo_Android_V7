@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        app:sobot_mhv_HeightRatio="0.8">
+        app:sobot_mhv_HeightRatio="0.7">
 
         <include layout="@layout/sobot_dialog_title" />
 
@@ -36,8 +36,9 @@
 
             <com.sobot.chat.widget.SobotEditText
                 android:id="@+id/sobot_et_search"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="40dp"
                 android:layout_weight="1"
                 android:background="@null"
                 android:gravity="center_vertical"
@@ -83,12 +84,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:orientation="vertical"
-            >
+            android:minHeight="360dp"
+            android:orientation="vertical">
+
             <ListView
                 android:id="@+id/sobot_activity_cusfield_listview"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:minHeight="200dp"
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:background="@color/sobot_dialog_bg_color"
@@ -101,13 +104,14 @@
                 android:scrollbarSize="10dp"
                 android:layout_above="@+id/sobot_btn_submit"
                 android:scrollbarThumbVertical="@drawable/sobot_custom_scroll_style" />
+
             <TextView
                 android:id="@+id/sobot_btn_submit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/sobot_dialog_margin"
                 android:layout_marginEnd="@dimen/sobot_dialog_margin"
-                android:background="@drawable/sobot_btn_bg_28"
+                android:background="@drawable/sobot_bg_theme_color_28dp"
                 android:layout_alignParentBottom="true"
                 android:gravity="center"
                 android:padding="9dp"

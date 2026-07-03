@@ -85,20 +85,23 @@ public class SobotChunkedUploadManager {
     public interface UploadCallback {
         /**
          * 上传成功
+         *
          * @param result 服务器返回的结果
          */
         void onSuccess(UploadInitModel result);
 
         /**
          * 上传失败
+         *
          * @param errorMsg 错误信息
          */
         void onFailure(String errorMsg);
 
         /**
          * 上传进度
+         *
          * @param currentChunk 当前上传的分片（从1开始）
-         * @param totalChunks 总分片数
+         * @param totalChunks  总分片数
          */
         void onProgress(int currentChunk, int totalChunks);
     }
@@ -115,9 +118,10 @@ public class SobotChunkedUploadManager {
 
     /**
      * 上传文件（自动分片）
-     * @param file 要上传的文件
+     *
+     * @param file      要上传的文件
      * @param companyId 公司ID
-     * @param callback 上传回调
+     * @param callback  上传回调
      */
     public void uploadFile(File file, String companyId, UploadCallback callback) {
         if (file == null || !file.exists()) {

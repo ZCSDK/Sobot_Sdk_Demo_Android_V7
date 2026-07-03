@@ -16,26 +16,74 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- 底部栏 -->
-        <include
-            android:id="@+id/sobot_bar_bottom"
-            layout="@layout/sobot_layout_chat_bottom"
+        <!--底部包裹层：恒为 VISIBLE，避免内部 sobot_bar_bottom 被 GONE 时 RelativeLayout 锚链断裂导致 RV 高度坍缩-->
+        <LinearLayout
+            android:id="@+id/ll_bottom_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <!--语音转文字提示 + 快捷菜单：从 sobot_layout_chat_bottom 迁移到此处，避免在底部 LinearLayout 内挤压输入框线框。
+                包一层 LinearLayout 保留原 visibility 切换时的间距行为（两者全 gone 时 0 间距）-->
+            <LinearLayout
+                android:id="@+id/ll_chat_above_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!--语音转文字提示-->
+                <TextView
+                    android:id="@+id/send_voice_robot_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sobot_colot_audio_to_text_tip"
+                    android:breakStrategy="simple"
+                    android:gravity="center"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:paddingStart="@dimen/sobot_msg_margin_edge"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="@dimen/sobot_msg_margin_edge"
+                    android:paddingBottom="8dp"
+                    android:textColor="@color/sobot_color_wenzi_white_to_gray"
+                    android:textSize="@dimen/sobot_text_font_12"
+                    android:visibility="gone" />
+
+                <!--快捷菜单-->
+                <HorizontalScrollView
+                    android:id="@+id/sobot_custom_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sobot_custom_menu_margin_top"
+                    android:scrollbars="none"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/sobot_custom_menu_linearlayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!--底部栏-->
+            <include
+                android:id="@+id/sobot_bar_bottom"
+                layout="@layout/sobot_layout_chat_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <!--通告内容布局-->
         <RelativeLayout
             android:id="@+id/rl_announcement"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/sobot_announcement_bgcolor"
+            android:layout_height="@dimen/sobot_announcement_height"
+            android:background="@drawable/sobot_announcmnt_bg"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="20dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="6dp"
-            android:paddingBottom="10dp"
+            android:paddingStart="@dimen/sobot_msg_margin_edge"
+            android:paddingEnd="@dimen/sobot_msg_margin_edge"
             android:visibility="gone">
 
             <!--通告标题-->
@@ -47,6 +95,7 @@
                 android:layout_toStartOf="@+id/iv_announcement_right_icon"
                 android:ellipsize="marquee"
                 android:includeFontPadding="false"
+                android:layout_centerVertical="true"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
                 android:textColor="@color/sobot_announcement_title_color"
@@ -68,7 +117,7 @@
             android:id="@+id/sobot_srv_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/sobot_bar_bottom"
+            android:layout_above="@id/ll_bottom_wrapper"
             android:layout_below="@+id/rl_announcement">
 
             <com.sobot.chat.widget.refresh.SobotClassicsHeader
@@ -81,13 +130,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </com.sobot.chat.widget.refresh.layout.SobotRefreshLayout>
-        <!-- 切换机器人按钮 -->
+        <!-- 切换机器人按钮：竖屏贴底（ll_bottom_wrapper 上方 20dp）、横屏贴顶（sobot_chat_main 顶部 20dp），
+             默认按横屏样式摆放，竖屏由 SobotChatFragment#applySwitchRobotLayoutByOrientation 切换。
+             注：anchor 必须用 ll_bottom_wrapper（sobot_chat_main 直接子），不能用嵌套的 ll_chat_above_bottom -->
         <com.sobot.chat.widget.attach.SobotRobotAttachLinearlayout
             android:id="@+id/ll_switch_robot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:background="@drawable/sobot_swith_robot_bg"
             android:elevation="24dp"
             android:gravity="center_vertical"
@@ -125,10 +178,9 @@
             android:id="@+id/ll_newmsg"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_above="@+id/sobot_bar_bottom"
+            android:layout_above="@+id/ll_bottom_wrapper"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="30dp"
             android:gravity="center"
             android:layoutDirection="ltr"
             android:orientation="horizontal"
@@ -229,6 +281,15 @@
                 android:textColor="@color/sobot_color_chat_bottom_record_sound_hint"
                 android:textSize="@dimen/sobot_text_font_14" />
         </LinearLayout>
+
+        <!--开始新会话卡片顶部阴影：紧贴 bar_bottom 上方，定义在 sobot_chat_main 末尾保证 z 顺序高于 RecyclerView，盖在消息上-->
+        <View
+            android:id="@+id/sobot_v_restart_talk_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_above="@id/ll_bottom_wrapper"
+            android:background="@drawable/sobot_top_divider_shadow"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <!--顶部 未读消息提示-->

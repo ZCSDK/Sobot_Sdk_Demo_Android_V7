@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- 底层：原来的背景 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_color_bg_third" />
+                    <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_color_line_divider" />
+                    <corners android:radius="15dp" />
+                </shape>
+            </item>
+            <!-- 上层：6% 黑色遮罩 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color" />
+                    <corners android:radius="15dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
     <item>
         <shape>
             <solid android:color="@color/sobot_color_bg_third" />

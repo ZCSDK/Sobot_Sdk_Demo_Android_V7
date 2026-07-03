@@ -2,6 +2,7 @@ package com.sobot.chat.viewHolder;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.core.graphics.ColorUtils;
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
@@ -85,7 +87,7 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                     moreIV.setVisibility(View.VISIBLE);
                     moreTV.setVisibility(View.VISIBLE);
                     Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_more_bg, null);
-                    Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_notice_arrow_down, null);
+                    Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_arrow_down, null);
                     if (moreDrawable != null) {
                         moreLL.setBackground(ThemeUtils.applyColorToDrawable(moreDrawable, ThemeUtils.getThemeColor(mContext)));
                     }
@@ -197,8 +199,22 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                                 nameTv.setTextColor(semiTransparentColor);
                                 nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg_no_click));
                             } else {
-                                nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
-                                nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg));
+                                int themeColor = ThemeUtils.getThemeColor(mContext);
+                                Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_item_bg, null);
+                                if (moreDrawable != null) {
+                                    float cornerRadius = ScreenUtils.dip2px(mContext, 20);
+                                    int strokeWidth = (int) (0.6f * mContext.getResources().getDisplayMetrics().density);
+                                    StateListDrawable drawable = ThemeUtils.createOutlineButtonDrawable(
+                                            mContext, themeColor, cornerRadius, strokeWidth, moreDrawable);
+                                    nameTv.setBackground(drawable);
+                                    // 设置文字颜色选择器：默认主题色，按压时根据亮度调整
+                                    nameTv.setTextColor(ThemeUtils.createButtonTextColorSelector(mContext, themeColor));
+                                }
+                                nameTv.setElevation(12f);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                    nameTv.setOutlineSpotShadowColor(ContextCompat.getColor(mContext, R.color.sobot_color_shado));
+                                }
+                                nameTv.setTranslationY(6f);
                             }
                             nameTv.setText(StringUtils.isEmpty(str) ? "" : str + "");
                             alButton.addView(view);

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/sobot_dialog_item_selected_color" />
+            <solid android:color="@color/sobot_press_color" />
             <corners android:radius="8dp" />
         </shape>
     </item>
-
-</selector>
+</layer-list>

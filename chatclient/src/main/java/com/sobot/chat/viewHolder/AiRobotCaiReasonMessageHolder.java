@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -31,7 +32,7 @@ import java.util.List;
 /**
  * 点踩问题消息
  */
-public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements  View.OnTouchListener {
+public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements View.OnTouchListener {
     private SobotAntoLineLayout sobot_evaluate_lable_autoline;//标签 自动换行
     private EditText ed_describe;
     private TextView sobot_submit;//提交
@@ -46,10 +47,12 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements  Vie
     private boolean changeThemeColor;
     //标签选中样式
     private GradientDrawable checkboxDrawable;
+    private LinearLayout ll_input;
 
     public AiRobotCaiReasonMessageHolder(Context context, View convertView) {
         super(context, convertView);
         tipMsgTV = convertView.findViewById(R.id.sobot_msg);
+        ll_input = convertView.findViewById(R.id.ll_input);
         sobot_cai_action = convertView.findViewById(R.id.sobot_cai_action);
         sobot_evaluate_lable_autoline = convertView.findViewById(R.id.sobot_evaluate_lable_autoline);
         sobot_submit = convertView.findViewById(R.id.sobot_submit);
@@ -109,9 +112,9 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements  Vie
         if (changeThemeColor) {
             sobot_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(mContext));
             Drawable drawable =
-                    ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_btn_bg_28, null);
+                    ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_theme_color_28dp, null);
             if (drawable != null) {
-                sobot_submit.setBackground(ThemeUtils.applyColorToDrawable(drawable, ThemeUtils.getThemeColor(mContext)));
+                sobot_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(drawable, ThemeUtils.getThemeColor(mContext)));
             }
         }
         if (TextUtils.isEmpty(sobotRealuateInfo.getRealuateDetail()) && sobotRealuateInfo.getRealuateTag() == null) {
@@ -153,6 +156,20 @@ public class AiRobotCaiReasonMessageHolder extends MsgHolderBase implements  Vie
                     sobot_submit.setAlpha(1f);
                 }
                 sobotRealuateInfo.setRealuateDetail(ed_describe.getText().toString());
+            }
+        });
+        ed_describe.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    Drawable bgDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_bg_cai_reason_lable_content_bg, null);
+                    ll_input.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(mContext)));
+                } else {
+                    // 失去焦点时，恢复默认背景
+                    ll_input.setBackground(ResourcesCompat.getDrawable(mContext.getResources(),
+                            R.drawable.sobot_bg_cai_reason_lable_content_bg, null));
+
+                }
             }
         });
     }

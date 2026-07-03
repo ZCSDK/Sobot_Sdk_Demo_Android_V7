@@ -276,7 +276,7 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
             return;
         }
         try {
-            LogUtils.d("播放视频地址："+mVideoUrl);
+            LogUtils.d("播放视频地址：" + mVideoUrl);
             Surface surface = mVideoView.getHolder().getSurface();
             StCmeraLog.i("surface.isValid():" + surface.isValid());
             //surface没准备好时不执行播放
@@ -326,7 +326,7 @@ public class StVideoView extends FrameLayout implements SurfaceHolder.Callback, 
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             postError();
         }
 

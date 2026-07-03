@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.refresh.layout.api.RefreshHeader;
 import com.sobot.chat.widget.refresh.layout.api.RefreshLayout;
 import com.sobot.chat.widget.refresh.layout.constant.RefreshState;
@@ -236,7 +237,7 @@ public class ClassicsHeader extends ClassicsAbstract<ClassicsHeader> implements 
                 }
             }
         } catch (Throwable e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         KEY_LAST_UPDATE_TIME += context.getClass().getName();
@@ -298,7 +299,7 @@ public class ClassicsHeader extends ClassicsAbstract<ClassicsHeader> implements 
     public ClassicsHeader setLastUpdateTime(Date time) {
         final View thisView = this;
         mLastTime = time;
-        mLastUpdateText.setText( String.format(mTextUpdate, mLastUpdateFormat.format(time)));
+        mLastUpdateText.setText(String.format(mTextUpdate, mLastUpdateFormat.format(time)));
         if (mShared != null && !thisView.isInEditMode()) {
             mShared.edit().putLong(KEY_LAST_UPDATE_TIME, time.getTime()).apply();
         }

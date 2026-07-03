@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/sobot_item_hot_bg" />
-    <stroke
-        android:width="0.6dp"
-        android:color="#F0F0F0" />
-    <corners android:radius="8dp" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 按压状态：在默认效果上添加 6% 黑色遮罩 -->
+    <item android:state_pressed="true">
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_item_hot_bg" />
+                    <stroke android:width="0.6dp" android:color="#F0F0F0" />
+                    <corners android:radius="8dp" />
+                </shape>
+            </item>
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color_five" />
+                    <corners android:radius="8dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- 默认状态 -->
+    <item>
+        <shape>
+            <solid android:color="@color/sobot_item_hot_bg" />
+            <stroke android:width="0.6dp" android:color="#F0F0F0" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+</selector>

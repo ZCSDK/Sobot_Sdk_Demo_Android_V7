@@ -3,7 +3,12 @@ package com.sobot.chat.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-//特殊字符还原
+/**
+ * 特殊字符还原 — 仅处理白名单实体（&amp; 与几个 URL 参数名）
+ * <p>
+ * 安全边界：本类仅做最小范围的实体反解码，便于上层 sanitizer 识别 &lt;script&gt; 等绕过形式。
+ * 不要作为通用 HTML 反解码器使用；任何下游渲染必须再走 WebViewSecurityUtil.sanitizeHtml 兜底。
+ */
 public class HtmlUnescaper {
     // 定义 HTML 实体映射表
     private static final Map<String, String> HTML_ENTITIES = new HashMap<>();

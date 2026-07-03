@@ -4,25 +4,28 @@ package com.sobot.chat.activity.halfdialog;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.MotionEvent;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.graphics.Rect;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,11 +68,12 @@ import com.sobot.network.http.callback.StringResultCallBack;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class SobotReplyActivity extends SobotDialogBaseActivity implements View.OnClickListener {
 
 
+    /** 附件上传张数上限 */
+    private static final int MAX_FILE_COUNT = 15;
     private EditText sobotReplyEdit;
     private RecyclerView sobotReplyMsgPic;
     private ImageView sobot_btn_file;//上传按钮
@@ -78,7 +82,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     private ArrayList<SobotFileModel> pic_list = new ArrayList<>();
     private SobotUploadFileAdapter adapter;
     private SobotSelectPicDialog menuWindow;
-    private LinearLayout sobot_container;
+    private LinearLayout sobot_container, ll_sobot_bottom;
 
 
     /**
@@ -90,18 +94,56 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     private String mUid = "";
     private String mCompanyId = "";
     private String mTicketId = "";
+    private boolean isSave;
+
+    @Override
+    public void setRequestedOrientation(int requestedOrientation) {
+        // 关键：SobotDialogBaseActivity.onCreate 会按 MarkConfig.LANDSCAPE_SCREEN 强制锁方向。
+        // 当详情页处于宽屏（w>=600dp）时，Reply Activity 应跟随调用方方向而非被锁回竖屏，
+        // 否则 layout 走 layout/（多行 96dp + 内容被挤压），与 layout-w600dp/ 紧凑横屏布局不一致
+        if (getResources().getConfiguration().screenWidthDp >= 600) {
+            return;
+        }
+        super.setRequestedOrientation(requestedOrientation);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            //窗口对齐屏幕宽度
-            Window win = this.getWindow();
-            WindowManager.LayoutParams lp = win.getAttributes();
-            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
-            win.setAttributes(lp);
-        } catch (Exception e) {
+        // 横屏（w>=600dp）改造：
+        //   - 锁方向到 SENSOR_LANDSCAPE，避免系统选择器临时竖屏后回不来
+        //   - 清掉 base 类设的 FLAG_FULLSCREEN（fullscreen flag 会让 adjustResize 完全失效）
+        //   - 窗口改为 MATCH_PARENT 全屏（透明背景下视觉无感），让 adjustResize 真正有空间收缩
+        //   - 外层 layout-w600dp gravity=bottom 把 60dp 回复栏定位到屏幕底部
+        //   - 键盘弹起 → 窗口下边界上移 → 回复栏自动贴在键盘上方
+        if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+            // 显式锁方向到 SENSOR_LANDSCAPE：绕过自己的 override（用 super 直接调），
+            // 这样后续系统图片选择器（强制竖屏）返回后，Reply 会自己强制回到横屏，
+            // 不会出现"选完图片 UI 变成竖屏"的现象
+            super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+
+            Window window = getWindow();
+            if (window != null) {
+                // 关键：base 类 SobotChatBaseActivity.onCreate 在 MarkConfig.LANDSCAPE_SCREEN 开关下
+                // 调用了 setFlags(FLAG_FULLSCREEN)，这是 Android 经典 bug ——
+                // FLAG_FULLSCREEN 会让 SOFT_INPUT_ADJUST_RESIZE 完全失效，键盘直接覆盖窗口。
+                // Reply Activity 需要键盘 resize，必须显式清掉这个 flag
+                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                WindowManager.LayoutParams lp = window.getAttributes();
+                // 关键：必须用 MATCH_PARENT 高度（之前的 WRAP_CONTENT 让窗口只有 60dp，
+                // 根本没空间让 adjustResize 收缩，键盘必然遮挡）
+                // 窗口全屏 + windowBackground=transparent 视觉透明 → Detail 仍可见，
+                // 外层 LinearLayout 的 gravity=bottom 把内层 60dp 回复栏定位到屏幕底部
+                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+                lp.gravity = Gravity.NO_GRAVITY;
+                window.setAttributes(lp);
+                // 全屏窗口下 adjustResize 才有收缩空间：键盘弹起时窗口下边界上移，
+                // 外层 gravity=bottom 自动让回复栏贴到键盘正上方
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                        | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            }
         }
     }
 
@@ -118,16 +160,73 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     @Override
     protected void initView() {
         super.initView();
+        isSave = true;
         sobot_container = findViewById(R.id.sobot_container);
-        sobot_container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        ll_sobot_bottom = findViewById(R.id.ll_sobot_bottom);
+        ll_sobot_bottom.setOnClickListener(this);
+
+        boolean isWide = getResources().getInteger(R.integer.sobot_list_span_count) > 1;
+
+        // 横屏：用 ViewTreeObserver 监听全局布局变化，通过 getWindowVisibleDisplayFrame 实时测量键盘高度，
+        // 然后给外层容器 setPadding(0,0,0,keyboardHeight)。外层 gravity=bottom 会把回复栏推到键盘正上方。
+        // 此方案不依赖 SOFT_INPUT_ADJUST_RESIZE / WindowInsets API，Android 各版本通用稳定。
+        if (isWide) {
+            final View decorView = getWindow().getDecorView();
+            decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect r = new Rect();
+                    decorView.getWindowVisibleDisplayFrame(r);
+                    int rootHeight = decorView.getRootView().getHeight();
+                    int keyboardHeight = rootHeight - r.bottom;
+                    // 阈值过滤导航栏/状态栏（一般 < 屏高 15%），只在键盘弹起时才加 padding
+                    if (keyboardHeight > rootHeight * 0.15) {
+                        if (sobot_container.getPaddingBottom() != keyboardHeight) {
+                            sobot_container.setPadding(0, 0, 0, keyboardHeight);
+                        }
+                    } else {
+                        if (sobot_container.getPaddingBottom() != 0) {
+                            sobot_container.setPadding(0, 0, 0, 0);
+                        }
+                    }
+                }
+            });
+        }
+
         sobot_btn_file = findViewById(R.id.sobot_btn_file);
         sobotReplyEdit = (EditText) findViewById(R.id.sobot_reply_edit);
         sobotReplyMsgPic = findViewById(R.id.sobot_reply_msg_pic);
+        // 横屏：跳过焦点变色监听 — setBackground() 会触发 requestLayout() 重测量，
+        // 导致 EditText 实际高度膨胀，破坏紧凑 40dp 单行外观
+        if (!isWide) {
+            sobotReplyEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_dialog_bg_line_4, null);
+                        sobotReplyEdit.setBackground(ThemeUtils.applyColorToDrawable(bgDrawable, ThemeUtils.getThemeColor(getContext())));
+                    } else {
+                        Drawable bgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_line2_4, null);
+                        sobotReplyEdit.setBackground(bgDrawable);
+                    }
+                }
+            });
+        }
+        sobotReplyEdit.requestFocus();
+        // 横屏：跳过 50ms 自动弹键盘（键盘会完全覆盖 60dp 紧凑栏，让用户先看到完整布局）
+        if (!isWide) {
+            // 延迟显示软键盘
+            sobotReplyEdit.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(sobotReplyEdit, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                }
+            }, 50);
+        }
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         // 设置RecyclerView的LayoutManager
         sobotReplyMsgPic.setLayoutManager(layoutManager);
@@ -135,14 +234,16 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
         sobotBtnSubmit = findViewById(R.id.sobot_btn_submit);
         sobotBtnSubmit.setText(R.string.sobot_btn_submit_text);
         if (ThemeUtils.isChangedThemeColor(getSobotBaseContext())) {
-            Drawable bg = getResources().getDrawable(R.drawable.sobot_btn_bg_16);
+            // 横屏走胶囊背景（圆角 18dp），竖屏沿用原 16dp 圆角背景
+            int sendBgRes = isWide ? R.drawable.sobot_bg_reply_send_pill : R.drawable.sobot_bg_theme_color_16dp;
+            Drawable bg = getResources().getDrawable(sendBgRes);
             if (bg != null) {
-                sobotBtnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
+                sobotBtnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, ThemeUtils.getThemeColor(getSobotBaseContext())));
             }
             sobotBtnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
 
-        List<SobotFileModel> picTempList = (List<SobotFileModel>) getIntent().getSerializableExtra("picTempList");
+        ArrayList<SobotFileModel> picTempList = (ArrayList<SobotFileModel>) getIntent().getSerializableExtra("picTempList");
         String replyTempContent = getIntent().getStringExtra("replyTempContent");
         if (!StringUtils.isEmpty(replyTempContent)) {
             sobotReplyEdit.setText(replyTempContent);
@@ -151,9 +252,26 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
         if (picTempList != null && !picTempList.isEmpty()) {
             pic_list.addAll(picTempList);
         }
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            sobotReplyEdit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                    | EditorInfo.IME_FLAG_NO_FULLSCREEN);
+        }
 
         sobotBtnSubmit.setOnClickListener(this);
         sobot_btn_file.setOnClickListener(this);
+        // 新增：取消按钮点击 → finish（与系统返回等价）
+        final TextView sobotBtnCancel = findViewById(R.id.sobot_btn_cancel);
+        if (sobotBtnCancel != null) {
+            sobotBtnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+        // 诊断：post 等首次布局完成后打印关键尺寸，确认实际生效的 XML
+        // 宽屏（横屏 / 折叠屏内屏 / 平板）：完整改用 layout-w600dp/sobot_layout_dialog_reply.xml
+        // 单行紧凑布局（📎 + 圆角输入 + 发送 + ✖），无需 Java 端再锁定高度 / 加边框
         adapter = new SobotUploadFileAdapter(SobotReplyActivity.this, pic_list, true, true, new SobotUploadFileAdapter.Listener() {
             @Override
             public void downFileLister(SobotFileModel model) {
@@ -193,7 +311,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                         public void onClick(View v) {
                             seleteMenuWindow.dismiss();
                             if (v.getId() == R.id.btn_pick_photo) {
-                                Log.e("onClick: ", seleteMenuWindow.getPosition() + "");
+                                LogUtils.e(seleteMenuWindow.getPosition() + "");
                                 pic_list.remove(fileModel);
                                 adapter.notifyDataSetChanged();
                             }
@@ -213,16 +331,40 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                         return;
                     }
                 }
-                Intent intent = new Intent(SobotReplyActivity.this, SobotPhotoActivity.class);
-                intent.putExtra("imageUrL", fileUrl);
-                startActivity(intent);
+                // 收集 pic_list 中所有图片类型附件，调用支持左右切换的 PreviewDialog
+                java.util.List<String> imageUrls = new java.util.ArrayList<>();
+                int startIndex = 0;
+                for (com.sobot.chat.api.model.SobotFileModel f : pic_list) {
+                    int t = com.sobot.chat.widget.attachment.FileTypeConfig.getFileType(f.getFileType());
+                    if (t == com.sobot.chat.widget.attachment.FileTypeConfig.MSGTYPE_FILE_PIC) {
+                        if (android.text.TextUtils.equals(f.getFileUrl(), fileUrl)) {
+                            startIndex = imageUrls.size();
+                        }
+                        imageUrls.add(f.getFileUrl());
+                    }
+                }
+                if (imageUrls.size() > 1) {
+                    new com.sobot.chat.widget.dialog.SobotCusFieldImagePreviewDialog(
+                            SobotReplyActivity.this, imageUrls, startIndex, true).show();
+                } else {
+                    // 单张：保持原 SobotPhotoActivity 跳转（含长按下载等额外功能）
+                    Intent intent = new Intent(SobotReplyActivity.this, SobotPhotoActivity.class);
+                    intent.putExtra("imageUrL", fileUrl);
+                    startActivity(intent);
+                }
             }
         });
         sobotReplyMsgPic.setAdapter(adapter);
+        if (pic_list.size() > 0) {
+            sobotReplyMsgPic.setVisibility(View.VISIBLE);
+        }
         mUid = getIntent().getStringExtra(ChatUtils.INTENT_KEY_UID);
         mCompanyId = getIntent().getStringExtra(ChatUtils.INTENT_KEY_COMPANYID);
         mTicketId = getIntent().getStringExtra(ChatUtils.INTENT_KEY_TICKET_ID);
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+        // 横屏宽屏（layout-w600dp）已通过单行 40dp 紧凑布局自行处理刘海避让，
+        // 不能再替换 EditText 的 LayoutParams（旧逻辑会硬塞 height=104dp + MATCH_PARENT 宽度，
+        // 把输入框撑成 104dp 高、且 weight=1 失效后挤掉发送/✕ 按钮）
+        if (!isWide && ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
             // 获取刘海屏信息
             NotchScreenManager.getInstance().getNotchInfo(SobotReplyActivity.this, new INotchScreen.NotchScreenCallback() {
                 @Override
@@ -247,73 +389,38 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     }
 
     @Override
-    public boolean dispatchTouchEvent(@NonNull MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {/*点击外部隐藏键盘*/
-            View v = getCurrentFocus();
-            if (isShouldHideInput(v, ev)) {
-
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-            }
-            return super.dispatchTouchEvent(ev);
+    public void finish() {
+        if (isSave) {
+            Intent intent = new Intent();
+            intent.putExtra("replyTempContent", sobotReplyEdit.getText().toString());
+            intent.putExtra("picTempList", (Serializable) pic_list);
+            intent.putExtra("isTemp", true);
+            setResult(Activity.RESULT_OK, intent);
         }
-        // 必不可少，否则所有的组件都不会有TouchEvent了
-        if (getWindow().superDispatchTouchEvent(ev)) {
-            return true;
-        }
-        return onTouchEvent(ev);
-    }
-
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (event.getY() <= 0) {
-                Intent intent = new Intent();
-                intent.putExtra("replyTempContent", sobotReplyEdit.getText().toString());
-                intent.putExtra("picTempList", (Serializable) pic_list);
-                intent.putExtra("isTemp", true);
-                setResult(Activity.RESULT_OK, intent);
-                finish();
-            }
-        }
-        return true;
-    }
-
-    /*是否在外部*/
-    public boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
-            int[] leftTop = {0, 0};
-            //获取输入框当前的location位置
-            v.getLocationInWindow(leftTop);
-            int left = leftTop[0];
-            int top = leftTop[1];
-            int bottom = top + v.getHeight();
-            int right = left + v.getWidth();
-            if (event.getX() > left && event.getX() < right
-                    && event.getY() > top && event.getY() < bottom) {
-                // 点击的是输入框区域，保留点击EditText的事件
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        super.finish();
     }
 
     @Override
     public void onClick(View v) {
-        hideKeyboard();
+
         if (v == sobot_btn_file) {
-            if (pic_list.size() >= 15) {
-                //图片上限15张
-                ToastUtil.showToast(this, getResources().getString(R.string.sobot_ticket_update_file_max_hite));
+            if (pic_list.size() >= MAX_FILE_COUNT) {
+                //附件上限，正常情况下按钮已隐藏，此处仅兜底
+                ToastUtil.showToast(this, String.format(getResources().getString(R.string.sobot_ticket_update_file_max_hite), MAX_FILE_COUNT));
             } else {
                 menuWindow = new SobotSelectPicDialog(SobotReplyActivity.this, itemsOnClick);
                 menuWindow.show();
             }
-        }
-        if (v == sobotBtnSubmit) {//提交
+//            sobotReplyEdit.clearFocus();
+//            sobot_btn_file.requestFocus();
+//            hideKeyboard();
+        } else if (v == ll_sobot_bottom) {//底部点击不能关闭页面
+            sobotReplyEdit.clearFocus();
+            sobot_btn_file.requestFocus();
+            hideKeyboard();
+        } else if (v == sobotBtnSubmit) {//提交
+            sobotReplyEdit.clearFocus();
+            sobotBtnSubmit.requestFocus();
             hideKeyboard();
             if (StringUtils.isEmpty(sobotReplyEdit.getText().toString().trim())) {
                 ToastUtil.showToast(getApplicationContext(), getContext().getResources().getString(R.string.sobot_please_input_reply_no_empty));
@@ -335,7 +442,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                         try {
                             Thread.sleep(500);//睡眠一秒  延迟拉取数据
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            LogUtils.e("uncaught", e);
                         }
                         pic_list.clear();
                         Intent intent = new Intent();
@@ -344,6 +451,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                         intent.putExtra("isTemp", false);
                         setResult(Activity.RESULT_OK, intent);
                         SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
+                        isSave = false;//删除临时数据
                         finish();
                     }
 
@@ -353,7 +461,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                         sobotBtnSubmit.setEnabled(true);
                         sobotBtnSubmit.setClickable(true);
                         ToastUtil.showCustomToast(getApplicationContext(), getContext().getResources().getString(R.string.sobot_leavemsg_error_tip));
-                        e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                         SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
                     }
                 });
@@ -424,36 +532,46 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                     if (selectedImage == null) {
                         selectedImage = ImageUtils.getUri(data, SobotReplyActivity.this);
                     }
-                    String path = ImageUtils.getPath(this, selectedImage);
-                    if (MediaFileUtils.isVideoFileType(path)) {
-                        try {
-                            File selectedFile = new File(path);
-                            if (selectedFile.exists()) {
-                                if (selectedFile.length() > 50 * 1024 * 1024) {
-                                    ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_file_upload_failed));
-                                    return;
-                                }
-                            }
-                            SobotDialogUtils.startProgressDialog(this);
-//                            ChatUtils.sendPicByFilePath(this,path,sendFileListener,false);
-                            String fName = MD5Util.encode(path);
-                            String filePath = null;
-                            try {
-                                filePath = FileUtil.saveImageFile(this, selectedImage, fName + FileUtil.getFileEndWith(path), path);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                ToastUtil.showToast(getApplicationContext(), getContext().getResources().getString(R.string.sobot_pic_type_error));
+                    // 异步解析路径：大视频 content:// 同步 getPath 会拷贝到 cache 耗时 1~3s 阻塞主线程
+                    SobotDialogUtils.startProgressDialog(this);
+                    final Uri finalSelectedImage = selectedImage;
+                    ImageUtils.getPathAsync(this, selectedImage, new ImageUtils.OnPathCallback() {
+                        @Override
+                        public void onResult(String path) {
+                            if (StringUtils.isEmpty(path)) {
+                                SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
+                                showHint(getContext().getResources().getString(R.string.sobot_did_not_get_picture_path));
                                 return;
                             }
-                            sendFileListener.onSuccess(filePath);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            if (MediaFileUtils.isVideoFileType(path)) {
+                                try {
+                                    File selectedFile = new File(path);
+                                    if (selectedFile.exists()) {
+                                        if (selectedFile.length() > 50 * 1024 * 1024) {
+                                            SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
+                                            ToastUtil.showToast(getApplicationContext(), getResources().getString(R.string.sobot_file_upload_failed));
+                                            return;
+                                        }
+                                    }
+                                    String fName = MD5Util.encode(path);
+                                    String filePath;
+                                    try {
+                                        filePath = FileUtil.saveImageFile(SobotReplyActivity.this, finalSelectedImage, fName + FileUtil.getFileEndWith(path), path);
+                                    } catch (Exception e) {
+                                        LogUtils.e("uncaught", e);
+                                        SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
+                                        ToastUtil.showToast(getApplicationContext(), getContext().getResources().getString(R.string.sobot_pic_type_error));
+                                        return;
+                                    }
+                                    sendFileListener.onSuccess(filePath);
+                                } catch (Exception e) {
+                                    LogUtils.e("uncaught", e);
+                                }
+                            } else {
+                                ChatUtils.sendPicByUriPost(SobotReplyActivity.this, finalSelectedImage, sendFileListener, false);
+                            }
                         }
-
-                    } else {
-                        SobotDialogUtils.startProgressDialog(this);
-                        ChatUtils.sendPicByUriPost(this, selectedImage, sendFileListener, false);
-                    }
+                    });
                 } else {
                     showHint(getContext().getResources().getString(R.string.sobot_did_not_get_picture_path));
                 }

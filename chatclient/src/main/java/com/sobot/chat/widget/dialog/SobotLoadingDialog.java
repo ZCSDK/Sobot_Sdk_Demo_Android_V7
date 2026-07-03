@@ -4,7 +4,6 @@ package com.sobot.chat.widget.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -15,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.widget.LoadingView.SobotLoadingView;
@@ -36,6 +36,7 @@ public class SobotLoadingDialog extends Dialog {
     public SobotLoadingDialog(@NonNull Context context, String message) {
         this(context, R.style.sobot_dialog_Progress, message, false);
     }
+
     public SobotLoadingDialog(@NonNull Context context, boolean cancelable) {
         this(context, R.style.sobot_dialog_Progress, "", cancelable);
     }
@@ -49,7 +50,7 @@ public class SobotLoadingDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: ");
+        LogUtils.d("onCreate: ");
         initView();
     }
 
@@ -59,10 +60,10 @@ public class SobotLoadingDialog extends Dialog {
         WindowManager windowManager = getWindow().getWindowManager();
         int screenWidth = windowManager.getDefaultDisplay().getWidth();
         WindowManager.LayoutParams attributes = getWindow().getAttributes();
-      //  attributes.alpha = 0.3f;
+        //  attributes.alpha = 0.3f;
         //attributes.width = (screenWidth / 5) * 2;
-       // attributes.height = (screenWidth / 5) * 2;
-        attributes.gravity= Gravity.CENTER;
+        // attributes.height = (screenWidth / 5) * 2;
+        attributes.gravity = Gravity.CENTER;
         //横屏设置dialog全屏
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
             attributes.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
@@ -71,10 +72,10 @@ public class SobotLoadingDialog extends Dialog {
         setCancelable(mCancelable);
 
         tv_loading = findViewById(R.id.tv_loading);
-        if(StringUtils.isNoEmpty(mMessage)) {
+        if (StringUtils.isNoEmpty(mMessage)) {
             tv_loading.setVisibility(SobotLoadingView.VISIBLE);
             tv_loading.setText(mMessage);
-        }else{
+        } else {
             tv_loading.setVisibility(SobotLoadingView.GONE);
         }
         loading = findViewById(R.id.progress_loading);
@@ -103,10 +104,10 @@ public class SobotLoadingDialog extends Dialog {
 
     public void setmMessage(String mMessage) {
         this.mMessage = mMessage;
-        if(StringUtils.isNoEmpty(mMessage)) {
+        if (StringUtils.isNoEmpty(mMessage)) {
             tv_loading.setVisibility(SobotLoadingView.VISIBLE);
             tv_loading.setText(mMessage);
-        }else{
+        } else {
             tv_loading.setVisibility(SobotLoadingView.GONE);
         }
     }

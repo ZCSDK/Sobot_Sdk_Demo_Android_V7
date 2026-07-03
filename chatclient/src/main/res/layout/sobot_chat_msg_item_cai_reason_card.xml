@@ -35,6 +35,7 @@
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_left_content_ll_bg_style"
+                app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
                 android:orientation="vertical">
 
                 <TextView
@@ -90,12 +91,14 @@
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/sobot_bg_cai_reason_lable_content_bg">
 
-                <com.sobot.chat.widget.SobotEditText
+                <EditText
                     android:id="@+id/ed_describe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:gravity="top"
+                    android:imeOptions="actionDone"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:isScrollContainer="true"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:maxLength="1000"
@@ -120,7 +123,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="20dp"
-                android:background="@drawable/sobot_btn_bg_28"
+                android:background="@drawable/sobot_bg_theme_color_28dp"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:padding="10dp"

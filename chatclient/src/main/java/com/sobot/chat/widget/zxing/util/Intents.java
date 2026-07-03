@@ -27,7 +27,7 @@ public final class Intents {
          * By default, sending this will decode all barcodes that we understand. However it
          * may be useful to limit scanning to certain formats. Use
          * {@link Intent#putExtra(String, String)} with one of the values below.
-         *
+         * <p>
          * Setting this is effectively shorthand for setting explicit formats with {@link #FORMATS}.
          * It is overridden by that setting.
          */

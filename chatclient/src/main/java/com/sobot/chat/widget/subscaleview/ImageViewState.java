@@ -18,7 +18,7 @@ public class ImageViewState implements Serializable {
 
     private final int orientation;
 
-    public ImageViewState(float scale,  PointF center, int orientation) {
+    public ImageViewState(float scale, PointF center, int orientation) {
         this.scale = scale;
         this.centerX = center.x;
         this.centerY = center.y;

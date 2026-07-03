@@ -2,7 +2,9 @@ package com.sobot.chat.viewHolder;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -78,7 +80,6 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
         msgMaxWidth = ScreenUtils.getScreenWidth((Activity) mContext) - msgRightEmptyWidth - msgPaddingStartRight * 2 - msgEdgeStartRight;
 
         tvStripe.setMaxWidth(msgMaxWidth);
-        resetMaxWidth();
         if (message.getLanguaeModels() != null && !message.getLanguaeModels().isEmpty()) {
             ArrayList<SobotlanguaeModel> languaeModels = message.getLanguaeModels();
             sobot_languaeList.removeAllViews();
@@ -99,26 +100,37 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
                 view_split.setVisibility(View.GONE);
                 tv_more.setVisibility(View.GONE);
             }
-            tv_more.setTextColor(ThemeUtils.getThemeColor(mContext));
-            for (int i = 0; i < languaeModels.size(); i++) {
-                if (i < 6) {
+            int themeColor = ThemeUtils.getThemeColor(mContext);
+            tv_more.setTextColor(createColorSelector(themeColor));
+            int colCount = mContext.getResources().getInteger(R.integer.sobot_languae_list_span_count);
+            if (colCount <= 0) {
+                colCount = 1;
+            }
+            int itemGap = mContext.getResources().getDimensionPixelSize(R.dimen.sobot_languae_list_item_gap);
+            int firstRowTopMargin = ScreenUtils.dip2px(context, 10);
+            int hPadding = ScreenUtils.dip2px(context, 16);
+            int vPadding = ScreenUtils.dip2px(context, 9);
+            int itemCount = Math.min(languaeModels.size(), 6);
+            int rowCount = (itemCount + colCount - 1) / colCount;
+            for (int r = 0; r < rowCount; r++) {
+                LinearLayout rowContainer = null;
+                if (colCount > 1) {
+                    rowContainer = new LinearLayout(context);
+                    rowContainer.setOrientation(LinearLayout.HORIZONTAL);
+                }
+                for (int c = 0; c < colCount; c++) {
+                    int i = r * colCount + c;
+                    if (i >= itemCount) {
+                        break;
+                    }
                     final SobotlanguaeModel model = languaeModels.get(i);
                     TextView lanTV = new TextView(context);
-                    lanTV.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     lanTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
-                    lanTV.setTextColor(ThemeUtils.getThemeColor(mContext));
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    if (i != 0) {
-                        lp.topMargin = ScreenUtils.dip2px(context, 12);
-                    } else {
-                        lp.topMargin = ScreenUtils.dip2px(context, 10);
-                    }
-                    lanTV.setLayoutParams(lp);
-                    lanTV.setPadding(ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 9), ScreenUtils.dip2px(context, 16), ScreenUtils.dip2px(context, 9));
-                    String tempStr = model.getName();
+                    lanTV.setTextColor(createColorSelector(themeColor));
+                    lanTV.setPadding(hPadding, vPadding, hPadding, vPadding);
                     lanTV.setGravity(Gravity.CENTER);
                     lanTV.setBackgroundResource(R.drawable.sobot_oval_white_bg);
-                    lanTV.setText(tempStr);
+                    lanTV.setText(model.getName());
                     lanTV.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -129,9 +141,60 @@ public class ChangeLanguaeMessageHolder extends MsgHolderBase {
                             }
                         }
                     });
-                    sobot_languaeList.addView(lanTV);
+
+                    if (colCount > 1) {
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                        if (c > 0) {
+                            lp.leftMargin = itemGap;
+                        }
+                        lanTV.setLayoutParams(lp);
+                        rowContainer.addView(lanTV);
+                    } else {
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        lp.topMargin = r == 0 ? firstRowTopMargin : itemGap;
+                        lanTV.setLayoutParams(lp);
+                        sobot_languaeList.addView(lanTV);
+                    }
+                }
+                if (colCount > 1) {
+                    LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    rowLp.topMargin = r == 0 ? firstRowTopMargin : itemGap;
+                    sobot_languaeList.addView(rowContainer, rowLp);
                 }
             }
         }
+    }
+
+    /**
+     * 创建颜色状态选择器，按压时为 80% 透明度
+     */
+    private ColorStateList createColorSelector(int normalColor) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_pressed}, // 按压状态
+                new int[]{-android.R.attr.state_pressed} // 默认状态
+        };
+
+        int[] colors = new int[]{
+                applyAlpha(normalColor, 0.8f), // 按压时 80% 透明度
+                normalColor // 默认颜色
+        };
+
+        return new ColorStateList(states, colors);
+    }
+
+    /**
+     * 应用透明度到颜色
+     */
+    private int applyAlpha(int color, float alpha) {
+        int alphaInt = Math.round(255 * alpha);
+        return Color.argb(
+                alphaInt,
+                Color.red(color),
+                Color.green(color),
+                Color.blue(color)
+        );
     }
 }

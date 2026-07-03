@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言表单 横屏专用布局（w >= 600dp）
+  - 标题 / 分类、邮箱 / 手机 拆为两个行容器，内部 weight=1 双列
+  - 描述 / 附件 / 自定义字段容器 / 引导文案 / 隐私协议 / 提交按钮 保持铺满
+  - 所有 view ID 与竖屏 layout/sobot_activity_ticket_new.xml 严格一致
+    （findViewById 在两份布局下表现一致，业务流程零侵入）
+  - 新增两个行容器 ID：sobot_row_title_type / sobot_row_email_phone
+    在 ids.xml 中声明，竖屏 XML 中 findViewById 返回 null（applyTwoColRowVisibility 内做兜底）
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sobot_white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/tl_titlebar"
+        layout="@layout/sobot_layout_common_titlebar"
+        android:visibility="visible" />
+
+    <!-- 加载中 -->
+    <LinearLayout
+        android:id="@+id/ll_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <com.sobot.chat.widget.LoadingView.SobotLoadingView
+            android:id="@+id/iv_loading"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            app:sobot_background_color="@color/sobot_color_loading_bg"
+            app:sobot_progress_color="@color/sobot_color"
+            app:sobot_strokeWidth="2dp" />
+    </LinearLayout>
+
+    <!-- 新建工单 表单态容器 -->
+    <LinearLayout
+        android:id="@+id/sobot_ll_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/sobot_header_toolbar_bg"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:visibility="gone">
+
+        <ScrollView
+            android:id="@+id/sobot_sv_root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/sobot_post_msg_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical"
+                >
+
+                <!-- 引导文案：铺满 -->
+                <TextView
+                    android:id="@+id/sobot_tv_post_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <!-- 第 1 行：标题 + 分类（两列 weight=1） -->
+                <LinearLayout
+                    android:id="@+id/sobot_row_title_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.sobot.chat.widget.SobotInputView
+                        android:id="@+id/sobot_post_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:sobot_input_hint="@string/sobot_please_input"
+                        app:sobot_input_type="single_line" />
+
+                    <Space
+                        android:id="@+id/sobot_space_title_type"
+                        android:layout_width="@dimen/sobot_ticket_form_h_space"
+                        android:layout_height="match_parent" />
+
+                    <com.sobot.chat.widget.SobotInputView
+                        android:id="@+id/sobot_post_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:sobot_input_hint="@string/sobot_please_choice"
+                        app:sobot_input_type="select" />
+                </LinearLayout>
+
+                <!-- 自定义字段容器：铺满（内部由 Presenter 动态填充，仍单列） -->
+                <LinearLayout
+                    android:id="@+id/sobot_post_customer_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- 描述：铺满 -->
+                <com.sobot.chat.widget.SobotInputView
+                    android:id="@+id/sobot_post_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sobot_input_hint="@string/sobot_please_input"
+                    app:sobot_input_type="many_lines" />
+
+                <!-- 附件上传：直接复用自定义字段附件 widget，横竖屏共用同一控件，统一新建 / 自定义字段视觉与交互 -->
+                <com.sobot.chat.widget.SobotUploadView
+                    android:id="@+id/ll_upload_file"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- 第 2 行：邮箱 + 手机（两列） -->
+                <LinearLayout
+                    android:id="@+id/sobot_row_email_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.sobot.chat.widget.SobotInputView
+                        android:id="@+id/sobot_post_email"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:sobot_input_hint="@string/sobot_please_input"
+                        app:sobot_input_type="single_line"
+                        app:sobot_input_view_type="email" />
+
+                    <Space
+                        android:id="@+id/sobot_space_email_phone"
+                        android:layout_width="@dimen/sobot_ticket_form_h_space"
+                        android:layout_height="match_parent" />
+
+                    <com.sobot.chat.widget.SobotInputView
+                        android:id="@+id/sobot_post_phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        app:sobot_input_hint="@string/sobot_please_input"
+                        app:sobot_input_view_type="input_two" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 隐私协议 -->
+        <LinearLayout
+            android:id="@+id/sobot_ll_policy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_policy"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/sobot_icon_checkbox_n"
+                android:padding="2dp" />
+
+            <TextView
+                android:id="@+id/sobot_tv_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="@string/sobot_agree_agreement"
+                android:textColor="@color/sobot_policy_text"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 提交按钮 -->
+        <TextView
+            android:id="@+id/sobot_btn_submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/sobot_bg_theme_color_20dp"
+            android:gravity="center"
+            android:minWidth="130dp"
+            android:padding="8dp"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- 完成态：与竖屏一致，按钮容器仍由代码切方向 -->
+    <LinearLayout
+        android:id="@+id/sobot_ll_completed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/sobot_iv_leaveMsg_create_success"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="48dp"
+                    android:background="@drawable/sobot_icon_completed" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:text="@string/sobot_leavemsg_success_tip"
+                    android:textColor="@color/sobot_color_text_first"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/sobot_tv_leaveMsg_create_success_des"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="@string/sobot_leaveMsg_create_success_des_new"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_14" />
+
+                <!-- 横竖屏自适应按钮行容器（横屏走 horizontal，由代码翻转顺序） -->
+                <LinearLayout
+                    android:id="@+id/sobot_completed_actions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/sobot_completed_actions_margin_h"
+                    android:layout_marginTop="@dimen/sobot_completed_actions_margin_top"
+                    android:layout_marginEnd="@dimen/sobot_completed_actions_margin_h"
+                    android:layout_marginBottom="@dimen/sobot_completed_actions_margin_bottom"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/sobot_tv_completed"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/sobot_completed_btn_height"
+                        android:layout_marginTop="@dimen/sobot_completed_btn_top_margin"
+                        android:background="@drawable/sobot_bg_theme_color_20dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:text="@string/sobot_leaveMsg_create_complete"
+                        android:textAllCaps="false"
+                        android:textColor="@color/sobot_color_white"
+                        android:textSize="@dimen/sobot_text_font_14" />
+
+                    <TextView
+                        android:id="@+id/sobot_tv_ticket"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/sobot_completed_btn_height"
+                        android:layout_marginTop="@dimen/sobot_completed_btn_gap"
+                        android:background="@drawable/sobot_bg_ticket_outline"
+                        android:gravity="center"
+                        android:text="@string/sobot_leaveMsg_to_ticket"
+                        android:textColor="@color/sobot_color_text_first"
+                        android:textSize="@dimen/sobot_text_font_14" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</LinearLayout>

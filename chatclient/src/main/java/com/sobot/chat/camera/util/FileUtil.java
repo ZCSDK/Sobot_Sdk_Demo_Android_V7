@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor;
 
 import com.sobot.chat.R;
 import com.sobot.chat.utils.IOUtils;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SobotPathManager;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.widget.toast.ToastUtil;
@@ -33,7 +34,7 @@ public class FileUtil {
             bos.close();
             return jpegName;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return "";
         } finally {
             if (b != null && !b.isRecycled()) {
@@ -108,7 +109,7 @@ public class FileUtil {
                 return filePath.substring(filePath.lastIndexOf(".") + 1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return "";
     }

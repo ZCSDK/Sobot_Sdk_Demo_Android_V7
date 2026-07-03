@@ -3,7 +3,7 @@ package com.sobot.chat.presenter;
 import android.content.Context;
 import android.content.Intent;
 
-import com.sobot.chat.activity.halfdialog.SobotMuItiPostMsgActivtyListener;
+import com.sobot.chat.activity.halfdialog.SobotMuItiPostMsgActivty;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.model.SobotLeaveMsgConfig;
 import com.sobot.chat.core.HttpUtils;
@@ -27,9 +27,9 @@ public class StPostMsgPresenter {
     public static final String INTENT_KEY_TICKET_LIST = "intent_key_ticket_list";
     public static final String INTENT_KEY_TEMP_LIST = "intent_key_temp_list";
     //进入留言列表
-    public static final int TICKET_TO_LIST=0;
+    public static final int TICKET_TO_LIST = 0;
     //进入留言新建
-    public static final int TICKET_TO_NEW=1;
+    public static final int TICKET_TO_NEW = 1;
 
     private StPostMsgPresenter() {
     }
@@ -71,7 +71,7 @@ public class StPostMsgPresenter {
         mApi.getMsgTemplateConfig(mCancelTag, uid, templateId, new StringResultCallBack<SobotLeaveMsgConfig>() {
             @Override
             public void onSuccess(SobotLeaveMsgConfig data) {
-                Intent intent = new Intent(mContext, SobotMuItiPostMsgActivtyListener.class);
+                Intent intent = new Intent(mContext, SobotMuItiPostMsgActivty.class);
                 intent.putExtra(INTENT_KEY_UID, uid);
                 intent.putExtra("templateId", templateId);
                 intent.putExtra("tipMsgId", tipMsgId);

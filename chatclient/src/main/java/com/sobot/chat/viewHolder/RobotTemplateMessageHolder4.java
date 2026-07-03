@@ -29,6 +29,7 @@ public class RobotTemplateMessageHolder4 extends MsgHolderBase {
     private TextView sobot_template4_title;
     private TextView sobot_template4_summary;
     private TextView sobot_template4_anchor;
+    private View sobot_template4_line;
 
     public ZhiChiMessageBase message;
 
@@ -39,6 +40,7 @@ public class RobotTemplateMessageHolder4 extends MsgHolderBase {
         sobot_template4_title = (TextView) convertView.findViewById(R.id.sobot_template4_title);
         sobot_template4_summary = (TextView) convertView.findViewById(R.id.sobot_template4_summary);
         sobot_template4_anchor = (TextView) convertView.findViewById(R.id.sobot_template4_anchor);
+        sobot_template4_line=  convertView.findViewById(R.id.sobot_template4_line);
         sobot_template4_anchor.setText(R.string.sobot_see_detail);
     }
 
@@ -73,22 +75,23 @@ public class RobotTemplateMessageHolder4 extends MsgHolderBase {
                         sobot_template4_summary.setText(interfaceRet.get("summary"));
 
                         if (multiDiaRespInfo.getEndFlag() && interfaceRet.get("anchor") != null) {
+                            sobot_template4_anchor.setVisibility(View.VISIBLE);
+                            sobot_template4_line.setVisibility(View.VISIBLE);
                             sobot_template4_anchor.setTextColor(ThemeUtils.getLinkColor(mContext));
                             sobot_template4_anchor.setOnClickListener(new OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if (SobotOption.newHyperlinkListener != null) {
-                                        //如果返回true,拦截;false 不拦截
-                                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, interfaceRet.get("anchor"));
-                                        if (isIntercept) {
-                                            return;
-                                        }
+                                    if (SobotOption.dispatchUrlClick(mContext, interfaceRet.get("anchor"))) {
+                                        return;
                                     }
                                     Intent intent = new Intent(context, WebViewActivity.class);
                                     intent.putExtra("url", interfaceRet.get("anchor"));
                                     context.startActivity(intent);
                                 }
                             });
+                        }else {
+                            sobot_template4_anchor.setVisibility(View.GONE);
+                            sobot_template4_line.setVisibility(View.GONE);
                         }
                     }
                 } else {

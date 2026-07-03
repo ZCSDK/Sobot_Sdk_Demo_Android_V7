@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.style.URLSpan;
 import android.view.View;
 
@@ -49,7 +50,7 @@ public class MyURLSpan extends URLSpan {
                 Intent intent = new Intent();
                 intent.setAction(ZhiChiConstants.chat_remind_ticket_list);
                 CommonUtils.sendLocalBroadcast(context, intent);
-            }else if ("sobot:SobotToCustomer".equals(url)) {
+            } else if ("sobot:SobotToCustomer".equals(url)) {
                 Intent intent = new Intent();
                 intent.setAction(ZhiChiConstants.chat_remind_to_customer);
                 CommonUtils.sendLocalBroadcast(context, intent);
@@ -58,7 +59,7 @@ public class MyURLSpan extends URLSpan {
                 Intent intent = new Intent();
                 intent.setAction(ZhiChiConstants.CHAT_REMIND_KEEP_QAUEUING);
                 CommonUtils.sendLocalBroadcast(context, intent);
-            }else if (url.startsWith("sobot:SobotMuItiPostMsgActivty")) {
+            } else if (url.startsWith("sobot:SobotMuItiPostMsgActivty")) {
                 //多轮工单收集节点 点击，重复填写
                 Intent intent = new Intent();
                 intent.setAction(ZhiChiConstants.SOBOT_CHAT_MUITILEAVEMSG_RE_COMMIT);
@@ -75,21 +76,17 @@ public class MyURLSpan extends URLSpan {
                 CommonUtils.sendLocalBroadcast(context, intent);
             }
         } else {
+            // 安全：拒绝危险 scheme（仅允许无 scheme 裸域名 / http / https / tel / mailto）
+            if (!isSafeUrl(url)) {
+                LogUtils.i("MyURLSpan block non-whitelist scheme");
+                return;
+            }
             if (url.endsWith(".doc") || url.endsWith(".docx") || url.endsWith(".xls")
                     || url.endsWith(".txt") || url.endsWith(".ppt") || url.endsWith(".pptx")
                     || url.endsWith(".xlsx") || url.endsWith(".pdf") || url.endsWith(".rar")
                     || url.endsWith(".zip")) {// 内部浏览器不支持，所以打开外部
-                if (SobotOption.hyperlinkListener != null) {
-                    SobotOption.hyperlinkListener.onUrlClick(url);
+                if (SobotOption.dispatchUrlClick(context, url)) {
                     return;
-                }
-                if (SobotOption.newHyperlinkListener != null) {
-                    //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context,url);
-                    if (isIntercept) {
-                        return;
-                    }
-
                 }
                 url = fixUrl(url);
                 // 外部浏览器
@@ -100,15 +97,8 @@ public class MyURLSpan extends URLSpan {
                 intent.setData(content);
                 context.startActivity(intent);
             } else if (url.startsWith("tel:")) {
-                if (SobotOption.hyperlinkListener != null) {
-                    SobotOption.hyperlinkListener.onPhoneClick(url);
+                if (SobotOption.dispatchPhoneClick(context, url)) {
                     return;
-                }
-                if (SobotOption.newHyperlinkListener != null) {
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onPhoneClick(context,url);
-                    if (isIntercept) {
-                        return;
-                    }
                 }
                 Intent intent = new Intent();
                 intent.setAction("android.intent.action.VIEW");
@@ -117,16 +107,8 @@ public class MyURLSpan extends URLSpan {
                 context.startActivity(intent);
             } else {
                 // 内部浏览器
-                if (SobotOption.hyperlinkListener != null) {
-                    SobotOption.hyperlinkListener.onUrlClick(url);
+                if (SobotOption.dispatchUrlClick(context, url)) {
                     return;
-                }
-                if (SobotOption.newHyperlinkListener != null) {
-                    //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context,url);
-                    if (isIntercept) {
-                        return;
-                    }
                 }
                 url = fixUrl(url);
                 Intent intent = new Intent(context, WebViewActivity.class);
@@ -135,6 +117,24 @@ public class MyURLSpan extends URLSpan {
                 context.startActivity(intent);
             }
         }
+    }
+
+    /**
+     * 仅放行无 scheme 裸域名 / http / https / tel / mailto，拒绝 javascript/data/file/intent/content 等
+     */
+    private static boolean isSafeUrl(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return false;
+        }
+        int colon = url.indexOf(':');
+        int slash = url.indexOf('/');
+        // 无 scheme（colon 在 / 之后或不存在）视为裸域名 / 相对路径
+        if (colon < 0 || (slash >= 0 && slash < colon)) {
+            return true;
+        }
+        String scheme = url.substring(0, colon).toLowerCase();
+        return "http".equals(scheme) || "https".equals(scheme)
+                || "tel".equals(scheme) || "mailto".equals(scheme);
     }
 
     private String fixUrl(String url) {

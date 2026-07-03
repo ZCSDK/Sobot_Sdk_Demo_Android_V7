@@ -48,7 +48,7 @@ public class SobotChatActivity extends SobotChatBaseActivity {
 
     @Override
     protected void setRequestTag() {
-        REQUEST_TAG="SobotChatActivity";
+        REQUEST_TAG = "SobotChatActivity";
     }
 
     public static void addFragmentToActivity(FragmentManager fragmentManager,

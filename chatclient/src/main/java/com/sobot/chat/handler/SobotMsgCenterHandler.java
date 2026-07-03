@@ -7,6 +7,7 @@ import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.core.channel.SobotMsgManager;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotCompareNewMsgTime;
 import com.sobot.chat.utils.SobotExecutorService;
@@ -32,7 +33,7 @@ public class SobotMsgCenterHandler {
      * @param uid
      * @param callBack
      */
-    public static void getMsgCenterAllData(final Object cancelTag,final Context context, final String uid, final SobotMsgCenterCallBack callBack) {
+    public static void getMsgCenterAllData(final Object cancelTag, final Context context, final String uid, final SobotMsgCenterCallBack callBack) {
         SobotExecutorService.executorService().execute(new Runnable() {
             @Override
             public void run() {
@@ -46,7 +47,7 @@ public class SobotMsgCenterHandler {
                     callBack.onLocalDataSuccess(msgCenterList);
                 }
 
-                List<SobotMsgCenterModel> dataFromServer = getDataFromServer(cancelTag,context, uid);
+                List<SobotMsgCenterModel> dataFromServer = getDataFromServer(cancelTag, context, uid);
                 if (dataFromServer != null && dataFromServer.size() > 0) {
                     for (int i = 0; i < dataFromServer.size(); i++) {
                         SobotMsgCenterModel tmpData = dataFromServer.get(i);
@@ -57,7 +58,7 @@ public class SobotMsgCenterHandler {
                             try {
                                 msgCenterList.get(indexOf).setId(tmpData.getId());
                             } catch (Exception e) {
-                                //ignor
+                                LogUtils.e("uncaught", e);
                             }
                         }
                     }
@@ -74,7 +75,7 @@ public class SobotMsgCenterHandler {
      * IO Thread
      * 从服务器获取会话列表
      */
-    private static List<SobotMsgCenterModel> getDataFromServer(Object cancelTag,Context context, String currentUid) {
+    private static List<SobotMsgCenterModel> getDataFromServer(Object cancelTag, Context context, String currentUid) {
         String platformID = SharedPreferencesUtil.getStringData(context.getApplicationContext(), ZhiChiConstant.SOBOT_PLATFORM_UNIONCODE, "");
         List<SobotMsgCenterModel> platformList = null;
         if (!TextUtils.isEmpty(platformID) && !TextUtils.isEmpty(currentUid)) {
@@ -82,7 +83,7 @@ public class SobotMsgCenterHandler {
             try {
                 platformList = zhiChiApi.getPlatformList(cancelTag, platformID, currentUid);
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         return platformList;

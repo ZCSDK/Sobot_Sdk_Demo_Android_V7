@@ -70,7 +70,8 @@ public class SobotWheelTime {
         this.textSize = textSize;
         setView(view);
     }
-    public SobotWheelTime(View view, boolean[] type, int gravity, int textSize,boolean isMonth) {
+
+    public SobotWheelTime(View view, boolean[] type, int gravity, int textSize, boolean isMonth) {
         super();
         this.view = view;
         this.type = type;
@@ -103,32 +104,32 @@ public class SobotWheelTime {
         // 月
         wv_month = (SobotWheelView) view.findViewById(R.id.month);
         if (startYear == endYear) {//开始年等于终止年
-            if(isMonth) {
+            if (isMonth) {
                 wv_month.setAdapter(new SobotMonthAdapter());
-            }else{
+            } else {
                 wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, endMonth));
             }
             wv_month.setCurrentItem(month + 1 - startMonth);
         } else if (year == startYear) {
             //起始日期的月份控制
-            if(isMonth) {
+            if (isMonth) {
                 wv_month.setAdapter(new SobotMonthAdapter());
-            }else {
+            } else {
                 wv_month.setAdapter(new SobotNumericWheelAdapter(startMonth, 12));
             }
             wv_month.setCurrentItem(month + 1 - startMonth);
         } else if (year == endYear) {
             //终止日期的月份控制
-            if(isMonth) {
+            if (isMonth) {
                 wv_month.setAdapter(new SobotMonthAdapter());
-            }else {
+            } else {
                 wv_month.setAdapter(new SobotNumericWheelAdapter(1, endMonth));
             }
             wv_month.setCurrentItem(month);
         } else {
-            if(isMonth) {
+            if (isMonth) {
                 wv_month.setAdapter(new SobotMonthAdapter());
-            }else {
+            } else {
                 wv_month.setAdapter(new SobotNumericWheelAdapter(1, 12));
             }
             wv_month.setCurrentItem(month);

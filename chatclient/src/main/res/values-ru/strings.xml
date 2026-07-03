@@ -135,7 +135,7 @@
     <string name="sobot_delete">Удалить</string>
     <string name="sobot_data_wrong_hint">Ошибка данных</string>
     <string name="sobot_cus_service">Агент</string>
-    <string name="sobot_ctrl_v_success">Скопировано успешно!</string>
+    <string name="sobot_ctrl_v_success">Скопировано в буфер обмена</string>
     <string name="sobot_ctrl_copy">Копия</string>
     <string name="sobot_created_1">Созданный</string>
     <string name="sobot_count_down">Обратный отсчет</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">Поиск всех округов (районов) </string>
     <string name="sobot_region_level4">Поиск всех улиц</string>
     <string name="sobot_permission_use_info">Описание использования прав </string>
-    <string name="sobot_album_permission_yongtu"> Вы подаете заявку на доступ к фотографиям и видео и права пользования.  С разрешения можно отправлять фотографии и видео в консультационные службы и сообщения. </string>
     <string name="sobot_please_open_album"> Запросить права доступа к альбому </string>
     <string name="sobot_use_album"> Для доступа и использования фотографий и видео на этом устройстве </string>
-    <string name="sobot_camera_permission_yongtu"> Вы подаете заявку на разрешение на использование камеры.  Когда это возможно, фотографируйте и записывайте видео для загрузки во время консультаций и сообщений </string>
     <string name="sobot_please_open_camera"> Запросить разрешение на открытие камеры </string>
     <string name="sobot_use_camera"> Для получения доступа к камере </string>
-    <string name="sobot_microphone_permission_yongtu"> Вы подаете заявку на доступ к микрофону.  Когда это возможно, голосовые сообщения можно отправлять во время консультации с клиентом. </string>
     <string name="sobot_please_open_microphone"> Запросить разрешение микрофона </string>
     <string name="sobot_use_microphone"> Доступ к микрофону </string>
     <string name="sobot_storage_permission_yongtu"> Вы подаете заявку на доступ к файлам и их использование.  С разрешения можно отправлять файлы во время консультаций и сообщений. </string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">Нет ответа</string>
     <string name="sobot_please_input">Введите...</string>
     <string name="sobot_ticket_update_file_hite">Загрузить до %s, размер не более %s</string>
-    <string name="sobot_ticket_update_file_max_hite">Достигнут максимум 15</string>
+    <string name="sobot_ticket_update_file_max_hite">Достигнут максимум %1$d</string>
     <string name="sobot_cus_level_all">Все</string>
     <string name="sobot_please_choice">Выбери...</string>
     <string name="sobot_skill_no_service">Нет агента в сети. Нажмите чтобы оставить отправку</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">Для записи звука откройте на вашем устройстве меню \"Параметры\" > \"Приложения" > \"%s\" > \"Разрешения\" и предоставьте доступ к микрофону.</string>
     <string name="sobot_continue_shooting">Продолжить запись</string>
     <string name="sobot_audio_go_setting">Микрофон выключен. Невозможно записать аудио.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Запрашивается разрешение на использование микрофона. После разрешения можно отправлять/загружать записанные видео при консультации с агентом и оставлении сообщений.</string>
     <string name="sobot_agree_agreement">Я прочитал(а) и согласен(на) с %s.</string>
     <string name="sobot_agree">Согласен(-на)</string>
     <string name="sobot_keep_queuing">нажмите «Продолжить ожидание в очереди»</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">См. %d источников информации</string>
     <string name="sobot_start_chat">Начать консультацию</string>
     <string name="sobot_variable_title">Заполните информацию</string>
+    <string name="sobot_ctrl_ticket_success">Номер тикета скопирован</string>
+    <string name="sobot_album_permission_yongtu">Запрос доступа к фото для отправки изображений. Приложение работает нормально при отказе.</string>
+    <string name="sobot_microphone_permission_yongtu">Запрос доступа к микрофону для отправки голосовых/видеосообщений. Приложение работает нормально при отказе.</string>
+    <string name="sobot_camera_permission_yongtu">Запрос доступа к камере для отправки изображений/видео. Приложение работает нормально при отказе.</string>
 </resources>

@@ -3,11 +3,8 @@ package com.sobot.chat.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.text.SpannableString;
-import android.text.Spanned;
+import android.graphics.drawable.StateListDrawable;
 import android.text.TextUtils;
-import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +57,7 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Map<String, Object> ticketPartnerField;
 
 
-    public SobotGoodsAdapter(Context context, List<SobotChatCustomGoods> list, int cardStyle, Map<String, Object> ticketPartnerField,Map<String, Object> customField,boolean isRight, SobotMsgAdapter.SobotMsgCallBack msgCallBack, boolean isHistory) {
+    public SobotGoodsAdapter(Context context, List<SobotChatCustomGoods> list, int cardStyle, Map<String, Object> ticketPartnerField, Map<String, Object> customField, boolean isRight, SobotMsgAdapter.SobotMsgCallBack msgCallBack, boolean isHistory) {
         this.context = context;
         this.ticketPartnerField = ticketPartnerField;
         this.customField = customField;
@@ -164,17 +161,8 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                         return;
                     }
-                    if (SobotOption.hyperlinkListener != null) {
-                        SobotOption.hyperlinkListener.onUrlClick(customGoods.getCustomCardLink());
+                    if (SobotOption.dispatchUrlClick(context, customGoods.getCustomCardLink())) {
                         return;
-                    }
-
-                    if (SobotOption.newHyperlinkListener != null) {
-                        //如果返回true,拦截;false 不拦截
-                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, customGoods.getCustomCardLink());
-                        if (isIntercept) {
-                            return;
-                        }
                     }
                     Intent intent = new Intent(context, WebViewActivity.class);
                     intent.putExtra("url", customGoods.getCustomCardLink());
@@ -185,7 +173,7 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.sobot_goods_title.setText(customGoods.getCustomCardName());
             if (!TextUtils.isEmpty(customGoods.getCustomCardThumbnail())) {
                 SobotBitmapUtil.display(context, CommonUtils.encode(customGoods.getCustomCardThumbnail())
-                        , holder.sobot_goods_pic);
+                        , holder.sobot_goods_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 holder.sobot_goods_pic.setVisibility(View.VISIBLE);
 //                if (holder.line != null) {
 //                    holder.line.setVisibility(View.GONE);
@@ -199,24 +187,14 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             //金额显示
             if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
                 String price = "";
-                boolean hasF = false;
                 if (!StringUtils.isEmpty(customGoods.getCustomCardAmountSymbol())) {
-                    hasF = true;
                     price = customGoods.getCustomCardAmountSymbol();
                 }
                 if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
-                    price += StringUtils.getMoney(customGoods.getCustomCardAmount());
-                }
-                //第一个字符小
-                SpannableString spannableString = new SpannableString(price);
-                if (hasF) {
-                    spannableString.setSpan(new RelativeSizeSpan(0.6f), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-                if (price.contains(".")) {
-                    spannableString.setSpan(new RelativeSizeSpan(0.6f), price.indexOf("."), price.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    price += customGoods.getCustomCardAmount();
                 }
                 holder.sobot_goods_price.setVisibility(View.VISIBLE);
-                holder.sobot_goods_price.setText(spannableString);
+                holder.sobot_goods_price.setText(price);//金额传入是什么就显示什么，不做修改
             } else {
                 holder.sobot_goods_price.setVisibility(View.GONE);
             }
@@ -407,9 +385,6 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             holder.sobot_goods_btn.setText(menu.getMenuName());
                             holder.sobot_goods_btn.setTag(index);
                             holder.sobot_goods_btn.setVisibility(View.VISIBLE);
-                            if (changeThemeColor) {
-                                holder.sobot_goods_btn.setTextColor(themeColor);
-                            }
                             if (menu.isDisable()) {
                                 holder.sobot_goods_btn.setEnabled(false);
                                 holder.sobot_goods_btn.setClickable(false);
@@ -492,15 +467,15 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             }
         }
-        if(holder.line!=null){
-            if(index<mData.size()-1){
+        if (holder.line != null) {
+            if (index < mData.size() - 1) {
                 holder.line.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 holder.line.setVisibility(View.GONE);
             }
         }
-        if(holder.sobot_ll_btns!=null){
-            if( holder.sobot_goods_price != null && holder.sobot_goods_price.getVisibility()==View.GONE && holder.sobot_goods_btn != null && holder.sobot_goods_btn.getVisibility()==View.GONE){
+        if (holder.sobot_ll_btns != null) {
+            if (holder.sobot_goods_price != null && holder.sobot_goods_price.getVisibility() == View.GONE && holder.sobot_goods_btn != null && holder.sobot_goods_btn.getVisibility() == View.GONE) {
                 holder.sobot_ll_btns.setVisibility(View.GONE);
             }
         }
@@ -546,13 +521,29 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             line = itemView.findViewById(R.id.v_line_bottom);
             if (changeThemeColor) {
                 if (sobot_goods_btn != null) {
-                    Drawable bg = sobot_goods_btn.getBackground();
-                    if (bg != null) {
-                        sobot_goods_btn.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
-                    }
+                    setupOutlineButton(sobot_goods_btn, themeColor);
                 }
             }
         }
+    }
+
+    /**
+     * 配置 Outline 按钮的主题色效果
+     */
+    private void setupOutlineButton(TextView button, int themeColor) {
+        if (button == null) return;
+        if (context == null) return;
+
+        // 设置按钮背景为主题色描边和填充
+        float cornerRadius = ScreenUtils.dip2px(context, 22);
+        int strokeWidth = (int) (0.6f * context.getResources().getDisplayMetrics().density);
+
+        StateListDrawable drawable = ThemeUtils.createOutlineButtonDrawable(
+                context, themeColor, cornerRadius, strokeWidth);
+        button.setBackground(drawable);
+
+        // 设置文字颜色选择器：默认主题色，按压时根据亮度调整
+        button.setTextColor(ThemeUtils.createButtonTextColorSelector(context, themeColor));
     }
 
     private void setMenuDisableById(SobotChatCustomGoods goods, int menuIndex) {

@@ -1,4 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <root-path name="sobot_root_path" path="."/>
-</resources>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 应用内部文件目录：/data/data/包名/files/（包含所有子目录） -->
+    <files-path
+        name="sobot_files"
+        path="." />
+
+    <!-- 应用缓存目录：/data/data/包名/cache/（包含所有子目录） -->
+    <cache-path
+        name="sobot_cache"
+        path="." />
+
+    <!-- 外部存储专属目录：/sdcard/Android/data/包名/files/（包含所有子目录） -->
+    <external-files-path
+        name="sobot_external_files"
+        path="." />
+
+    <!-- 外部缓存目录：/sdcard/Android/data/包名/cache/（包含所有子目录） -->
+    <external-cache-path
+        name="sobot_external_cache"
+        path="." />
+
+    <!-- 媒体文件目录：/sdcard/Android/media/包名/（包含所有子目录） -->
+    <external-media-path
+        name="sobot_media"
+        path="." />
+</paths>

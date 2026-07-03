@@ -8,11 +8,13 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -140,6 +142,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         if (headIV != null) {
             float width = mContext.getResources().getDimension(R.dimen.sobot_msg_face_width_heigth);
             headIV.setImageWidthAndHeight(Math.round(width), Math.round(width));
+            headIV.setLoadingDrawable(R.drawable.sobot_avatar_loading_no_bg);
         }
         nameTv = convertView.findViewById(R.id.sobot_msg_nike_name_tv);
 
@@ -1217,7 +1220,6 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                 });
     }
 
-    //设置控件长按事件，弹出引用提示框
     public void setLongClickListener(View view) {
         if (view == null || sobot_msg_content_ll == null) {
             return;
@@ -1226,41 +1228,29 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             //引用未开启
             return;
         }
+        if (message == null) {
+            return;
+        }
         if (answersList != null && ((message.getListSuggestions() != null && !message.getListSuggestions().isEmpty()) || (message.getSugguestions() != null && message.getSugguestions().length > 0))) {
             //只要带有关联问题都不能引用
             return;
         }
-        sobot_msg_content_ll.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showAppointPopWindows(mContext, sobot_msg_content_ll, 0, 18, message);
-                return true;
-            }
-        });
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showAppointPopWindows(mContext, sobot_msg_content_ll, 0, 18, message);
-                return true;
-            }
-        });
-        if (answersList != null) {
-            answersList.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    showAppointPopWindows(mContext, sobot_msg_content_ll, 0, 18, message);
-                    return true;
-                }
-            });
+        if (StringUtils.isEmpty(message.getMessage())) {
+            //getMessage 不能为空，不然没法发出引用
+            return;
         }
-        if (stripe != null) {
-            stripe.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    showAppointPopWindows(mContext, sobot_msg_content_ll, 0, 18, message);
-                    return true;
-                }
-            });
+        // 确保 view 可以接收长按事件
+        sobot_msg_content_ll.setClickable(true);
+        sobot_msg_content_ll.setLongClickable(true);
+
+        // 为 sobot_msg_content_ll 设置长按监听器
+        setupLongClickListener(sobot_msg_content_ll);
+
+        // 如果传入的 view 不是 sobot_msg_content_ll，也为其设置监听器
+        if (view != sobot_msg_content_ll) {
+            view.setClickable(true);
+            view.setLongClickable(true);
+            setupLongClickListener(view);
         }
     }
 
@@ -1271,6 +1261,9 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         if (v == null) {
             return;
         }
+        if (context == null || ((Activity) context).isFinishing()) {
+            return;
+        }
         if (initMode == null || initMode.getMsgAppointFlag() == 0) {
             //引用未开启
             return;
@@ -1282,74 +1275,86 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             //只要带有关联问题都不能引用
             return;
         }
-        /** pop view */
-        View mPopView = LayoutInflater.from(context).inflate(R.layout.sobot_pop_chat_room_long_press, null);
-        mPopView.findViewById(R.id.ll_click_copy).setVisibility(View.GONE);
-        mPopView.findViewById(R.id.view_split).setVisibility(View.GONE);
-        final PopupWindow mPopWindow = new PopupWindow(mPopView,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, false);
-        /** set */
-        mPopWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        mPopWindow.setOutsideTouchable(true);
-        /** 这个很重要 ,获取弹窗的长宽度 */
-        mPopView.measure(150, 150);
-        int popupWidth = mPopView.getMeasuredWidth();
-        int popupHeight = mPopView.getMeasuredHeight() + 20;
-        /** 获取父控件的位置 */
-        int[] location = new int[2];
-        v.getLocationOnScreen(location);
-        /** 显示位置 */
-        mPopWindow.showAtLocation(v, Gravity.NO_GRAVITY,
-                location[0] + v.getWidth() / 2 - popupWidth / 2 + x,
-                location[1] - popupHeight + y);// + v.getWidth() / 2) -
+        try {
+            /** pop view */
+            View mPopView = LayoutInflater.from(context).inflate(R.layout.sobot_pop_chat_room_long_press, null);
+            mPopView.findViewById(R.id.ll_click_copy).setVisibility(View.GONE);
+            mPopView.findViewById(R.id.view_split).setVisibility(View.GONE);
+            final PopupWindow mPopWindow = new PopupWindow(mPopView,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, false);
+            /** set */
+            mPopWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            mPopWindow.setOutsideTouchable(true);
+            /** 这个很重要 ,获取弹窗的长宽度 */
+            mPopView.measure(150, 150);
+            int popupWidth = mPopView.getMeasuredWidth();
+            int popupHeight = mPopView.getMeasuredHeight() + 20;
+            /** 获取父控件的位置 */
+            int[] location = new int[2];
+            v.getLocationOnScreen(location);
+            /** 显示位置 */
+            mPopWindow.showAtLocation(v, Gravity.NO_GRAVITY,
+                    location[0] + v.getWidth() / 2 - popupWidth / 2 + x,
+                    location[1] - popupHeight + y);// + v.getWidth() / 2) -
 
-        mPopWindow.update();
-        mPopView.findViewById(R.id.ll_click_appoint).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        appoinitClick(message, context);
-                        mPopWindow.dismiss();
-                    }
-                });
+            mPopWindow.update();
+            mPopView.findViewById(R.id.ll_click_appoint).setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            appoinitClick(message, context);
+                            mPopWindow.dismiss();
+                        }
+                    });
+        } catch (Exception e) {
+        }
     }
 
     private void appoinitClick(final ZhiChiMessageBase message, final Context context) {
         if (message == null || StringUtils.isEmpty(message.getMessage())) {
             return;
         }
-        Intent intent = new Intent();
-        intent.setAction(ZhiChiConstants.SOBOT_POST_MSG_APPOINT_BROCAST);
-        Bundle bundle = new Bundle();
-        ZhiChiAppointMessage appointMessage = new ZhiChiAppointMessage();
-        appointMessage.setMsgId(message.getMsgId());
-        appointMessage.setCid(message.getCid());
-        //appointType 0-客服 1-客户 2-引用机器人
-        if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
-            appointMessage.setAppointType(1);
-        } else if (ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
-            appointMessage.setAppointType(0);
-        } else if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
-            appointMessage.setAppointType(2);
-        } else {
-            appointMessage.setAppointType(1);
+        if (context == null) {
+            return;
         }
-
-        JSONObject messageJsonObject = null;
         try {
-            messageJsonObject = new JSONObject(message.getMessage());
-            if (messageJsonObject.has("msgType") && !TextUtils.isEmpty(messageJsonObject.optString("msgType"))) {
-                String msgType = messageJsonObject.optString("msgType");
-                String content = messageJsonObject.optString("content");
-                appointMessage.setContent(content);
-                appointMessage.setMsgType(Integer.parseInt(msgType));
-                bundle.putSerializable("appointMessage", appointMessage);
-                intent.putExtras(bundle);
-                CommonUtils.sendLocalBroadcast(context, intent);
+            Intent intent = new Intent();
+            intent.setAction(ZhiChiConstants.SOBOT_POST_MSG_APPOINT_BROCAST);
+            Bundle bundle = new Bundle();
+            ZhiChiAppointMessage appointMessage = new ZhiChiAppointMessage();
+            appointMessage.setMsgId(message.getMsgId());
+            appointMessage.setCid(message.getCid());
+            //appointType 0-客服 1-客户 2-引用机器人
+            if (ZhiChiConstant.message_sender_type_customer == message.getSenderType()) {
+                appointMessage.setAppointType(1);
+            } else if (ZhiChiConstant.message_sender_type_service == message.getSenderType()) {
+                appointMessage.setAppointType(0);
+            } else if (ZhiChiConstant.message_sender_type_robot == message.getSenderType()) {
+                appointMessage.setAppointType(2);
+            } else {
+                appointMessage.setAppointType(1);
             }
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+
+            JSONObject messageJsonObject = null;
+            try {
+                messageJsonObject = new JSONObject(message.getMessage());
+                if (messageJsonObject.has("msgType") && !TextUtils.isEmpty(messageJsonObject.optString("msgType"))) {
+                    String msgType = messageJsonObject.optString("msgType");
+                    String content = messageJsonObject.optString("content");
+                    appointMessage.setContent(content);
+                    // 防止 NumberFormatException
+                    try {
+                        appointMessage.setMsgType(Integer.parseInt(msgType));
+                    } catch (NumberFormatException ignored) {
+                    }
+                    bundle.putSerializable("appointMessage", appointMessage);
+                    intent.putExtras(bundle);
+                    CommonUtils.sendLocalBroadcast(context, intent);
+                }
+            } catch (JSONException ignored) {
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -1372,4 +1377,92 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         }
         return true;
     }
+
+    /**
+     * 为指定的 view 设置长按监听器
+     *
+     * @param view 需要设置长按监听器的 view
+     */
+    private void setupLongClickListener(final View view) {
+        view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // 先显示遮罩
+                showPressMask();
+
+                // 延迟一点时间再显示弹窗，确保遮罩已经渲染
+                // 使用弱引用避免内存泄漏
+                final java.lang.ref.WeakReference<View> weakView = new java.lang.ref.WeakReference<>(sobot_msg_content_ll);
+                weakView.get().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        View currentView = weakView.get();
+                        if (currentView != null && currentView.isAttachedToWindow()) {
+                            showAppointPopWindows(mContext, currentView, 0, 18, message);
+                        }
+                    }
+                }, 50);
+
+                // 监听触摸事件，手指抬起时移除遮罩
+                view.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v2, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_UP ||
+                                event.getAction() == MotionEvent.ACTION_CANCEL) {
+                            removePressMask();
+                            view.setOnTouchListener(null);
+                        }
+                        return false;
+                    }
+                });
+
+                return true;
+            }
+        });
+    }
+
+    /**
+     * 显示按压遮罩效果
+     */
+    public void showPressMask() {
+        if (sobot_msg_content_ll == null || mContext == null) {
+            return;
+        }
+
+        // 创建 6% 不透明度的黑色遮罩
+        GradientDrawable pressDrawable = new GradientDrawable();
+        pressDrawable.setColor(mContext.getResources().getColor(R.color.sobot_press_color));
+
+        // 获取并复制相同的圆角
+        Drawable background = sobot_msg_content_ll.getBackground();
+        if (background instanceof GradientDrawable) {
+            GradientDrawable bgDrawable = (GradientDrawable) background;
+            float[] radii = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                radii = bgDrawable.getCornerRadii();
+            }
+            if (radii != null) {
+                pressDrawable.setCornerRadii(radii);
+            }
+        }
+
+        // 设置遮罩
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            sobot_msg_content_ll.setForeground(pressDrawable);
+        }
+    }
+
+    /**
+     * 移除按压遮罩效果
+     */
+    public void removePressMask() {
+        if (sobot_msg_content_ll == null) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            sobot_msg_content_ll.setForeground(null);
+        }
+    }
+
 }

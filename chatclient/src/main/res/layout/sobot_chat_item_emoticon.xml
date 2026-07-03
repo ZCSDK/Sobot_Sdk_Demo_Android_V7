@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/sobot_item_emoticon_size_default"
     android:layout_gravity="center"
+    android:background="@drawable/sobot_bg_item_emoji_btn"
     android:gravity="center"
-    android:layout_marginBottom="24dp"
+    android:paddingBottom="4dp"
+    android:layout_marginBottom="20dp"
     android:textColor="@color/sobot_common_hese"
     android:textSize="@dimen/sobot_text_font_22" />

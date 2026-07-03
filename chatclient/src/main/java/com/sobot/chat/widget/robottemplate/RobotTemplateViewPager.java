@@ -51,6 +51,7 @@ public class RobotTemplateViewPager extends ViewPager {
         this.adapter = adapter;
         this.message = message;
     }
+
     //上一页
     public void selectPreviousPage() {
         if (adapter != null && getCurrentItem() != 0) {

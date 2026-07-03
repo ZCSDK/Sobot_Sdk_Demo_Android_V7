@@ -64,7 +64,7 @@ public class AudioPlayPresenter {
                     try {
                         boolean success = directory.createNewFile();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                     }
                 }
                 contentPath = tmpFilePath;
@@ -88,7 +88,7 @@ public class AudioPlayPresenter {
 
                     @Override
                     public void onError(Exception e, String msg, int responseCode) {
-                        e.printStackTrace();
+                        LogUtils.e("uncaught", e);
                     }
 
                     @Override
@@ -149,7 +149,7 @@ public class AudioPlayPresenter {
                     });
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             LogUtils.i("音频播放失败");
             message.setVoideIsPlaying(false);
             AudioTools.getInstance().stop();

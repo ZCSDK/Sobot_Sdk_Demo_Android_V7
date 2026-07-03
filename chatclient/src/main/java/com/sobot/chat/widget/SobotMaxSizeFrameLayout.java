@@ -40,6 +40,7 @@ public class SobotMaxSizeFrameLayout extends FrameLayout {
 
     /**
      * 设置最大高
+     *
      * @param maxHeight
      */
     public void setMaxHeight(int maxHeight) {
@@ -49,6 +50,7 @@ public class SobotMaxSizeFrameLayout extends FrameLayout {
 
     /**
      * 设置最大宽
+     *
      * @param maxWidth
      */
     public void setMaxWidth(int maxWidth) {

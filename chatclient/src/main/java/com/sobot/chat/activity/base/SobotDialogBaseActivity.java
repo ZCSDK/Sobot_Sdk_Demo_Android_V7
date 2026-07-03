@@ -55,7 +55,7 @@ public abstract class SobotDialogBaseActivity extends SobotChatBaseActivity {
     @Override
     protected void initView() {
         iv_closes = findViewById(R.id.iv_closes);
-        if(iv_closes!=null) {
+        if (iv_closes != null) {
             //关闭
             iv_closes.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -63,6 +63,11 @@ public abstract class SobotDialogBaseActivity extends SobotChatBaseActivity {
                     finish();
                 }
             });
+        }
+        // 标题栏刘海屏适配：子类布局如 include @layout/sobot_dialog_title 即自动生效
+        View titleBar = findViewById(R.id.ll_title_bar);
+        if (titleBar != null) {
+            displayInNotch(titleBar);
         }
     }
 

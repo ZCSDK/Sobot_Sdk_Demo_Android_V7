@@ -37,7 +37,7 @@ public class SobotFiveStarsSmallLayout extends LinearLayout {
     }
 
     /**
-     * @param defScore    显示个数
+     * @param defScore 显示个数
      */
     public void init(int defScore) {
         if (null == line1) {

@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import com.sobot.chat.utils.LogUtils;
+
 /**
  * Created by gqf
  */
@@ -27,7 +29,7 @@ public class SobotDialogUtils {
         try {
             progressDialog.show();
         } catch (Exception e) {
-//            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -43,7 +45,7 @@ public class SobotDialogUtils {
         try {
             progressDialog.show();
         } catch (Exception e) {
-//            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -55,11 +57,12 @@ public class SobotDialogUtils {
                     progressDialog.dismiss();
                 }
             } catch (Exception e) {
-//            e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         progressDialog = null;
     }
+
     public static void startTipDialog(Context context, String str) {
         if (context == null) {
             return;
@@ -72,7 +75,7 @@ public class SobotDialogUtils {
         try {
             tipDialog.show();
         } catch (Exception e) {
-//            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -84,7 +87,7 @@ public class SobotDialogUtils {
                     tipDialog.dismiss();
                 }
             } catch (Exception e) {
-//            e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
         tipDialog = null;

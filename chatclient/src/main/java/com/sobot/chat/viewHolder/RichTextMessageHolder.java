@@ -4,15 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -51,6 +54,7 @@ import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotRightAlignLineLayout;
 import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
+import com.sobot.chat.widget.html.SobotTableSpan;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
@@ -208,7 +212,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                 moreIV.setVisibility(View.VISIBLE);
                                 moreTV.setVisibility(View.VISIBLE);
                                 Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_more_bg, null);
-                                Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_notice_arrow_down, null);
+                                Drawable arrowDownDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_arrow_down, null);
                                 if (moreDrawable != null) {
                                     moreLL.setBackground(ThemeUtils.applyColorToDrawable(moreDrawable, ThemeUtils.getThemeColor(mContext)));
                                 }
@@ -381,21 +385,38 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_aiagent_item_bottom_layout, null);
                         TextView nameTv = view.findViewById(R.id.tv_lable_name);
                         if (nameTv != null) {
+                            int themeColor = ThemeUtils.getThemeColor(mContext);
                             if (message.getSugguestionsFontColor() == 1) {
                                 // 历史记录 - 使用半透明主题色
                                 nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
-                                int themeColor = ThemeUtils.getThemeColor(mContext);
                                 int semiTransparentColor = ColorUtils.setAlphaComponent(themeColor, 128); // 50%透明度
                                 nameTv.setTextColor(semiTransparentColor);
                                 nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg_no_click));
                                 if (StringUtils.isNoEmpty(inputContentList.get(i).getButtonAction())) {
                                     if ("URL".equals(inputContentList.get(i).getButtonAction())) {
+                                        Drawable nDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_icon_goto_web_black, null);
+                                        Drawable pDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_icon_goto_web_white, null);
+                                        if (nDrawable != null && pDrawable != null) {
+                                            Drawable tDrawable = ThemeUtils.applyColorToDrawable(nDrawable, themeColor);
+                                            if (tDrawable != null) {
+                                                int iconSize = ScreenUtils.dip2px(mContext, 14);
+                                                Drawable rDrawable = ThemeUtils.createIconColorSelector(pDrawable, tDrawable);
+                                                if (rDrawable != null) {
+                                                    rDrawable.setBounds(0, 0, iconSize, iconSize);
+                                                    nameTv.setCompoundDrawables(rDrawable, null, null, null);
+                                                }
+                                            }
+                                        }
                                         Drawable moreDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_aiagent_button_item_bg, null);
                                         if (moreDrawable != null) {
-                                            nameTv.setBackground(moreDrawable);
+                                            float cornerRadius = ScreenUtils.dip2px(mContext, 20);
+                                            int strokeWidth = (int) (0.6f * mContext.getResources().getDisplayMetrics().density);
+                                            StateListDrawable drawable = ThemeUtils.createOutlineButtonDrawable(
+                                                    mContext, themeColor, cornerRadius, strokeWidth, moreDrawable);
+                                            nameTv.setBackground(drawable);
+                                            // 设置文字颜色选择器：默认主题色，按压时根据亮度调整
+                                            nameTv.setTextColor(ThemeUtils.createButtonTextColorSelector(mContext, themeColor));
                                         }
-                                        nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
-                                        nameTv.setBackground(moreDrawable);
                                         nameTv.setElevation(12f);
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                             nameTv.setOutlineSpotShadowColor(ContextCompat.getColor(mContext, R.color.sobot_color_shado));
@@ -413,14 +434,31 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                             }
                                         });
                                     } else if ("TRANSFER".equals(inputContentList.get(i).getButtonAction())) {
+                                        Drawable lDrawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_icon_goto_transfer, null);
+                                        if (lDrawable != null) {
+                                            int iconSize = ScreenUtils.dip2px(mContext, 14);
+                                            lDrawable.setBounds(0, 0, iconSize, iconSize);
+                                            Drawable tDrawable = ThemeUtils.applyColorToDrawable(lDrawable, themeColor);
+                                            if (tDrawable != null) {
+                                                tDrawable.setAlpha(128); // 50% 透明度
+                                                nameTv.setCompoundDrawables(tDrawable, null, null, null);
+                                            }
+                                        }
                                         SobotRightAlignLineLayout.setChildType(view, 1);
                                     } else {
+                                        nameTv.setCompoundDrawables(null, null, null, null);
                                         SobotRightAlignLineLayout.setChildType(view, 2);
                                     }
                                 }
                             } else {
-                                nameTv.setTextColor(ThemeUtils.getThemeColor(mContext));
-                                nameTv.setBackground(ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg));
+                                float cornerRadius = ScreenUtils.dip2px(mContext, 22);
+                                int strokeWidth = (int) (0.6f * mContext.getResources().getDisplayMetrics().density);
+                                StateListDrawable drawable = ThemeUtils.createOutlineButtonDrawable(
+                                        mContext, themeColor, cornerRadius, strokeWidth, ContextCompat.getDrawable(mContext, R.drawable.sobot_aiagent_button_item_bg));
+                                nameTv.setBackground(drawable);
+                                nameTv.setCompoundDrawables(null, null, null, null);
+                                // 设置文字颜色选择器：默认主题色，按压时根据亮度调整
+                                nameTv.setTextColor(ThemeUtils.createButtonTextColorSelector(mContext, themeColor));
                             }
                             nameTv.setText(StringUtils.isEmpty(str) ? "" : str + "");
                             alButton.addView(view);
@@ -457,7 +495,8 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                     moreLL.setVisibility(View.VISIBLE);
                 }
             }
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             if (moreLL != null) {
                 moreLL.setVisibility(View.GONE);
             }
@@ -470,7 +509,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
     public void showRevaluateBtn() {
         super.showRevaluateBtn();
         if (dingcaiIsShowRight()) {
-            //有顶和踩时显示信息显示两行 64-12-12=40 总高度减去上下内间距
+            //有顶和踩时显示信息显示两行
             msg.setMinHeight(ScreenUtils.dip2px(mContext, 44));
             //有顶和踩时,拆分后的富文本消息如果只有一个并且是文本类型设置最小高度 64-12-12=40 总高度减去上下内间距
             if (sobot_rich_ll != null && sobot_rich_ll.getChildCount() == 1) {
@@ -555,7 +594,62 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         message.getAnswer().setRichList(tempRichList);
                     }
                 }
+                //如果richListModel.getType() == 0 同时内容包含<table>标签，就再次拆分，同时把<table>标签拆成5表格类型
+                if (message.getAnswer().getRichList() != null && !message.getAnswer().getRichList().isEmpty()) {
+                    List<ChatMessageRichListModel> newRichList = new ArrayList<>();
+                    boolean hasTableSplit = false;
+
+                    for (ChatMessageRichListModel item : message.getAnswer().getRichList()) {
+                        if (item != null && item.getType() == 0 && item.getMsg() != null) {
+                            String msg = item.getMsg();
+                            if (msg.contains("<table") || msg.contains("<TABLE") || msg.contains("<Table")) {
+                                hasTableSplit = true;
+                                String content = msg;
+
+                                Pattern tablePattern = Pattern.compile("(<table[^>]*>.*?</table>)",
+                                        Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                                Matcher matcher = tablePattern.matcher(content);
+
+                                int lastEnd = 0;
+                                while (matcher.find()) {
+                                    String beforeTable = content.substring(lastEnd, matcher.start());
+                                    if (StringUtils.isNoEmpty(beforeTable.trim())) {
+                                        ChatMessageRichListModel textModel = new ChatMessageRichListModel();
+                                        textModel.setMsg(beforeTable);
+                                        textModel.setType(0);
+                                        newRichList.add(textModel);
+                                    }
+
+                                    String tableHtml = matcher.group(1);
+                                    ChatMessageRichListModel tableModel = new ChatMessageRichListModel();
+                                    tableModel.setMsg(tableHtml);
+                                    tableModel.setType(5);
+                                    newRichList.add(tableModel);
+
+                                    lastEnd = matcher.end();
+                                }
+
+                                String afterTable = content.substring(lastEnd);
+                                if (StringUtils.isNoEmpty(afterTable.trim())) {
+                                    ChatMessageRichListModel textModel = new ChatMessageRichListModel();
+                                    textModel.setMsg(afterTable);
+                                    textModel.setType(0);
+                                    newRichList.add(textModel);
+                                }
+                            } else {
+                                newRichList.add(item);
+                            }
+                        } else {
+                            newRichList.add(item);
+                        }
+                    }
+
+                    if (hasTableSplit && !newRichList.isEmpty()) {
+                        message.getAnswer().setRichList(newRichList);
+                    }
+                }
             } catch (Exception e) {
+                LogUtils.e("RichTextMessageHolder 表格拆分异常: " + e.getMessage());
             }
             for (int i = 0; i < message.getAnswer().getRichList().size(); i++) {
                 final ChatMessageRichListModel richListModel = message.getAnswer().getRichList().get(i);
@@ -590,12 +684,8 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             textView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if (SobotOption.newHyperlinkListener != null) {
-                                        //如果返回true,拦截;false 不拦截
-                                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, richListModel.getMsg());
-                                        if (isIntercept) {
-                                            return;
-                                        }
+                                    if (SobotOption.dispatchUrlClick(mContext, richListModel.getMsg())) {
+                                        return;
                                     }
                                     Intent intent = new Intent(context, WebViewActivity.class);
                                     intent.putExtra("url", richListModel.getMsg());
@@ -635,7 +725,10 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                     SobotMsgManager.getInstance(mContext).getZhiChiApi().getHtmlAnalysis(context, richListModel.getMsg(), new StringResultCallBack<SobotLink>() {
                                         @Override
                                         public void onSuccess(SobotLink link) {
-                                            if (link != null) {
+                                            if (link != null && view != null && mContext != null) {
+                                                if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                                                    return;
+                                                }
                                                 richListModel.setSobotLink(link);
                                                 TextView tv_title = view.findViewById(R.id.tv_title);
                                                 TextView tv_des = view.findViewById(R.id.tv_des);
@@ -656,7 +749,10 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
 
                                         @Override
                                         public void onFailure(Exception e, String s) {
-                                            if (view != null) {
+                                            if (view != null && mContext != null) {
+                                                if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                                                    return;
+                                                }
                                                 TextView tv_title = view.findViewById(R.id.tv_title);
                                                 tv_title.setText(richListModel.getMsg());
                                                 ImageView image_link = view.findViewById(R.id.image_link);
@@ -669,12 +765,8 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                                 view.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        if (SobotOption.newHyperlinkListener != null) {
-                                            //如果返回true,拦截;false 不拦截
-                                            boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, richListModel.getMsg());
-                                            if (isIntercept) {
-                                                return;
-                                            }
+                                        if (SobotOption.dispatchUrlClick(mContext, richListModel.getMsg())) {
+                                            return;
                                         }
                                         Intent intent = new Intent(context, WebViewActivity.class);
                                         intent.putExtra("url", richListModel.getMsg());
@@ -687,7 +779,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             if (!TextUtils.isEmpty(richListModel.getMsg()) && i == (message.getAnswer().getRichList().size() - 1)) {
                                 String content = richListModel.getMsg().trim();
                                 if ((message.getAnalysisInfo() != null || message.getButtonInfos() != null) && (content.contains("]$$") || content.contains("]##"))) {
-                                    textView.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 7));//防止最后一行有图标按钮显示不全
+//                                    textView.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 7));//防止最后一行有图标按钮显示不全
                                     textView.setLineSpacing(mContext.getResources().getDimension(R.dimen.sobot_text_line_spacing_aianswar_button), 1);
                                     content = processContentWithButtonTags(content, message);//替换来源： ##[x]$$##[x]$$ 或者%%[0]##
                                 }
@@ -705,7 +797,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                             } else {
                                 String tempContent = richListModel.getMsg().trim();
                                 if ((message.getAnalysisInfo() != null || message.getButtonInfos() != null) && (tempContent.contains("]$$") || tempContent.contains("]##"))) {
-                                    textView.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 7));//防止最后一行有图标按钮显示不全
+//                                    textView.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 7));//防止最后一行有图标按钮显示不全
                                     textView.setLineSpacing(mContext.getResources().getDimension(R.dimen.sobot_text_line_spacing_aianswar_button), 1);
                                     tempContent = processContentWithButtonTags(tempContent, message);//替换来源： ##[x]$$ 或者%%[0]##
                                 }
@@ -818,20 +910,55 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
                         });
                     } else if ((richListModel.getType() == 5)) {
                         try {
-                            //md 表格
-                            WebView webview = new WebView(mContext);
-                            int color = ContextCompat.getColor(mContext, R.color.sobot_color_bg_second);
-                            String bgColorString = String.format("#%06X", (0xFFFFFF & color));
-                            String htmlContent = "<!DOCTYPE html>" + "<html>" + "<head>" + "<meta charset='utf-8'>" + "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" + "<style>" + "body { background: " + bgColorString + "; margin: 0; padding: 0px; overflow-x: scroll; }" +  // 添加 overflow-x: scroll
-                                    "table { background: #f0f0f0; border: 1px solid #e6e6e6; " + "border-radius: 12px; border-collapse: separate; border-spacing: 0; " + "display: table; table-layout: auto; " + "margin: 0; overflow-x: scroll; overflow-y: hidden; }" + "th, td { min-width: 80px; max-width: 300px; padding: 10px 10px; font-size: 14px; " + "color: #161616; line-height: 22px; word-break: break-word; " + "border-width: 0 0 1px 1px; border-style: solid; border-color: #e6e6e6; " + "text-align: left; }" + "th { font-weight: 600; background-color: #f0f0f0; }" + "td { background-color: #fff; }" + "th:first-child, td:first-child { border-left-width: 0; }" + "tr:last-child td { border-bottom-width: 0; }" + "th:first-child { border-top-left-radius: 12px; }" + "th:last-child { border-top-right-radius: 12px; }" + "tr:last-child td:first-child { border-bottom-left-radius: 12px; }" + "tr:last-child td:last-child { border-bottom-right-radius: 12px; }" + "</style>" + "</head>" + "<body>" + richListModel.getMsg() + "</body>" + "</html>";
-                            webview.loadDataWithBaseURL(null, htmlContent, "text/html", "utf-8", null);
-                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            //md 表格 - 直接使用TableSpan
+                            HorizontalScrollView scrollView = new HorizontalScrollView(mContext);
+                            scrollView.setHorizontalScrollBarEnabled(true); // 显示横向滚动条
+                            scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER); // 禁用过度滚动效果
+                            scrollView.setFillViewport(false); // 不填充视口，允许内容超出
+
+                            //设置滚动条样式
+                            scrollView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY); // 滚动条在内容上方
+                            LinearLayout tableContainer = new LinearLayout(mContext);
+                            tableContainer.setOrientation(LinearLayout.HORIZONTAL);
+                            TextView textView = new TextView(mContext);
+                            textView.setGravity(Gravity.CENTER_VERTICAL);
+                            textView.setIncludeFontPadding(false);
+                            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                                    mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
+                            textView.setLineSpacing(
+                                    mContext.getResources().getDimension(R.dimen.sobot_text_line_spacing_extra), 1);
+                            // 关键：禁用单行模式，允许Span占据多行空间
+                            textView.setSingleLine(false);
+                            textView.setMaxLines(Integer.MAX_VALUE);
+
+                            LinearLayout.LayoutParams textViewParams = new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT);
+                            textView.setLayoutParams(textViewParams);
+                            // 直接创建TableSpan并设置到TextView
+                            String tableHtml = richListModel.getMsg();
+                            SobotTableSpan tableSpan = new SobotTableSpan(mContext, tableHtml);
+                            // 创建一个包含特殊字符的SpannableString来承载TableSpan
+                            SpannableStringBuilder builder = new SpannableStringBuilder("\uFFFC");
+                            builder.setSpan(
+                                    tableSpan,
+                                    0,
+                                    1,
+                                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                            );
+                            textView.setText(builder);
+                            tableContainer.addView(textView);
+                            scrollView.addView(tableContainer);
+                            LinearLayout.LayoutParams scrollViewParams = new LinearLayout.LayoutParams(
+                                    msgMaxWidth,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT);
                             if (i != 0) {
-                                layoutParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
+                                scrollViewParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
                             }
-                            webview.setLayoutParams(layoutParams);
-                            sobot_rich_ll.addView(webview);
+                            scrollView.setLayoutParams(scrollViewParams);
+                            sobot_rich_ll.addView(scrollView);
                         } catch (Exception e) {
+                            LogUtils.e("uncaught", e);
                         }
                     }
                 }

@@ -29,8 +29,8 @@ public class PageBuilder {
         this.grid = builder.grid;
         this.swipePercent = builder.swipePercent;
         this.showIndicator = builder.showIndicator;
-        this.space=builder.space;
-        this.itemHeight=builder.itemHeight;
+        this.space = builder.space;
+        this.itemHeight = builder.itemHeight;
     }
 
     public int getIndicatorSize() {
@@ -85,8 +85,8 @@ public class PageBuilder {
         private int[] grid = {3, 4};//网格，即行列数
         private int swipePercent = 50;//翻页百分比
         private boolean showIndicator = true;//是否显示指示器
-        private int space=10;
-        private int itemHeight=50;//行高
+        private int space = 10;
+        private int itemHeight = 50;//行高
 
         /**
          * 配置翻页指示器大小
@@ -188,6 +188,7 @@ public class PageBuilder {
 
         /**
          * 设置间距
+         *
          * @param space
          * @return
          */
@@ -198,6 +199,7 @@ public class PageBuilder {
 
         /**
          * 设置 item 行高
+         *
          * @param itemHeight
          * @return
          */

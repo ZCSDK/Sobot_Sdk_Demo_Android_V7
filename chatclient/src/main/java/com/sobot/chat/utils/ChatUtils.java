@@ -71,14 +71,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -89,6 +86,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatUtils {
+
+    private static final SecureRandom MSG_ID_RANDOM = new SecureRandom();
+
+    /**
+     * 生成消息 ID：cid + 时间戳 + 4 位随机 hex，避免高频发送时同毫秒碰撞
+     */
+    private static String buildMsgId(String cid) {
+        int suffix = MSG_ID_RANDOM.nextInt(0x10000);
+        return cid + System.currentTimeMillis() + String.format(Locale.US, "%04x", suffix);
+    }
 
     public static final int REQUEST_CODE_CAMERA = 108;
     public static final String INTENT_KEY_UID = "intent_key_uid";
@@ -148,7 +155,7 @@ public class ChatUtils {
                 act.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("ChatUtils openSelectPic primary intent failed, fallback to ACTION_GET_CONTENT", e);
             intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
             try {
@@ -158,7 +165,7 @@ public class ChatUtils {
                     act.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
                 }
             } catch (Exception exception) {
-                exception.printStackTrace();
+                LogUtils.e("uncaught", exception);
                 ToastUtil.showToast(act.getApplicationContext(), ResourceUtils.getResString(act, "sobot_not_open_album"));
             }
         }
@@ -194,9 +201,8 @@ public class ChatUtils {
             intent.setDataAndType(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*");
         }
         try {
-            // 添加 FLAG_GRANT_READ_URI_PERMISSION 权限
+            // CWE-927: ACTION_PICK 仅需读权限，移除冗余 WRITE 避免给第三方相册写回授权
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             if (childFragment != null) {
                 childFragment.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
             } else {
@@ -214,7 +220,7 @@ public class ChatUtils {
                     act.startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_picture);
                 }
             } catch (Exception exception) {
-                exception.printStackTrace();
+                LogUtils.e("uncaught", exception);
                 ToastUtil.showToast(act.getApplicationContext(), ResourceUtils.getResString(act, "sobot_not_open_album"));
             }
         }
@@ -227,7 +233,7 @@ public class ChatUtils {
             return;
         }
         String picturePath = ImageUtils.getPath(context, selectedImage);
-        LogUtils.i("picturePath:" + picturePath);
+        LogUtils.i("picturePath empty=" + TextUtils.isEmpty(picturePath));
         if (!TextUtils.isEmpty(picturePath)) {
             File tmpFile = new File(picturePath);
             if (tmpFile.exists() && tmpFile.isFile()) {
@@ -258,7 +264,7 @@ public class ChatUtils {
                         bitmap = ImageUtils.rotateBitmap(bitmap, degree);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("ChatUtils sendPic rotate failed", e);
                 }
                 if (!(filePath.endsWith(".gif") || filePath.endsWith(".GIF"))) {
                     String picDir = SobotPathManager.getInstance().getPicDir();
@@ -270,7 +276,7 @@ public class ChatUtils {
                         fos = new FileOutputStream(filePath);
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtils.e("ChatUtils sendPic compress failed", e);
                         return;
                     }
                 } else {
@@ -279,13 +285,13 @@ public class ChatUtils {
                         Uri uri = ImageUtils.getImageContentUri(context, filePath);
                         filePath = FileUtil.saveImageFile(context, uri, fName + FileUtil.getFileEndWith(filePath), filePath);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtils.e("ChatUtils sendPic saveImageFile failed", e);
                         return;
                     }
                 }
                 long size = CommonUtils.getFileSize(filePath);
                 if (size < (20 * 1024 * 1024)) {
-                    String id = cid + System.currentTimeMillis() + "";
+                    String id = buildMsgId(cid);
                     sendImageMessageToHandler(readFlag, filePath, handler, id, info);
                     sendPicture(context, readFlag, cid, uid, filePath, handler, id,
                             messageAdapter, currentModel, initModel);
@@ -299,7 +305,7 @@ public class ChatUtils {
             if (!TextUtils.isEmpty(filePath)) {
                 long size = CommonUtils.getFileSize(filePath);
                 if (size < (20 * 1024 * 1024)) {
-                    String id = cid + System.currentTimeMillis() + "";
+                    String id = buildMsgId(cid);
                     sendImageMessageToHandler(readFlag, filePath, handler, id, info);
                     sendPicture(context, readFlag, cid, uid, filePath, handler, id,
                             messageAdapter, currentModel, initModel);
@@ -571,7 +577,7 @@ public class ChatUtils {
             }
             parame.put("objMsgType", "21");
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("ChatUtils build interfaceInfo failed", e);
         }
         return parame;
     }
@@ -995,7 +1001,7 @@ public class ChatUtils {
                 });
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("ChatUtils outOnline failed", e);
         }
     }
 
@@ -1038,7 +1044,7 @@ public class ChatUtils {
                         bitmap = ImageUtils.rotateBitmap(bitmap, degree);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("ChatUtils prepareSendPic rotate failed", e);
                 }
                 if (!(filePath.endsWith(".gif") || filePath.endsWith(".GIF"))) {
                     String picDir = SobotPathManager.getInstance().getPicDir();
@@ -1050,7 +1056,7 @@ public class ChatUtils {
                         fos = new FileOutputStream(filePath);
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                        LogUtils.e("ChatUtils prepareSendPic compress failed", e);
                         ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_pic_type_error"));
                         listener.onError();
                         return;
@@ -1061,7 +1067,7 @@ public class ChatUtils {
                         Uri uri = ImageUtils.getImageContentUri(context, filePath);
                         filePath = FileUtil.saveImageFile(context, uri, fName + FileUtil.getFileEndWith(filePath), filePath);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtils.e("ChatUtils prepareSendPic saveImageFile failed", e);
                         ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_pic_type_error"));
                         listener.onError();
                         return;
@@ -1473,7 +1479,7 @@ public class ChatUtils {
                 return ZhiChiConstant.MSGTYPE_FILE_TXT;
             }
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
         return tmpFileType;
     }
@@ -1504,7 +1510,7 @@ public class ChatUtils {
                 return ZhiChiConstant.MSGTYPE_FILE_PIC;
             }
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
         return tmpFileType;
     }
@@ -1518,29 +1524,27 @@ public class ChatUtils {
             context.startActivity(intent);
         } catch (Exception e) {
             ToastUtil.showCustomToast(context, context.getResources().getString(R.string.sobot_no_support_call));
-            e.printStackTrace();
+            LogUtils.e("ChatUtils dial phone failed", e);
         }
     }
 
-    //对象深拷贝
+    /**
+     * 对象深拷贝。
+     * CWE-502: 改用 Gson JSON 序列化回环替代 ObjectOutputStream/ObjectInputStream，
+     * 从根上避免反序列化 gadget 风险，同时无性能反模式。
+     */
+    @SuppressWarnings("unchecked")
     public static <T extends Serializable> T clone(T obj) {
-        T cloneObj = null;
-        try {
-            //写入字节流
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ObjectOutputStream obs = new ObjectOutputStream(out);
-            obs.writeObject(obj);
-            obs.close();
-
-            //分配内存，写入原始对象，生成新对象
-            ByteArrayInputStream is = new ByteArrayInputStream(out.toByteArray());
-            ObjectInputStream os = new ObjectInputStream(is);
-            cloneObj = (T) os.readObject();
-            os.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (obj == null) {
+            return null;
         }
-        return cloneObj;
+        try {
+            String json = SobotGsonUtil.beanToJson(obj);
+            return (T) SobotGsonUtil.jsonToBean(json, obj.getClass());
+        } catch (Exception e) {
+            LogUtils.e("ChatUtils deepCopy failed", e);
+            return null;
+        }
     }
 
 
@@ -1596,8 +1600,16 @@ public class ChatUtils {
         return false;
     }
 
-    //markdown 里边有图片 ,转成<img>后再切成数组
-    public static String[] parseMarkdownToArr(String markdownText) {
+    /**
+     * 解析 Markdown 文本为数组（支持图片和表格）
+     *
+     * @param markdownText        Markdown 文本
+     * @param skipTableProcessing 是否跳过表格处理（用于 SSE 流式传输期间）
+     *                            true: 不处理表格，保持原始 Markdown 格式
+     *                            false: 正常处理表格，转换为 HTML
+     * @return 解析后的字符串数组
+     */
+    public static String[] parseMarkdownToArr(String markdownText, boolean skipTableProcessing) {
         String[] strArr = null;
         if (StringUtils.isEmpty(markdownText)) {
             return strArr;
@@ -1615,22 +1627,26 @@ public class ChatUtils {
         String[] parts = newContent.split("<img>");
 
         for (String part : parts) {
-            // 检查是否包含表格
-            if (isMarkdownTable(part)) {
-                // 将表格作为一个独立元素处理
-                List<String> stringList = extractMultipleMarkdownTables(part);
-                if (stringList != null) {
-                    result.addAll(stringList);
+            if (skipTableProcessing) {
+                // SSE 流式传输期间：跳过表格处理，保持原始 Markdown 格式
+                result.add(part);
+            } else {
+                // 正常模式：检查并处理表格
+                if (isMarkdownTable(part)) {
+                    // 将表格作为一个独立元素处理
+                    List<String> stringList = extractMultipleMarkdownTables(part);
+                    if (stringList != null) {
+                        result.addAll(stringList);
+                    } else {
+                        result.add(part);
+                    }
                 } else {
                     result.add(part);
                 }
-            } else {
-                result.add(part);
             }
         }
         return result.toArray(new String[0]);
     }
-// 在 ChatUtils 类中添加以下方法
 
     /**
      * 提取 Markdown 中的多组表格数据，并保留非表格内容
@@ -1645,64 +1661,87 @@ public class ChatUtils {
                 return result;
             }
 
-            String[] lines = markdownText.split("\n");
+            // 统一换行符：将 <br/>、<br>、\r\n 都转换为 \n
+            String normalizedText = markdownText.replace("<br/>", "\n")
+                    .replace("<br>", "\n")
+                    .replace("\r\n", "\n");
+
+            String[] lines = normalizedText.split("\n");
             List<String> currentTableLines = new ArrayList<>();
             List<String> nonTableContent = new ArrayList<>();
+            List<String> potentialHeaderLines = new ArrayList<>(); // 潜在表头行
             boolean inTable = false;
             boolean tableStarted = false;
+            int tableColumnCount = 0;
 
             for (String line : lines) {
-                // 检查是否是表格行(包含至少两个|符号)
-                if (line.contains("|") && line.length() - line.replace("|", "").length() >= 2) {
-                    // 如果是非表格内容积累阶段，先处理掉这些内容
-                    if (!nonTableContent.isEmpty()) {
-                        result.add(String.join("\n", nonTableContent));
-                        nonTableContent.clear();
-                    }
+                String trimmedLine = line.trim();
 
-                    // 如果是分隔行(| --- | --- |)
-                    if (line.contains("---")) {
+                // 检查是否是表格行(包含至少一个|符号)
+                if (trimmedLine.contains("|")) {
+                    // 检查是否是分隔行
+                    if (isTableSeparatorLine(trimmedLine)) {
+                        // 关键修复：遇到分隔行时，将之前收集的潜在表头行加入表格
+                        if (!nonTableContent.isEmpty()) {
+                            result.add(String.join("\n", nonTableContent));
+                            nonTableContent.clear();
+                        }
+
+                        // 将潜在表头行加入表格
+                        if (!potentialHeaderLines.isEmpty()) {
+                            currentTableLines.addAll(potentialHeaderLines);
+                            potentialHeaderLines.clear();
+                        }
+
                         tableStarted = true;
                         currentTableLines.add(line);
-                    } else {
-                        // 表格内容行
+                        inTable = true;
+
+                        // 计算表格列数（从分隔行推断）
+                        String cleanLine = trimmedLine;
+                        if (cleanLine.startsWith("|")) cleanLine = cleanLine.substring(1);
+                        if (cleanLine.endsWith("|"))
+                            cleanLine = cleanLine.substring(0, cleanLine.length() - 1);
+                        tableColumnCount = cleanLine.split("\\|").length;
+                    } else if (tableStarted) {
+                        // 表格已经开始，这是表格内容行
+                        if (!nonTableContent.isEmpty()) {
+                            result.add(String.join("\n", nonTableContent));
+                            nonTableContent.clear();
+                        }
+
                         currentTableLines.add(line);
                         inTable = true;
+                    } else {
+                        // 表格还没开始（没有遇到分隔行），这可能是表头行
+                        // 关键修复：收集包含 | 的行作为潜在表头
+                        potentialHeaderLines.add(line);
                     }
                 } else {
                     // 非表格行
                     if (inTable && tableStarted) {
-                        // 表格正在进行中，继续收集非表格行，可能是表格结束
-                        nonTableContent.add(line);
-                    } else if (inTable) {
-                        // 在表格定义中但还没遇到分隔行，这可能不是有效表格，回退到非表格内容
-                        nonTableContent.addAll(currentTableLines);
-                        nonTableContent.add(line);
+                        // 表格正在进行中，遇到非表格行，结束表格
+                        String htmlTable = convertMarkdownTableToHtml(new ArrayList<>(currentTableLines));
+                        if (!StringUtils.isEmpty(htmlTable)) {
+                            result.add(htmlTable);
+                        }
                         currentTableLines.clear();
                         inTable = false;
-                    } else {
-                        // 纯非表格内容
-                        nonTableContent.add(line);
-                    }
+                        tableStarted = false;
+                        tableColumnCount = 0;
+                        potentialHeaderLines.clear();
 
-                    // 检查是否是表格结束点（非表格内容为空行或者其他明显非表格内容）
-                    if (inTable && tableStarted && !currentTableLines.isEmpty()) {
-                        // 检查下一个非表格行是否确实是表格结束信号
-                        if (!line.trim().isEmpty() &&
-                                !(line.contains("|") && line.length() - line.replace("|", "").length() >= 2)) {
-                            // 结束当前表格
-                            String htmlTable = convertMarkdownTableToHtml(new ArrayList<>(currentTableLines));
-                            if (!StringUtils.isEmpty(htmlTable)) {
-                                result.add(htmlTable);
-                            }
-                            // 添加当前非表格行
-                            if (!line.trim().isEmpty()) {
-                                result.add(line);
-                            }
-                            currentTableLines.clear();
-                            inTable = false;
-                            tableStarted = false;
+                        // 添加当前非表格行
+                        if (!trimmedLine.isEmpty()) {
+                            result.add(line);
                         }
+                    } else {
+                        // 表格还没开始，清空潜在表头行
+                        if (!potentialHeaderLines.isEmpty()) {
+                            nonTableContent.addAll(potentialHeaderLines);
+                            potentialHeaderLines.clear();
+                        }
+                        nonTableContent.add(line);
                     }
                 }
             }
@@ -1712,6 +1751,18 @@ public class ChatUtils {
                 String content = String.join("\n", nonTableContent);
                 if (!content.trim().isEmpty()) {
                     result.add(content);
+                }
+            }
+
+            // 处理剩余的潜在表头行（如果没有遇到分隔行，就不是表格）
+            if (!potentialHeaderLines.isEmpty()) {
+                nonTableContent.addAll(potentialHeaderLines);
+                potentialHeaderLines.clear();
+                if (!nonTableContent.isEmpty()) {
+                    String content = String.join("\n", nonTableContent);
+                    if (!content.trim().isEmpty()) {
+                        result.add(content);
+                    }
                 }
             }
 
@@ -1728,6 +1779,41 @@ public class ChatUtils {
         return null;
     }
 
+    /**
+     * 检查是否是有效的表格行
+     * 有效表格行应该有多个单元格（至少2个|符号，或者列数与表格一致）
+     *
+     * @param line                待检查的行
+     * @param expectedColumnCount 预期的列数（如果已知）
+     * @return true 表示是有效的表格行
+     */
+    private static boolean isValidTableRow(String line, int expectedColumnCount) {
+        if (StringUtils.isEmpty(line)) {
+            return false;
+        }
+
+        String cleanLine = line.trim();
+
+        // 移除首尾的 |（如果存在）
+        if (cleanLine.startsWith("|")) {
+            cleanLine = cleanLine.substring(1);
+        }
+        if (cleanLine.endsWith("|")) {
+            cleanLine = cleanLine.substring(0, cleanLine.length() - 1);
+        }
+
+        // 计算单元格数量
+        String[] cells = cleanLine.split("\\|");
+        int cellCount = cells.length;
+
+        // 如果已知表格列数，检查是否匹配
+        if (expectedColumnCount > 0) {
+            return cellCount == expectedColumnCount;
+        }
+
+        // 否则，至少有2个单元格才认为是表格行
+        return cellCount >= 2;
+    }
 
     /**
      * 将 Markdown 表格行转换为 HTML 表格
@@ -1740,6 +1826,13 @@ public class ChatUtils {
             return "";
         }
 
+        // 计算预期的列数（从表头行获取）
+        int expectedColumnCount = 0;
+        String headerLine = tableLines.get(0).trim();
+        if (headerLine.startsWith("|")) headerLine = headerLine.substring(1);
+        if (headerLine.endsWith("|")) headerLine = headerLine.substring(0, headerLine.length() - 1);
+        expectedColumnCount = headerLine.split("\\|").length;
+
         StringBuilder html = new StringBuilder();
         html.append("<table border='1' cellspacing='0' cellpadding='5'>");
 
@@ -1747,42 +1840,54 @@ public class ChatUtils {
 
         for (int i = 0; i < tableLines.size(); i++) {
             String line = tableLines.get(i).trim();
+
+            // 检查是否是分隔行
+            if (isTableSeparatorLine(line)) {
+                continue;
+            }
+
             if (line.startsWith("|")) {
                 line = line.substring(1);
             }
+            // 关键修复：只移除行尾的 |，如果后面还有内容则保留用于后续处理
             if (line.endsWith("|")) {
                 line = line.substring(0, line.length() - 1);
             }
 
             String[] cells = line.split("\\|");
 
+            // 关键修复：只取预期列数的单元格，多余的内容（如@@[1]$$）不处理
+            int cellCountToProcess = Math.min(cells.length, expectedColumnCount);
+
             // 处理表头
             if (!isHeaderProcessed) {
                 html.append("<thead><tr>");
-                for (String cell : cells) {
-                    html.append("<th>").append(cell.trim()).append("</th>");
+                for (int j = 0; j < cellCountToProcess; j++) {
+                    html.append("<th>").append(cells[j].trim()).append("</th>");
                 }
                 html.append("</tr></thead><tbody>");
                 isHeaderProcessed = true;
                 continue;
             }
 
-            // 处理分隔行(| --- | --- |)
-            if (line.contains("---")) {
-                continue;
-            }
-
             // 处理数据行
             html.append("<tr>");
-            for (String cell : cells) {
-                html.append("<td>").append(cell.trim()).append("</td>");
+            for (int j = 0; j < cellCountToProcess; j++) {
+                html.append("<td>").append(cells[j].trim()).append("</td>");
             }
+
+            // 如果当前行的单元格少于预期列数，补充空单元格
+            for (int j = cellCountToProcess; j < expectedColumnCount; j++) {
+                html.append("<td></td>");
+            }
+
             html.append("</tr>");
         }
 
         html.append("</tbody></table>");
         return html.toString();
     }
+
 
     /**
      * 检查文本是否包含 Markdown 表格
@@ -1795,23 +1900,130 @@ public class ChatUtils {
             return false;
         }
 
-        String[] lines = text.split("\n");
-        int tableLineCount = 0;
+        // 统一换行符：将 <br/>、<br>、\r\n 都转换为 \n
+        String normalizedText = text.replace("<br/>", "\n")
+                .replace("<br>", "\n")
+                .replace("\r\n", "\n");
+
+        String[] lines = normalizedText.split("\n");
+        int contentLineCount = 0;
+        boolean hasSeparatorLine = false;
 
         for (String line : lines) {
-            line = line.trim();
-            // 检查是否是表格行(至少包含两个|符号，且不是分隔行)
-            if (line.contains("|") && line.length() - line.replace("|", "").length() >= 2) {
-                // 检查是否是表头分隔行(| --- | --- |)
-                if (line.contains("|") && line.contains("---")) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty()) {
+                continue;
+            }
+
+            // 检查是否是表格行(至少包含一个|符号)
+            if (trimmedLine.contains("|")) {
+                // 检查是否是表头分隔行
+                if (isTableSeparatorLine(trimmedLine)) {
+                    hasSeparatorLine = true;
                     continue;
                 }
-                tableLineCount++;
+                contentLineCount++;
             }
         }
 
-        // 至少需要有表头和一行数据
-        return tableLineCount >= 2;
+        // 至少需要有分隔行和两行内容（表头+至少一行数据）
+        return hasSeparatorLine && contentLineCount >= 2;
+    }
+
+    /**
+     * 检查是否是表格分隔行
+     * 支持的格式:
+     * - |---|---|
+     * - | :--- | ---: |
+     * - |------|------|
+     * - ---|---
+     * - :---|:---:
+     *
+     * @param line 待检查的行
+     * @return true 表示是分隔行
+     */
+    private static boolean isTableSeparatorLine(String line) {
+        if (StringUtils.isEmpty(line)) {
+            return false;
+        }
+
+        // 移除首尾空格
+        String trimmed = line.trim();
+
+        // 移除首尾的 |（如果存在）
+        if (trimmed.startsWith("|")) {
+            trimmed = trimmed.substring(1);
+        }
+        if (trimmed.endsWith("|")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+
+        // 分割成单元格
+        String[] cells = trimmed.split("\\|");
+        if (cells.length == 0) {
+            return false;
+        }
+
+        // 检查每个单元格是否是有效的分隔符格式
+        for (String cell : cells) {
+            String cellTrimmed = cell.trim();
+            if (!isValidSeparatorCell(cellTrimmed)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查单个单元格是否是有效的分隔符
+     * 有效格式: ---, :--, --:, :--: （至少两个-）
+     *
+     * @param cell 单元格内容
+     * @return true 表示是有效的分隔符单元格
+     */
+    private static boolean isValidSeparatorCell(String cell) {
+        if (StringUtils.isEmpty(cell)) {
+            return false;
+        }
+
+        String trimmed = cell.trim();
+        if (trimmed.isEmpty()) {
+            return false;
+        }
+
+        // 检查格式: 可选的: + 至少两个- + 可选的:
+        int startIdx = 0;
+        int endIdx = trimmed.length() - 1;
+
+        // 检查开头的 :
+        if (trimmed.charAt(startIdx) == ':') {
+            startIdx++;
+        }
+
+        // 检查结尾的 :
+        if (endIdx > startIdx && trimmed.charAt(endIdx) == ':') {
+            endIdx--;
+        }
+
+        // 剩余部分必须全是 -，且至少有两个
+        if (endIdx < startIdx) {
+            return false;
+        }
+
+        String dashPart = trimmed.substring(startIdx, endIdx + 1);
+        if (dashPart.isEmpty()) {
+            return false;
+        }
+
+        // 检查是否全是 -
+        for (char c : dashPart.toCharArray()) {
+            if (c != '-') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -2028,9 +2240,15 @@ public class ChatUtils {
 
 
     public static Uri getUri(Context context, File file) {
-        Uri uri;
+        Uri uri = null;
         if (Build.VERSION.SDK_INT >= 24) {
-            uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            try {
+                uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            } catch (IllegalArgumentException e) {
+                // FileProvider 未声明该路径时降级为 null，避免进程崩溃
+                // 调用方（openCamera 等）已对 null 做了判空，最终表现为 startActivity 不触发
+                LogUtils.e("SobotFileProvider 未声明路径：" + file.getPath(), e);
+            }
         } else {
             uri = Uri.fromFile(file);
         }
@@ -2136,11 +2354,11 @@ public class ChatUtils {
             return false;
         }
         if (!isSupportsRtl(context)) {
-            LogUtils.d("用户主项目不支持布局镜像");
+//            LogUtils.d("用户主项目不支持布局镜像");
             return false;
         }
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.IS_CLOSE_SYSTEMRTL)) {
-            LogUtils.d("用户调用SDK方法禁止了布局镜像");
+//            LogUtils.d("用户调用SDK方法禁止了布局镜像");
             return false;
         }
         //是否使用国际化语言
@@ -2148,8 +2366,8 @@ public class ChatUtils {
             Locale language = (Locale) SharedPreferencesUtil.getObject(context, ZhiChiConstant.SOBOT_LANGUAGE);
             if (language != null) {
                 String languageCode = language.getLanguage();
-                //希伯来语(he), 波斯语(fa)
-                if ("ar".equals(languageCode) || "he".equals(languageCode) || "fa".equals(languageCode)) {
+                //希伯来语(he), 波斯语(fa)、乌尔都（ur）
+                if ("ar".equals(languageCode) || "he".equals(languageCode) || "fa".equals(languageCode) || "ur".equals(languageCode)) {
                     return true;
                 }
             }
@@ -2217,7 +2435,7 @@ public class ChatUtils {
                 jsonObject.put("errorMsg", "");
                 array.put(jsonObject);
             } catch (JSONException e) {
-                e.printStackTrace();
+                LogUtils.e("ChatUtils enumList json build failed", e);
             }
         }
         return array.toString();

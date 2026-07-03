@@ -94,3 +94,4 @@ Thumbs.db
 *.dm
 .idea/
 app/release/output-metadata.json
+.claude/

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_real_ll_content"
     style="@style/sobot_msg_top_bottom_style"
     android:layout_width="match_parent"
@@ -45,6 +46,7 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
                 android:orientation="vertical">
 
                 <TextView

@@ -29,7 +29,7 @@ public class SobotBasePagerAdapter<T> extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view==object;
+        return view == object;
     }
 
     @Override

@@ -105,7 +105,7 @@ public class AttachmentView extends FrameLayout {
         if (type == FileTypeConfig.MSGTYPE_FILE_PIC) {
             imageView.setVisibility(VISIBLE);
             sobotAttachmentRootView.setVisibility(GONE);
-            SobotBitmapUtil.display(mContext, fileUrl, imageView);
+            SobotBitmapUtil.display(mContext, fileUrl, imageView, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
 
 //        } else if (type == FileTypeConfig.MSGTYPE_FILE_MP4) {
 //            imageView.setVisibility(VISIBLE);

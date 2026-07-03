@@ -19,5 +19,6 @@
         android:gravity="center"
         android:textStyle="bold"
         android:textColor="@color/sobot_common_green"
+        android:background="@drawable/sobot_tv_name_bg_selector"
         android:textSize="@dimen/sobot_text_font_14" />
 </LinearLayout>

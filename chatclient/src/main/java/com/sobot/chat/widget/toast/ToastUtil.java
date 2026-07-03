@@ -6,6 +6,8 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.sobot.chat.utils.LogUtils;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,7 +60,7 @@ public class ToastUtil {
         try {
             toast.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -145,7 +147,7 @@ public class ToastUtil {
                 }
             }, showTime);//延时执行
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
         }
     }

@@ -37,7 +37,7 @@ public class IssueViewPagerdAdapter {
     private int selectIndex = 0;
     private int businessSetType = 0;//0 图文，1 仅图
 
-    public IssueViewPagerdAdapter(Context context, List<BusinessLineRespVo> mDatas, int selectIndex,int businessSetType) {
+    public IssueViewPagerdAdapter(Context context, List<BusinessLineRespVo> mDatas, int selectIndex, int businessSetType) {
         this.mContext = context;
         mInflate = LayoutInflater.from(context);
         this.mDatas = mDatas;
@@ -80,27 +80,27 @@ public class IssueViewPagerdAdapter {
             if (!TextUtils.isEmpty(mDatas.get(position).getTitleDarkImgUrl())) {
                 viewHolder.mImg.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 SobotBitmapUtil.display(mContext, CommonUtils.encode(mDatas.get(position).getTitleDarkImgUrl()),
-                        viewHolder.mImg);
+                        viewHolder.mImg, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
             } else if (!TextUtils.isEmpty(mDatas.get(position).getTitleImgUrl())) {
                 viewHolder.mImg.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 SobotBitmapUtil.display(mContext, CommonUtils.encode(mDatas.get(position).getTitleImgUrl()),
-                        viewHolder.mImg);
+                        viewHolder.mImg, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
             }
         } else {
             if (!TextUtils.isEmpty(mDatas.get(position).getTitleImgUrl())) {
                 viewHolder.mImg.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 SobotBitmapUtil.display(mContext, CommonUtils.encode(mDatas.get(position).getTitleImgUrl()),
-                        viewHolder.mImg);
+                        viewHolder.mImg, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
             }
         }
         viewHolder.mText.setText(StringUtils.checkStringIsNull(mDatas.get(position).getBusinessLineName()));
         viewHolder.mTempText.setText(StringUtils.checkStringIsNull(mDatas.get(position).getTempBusinessLineName()));
-        if(businessSetType==1){
+        if (businessSetType == 1) {
             //仅图片
             viewHolder.sobot_issue_text.setVisibility(View.GONE);
-            viewHolder.ll_issue.getLayoutParams().height= ScreenUtils.dip2px(mContext, 72);
-            viewHolder.ll_issue.getLayoutParams().width= ScreenUtils.dip2px(mContext, 72);
-        }else{
+            viewHolder.ll_issue.getLayoutParams().height = ScreenUtils.dip2px(mContext, 72);
+            viewHolder.ll_issue.getLayoutParams().width = ScreenUtils.dip2px(mContext, 72);
+        } else {
             viewHolder.sobot_issue_text.setVisibility(View.VISIBLE);
 
         }
@@ -112,7 +112,7 @@ public class IssueViewPagerdAdapter {
             viewHolder.line.setVisibility(View.GONE);
         }
         try {
-            if (selectIndex == position) {
+            if (selectIndex == position && mDatas.get(position).getHasGroup() != 2) {
                 Drawable drawable = ResourcesCompat.getDrawable(mContext.getResources(), R.drawable.sobot_item_hot_press, null);
                 if (drawable instanceof GradientDrawable) {
                     GradientDrawable gradientDrawable = (GradientDrawable) drawable;

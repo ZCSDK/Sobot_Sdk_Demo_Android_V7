@@ -135,7 +135,7 @@
     <string name="sobot_delete">삭제</string>
     <string name="sobot_data_wrong_hint">데이터 오류</string>
     <string name="sobot_cus_service">에이전트</string>
-    <string name="sobot_ctrl_v_success">복사 성공!</string>
+    <string name="sobot_ctrl_v_success">클립보드에 복사되었습니다</string>
     <string name="sobot_ctrl_copy">복사</string>
     <string name="sobot_created_1">만들어진</string>
     <string name="sobot_count_down">카운트 다운</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">모든 카운티 (구) 검색</string>
     <string name="sobot_region_level4">모든 거리 검색</string>
     <string name="sobot_permission_use_info">사용 권한 사용 설명</string>
-    <string name="sobot_album_permission_yongtu">사진 및 비디오 액세스 및 사용 권한을 요청하고 있습니다.허용 후 고객센터 문의 및 메시지 시 사진 및 동영상 발송 가능</string>
     <string name="sobot_please_open_album">앨범 사용 권한 요청</string>
     <string name="sobot_use_album">이 장치의 사진 및 비디오에 대한 액세스 및 사용</string>
-    <string name="sobot_camera_permission_yongtu">카메라 사용 권한을 요청하고 있습니다.허용 후 고객센터 상담 및 댓글 작성 시 사진 및 녹화 영상 업로드 가능</string>
     <string name="sobot_please_open_camera">카메라 사용 권한 요청</string>
     <string name="sobot_use_camera">카메라 사용 권한 얻기</string>
-    <string name="sobot_microphone_permission_yongtu">마이크 사용 권한을 요청하고 있습니다.허용 후 고객센터 문의 시 음성 메시지 발송 가능</string>
     <string name="sobot_please_open_microphone">마이크 사용 권한 요청</string>
     <string name="sobot_use_microphone">마이크 사용 권한 얻기</string>
     <string name="sobot_storage_permission_yongtu">파일 액세스 및 사용 권한을 요청하고 있습니다.허용 후 고객센터와 메시지 문의 시 서류 발송 가능</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">답변 없음</string>
     <string name="sobot_please_input">입력해 주세요...</string>
     <string name="sobot_ticket_update_file_hite">최대 %s 까지 업로드, 크기는 %s 를 초과하지 않음</string>
-    <string name="sobot_ticket_update_file_max_hite">15개 제한에 도달</string>
+    <string name="sobot_ticket_update_file_max_hite">%1$d개 제한에 도달</string>
     <string name="sobot_cus_level_all">전체</string>
     <string name="sobot_please_choice">선택해 주세요...</string>
     <string name="sobot_skill_no_service">현재 에이전트가 온라인에 없으므로，클릭하여 메시지를 남겨 주세요</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">오디오를 녹음하려면 장치의 \"설정\" > \"앱\" > \" %s \" > \"권한\" 에서 마이크 권한을 허용합니다.</string>
     <string name="sobot_continue_shooting">계속 촬영</string>
     <string name="sobot_audio_go_setting">눌러서 사진 촬영 및 길게 눌러서 영상 기록</string>
-    <string name="sobot_microphone_permission_yongtu_camera">마이크 사용 권한을 요청하고 있습니다. 허용하면 고객센터 상담 및 메시지 남기기 시 녹화된 동영상을 전송/업로드할 수 있습니다.</string>
     <string name="sobot_agree_agreement">%s 을(를) 읽었으며 동의합니다.</string>
     <string name="sobot_agree">동의함</string>
     <string name="sobot_keep_queuing">계속 대기</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">%d 개의 자료 참조</string>
     <string name="sobot_start_chat">상담 시작</string>
     <string name="sobot_variable_title">정보를 입력하세요</string>
+    <string name="sobot_ctrl_ticket_success">작업 주문 번호가 복사되었습니다.</string>
+    <string name="sobot_album_permission_yongtu">[선택]사진 권한이 필요합니다(이미지 메시지 전송용). *거부해도 앱은 정상 사용 가능합니다.</string>
+    <string name="sobot_microphone_permission_yongtu">[선택]마이크 권한이 필요합니다(음성/영상 메시지 전송용). *거부해도 앱은 정상 사용 가능합니다.</string>
+    <string name="sobot_camera_permission_yongtu">[선택]카메라 권한이 필요합니다(사진/동영상 메시지 전송용). *거부해도 앱은 정상 사용 가능합니다.</string>
 </resources>

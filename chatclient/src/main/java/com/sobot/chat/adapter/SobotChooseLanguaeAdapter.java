@@ -43,7 +43,7 @@ public class SobotChooseLanguaeAdapter extends RecyclerView.Adapter {
         return list;
     }
 
-    public void setList(List<SobotlanguaeModel> date,String searchText) {
+    public void setList(List<SobotlanguaeModel> date, String searchText) {
         list.clear();
         list.addAll(date);
         this.searchText = searchText;
@@ -63,24 +63,24 @@ public class SobotChooseLanguaeAdapter extends RecyclerView.Adapter {
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if (model != null) {
             String data = model.getName();
-            if(StringUtils.isNoEmpty(data)){
+            if (StringUtils.isNoEmpty(data)) {
                 SpannableString spannableString = new SpannableString(data);
-                if(StringUtils.isNoEmpty(searchText)) {
-                    if (data.toLowerCase().contains(searchText.toLowerCase())|| data.contains(searchText.toLowerCase()) ) {
+                if (StringUtils.isNoEmpty(searchText)) {
+                    if (data.toLowerCase().contains(searchText.toLowerCase()) || data.contains(searchText.toLowerCase())) {
                         int index = data.toLowerCase().indexOf(searchText);
-                        if(index<0){
+                        if (index < 0) {
                             index = data.toLowerCase().indexOf(searchText.toLowerCase());
                         }
-                        if(index<0){
+                        if (index < 0) {
                             index = data.toLowerCase().indexOf(searchText.toUpperCase());
                         }
-                        if(index>=0) {
+                        if (index >= 0) {
                             spannableString.setSpan(new ForegroundColorSpan(ThemeUtils.getThemeColor(mContext)), index, index + searchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
                 vh.tv_title.setText(spannableString);
-            }else {
+            } else {
                 vh.tv_title.setText("");
             }
             if (mContext != null) {

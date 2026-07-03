@@ -58,7 +58,7 @@
 
         <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_tv_content"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
@@ -67,7 +67,7 @@
 
         <com.sobot.chat.widget.SobotTextView
             android:id="@+id/sobot_tv_content_detail"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
@@ -75,6 +75,46 @@
             android:textColor="@color/sobot_color_link"
             android:textSize="@dimen/sobot_text_font_14"
             android:visibility="visible" />
+    </LinearLayout>
+
+    <!-- 邮件引用 ... 展开按钮（有邮件引用内容时显示，padding 扩大点击区域） -->
+    <ImageView
+        android:id="@+id/sobot_btn_email_quote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="0dp"
+        android:src="@drawable/sobot_email_quote"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="" />
+
+    <!-- 邮件引用展开区域（默认折叠） -->
+    <LinearLayout
+        android:id="@+id/sobot_ll_email_quote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- 引用内容（左侧 2dp 竖线作为背景，paddingStart 留出间距） -->
+        <TextView
+            android:id="@+id/sobot_tv_email_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/sobot_email_quote_content_bg"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingStart="14dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingEnd="0dp"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
     </LinearLayout>
 
     <!--文件列表-->

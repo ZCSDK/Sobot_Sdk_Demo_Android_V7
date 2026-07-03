@@ -46,6 +46,7 @@
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -91,7 +92,7 @@
                         android:layout_height="169dp"
                         android:layout_below="@id/tv_mimi_title"
                         android:layout_marginTop="8dp"
-                        android:scaleType="centerCrop"/>
+                        android:scaleType="centerCrop" />
 
                     <View
                         android:id="@+id/view_split"

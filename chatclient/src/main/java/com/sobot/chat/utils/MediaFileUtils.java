@@ -186,10 +186,11 @@ public class MediaFileUtils {
 
     /**
      * 是否是图片类型
+     *
      * @param path
      * @return
      */
-    public static boolean isImageFileType(String path){
+    public static boolean isImageFileType(String path) {
         if (!TextUtils.isEmpty(path)) {
             File file = new File(path);
             if (file.exists()) {
@@ -201,7 +202,6 @@ public class MediaFileUtils {
         }
         return false;
     }
-
 
 
     //根据mime类型查看文件类型

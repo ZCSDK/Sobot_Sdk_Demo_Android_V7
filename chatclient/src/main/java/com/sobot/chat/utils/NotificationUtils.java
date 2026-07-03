@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
 
 import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotTicketDetailActivity;
@@ -107,6 +106,8 @@ public class NotificationUtils {
 
             BitmapDrawable bd = (BitmapDrawable) context.getResources().getDrawable(largeicon);
             Bitmap bitmap = bd.getBitmap();
+            // Why: 服务端推送的 content 可能包含恶意 HTML 标记，直接 Html.fromHtml 渲染存在 XSS 风险
+            String safeContent = HtmlTools.getInstance(context).getHTMLStr(content);
             Notification.Builder builder = new Notification.Builder(context)
                     .setSmallIcon(smallicon) // 设置状态栏中的小图片，尺寸一般建议在24×24，这个图片同样也是在下拉状态栏中所显示，如果在那里需要更换更大的图片，可以使用setLargeIcon(Bitmap
                     // icon)
@@ -115,7 +116,7 @@ public class NotificationUtils {
                     .setContentTitle(title)
                     .setWhen(leaveReplyModel.getReplyTime() * 1000)
                     .setShowWhen(true)
-                    .setContentText(Html.fromHtml(content))
+                    .setContentText(safeContent)
                     .setContentIntent(pendingIntent2);
 
             boolean compatFlag = CommonUtils.getTargetSdkVersion(context) >= 26;
@@ -143,7 +144,7 @@ public class NotificationUtils {
             try {
                 nm.cancelAll();
             } catch (Exception e) {
-                //ignore
+                LogUtils.e("uncaught", e);
             }
         }
     }

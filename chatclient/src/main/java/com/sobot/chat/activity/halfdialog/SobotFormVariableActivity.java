@@ -46,6 +46,7 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
     private SobotRobot robot;
     //广播
     private SobotFormVariableBroadcast receiver;
+
     @Override
     protected int getContentViewResId() {
         return R.layout.sobot_activity_form_info;
@@ -76,7 +77,7 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
     @Override
     protected void initData() {
         robot = (SobotRobot) getIntent().getSerializableExtra("sobotRobot");
-        if(robot!=null) {
+        if (robot != null) {
             list = robot.getFormSubmitInfos();
             if (list == null) {
                 list = new ArrayList<>();
@@ -102,9 +103,9 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
         filter.addAction(ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_SUCCESS);
         filter.addAction(ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_ERROR);
         filter.addAction(ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_FAIL);
-        // 注册广播接收器
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
+        // 安全：SDK 内部广播禁止外部应用伪造发送 (CWE-925)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(receiver, filter);
         }
@@ -113,7 +114,7 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
         coustom_pop_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            // 隐藏软键盘并清除所有输入框的焦点
+                // 隐藏软键盘并清除所有输入框的焦点
                 hideAllEditTextFocus();
             }
         });
@@ -151,16 +152,16 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
             int themeColor = ThemeUtils.getThemeColor(this);
             Drawable bg = btnSubmit.getBackground();
             if (bg != null) {
-                btnSubmit.setBackground(ThemeUtils.applyColorToDrawable(bg, themeColor));
+                btnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
             }
             btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
     }
 
 
-
     /**
-     *  获取变量的值
+     * 获取变量的值
+     *
      * @return 是否有空值
      */
     private ArrayList<SobotVariableModel> getvalue() {
@@ -174,12 +175,14 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
         }
         return list;
     }
+
     public void submit() {
         ArrayList<SobotVariableModel> list = getvalue();
         robot.setFormSubmitInfos(list);
-        //提交
+        //提交：限定本进程，避免 SobotRobot 序列化对象泄漏给其他应用 (CWE-927)
         Intent intent = new Intent();
         intent.setAction(ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_FORM);
+        intent.setPackage(getPackageName());
         intent.putExtra("robot", robot);
         sendBroadcast(intent);
     }
@@ -212,13 +215,13 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
                     lan = "zh-Hans";
                 }
                 Map<String, List<SobotOptionModel>> map = variableModel.getEnumListMap();
-                if(null!=map) {
+                if (null != map) {
                     if (map.containsKey(lan) && null != map.get(lan)) {
-                        list1=map.get(lan);
+                        list1 = map.get(lan);
                     } else {
                         // 获取第一个key对应的list
                         String firstKey = variableModel.getEnumListMap().keySet().iterator().next();
-                        list1=variableModel.getEnumListMap().get(firstKey);
+                        list1 = variableModel.getEnumListMap().get(firstKey);
                     }
                 } else {
                     list1 = new ArrayList<>();
@@ -238,18 +241,20 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
                     }
                 });
             }
-            if(StringUtils.isNoEmpty(list.get(i).getVariableValue())){
+            if (StringUtils.isNoEmpty(list.get(i).getVariableValue())) {
                 inputView.setInputValue(list.get(i).getVariableValue());
             }
-            if(StringUtils.isNoEmpty(list.get(i).getErrorMsg())){
+            if (StringUtils.isNoEmpty(list.get(i).getErrorMsg())) {
                 inputView.showError(list.get(i).getErrorMsg());
-            }else{
+            } else {
                 inputView.hideError();
             }
             ll_list.addView(inputView);
         }
     }
-    /**b
+
+    /**
+     * b
      * 隐藏所有EditText的焦点并收起软键盘
      */
     private void hideAllEditTextFocus() {
@@ -278,6 +283,7 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
         } catch (Exception e) {
         }
     }
+
     class SobotFormVariableBroadcast extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -291,9 +297,9 @@ public class SobotFormVariableActivity extends SobotDialogBaseActivity implement
 //                    robotIntent.putExtra("sobotRobot", robot);
 //                    sendBroadcast(robotIntent);
                     finish();
-                }else if (ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_ERROR.equals(intent.getAction())){
+                } else if (ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_ERROR.equals(intent.getAction())) {
                     finish();
-                }else if (ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_FAIL.equals(intent.getAction())){
+                } else if (ZhiChiConstants.SOBOT_SUBMIT_VAIABLE_FAIL.equals(intent.getAction())) {
                     btnSubmit.setClickable(true);
                     btnSubmit.setEnabled(true);
                     btnSubmit.getBackground().setAlpha(255);

@@ -18,6 +18,7 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
+import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.lablesview.SobotLablesViewModel;
 import com.sobot.chat.widget.robottemplate.RobotTemplateViewPager;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RobotTemplateMessageHolder2 extends MsgHolderBase {
+    private SobotMaxSizeLinearLayout msgContentLL;
     // 聊天的消息内容
     private TextView tvTip;
     public ZhiChiMessageBase message;
@@ -43,6 +45,7 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
 
     public RobotTemplateMessageHolder2(Context context, View convertView) {
         super(context, convertView);
+        msgContentLL=  convertView.findViewById(R.id.sobot_msg_content_ll);
         tvCusPageCount = convertView.findViewById(R.id.tv_cus_page_count);
         tvTip = convertView.findViewById(R.id.tv_template_tip);
         ivPreviousPage = convertView.findViewById(R.id.iv_previous_page);
@@ -74,6 +77,9 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                 String[] inputContent = multiDiaRespInfo.getInputContentList();
                 ArrayList<SobotLablesViewModel> label = new ArrayList<>();
                 if (interfaceRetList != null && !interfaceRetList.isEmpty()) {
+                    if (msgContentLL!=null){
+                        msgContentLL.setFillToMaxWidth(true);
+                    }
                     resetMaxWidth();
                     for (int i = 0; i < interfaceRetList.size(); i++) {
                         Map<String, String> interfaceRet = interfaceRetList.get(i);
@@ -98,6 +104,9 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                         llPage.setVisibility(View.GONE);
                     }
                 } else if (inputContent != null && inputContent.length > 0) {
+                    if (msgContentLL!=null){
+                        msgContentLL.setFillToMaxWidth(true);
+                    }
                     resetMaxWidth();
                     for (int i = 0; i < inputContent.length; i++) {
                         SobotLablesViewModel lablesViewModel = new SobotLablesViewModel();
@@ -123,10 +132,16 @@ public class RobotTemplateMessageHolder2 extends MsgHolderBase {
                     pvTemplateSecond.setVisibility(View.GONE);
                 }
             } else {
+                if (msgContentLL!=null){
+                    msgContentLL.setFillToMaxWidth(true);
+                }
                 pvTemplateSecond.setVisibility(View.GONE);
             }
         }
-        pvTemplateSecond.setLayoutParams(new LinearLayout.LayoutParams(msgCardWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // 多列模式（横屏）让 ViewPager 跟随气泡实际宽度（bubble 通过 fill_to_max_width 撑到 max_width_percent 的 EXACTLY 宽），避免右列被气泡裁切
+        int columns = mContext.getResources().getInteger(R.integer.sobot_robot_template_columns);
+        int pagerWidth = columns > 1 ? ViewGroup.LayoutParams.MATCH_PARENT : msgCardWidth;
+        pvTemplateSecond.setLayoutParams(new LinearLayout.LayoutParams(pagerWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
         pvTemplateSecond.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {

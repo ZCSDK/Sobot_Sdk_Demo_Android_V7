@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -120,7 +119,7 @@ public class GifView2 extends View implements View.OnTouchListener {
 
             int[] screen = ScreenUtils
                     .getScreenWH(getContext());
-            Log.e("onMeasure: ", "\n" + movieMeasuredMovieWidth + "\t" + movieMeasuredMovieHeight + "\n" + screen[0] + "\t" + screen[1]);
+            LogUtils.e("\n" + movieMeasuredMovieWidth + "\t" + movieMeasuredMovieHeight + "\n" + screen[0] + "\t" + screen[1]);
 
             int measureModeWidth = View.MeasureSpec.getMode(widthMeasureSpec);
 
@@ -153,7 +152,7 @@ public class GifView2 extends View implements View.OnTouchListener {
             movieScale = scale / (scaleW * scaleH);
 //            movieMeasuredMovieWidth = (int) (movieMeasuredMovieWidth * movieScale);
 //            movieMeasuredMovieHeight = (int) (movieMeasuredMovieHeight * movieScale);
-            Log.e("onMeasure: ", "\n" + movieMeasuredMovieWidth + "\t" + movieMeasuredMovieHeight + "\n" + movieScale);
+            LogUtils.e("\n" + movieMeasuredMovieWidth + "\t" + movieMeasuredMovieHeight + "\n" + movieScale);
             setMeasuredDimension(movieMeasuredMovieWidth, movieMeasuredMovieHeight);
         } else {
             /*
@@ -314,7 +313,7 @@ public class GifView2 extends View implements View.OnTouchListener {
         float setPivotY = 0;
         setPivotX = getPivotX() + lessX;
         setPivotY = getPivotY() + lessY;
-        Log.e("lawwingLog", "setPivotX:" + setPivotX + "  setPivotY:" + setPivotY
+        LogUtils.e("setPivotX:" + setPivotX + "  setPivotY:" + setPivotY
                 + "  getWidth:" + getWidth() + "  getHeight:" + getHeight());
         if (setPivotX < 0 && setPivotY < 0) {
             setPivotX = 0;
@@ -453,8 +452,9 @@ public class GifView2 extends View implements View.OnTouchListener {
     }
 
     public File getFilesDir(Context context, String tag) {
-        if (isSdCardExist() == true) {
-            return context.getExternalFilesDir(tag);
+        if (isSdCardExist()) {
+            File externalFilesDir = context.getExternalFilesDir(tag);
+            return externalFilesDir != null ? externalFilesDir : context.getFilesDir();
         } else {
             return context.getFilesDir();
         }

@@ -39,6 +39,7 @@ import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.toast.ToastUtil;
 import com.sobot.network.http.callback.StringResultCallBack;
@@ -101,13 +102,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                 Rect r = new Rect();
                 mWebView.getWindowVisibleDisplayFrame(r);
                 int screenHeight = mWebView.getRootView().getHeight();
-                // 计算键盘高度，考虑工具栏
                 int keyboardHeight = screenHeight - r.bottom;
-                //自定义导航栏高度
-                View toolBar = getToolBar();
-                if (toolBar != null && toolBar.getVisibility() == View.VISIBLE) {
-                    keyboardHeight -= toolBar.getHeight();
-                }
                 if (keyboardHeight < 0) {
                     keyboardHeight = 0;
                 }
@@ -133,8 +128,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         try {
             //LinearLayout.LayoutParams 需要自己判断具体的类型
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mWebView.getLayoutParams();
-            //70 是防止把导航条顶上去
-            params.height = mWebView.getHeight() - keyboardHeight - 70;
+            params.height = mWebView.getHeight() - keyboardHeight;
             mWebView.setLayoutParams(params);
         } catch (Exception e) {
         }
@@ -250,7 +244,7 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                     htmlBuilder.append("        </style>\n");
                     htmlBuilder.append("    </head>\n");
                     htmlBuilder.append("    <body>");
-                    htmlBuilder.append(answerDesc.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"));
+                    htmlBuilder.append(WebViewSecurityUtil.sanitizeHtml(answerDesc).replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"));
                     htmlBuilder.append("  </body>\n");
                     htmlBuilder.append("</html>");
 
@@ -258,7 +252,6 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                     mWebView.loadDataWithBaseURL("about:blank", htmlBuilder.toString(), "text/html", "utf-8", null);
                 }
             }
-// ... existing code ...
 
 
             @Override
@@ -267,8 +260,10 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             }
         });
     }
+
     /**
      * 检查字符串是否包含阿拉伯语字符
+     *
      * @param text 要检查的文本
      * @return 如果包含阿拉伯语字符返回true，否则返回false
      */
@@ -325,13 +320,17 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             try {
                 mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
             } catch (Exception e) {
-                //ignor
+                LogUtils.e("uncaught", e);
             }
         }
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                //检测到下载文件就打开系统浏览器
+                // CWE-319: 仅允许 https，与 WebViewActivity 对齐，拒 http 明文派发
+                if (TextUtils.isEmpty(url) || !url.toLowerCase().startsWith("https://")) {
+                    LogUtils.i("ProblemDetail download refuse non-https");
+                    return;
+                }
                 Intent intent = new Intent();
                 intent.setAction("android.intent.action.VIEW");
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -347,22 +346,24 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
         mWebView.getSettings().setDefaultFontSize(14);
         mWebView.getSettings().setTextZoom(100);
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        // 安全：本页仅渲染服务端帮助文档 HTML，无 JS 业务需求 → 关闭以阻断 sanitizer 绕过型 XSS
+        mWebView.getSettings().setJavaScriptEnabled(false);
         mWebView.getSettings().setAllowFileAccess(false);
+        mWebView.getSettings().setAllowFileAccessFromFileURLs(false);
+        mWebView.getSettings().setAllowUniversalAccessFromFileURLs(false);
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         mWebView.setBackgroundColor(0);
 
-        // 设置可以使用localStorage
-        mWebView.getSettings().setDomStorageEnabled(true);
+        // localStorage 同步关闭
+        mWebView.getSettings().setDomStorageEnabled(false);
         mWebView.getSettings().setLoadsImagesAutomatically(true);
         mWebView.getSettings().setBlockNetworkImage(false);
         mWebView.getSettings().setSavePassword(false);
         // mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + " sobot");
 
-        //关于webview的http和https的混合请求的，从Android5.0开始，WebView默认不支持同时加载Https和Http混合模式。
-        // 在API>=21的版本上面默认是关闭的，在21以下就是默认开启的，直接导致了在高版本上面http请求不能正确跳转。
+        //安全：禁止 HTTPS 页面加载 HTTP 资源
         if (Build.VERSION.SDK_INT >= 21) {
-            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         }
 
         //Android 4.4 以下的系统中存在一共三个有远程代码执行漏洞的隐藏接口
@@ -370,8 +371,8 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
         mWebView.removeJavascriptInterface("accessibility");
         mWebView.removeJavascriptInterface("accessibilityTraversal");
 
-        // 应用可以有数据库
-        mWebView.getSettings().setDatabaseEnabled(true);
+        // 安全：关闭 WebSQL
+        mWebView.getSettings().setDatabaseEnabled(false);
 
         //把html中的内容放大webview等宽的一列中
         mWebView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
@@ -379,24 +380,39 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                imgReset();
+                // 图片自适应已由 HTML wrapper 的内联 CSS 兜底，无需再注入 JS
             }
 
             @Override
             // 在点击请求的是链接是才会调用，重写此方法返回true表明点击网页里面的链接还是在当前的webview里跳转，不跳到浏览器那边。
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (SobotOption.hyperlinkListener != null) {
-                    SobotOption.hyperlinkListener.onUrlClick(url);
+                if (SobotOption.dispatchUrlClick(getSobotBaseActivity(), url)) {
                     return true;
                 }
-                if (SobotOption.newHyperlinkListener != null) {
-                    //如果返回true,拦截;false 不拦截
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(getSobotBaseActivity(), url);
-                    if (isIntercept) {
-                        return true;
-                    }
+                if (TextUtils.isEmpty(url)) {
+                    return true;
                 }
-                return false;
+                String lower = url.toLowerCase();
+                // CWE-319: https-only，与 WebViewActivity 一致，拒 http 明文导航
+                if (lower.startsWith("https://")) {
+                    return false;
+                }
+                if (lower.startsWith("http://")) {
+                    LogUtils.i("ProblemDetail block http(non-tls) navigation");
+                    return true;
+                }
+                if (lower.startsWith("tel:") || lower.startsWith("mailto:")) {
+                    try {
+                        Intent dispatchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        dispatchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dispatchIntent);
+                    } catch (Exception e) {
+                        LogUtils.e("ProblemDetail dispatch intent failed", e);
+                    }
+                    return true;
+                }
+                LogUtils.i("ProblemDetail block non-whitelist scheme");
+                return true;
             }
         });
         mWebView.setWebChromeClient(new WebChromeClient() {
@@ -487,23 +503,13 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
      * 打开文件系统选取文件上传
      */
     private void chooseFile(String[] acceptTypes) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        if (acceptTypes != null && acceptTypes.length > 0) {
-            if (acceptTypes.length == 1) {
-                if (StringUtils.isEmpty(acceptTypes[0])) {
-                    intent.setType("*/*"); // 默认所有类型
-                } else {
-                    intent.setType(acceptTypes[0]); // 单一类型，如 image/*, application/pdf
-                }
-            } else {
-                intent.setType("*/*"); // 多种类型，使用通配符并配合 EXTRA_MIME_TYPES
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, acceptTypes);
-            }
-        } else {
-            intent.setType("*/*"); // 默认所有类型
+        try {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_ALBUM);
+        } catch (Exception ignored) {
         }
-        startActivityForResult(intent, ZhiChiConstant.REQUEST_CODE_ALBUM);
     }
 
     @Override
@@ -541,20 +547,6 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
             }
             uploadMessageAboveL = null;
         }
-    }
-
-    /**
-     * 对图片进行重置大小，宽度就是手机屏幕宽度，高度根据宽度比便自动缩放
-     **/
-    private void imgReset() {
-        mWebView.loadUrl("javascript:(function(){" +
-                "var objs = document.getElementsByTagName('img'); " +
-                "for(var i=0;i<objs.length;i++)  " +
-                "{"
-                + "var img = objs[i];   " +
-                "    img.style.maxWidth = '100%'; img.style.height = 'auto';  " +
-                "}" +
-                "})()");
     }
 
     @Override
@@ -620,11 +612,8 @@ public class SobotProblemDetailActivity extends SobotBaseHelpCenterActivity impl
                 if (SobotOption.functionClickListener != null) {
                     SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_PhoneCustomerService);
                 }
-                if (SobotOption.newHyperlinkListener != null) {
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onPhoneClick(getSobotBaseActivity(), "tel:" + tel);
-                    if (isIntercept) {
-                        return;
-                    }
+                if (SobotOption.dispatchPhoneClick(getSobotBaseActivity(), "tel:" + tel)) {
+                    return;
                 }
                 ChatUtils.callUp(tel, getSobotBaseActivity());
             }

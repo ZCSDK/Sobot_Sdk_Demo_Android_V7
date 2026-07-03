@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
@@ -63,6 +64,18 @@ public class SobotEditText extends AppCompatEditText {
 
             setTextDirection(isRtl ? View.TEXT_DIRECTION_ANY_RTL : View.TEXT_DIRECTION_LTR);
             setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+
+            // 横屏宽屏（w≥600dp）下禁用系统 IME 全屏 extract UI 模式：
+            // 横屏空间不足时，Android 系统输入法默认会把当前 EditText "提取"成全屏覆盖层
+            // （视觉表现：一个超大的 EditText + 系统"完成"按钮 + 左上角孤立 < 占位），
+            // 直接遮挡原 Activity 的标题栏 / 表单 / 按钮。设置以下两个 flag 后关闭该模式，
+            // 键盘只占下半屏，原 UI 保持可见。
+            // 用 OR 累加，不覆盖业务设置的 actionDone / actionNext / actionSend 等。
+            if (getResources().getConfiguration().screenWidthDp >= 600) {
+                setImeOptions(getImeOptions()
+                        | EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                        | EditorInfo.IME_FLAG_NO_FULLSCREEN);
+            }
         } catch (Exception ignored) {
         }
     }

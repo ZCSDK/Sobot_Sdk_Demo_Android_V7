@@ -24,6 +24,6 @@ package com.sobot.chat.widget.zxing;
  */
 public interface ResultPointCallback {
 
-  void foundPossibleResultPoint(ResultPoint point);
+    void foundPossibleResultPoint(ResultPoint point);
 
 }

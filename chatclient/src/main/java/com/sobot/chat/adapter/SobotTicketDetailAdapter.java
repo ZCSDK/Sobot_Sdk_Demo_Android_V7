@@ -1,13 +1,12 @@
 package com.sobot.chat.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -15,7 +14,7 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,9 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
-import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.SobotFileDetailActivity;
 import com.sobot.chat.activity.SobotPhotoActivity;
 import com.sobot.chat.activity.SobotVideoActivity;
@@ -35,8 +32,6 @@ import com.sobot.chat.api.model.SobotFileModel;
 import com.sobot.chat.api.model.SobotTicketStatus;
 import com.sobot.chat.api.model.StTicketDetailInfo;
 import com.sobot.chat.api.model.StUserDealTicketReplyInfo;
-import com.sobot.chat.notchlib.INotchScreen;
-import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.HtmlTools;
@@ -45,11 +40,13 @@ import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotFiveStarsSmallLayout;
 import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.image.SobotProgressImageView;
+import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.util.List;
 
@@ -179,7 +176,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") int position) {
         try {
             if (getItemViewType(position) == MSG_TYPE_NO_DATA) {
                 NoDataViewHolder vh = (NoDataViewHolder) viewHolder;
@@ -198,13 +195,22 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                     if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
                         vh.tv_ticket_title.setText(data.getTicketTitle());
                     }
+                    // 邮件引用：有引用内容时显示 ... 按钮
+                    String emailQuoteContent = data.getEmailQuoteContent();
+                    if (!TextUtils.isEmpty(emailQuoteContent)) {
+                        vh.sobot_btn_email_quote.setVisibility(View.VISIBLE);
+                        vh.sobot_btn_email_quote.setOnClickListener(v -> {
+                            boolean expanded = vh.sobot_ll_email_quote.getVisibility() == View.VISIBLE;
+                            vh.sobot_ll_email_quote.setVisibility(expanded ? View.GONE : View.VISIBLE);
+                        });
+                        HtmlTools.getInstance(mActivity).setRichText(vh.sobot_tv_email_content, StringUtils.checkStringIsNull(emailQuoteContent).replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", ""), getLinkTextColor());
+                    } else {
+                        vh.sobot_btn_email_quote.setVisibility(View.GONE);
+                        vh.sobot_ll_email_quote.setVisibility(View.GONE);
+                    }
+
                     if (data != null && !TextUtils.isEmpty(data.getTicketContent())) {
-                        String tempStr = data.getTicketContent().replaceAll("<br/>", "").replace("<p></p>", "")
-                                .replaceAll("<p>", "").replaceAll("</p>", "<br/>").replaceAll("\n", "<br/>");
-                        if (tempStr.contains("<img")) {
-                            tempStr = tempStr.replaceAll("<img[^>]*>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ");
-                        }
-                        vh.tv_ticket_content.setText(TextUtils.isEmpty(data.getTicketContent()) ? "" : Html.fromHtml(tempStr));
+                        HtmlTools.getInstance(mActivity).setRichText(vh.tv_ticket_content, StringUtils.checkStringIsNull(data.getTicketContent()).replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] "), getLinkTextColor());
                     }
 
                     SobotTicketStatus status = getStatus(data.getTicketStatus());
@@ -229,6 +235,15 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                         }
                     }
                     vh.tv_time.setText(DateUtil.getTimeStr(mActivity, data.getTicketCreateTime()));
+                    if (vh.tv_ticket_code != null) {
+                        vh.tv_ticket_code.setText("#" + StringUtils.checkStringIsNull(data.getTicketCode()));
+                        vh.tv_ticket_code.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                copyTicket(mActivity, StringUtils.checkStringIsNull(data.getTicketCode()));
+                            }
+                        });
+                    }
 
                     if (null != data.getFileList() && !data.getFileList().isEmpty()) {
                         vh.recyclerView.setVisibility(View.VISIBLE);
@@ -295,6 +310,9 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                 }
             } else {
                 DetailViewHolder vh = (DetailViewHolder) viewHolder;
+                vh.itemView.setLayoutParams(new RecyclerView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
                 vh.sobot_tv_content_detail.setText(mActivity.getResources().getString(R.string.sobot_see_detail));
                 if (list.get(position) instanceof StUserDealTicketReplyInfo) {
                     final StUserDealTicketReplyInfo reply = (StUserDealTicketReplyInfo) list.get(position);
@@ -305,19 +323,18 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                         vh.sobot_tv_content_detail.setVisibility(View.GONE);
                         vh.sobot_tv_content_detail.setOnClickListener(null);
                         vh.sobot_tv_content.setPadding(0, 0, 0, 0);
-                        vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : Html.fromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
+                        vh.sobot_tv_content.setText(TextUtils.isEmpty(reply.getReplyContent()) ? mActivity.getResources().getString(R.string.sobot_nothing) : WebViewSecurityUtil.safeFromHtml(reply.getReplyContent().replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] ")));
                     } else {
-                        if (StringUtils.isNoEmpty(reply.getUpdateUserName())) {
-                            //客服
-                            vh.sobot_tv_name.setText(reply.getUpdateUserName());
-                            //默认头像
-                            int bgColor = ThemeUtils.getThemeColor(mActivity);
-                            Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(mActivity, reply.getUpdateUserName(), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), bgColor, ThemeUtils.getThemeTextAndIconColor(mActivity));
-                            if (afaceDrawable != null) {
-                                vh.iv_head.setImageDrawable(afaceDrawable);
-                                vh.iv_head.setVisibility(View.VISIBLE);
-                                vh.iv_head.setRoundAsCircle(true);
-                            }
+                        String name = mActivity.getResources().getString(R.string.sobot_cus_service);
+                        //客服
+                        vh.sobot_tv_name.setText(name);
+                        //默认头像
+                        int bgColor = ThemeUtils.getThemeColor(mActivity);
+                        Drawable afaceDrawable = ThemeUtils.createTextImageDrawable(mActivity, name, (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), (int) mActivity.getResources().getDimension(R.dimen.sobot_tiket_head_w), bgColor, ThemeUtils.getThemeTextAndIconColor(mActivity));
+                        if (afaceDrawable != null) {
+                            vh.iv_head.setImageDrawable(afaceDrawable);
+                            vh.iv_head.setVisibility(View.VISIBLE);
+                            vh.iv_head.setRoundAsCircle(true);
                         }
                         if (TextUtils.isEmpty(reply.getReplyContent())) {
                             vh.sobot_tv_content_detail.setVisibility(View.GONE);
@@ -347,6 +364,23 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                     }
 
                     vh.sobot_tv_time.setText(DateUtil.getTimeStr(mActivity, reply.getReplyTime()));
+
+                    // 邮件引用：有引用内容时显示 ... 按钮
+                    String emailQuoteContent = reply.getQuoteContent();
+                    if (!TextUtils.isEmpty(emailQuoteContent)) {
+                        vh.sobot_btn_email_quote.setVisibility(View.VISIBLE);
+                        vh.sobot_btn_email_quote.setOnClickListener(v -> {
+                            boolean expanded = vh.sobot_ll_email_quote.getVisibility() == View.VISIBLE;
+                            vh.sobot_ll_email_quote.setVisibility(expanded ? View.GONE : View.VISIBLE);
+                        });
+
+                        // 引用内容
+                        HtmlTools.getInstance(mActivity).setRichText(vh.sobot_tv_email_content, StringUtils.checkStringIsNull(emailQuoteContent).replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", ""), getLinkTextColor());
+                    } else {
+                        vh.sobot_btn_email_quote.setVisibility(View.GONE);
+                        vh.sobot_ll_email_quote.setVisibility(View.GONE);
+                    }
+
                     if (null != reply.getFileList() && !reply.getFileList().isEmpty()) {
                         vh.recyclerView.setVisibility(View.VISIBLE);
                         vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
@@ -393,21 +427,27 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         private TextView tv_ticket_content;
         private RecyclerView recyclerView;
         private View line;
+        private TextView tv_ticket_code;
+        private ImageView sobot_btn_email_quote;
+        private LinearLayout sobot_ll_email_quote;
+        private TextView sobot_tv_email_content;
 
         HeadViewHolder(View view) {
             super(view);
             line = view.findViewById(R.id.line);
             tv_time = (TextView) view.findViewById(R.id.sobot_tv_time);
+            tv_ticket_code = (TextView) view.findViewById(R.id.tv_ticket_code);
             recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
             tv_ticket_status = (TextView) view.findViewById(R.id.sobot_tv_ticket_status);
             tv_ticket_title = (TextView) view.findViewById(R.id.tv_title);
             tv_ticket_content = (TextView) view.findViewById(R.id.tv_context);
+            sobot_btn_email_quote = view.findViewById(R.id.sobot_btn_email_quote);
+            sobot_ll_email_quote = view.findViewById(R.id.sobot_ll_email_quote);
+            sobot_tv_email_content = view.findViewById(R.id.sobot_tv_email_content);
             GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.addItemDecoration(new SobotGridSpacingItemDecoration(2, ScreenUtils.dip2px(mActivity, 8), false, ChatUtils.isRtl(mActivity)));
-
-
         }
     }
 
@@ -419,6 +459,9 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         private TextView sobot_tv_content_detail;
         private SobotProgressImageView iv_head;
         private RecyclerView recyclerView;
+        private ImageView sobot_btn_email_quote;
+        private LinearLayout sobot_ll_email_quote;
+        private TextView sobot_tv_email_content;
 
         DetailViewHolder(View view) {
             super(view);
@@ -428,6 +471,9 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
             sobot_tv_content = (TextView) view.findViewById(R.id.sobot_tv_content);
             sobot_tv_content_detail = (TextView) view.findViewById(R.id.sobot_tv_content_detail);
             recyclerView = (RecyclerView) view.findViewById(R.id.sobot_attachment_file_layout);
+            sobot_btn_email_quote = view.findViewById(R.id.sobot_btn_email_quote);
+            sobot_ll_email_quote = view.findViewById(R.id.sobot_ll_email_quote);
+            sobot_tv_email_content = view.findViewById(R.id.sobot_tv_email_content);
             GridLayoutManager layoutManager = new GridLayoutManager(mActivity, 2); // 创建GridLayoutManager，参数为列数
             // 设置RecyclerView的LayoutManager
             recyclerView.setLayoutManager(layoutManager);
@@ -489,4 +535,15 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
         return null;
     }
 
+    //复制工单编号
+    private void copyTicket(Activity activity, String ticketCode) {
+        if (activity != null && !TextUtils.isEmpty(ticketCode)) {
+            android.content.ClipboardManager cmb = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            if (cmb != null) {
+                android.content.ClipData clipData = android.content.ClipData.newPlainText("ticket code", ticketCode);
+                cmb.setPrimaryClip(clipData);
+            }
+            ToastUtil.showCustomToast(activity, activity.getResources().getString(R.string.sobot_ctrl_ticket_success));
+        }
+    }
 }

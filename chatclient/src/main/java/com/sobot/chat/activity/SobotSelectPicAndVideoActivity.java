@@ -99,9 +99,9 @@ public class SobotSelectPicAndVideoActivity extends SobotChatBaseActivity {
         });
 
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable bg = ResourcesCompat.getDrawable(getResources(),R.drawable.sobot_bg_theme_color_20dp,null);
+            Drawable bg = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_theme_color_20dp, null);
             if (bg != null) {
-                sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(bg, ThemeUtils.getThemeColor(this)));
+                sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, ThemeUtils.getThemeColor(this)));
             }
         }
         sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -101,7 +102,14 @@ public class SobotSessionServer extends Service {
         // 创建过滤器，并指定action，使之用于接收同action的广播
         IntentFilter systemfilter = new IntentFilter();
         systemfilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION); // 检测网络的状态
-        registerReceiver(receiverNet, systemfilter);
+        // 安全：API 33+ 必须显式声明 receiver 是否对外暴露；CONNECTIVITY_ACTION 是系统广播，
+        // 仅需进程内接收，使用 RECEIVER_NOT_EXPORTED 避免恶意 App 伪造广播（CWE-925）。
+        // targetSdk >= 34 时未指定 export flag 还会抛 SecurityException。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiverNet, systemfilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(receiverNet, systemfilter);
+        }
     }
 
     /**
@@ -146,7 +154,7 @@ public class SobotSessionServer extends Service {
                         }
                     }
                 } catch (Exception e) {
-                    //ignor
+                    LogUtils.e("uncaught", e);
                 }
             } else if (ZhiChiConstants.SOBOT_TIMER_BROCAST.equals(intent.getAction())) {
                 Bundle extras = intent.getExtras();
@@ -231,7 +239,7 @@ public class SobotSessionServer extends Service {
                     msgType = jsonObject.optInt("msgType");
                 } catch (JSONException e) {
                     content = "";
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
                 if (msgType != -1 && !TextUtils.isEmpty(content)) {
                     String notificationContent = content;
@@ -243,8 +251,11 @@ public class SobotSessionServer extends Service {
                         content = getResources().getString(R.string.sobot_upload);
                         notificationContent = getResources().getString(R.string.sobot_upload);
                     }
-                    showNotification(getResources().getString(R.string.sobot_receive_new_message), pushMessage, true);
-                    sendBroadcast(pushMessage, getResources().getString(R.string.sobot_receive_new_message), true);
+                    boolean isShowKefuName = config != null && config.getInitModel() != null
+                            && config.getInitModel().getVisitorScheme() != null
+                            && config.getInitModel().getVisitorScheme().getShowStaffNick() == 1;
+                    showNotification(getResources().getString(R.string.sobot_receive_new_message), pushMessage, isShowKefuName);
+                    sendBroadcast(pushMessage, getResources().getString(R.string.sobot_receive_new_message), isShowKefuName);
                 }
             }
         } else if (ZhiChiConstant.push_message_receverSystemMessage == pushMessage
@@ -585,7 +596,7 @@ public class SobotSessionServer extends Service {
                 currentClassName = MyApplication.getInstance().getLastActivity().getComponentName().getClassName();
             }
         } catch (Exception exception) {
-            exception.printStackTrace();
+            LogUtils.e("uncaught", exception);
         }
         return !currentAppid.equals(appkey) || (!currentClassName.contains(
                 "SobotChatActivity") || CommonUtils.isScreenLock(getApplicationContext()));

@@ -127,6 +127,7 @@
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:paddingBottom="4dp"
+                    android:layout_marginBottom="8dp"
                     android:textColor="@color/sobot_color_text_first"
                     android:textSize="@dimen/sobot_text_font_14"
                     android:visibility="visible" />
@@ -136,7 +137,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:layout_marginTop="8dp"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:includeFontPadding="false"

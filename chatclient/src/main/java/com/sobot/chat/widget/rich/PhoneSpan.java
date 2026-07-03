@@ -26,15 +26,8 @@ public class PhoneSpan extends ClickableSpan {
 
     @Override
     public void onClick(View widget) {
-        if (SobotOption.hyperlinkListener != null) {
-            SobotOption.hyperlinkListener.onPhoneClick("tel:" + phone);
+        if (SobotOption.dispatchPhoneClick(context, "tel:" + phone)) {
             return;
-        }
-        if (SobotOption.newHyperlinkListener != null) {
-            boolean isIntercept = SobotOption.newHyperlinkListener.onPhoneClick(context,"tel:" + phone);
-            if (isIntercept) {
-                return;
-            }
         }
         ChatUtils.callUp(phone, context);
     }

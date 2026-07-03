@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -35,7 +34,6 @@ import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.conversation.SobotChatActivity;
 import com.sobot.chat.core.channel.Const;
 import com.sobot.chat.core.channel.SobotMsgManager;
-import com.sobot.chat.listener.HyperlinkListener;
 import com.sobot.chat.listener.NewHyperlinkListener;
 import com.sobot.chat.listener.SobotChatStatusListener;
 import com.sobot.chat.listener.SobotFunctionClickListener;
@@ -88,7 +86,7 @@ public class ZCSobotApi {
      */
     public static void initSobotSDK(final Context context, final String appkey, final String partnerid) {
         if (context == null || TextUtils.isEmpty(appkey)) {
-            Log.e(Tag, "initSobotSDK  参数为空 context:" + context + "  appkey:" + appkey);
+            LogUtils.e("initSobotSDK  参数为空 context:" + context + "  appkey:" + appkey);
             return;
         }
         try {
@@ -106,8 +104,7 @@ public class ZCSobotApi {
             SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
             //清空工单状态
             ChatUtils.setStatusList(null);
-            //清除夜间模式设置
-            SharedPreferencesUtil.removeKey(context, ZCSobotConstant.LOCAL_NIGHT_MODE);
+            //夜间模式设置保留，由 updateThemeStyle 根据服务端返回值自动更新
             if (!CommonUtils.inMainProcess(context.getApplicationContext())) {
                 return;
             }
@@ -147,6 +144,8 @@ public class ZCSobotApi {
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_FLOW_GROUPID);
         //隐藏消息列表中的时间消息
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_HIDE_TIMEMSG);
+        //帮助中心初始化配置
+        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_HELP_CONFIG_MODEL);
     }
 
     /**
@@ -157,12 +156,12 @@ public class ZCSobotApi {
      */
     public static void openZCChat(Context context, Information information) {
         if (information == null || context == null) {
-            Log.e(Tag, "Information is Null!");
+            LogUtils.e("Information is Null!");
             return;
         }
         boolean initSdk = SharedPreferencesUtil.getBooleanData(context, ZhiChiConstant.SOBOT_CONFIG_INITSDK, false);
         if (!initSdk) {
-            Log.e(Tag, "请在Application中调用【ZCSobotApi.initSobotSDK()】来初始化SDK!");
+            LogUtils.e("请在Application中调用【ZCSobotApi.initSobotSDK()】来初始化SDK!");
             return;
         }
         Intent intent = new Intent(context, SobotChatActivity.class);
@@ -182,12 +181,12 @@ public class ZCSobotApi {
      */
     public static void openZCServiceCenter(Context context, Information information) {
         if (information == null || context == null) {
-            Log.e(Tag, "Information is Null!");
+            LogUtils.e("Information is Null!");
             return;
         }
         boolean initSdk = SharedPreferencesUtil.getBooleanData(context, ZhiChiConstant.SOBOT_CONFIG_INITSDK, false);
         if (!initSdk) {
-            Log.e(Tag, "请在Application中调用【SobotApi.initSobotSDK()】来初始化SDK!");
+            LogUtils.e("请在Application中调用【SobotApi.initSobotSDK()】来初始化SDK!");
             return;
         }
         Intent intent = new Intent(context, SobotHelpCenterActivity.class);
@@ -221,11 +220,11 @@ public class ZCSobotApi {
      */
     public static void openLeave(final Context context, final Information info, final boolean isOnlyShowTicket) {
         if (info == null) {
-            Log.e(Tag, "参数info不能为空");
+            LogUtils.e("参数info不能为空");
             return;
         }
         if (context == null || TextUtils.isEmpty(info.getApp_key())) {
-            Log.e(Tag, "参数info中app_key的不能为空");
+            LogUtils.e("参数info中app_key的不能为空");
             return;
         }
         //保证每次进入留言页面时partnerid时有值，不然的话，每次都会生成新的，留言记录就会不准确
@@ -282,7 +281,7 @@ public class ZCSobotApi {
 
                                         @Override
                                         public void onFailure(Exception e, String des) {
-                                            e.printStackTrace();
+                                            LogUtils.e("uncaught", e);
                                             LogUtils.i("通过配置模版id跳转到留言界面：" + des);
                                         }
                                     });
@@ -465,7 +464,7 @@ public class ZCSobotApi {
             return;
         }
         //同未读消息数一起改为5分钟内请求
-        if (System.currentTimeMillis() - requestReplyMsgTime <= 60 * 1000*5) {
+        if (System.currentTimeMillis() - requestReplyMsgTime <= 60 * 1000 * 5) {
             return;
         }
         requestReplyMsgTime = System.currentTimeMillis();
@@ -549,6 +548,15 @@ public class ZCSobotApi {
         }
     }
 
+
+    /**
+     * 设置是否使用传感器（距离传感器、加速度传感器等）
+     *
+     * @param collectSensor true 使用传感器，false 不使用传感器（默认false）
+     */
+    public static void setCollectSensor(boolean collectSensor) {
+        MarkConfig.setON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR, collectSensor);
+    }
 
     /**
      * 获取系统名称
@@ -636,7 +644,7 @@ public class ZCSobotApi {
                 });
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -799,14 +807,6 @@ public class ZCSobotApi {
         NotificationUtils.cancleAllNotification(context);
     }
 
-    /**
-     * 设置超链接的点击事件监听
-     *
-     * @param hyperlinkListener
-     */
-    public static void setHyperlinkListener(HyperlinkListener hyperlinkListener) {
-        SobotOption.hyperlinkListener = hyperlinkListener;
-    }
 
     /**
      * 设置超链接的点击事件监听
@@ -848,7 +848,6 @@ public class ZCSobotApi {
     /**
      * 设置订单卡片的点击事件监听
      *
-     * @deprecated Use {@link #setHyperlinkListener(HyperlinkListener)} instead.
      */
     @Deprecated
     public static void setOrderCardListener(SobotOrderCardListener orderCardListener) {
@@ -1103,6 +1102,8 @@ public class ZCSobotApi {
         SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_LANGUAGE);
         SharedPreferencesUtil.saveStringData(context, ZhiChiConstant.SOBOT_USER_SETTTINNG_LANGUAGE, "");
         SharedPreferencesUtil.saveBooleanData(context, ZhiChiConstant.SOBOT_USE_LANGUAGE, false);
+        //清空帮助中心配置
+        SharedPreferencesUtil.removeKey(context, ZhiChiConstant.SOBOT_HELP_CONFIG_MODEL);
         if (TextUtils.isEmpty(language)) {
             return;
         }
@@ -1183,11 +1184,11 @@ public class ZCSobotApi {
      */
     public static void offlineMsgSize(final Context context, final String appkey, final String partnerid, StringResultCallBack<NureadMsgModel> callBack) {
         //必填验证
-        if(context==null){
+        if (context == null) {
             callBack.onFailure(new Exception(), "context 不能为空");
             return;
         }
-        if(StringUtils.isEmpty(appkey)){
+        if (StringUtils.isEmpty(appkey)) {
             callBack.onFailure(new Exception(), "appkey 不能为空");
             return;
         }

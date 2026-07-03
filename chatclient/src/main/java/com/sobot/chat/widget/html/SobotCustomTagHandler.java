@@ -80,7 +80,6 @@ public class SobotCustomTagHandler implements Html.TagHandler {
         this.mIsCanClickAiButton = isCanClickAiButton;
     }
 
-    // ... existing code ...
     @Override
     public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
         if (tag == null || output == null) {
@@ -222,7 +221,7 @@ public class SobotCustomTagHandler implements Html.TagHandler {
                                 .iconTextSpacing(ScreenUtils.dip2px(mContext, 4))
                                 .textSize(ScreenUtils.dip2px(mContext, 12))
                                 .shapeType(SobotCircleButtonSpan.ShapeType.RECTANGLE)
-                                .totalHeight(ScreenUtils.dip2px(mContext, 23.5f))
+                                .totalHeight(mContext.getResources().getDimensionPixelSize(R.dimen.sobot_rich_text_button_total_height))
                                 .iconSize(ScreenUtils.dip2px(mContext, 12), ScreenUtils.dip2px(mContext, 12))
                                 .margins(12, 12)
                                 .border(ScreenUtils.dip2px(mContext, 1), getColorWithAlpha(mContext, R.color.sobot_color_line_divider_3, isClickable ? 1.0f : 0.5f))
@@ -243,6 +242,12 @@ public class SobotCustomTagHandler implements Html.TagHandler {
                             }
                             // 根据链接类型执行相应操作
                             if ("web".equalsIgnoreCase(sectionType) && !TextUtils.isEmpty(value)) {
+                                // 仅放行 http / https，防止 file:// intent:// javascript: 等危险 scheme
+                                String lower = value.toLowerCase();
+                                if (!lower.startsWith("http://") && !lower.startsWith("https://")) {
+                                    LogUtils.i("sobotbutton web refuse non-http(s) value");
+                                    return;
+                                }
                                 // 打开网页
                                 Intent intent = new Intent(mContext, WebViewActivity.class);
                                 intent.putExtra("url", value);
@@ -290,7 +295,6 @@ public class SobotCustomTagHandler implements Html.TagHandler {
         } catch (Resources.NotFoundException e) {
         }
     }
-// ... existing code ...
 
 
     /**
@@ -349,37 +353,55 @@ public class SobotCustomTagHandler implements Html.TagHandler {
             return; // XML解析器为空时不处理
         }
 
+        // 方案 1：xmlReader 自身就是 SAX AttributesImpl 时直接读取（高版本兼容）
         try {
-            // 使用反射访问XML解析器内部字段获取标签属性
+            if (xmlReader instanceof org.xml.sax.helpers.AttributesImpl) {
+                org.xml.sax.helpers.AttributesImpl atts =
+                        (org.xml.sax.helpers.AttributesImpl) xmlReader;
+                for (int i = 0; i < atts.getLength(); i++) {
+                    String key = atts.getLocalName(i);
+                    if (!TextUtils.isEmpty(key)) {
+                        attributes.put(key, atts.getValue(i));
+                    }
+                }
+                return;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        // 方案 2：旧反射兜底（Android 13 及以下）
+        try {
             Field elementField = xmlReader.getClass().getDeclaredField("theNewElement");
             elementField.setAccessible(true);
             Object element = elementField.get(xmlReader);
-            if (element != null) {
-
-                Field attsField = element.getClass().getDeclaredField("theAtts");
-                attsField.setAccessible(true);
-                Object atts = attsField.get(element);
-                if (atts != null) {
-                    Field dataField = atts.getClass().getDeclaredField("data");
-                    dataField.setAccessible(true);
-                    String[] data = (String[]) dataField.get(atts);
-
-                    Field lengthField = atts.getClass().getDeclaredField("length");
-                    lengthField.setAccessible(true);
-                    int len = (Integer) lengthField.get(atts);
-
-                    if (data != null) {
-                        // 遍历属性数组，提取键值对
-                        for (int i = 0; i < len; i++) {
-                            String key = data[i * 5 + 1];    // 属性名
-                            String value = data[i * 5 + 4];  // 属性值
-                            attributes.put(key, value);
-                        }
-                    }
+            if (element == null) {
+                return;
+            }
+            Field attsField = element.getClass().getDeclaredField("theAtts");
+            attsField.setAccessible(true);
+            Object atts = attsField.get(element);
+            if (atts == null) {
+                return;
+            }
+            Field dataField = atts.getClass().getDeclaredField("data");
+            dataField.setAccessible(true);
+            String[] data = (String[]) dataField.get(atts);
+            Field lengthField = atts.getClass().getDeclaredField("length");
+            lengthField.setAccessible(true);
+            int len = (Integer) lengthField.get(atts);
+            if (data == null) {
+                return;
+            }
+            for (int i = 0; i < len; i++) {
+                String key = data[i * 5 + 1];    // 属性名
+                String value = data[i * 5 + 4];  // 属性值
+                if (key != null) {
+                    attributes.put(key, value);
                 }
             }
-        } catch (Exception e) {
-            // 异常处理，不抛出避免影响主要流程
+        } catch (Throwable e) {
+            // Android 14+ 反射可能抛 NoSuchFieldError 等 Error，需 catch Throwable
+            LogUtils.e("SobotCustomTagHandler reflection failed", e);
         }
     }
 

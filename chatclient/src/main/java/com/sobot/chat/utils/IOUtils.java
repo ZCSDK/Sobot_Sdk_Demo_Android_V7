@@ -21,7 +21,6 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -126,22 +125,9 @@ public class IOUtils {
         return null;
     }
 
-    public static Object toObject(byte[] input) {
-        if (input == null) return null;
-        ByteArrayInputStream bais = null;
-        ObjectInputStream ois = null;
-        try {
-            bais = new ByteArrayInputStream(input);
-            ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch (Exception e) {
-//            OkLogger.printStackTrace(e);
-        } finally {
-            IOUtils.closeQuietly(ois);
-            IOUtils.closeQuietly(bais);
-        }
-        return null;
-    }
+    // CWE-502: 已删除 toObject(byte[])。该方法对任意 byte[] 直接 readObject，
+    // 一旦调用方传入不受信源（缓存/网络/Intent）即触发 Java 反序列化 gadget。
+    // 业务对象统一走 JSON（项目已依赖 com.sobot.library:gson）。
 
     public static byte[] toByteArray(CharSequence input) {
         if (input == null) return new byte[0];
@@ -638,7 +624,7 @@ public class IOUtils {
             }
             return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
             return false;
         } finally {
             try {
@@ -649,7 +635,7 @@ public class IOUtils {
                     os.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
     }
@@ -668,14 +654,14 @@ public class IOUtils {
                 }
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
                 return false;
             } finally {
                 try {
                     os.close();
                     is.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
         }

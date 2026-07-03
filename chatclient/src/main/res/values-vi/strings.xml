@@ -135,7 +135,7 @@
     <string name="sobot_delete">Xóa</string>
     <string name="sobot_data_wrong_hint">Dữ liệu lỗi</string>
     <string name="sobot_cus_service">Chăm sóc khách hàng</string>
-    <string name="sobot_ctrl_v_success">Sao chép thành công!</string>
+    <string name="sobot_ctrl_v_success">Đã sao chép vào clipboard</string>
     <string name="sobot_ctrl_copy">Sao chép</string>
     <string name="sobot_created_1">Đã tạo</string>
     <string name="sobot_count_down">Đếm ngược</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">Tìm kiếm tất cả các quận (quận)</string>
     <string name="sobot_region_level4">Tìm tất cả đường phố</string>
     <string name="sobot_permission_use_info">Hướng dẫn sử dụng quyền</string>
-    <string name="sobot_album_permission_yongtu">Yêu cầu quyền truy cập và sử dụng ảnh và video của bạn. Sau khi cho phép, bạn có thể gửi ảnh và video khi tư vấn dịch vụ khách hàng và để lại tin nhắn.</string>
     <string name="sobot_please_open_album">Yêu cầu quyền sử dụng tập ảnh</string>
     <string name="sobot_use_album">Để truy cập và sử dụng ảnh và video trên thiết bị này</string>
-    <string name="sobot_camera_permission_yongtu">Yêu cầu quyền sử dụng máy ảnh của bạn. Sau khi cho phép, bạn có thể chụp ảnh và quay video khi tư vấn dịch vụ khách hàng và để lại lời nhắn.</string>
     <string name="sobot_please_open_camera">Yêu cầu bật camera</string>
     <string name="sobot_use_camera">Được sử dụng để lấy quyền sử dụng máy ảnh</string>
-    <string name="sobot_microphone_permission_yongtu">Yêu cầu quyền sử dụng micrô của bạn. Khi được phép, bạn có thể gửi tin nhắn thoại khi tư vấn dịch vụ khách hàng.</string>
     <string name="sobot_please_open_microphone">Yêu cầu quyền bật micro</string>
     <string name="sobot_use_microphone">Được sử dụng để lấy quyền sử dụng micrô</string>
     <string name="sobot_storage_permission_yongtu">Yêu cầu quyền truy cập và sử dụng tài liệu của bạn. Sau khi cho phép, có thể gửi tài liệu khi tư vấn dịch vụ khách hàng và để lại tin nhắn</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">Không trả lời</string>
     <string name="sobot_please_input">Vui lòng nhập...</string>
     <string name="sobot_ticket_update_file_hite">Tải lên tối đa %s, kích thước không vượt quá %s</string>
-    <string name="sobot_ticket_update_file_max_hite">Đã đạt giới hạn 15</string>
+    <string name="sobot_ticket_update_file_max_hite">Đã đạt giới hạn %1$d</string>
     <string name="sobot_cus_level_all">Tất cả</string>
     <string name="sobot_please_choice">Vui lòng chọn...</string>
     <string name="sobot_skill_no_service">Không có đại lý trực tuyến. Nhấp để gửi</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">Để ghi âm, hãy cho phép quyền micro trong \“Cài đặt\” > \“Ứng dụng\” > \“%s\” > \“Quyền\”.</string>
     <string name="sobot_continue_shooting">Tiếp tục ghi âm</string>
     <string name="sobot_audio_go_setting">Micro chưa được bật. Không thể ghi âm.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Đang yêu cầu quyền sử dụng microphone. Sau khi được phép, bạn có thể gửi/tải lên video đã ghi khi liên hệ với bộ phận hỗ trợ khách hàng và để lại tin nhắn.</string>
     <string name="sobot_agree_agreement">Tôi đã đọc và đồng ý với %s.</string>
     <string name="sobot_agree">Đồng ý</string>
     <string name="sobot_keep_queuing">hãy nhấp vào Tiếp tục xếp hàng</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">Tham khảo %d tài liệu</string>
     <string name="sobot_start_chat">Bắt đầu tư vấn</string>
     <string name="sobot_variable_title">Điền thông tin</string>
+    <string name="sobot_ctrl_ticket_success">Đã sao chép số phiếu hỗ trợ</string>
+    <string name="sobot_album_permission_yongtu">Cần quyền truy cập ảnh để gửi tin nhắn hình ảnh. Ứng dụng vẫn hoạt động bình thường nếu từ chối.</string>
+    <string name="sobot_microphone_permission_yongtu">Cần quyền truy cập mic để gửi tin nhắn thoại/video. Ứng dụng vẫn hoạt động bình thường nếu từ chối.</string>
+    <string name="sobot_camera_permission_yongtu">Cần quyền truy cập camera để gửi hình ảnh/video. Ứng dụng vẫn hoạt động bình thường nếu từ chối.</string>
 </resources>

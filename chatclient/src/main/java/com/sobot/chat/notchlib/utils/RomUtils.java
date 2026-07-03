@@ -21,7 +21,7 @@ public final class RomUtils {
     private static final String XIAOMI = "xiaomi";
     private static final String OPPO = "oppo";
     private static final String OnePlus = "oneplus";
-    private static final String ROM_SAMSUNG   = "samsung";
+    private static final String ROM_SAMSUNG = "samsung";
     private static final String VERSION_PROPERTY_HUAWEI = "ro.build.version.emui";
     private static final String VERSION_PROPERTY_VIVO = "ro.vivo.os.build.display.id";
     private static final String VERSION_PROPERTY_XIAOMI = "ro.build.version.incremental";
@@ -70,9 +70,11 @@ public final class RomUtils {
     public static boolean isOppo() {
         return OPPO.equals(getRomInfo().name);
     }
+
     public static boolean isSamsung() {
         return ROM_SAMSUNG.equals(getRomInfo().name);
     }
+
     public static boolean isOnePlus() {
         return OnePlus.equals(getRomInfo().name);
     }
@@ -189,7 +191,9 @@ public final class RomUtils {
         String line;
         BufferedReader input = null;
         try {
-            Process p = Runtime.getRuntime().exec("getprop " + propName);
+            // CWE-78: 使用数组形式参数，绕过 shell 解析，杜绝拼接型注入
+            String[] cmd = new String[]{"getprop", propName};
+            Process p = Runtime.getRuntime().exec(cmd);
             input = new BufferedReader(new InputStreamReader(p.getInputStream()), 1024);
             String ret = input.readLine();
             if (ret != null) {

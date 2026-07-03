@@ -25,6 +25,7 @@ import com.sobot.chat.camera.util.FileUtil;
 import com.sobot.chat.core.channel.SobotMsgManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.MD5Util;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SobotOption;
@@ -118,7 +119,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                 imageView.setMaxWidth(msgMaxWidth);
                 imageView.setAdjustViewBounds(true);
                 imageView.setLayoutParams(mlayoutParams);
-                SobotBitmapUtil.display(this, url, imageView);
+                SobotBitmapUtil.display(this, url, imageView, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -193,7 +194,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             } else if (msgType == 3) {
                 //视频
@@ -229,7 +230,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                         });
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             } else if (msgType == 5) {
                 //对象，// 当msgType=5 时，根据content里边的 type 判断具体的时哪种消息0-富文本 1-多伦会话 2-位置 3-小卡片 4-订单卡片 6-小程序 17-文章 21-自定义卡片
@@ -294,12 +295,8 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                         textView.setOnClickListener(new View.OnClickListener() {
                                                             @Override
                                                             public void onClick(View v) {
-                                                                if (SobotOption.newHyperlinkListener != null) {
-                                                                    //如果返回true,拦截;false 不拦截
-                                                                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(SobotQuoteDetailActivity.this, richListModel.getMsg());
-                                                                    if (isIntercept) {
-                                                                        return;
-                                                                    }
+                                                                if (SobotOption.dispatchUrlClick(SobotQuoteDetailActivity.this, richListModel.getMsg())) {
+                                                                    return;
                                                                 }
                                                                 Intent intent = new Intent(SobotQuoteDetailActivity.this, WebViewActivity.class);
                                                                 intent.putExtra("url", richListModel.getMsg());
@@ -334,7 +331,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                                 SobotMsgManager.getInstance(this).getZhiChiApi().getHtmlAnalysis(this, richListModel.getMsg(), new StringResultCallBack<SobotLink>() {
                                                                     @Override
                                                                     public void onSuccess(SobotLink link) {
-                                                                        if (link != null) {
+                                                                        if (link != null && view != null && !isFinishing() && !isDestroyed()) {
                                                                             richListModel.setSobotLink(link);
                                                                             TextView tv_title = view.findViewById(R.id.tv_title);
                                                                             TextView tv_des = view.findViewById(R.id.tv_des);
@@ -355,7 +352,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
 
                                                                     @Override
                                                                     public void onFailure(Exception e, String s) {
-                                                                        if (view != null) {
+                                                                        if (view != null && view.isAttachedToWindow() && !isFinishing() && !isDestroyed()) {
                                                                             TextView tv_title = view.findViewById(R.id.tv_title);
                                                                             tv_title.setText(richListModel.getMsg());
                                                                             ImageView image_link = view.findViewById(R.id.image_link);
@@ -368,12 +365,8 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                             view.setOnClickListener(new View.OnClickListener() {
                                                                 @Override
                                                                 public void onClick(View v) {
-                                                                    if (SobotOption.newHyperlinkListener != null) {
-                                                                        //如果返回true,拦截;false 不拦截
-                                                                        boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(SobotQuoteDetailActivity.this, richListModel.getMsg());
-                                                                        if (isIntercept) {
-                                                                            return;
-                                                                        }
+                                                                    if (SobotOption.dispatchUrlClick(SobotQuoteDetailActivity.this, richListModel.getMsg())) {
+                                                                        return;
                                                                     }
                                                                     Intent intent = new Intent(SobotQuoteDetailActivity.this, WebViewActivity.class);
                                                                     intent.putExtra("url", richListModel.getMsg());
@@ -418,7 +411,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                         }
                                                         mlayoutParams = new LinearLayout.LayoutParams(pictureWidth, pictureHeight);
                                                     } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                        LogUtils.e("uncaught", e);
                                                         mlayoutParams = new LinearLayout.LayoutParams(msgMaxWidth,
                                                                 ScreenUtils.dip2px(this, 200));
                                                     }
@@ -428,7 +421,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                                     ImageView imageView = new ImageView(this);
                                                     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                                     imageView.setLayoutParams(mlayoutParams);
-                                                    SobotBitmapUtil.display(this, richListModel.getMsg(), imageView);
+                                                    SobotBitmapUtil.display(this, richListModel.getMsg(), imageView, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                                                     imageView.setOnClickListener(new MsgHolderBase.ImageClickLisenter(this, richListModel.getMsg(), false));
                                                     sobot_rich_ll.addView(imageView);
                                                 } else if (richListModel.getType() == 3 && HtmlTools.isHasPatterns(richListModel.getMsg())) {
@@ -571,12 +564,8 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                         @Override
                                         public void onClick(View v) {
                                             if (model != null && !TextUtils.isEmpty(model.getRichMoreUrl())) {
-                                                if (SobotOption.newHyperlinkListener != null) {
-                                                    //如果返回true,拦截;false 不拦截
-                                                    boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(getSobotBaseContext(), model.getRichMoreUrl());
-                                                    if (isIntercept) {
-                                                        return;
-                                                    }
+                                                if (SobotOption.dispatchUrlClick(getSobotBaseContext(), model.getRichMoreUrl())) {
+                                                    return;
                                                 }
                                                 Intent intent = new Intent(getSobotBaseContext(), WebViewActivity.class);
                                                 intent.putExtra("url", model.getRichMoreUrl());
@@ -585,7 +574,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                                         }
                                     });
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    LogUtils.e("uncaught", e);
                                 }
                             }
 
@@ -595,7 +584,7 @@ public class SobotQuoteDetailActivity extends SobotChatBaseActivity {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.sobot.chat.viewHolder;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -7,6 +8,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,7 +51,8 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private SobotRCImageView sobot_hot_pic;
     private HorizontalScrollView tab_hot_title;//问题分类
     private View v_tab_hot_title_split;//分割线
-    private LinearLayout horizontalScrollView_ll, lin_question_list;//分体分类
+    private LinearLayout horizontalScrollView_ll, lin_question_list, sobot_ll_content;//分体分类
+    private View sobot_tab_line;
     private LinearLayout sobot_ll_switch_list;
     private int blockIndex = 0, groupIndex = 0;
     private int PAGE_NUM = 5;
@@ -57,6 +60,12 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private int imagW = 72;
     private int imagMaxH = 284;
     private int imagMinH = 242;
+    private ZhiChiMessageBase mData;
+
+    // Indicator animation state
+    private int indicatorLeft = 0;
+    private int indicatorWidth = 0;
+    private ValueAnimator indicatorAnimator;
 
     private List<FaqDocRespVo> faqDocRespVoList = new ArrayList<>();
 
@@ -64,10 +73,12 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     public HotIssueMessageHolder(Context context, View convertView) {
         super(context, convertView);
         mContext = context;
+        sobot_ll_content = convertView.findViewById(R.id.sobot_ll_content);
         fastMenu = convertView.findViewById(R.id.sobot_fast_menu);
         tab_hot_title = convertView.findViewById(R.id.tab_hot_title);
         v_tab_hot_title_split = convertView.findViewById(R.id.v_tab_hot_title_split);
         horizontalScrollView_ll = convertView.findViewById(R.id.horizontalScrollView_ll);
+        sobot_tab_line = convertView.findViewById(R.id.sobot_tab_line);
         sobot_hot_pic = convertView.findViewById(R.id.sobot_hot_pic);
         lin_question_list = convertView.findViewById(R.id.lin_question_list);
         sobot_ll_switch_list = convertView.findViewById(R.id.sobot_ll_switch_list);
@@ -100,6 +111,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
 
     @Override
     public void bindData(Context context, final ZhiChiMessageBase message) {
+        mData = message;
         SobotFaqDetailModel bean = message.getFaqDetailModel();
         PAGE_NUM = bean.getGuidePageCount();
         //图片
@@ -145,7 +157,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
                 sobot_hot_pic.setLayoutParams(params);
                 sobot_hot_pic.setVisibility(View.VISIBLE);
-                SobotBitmapUtil.display(mContext, CommonUtils.encode(bean.getImgUrl()), sobot_hot_pic);
+                SobotBitmapUtil.display(mContext, CommonUtils.encode(bean.getImgUrl()), sobot_hot_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
             } else {
                 sobot_hot_pic.setVisibility(View.GONE);
             }
@@ -275,16 +287,23 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     }
 
     private void showTab(final List<GroupRespVo> groupRespVoList) {
-        if (groupRespVoList != null && groupRespVoList.size() > 0) {
+        if (groupRespVoList != null && !groupRespVoList.isEmpty()) {
             groupIndex = 0;
             tab_hot_title.setVisibility(View.VISIBLE);
             v_tab_hot_title_split.setVisibility(View.VISIBLE);
             horizontalScrollView_ll.removeAllViews();
-            for (int i = 0; i < groupRespVoList.size(); i++) {
+            int totalCount = groupRespVoList.size();
+            for (int i = 0; i < totalCount; i++) {
                 View view = LayoutInflater.from(mContext).inflate(R.layout.sobot_chat_msg_item_hot_tab, null);
                 if (view != null) {
                     TextView titleTv = view.findViewById(R.id.sobot_tab_item_name);
                     titleTv.setText(groupRespVoList.get(i).getGroupName());
+                    if (i == totalCount - 1) {
+                        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) titleTv.getLayoutParams();
+                        params.setMarginEnd(0);
+                        titleTv.setLayoutParams(params);
+                    }
+
                     horizontalScrollView_ll.addView(view);
                     final int position = i;
                     view.setOnClickListener(new View.OnClickListener() {
@@ -304,34 +323,172 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             List<FaqDocRespVo> datas = groupRespVoList.get(groupIndex).getFaqDocRespVos();
             if (datas != null) {
                 setList(datas);
-                updateIndicator(groupIndex);
+                if (horizontalScrollView_ll.getChildCount() > 0) {
+                    View firstView = horizontalScrollView_ll.getChildAt(0);
+                    if (firstView != null) {
+                        final TextView firstTitleTv = firstView.findViewById(R.id.sobot_tab_item_name);
+                        firstView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int titleWidth = firstTitleTv.getWidth();
+                                int titleLeft = firstTitleTv.getLeft();
+
+                                indicatorLeft = firstView.getLeft() + titleLeft;
+                                indicatorWidth = titleWidth;
+
+                                LinearLayout.LayoutParams lineParams = (LinearLayout.LayoutParams) sobot_tab_line.getLayoutParams();
+                                lineParams.width = indicatorWidth;
+                                lineParams.leftMargin = indicatorLeft;
+                                sobot_tab_line.setLayoutParams(lineParams);
+                                try {
+                                    sobot_tab_line.setBackgroundColor(ThemeUtils.getThemeColor(mContext));
+                                } catch (Exception ignored) {
+                                }
+                                sobot_tab_line.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                }
             }
+
+            // 添加滚动监听器，以便在滚动时跟随指示器
+            tab_hot_title.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged() {
+                    if (groupIndex >= 0 && groupIndex < horizontalScrollView_ll.getChildCount()) {
+                        View selectedView = horizontalScrollView_ll.getChildAt(groupIndex);
+                        if (selectedView != null) {
+                            TextView titleTv = selectedView.findViewById(R.id.sobot_tab_item_name);
+                            int baseLeft = selectedView.getLeft() + titleTv.getLeft();
+                            int currentScrollX = tab_hot_title.getScrollX();
+                            int adjustedLeft = baseLeft - currentScrollX;
+
+                            indicatorLeft = adjustedLeft;
+                            indicatorWidth = titleTv.getWidth();
+
+                            LinearLayout.LayoutParams lineParams = (LinearLayout.LayoutParams) sobot_tab_line.getLayoutParams();
+                            lineParams.width = indicatorWidth;
+                            lineParams.leftMargin = indicatorLeft;
+                            sobot_tab_line.setLayoutParams(lineParams);
+                        }
+                    }
+                }
+            });
 
         } else {
             tab_hot_title.setVisibility(View.GONE);
+            sobot_tab_line.setVisibility(View.GONE);
             v_tab_hot_title_split.setVisibility(View.GONE);
         }
     }
 
     private void updateIndicator(int index) {
         if (horizontalScrollView_ll.getChildCount() > 0) {
-            for (int i = 0; i < horizontalScrollView_ll.getChildCount(); i++) {
-                View view = horizontalScrollView_ll.getChildAt(i);
-                TextView titleTv = view.findViewById(R.id.sobot_tab_item_name);
-                View line = view.findViewById(R.id.sobot_tab_line);
-                if (index == i) {
-                    titleTv.setTypeface(null, Typeface.BOLD);
-                    titleTv.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_text_first));
-                    line.setBackgroundColor(ThemeUtils.getThemeColor(mContext));
-                    line.setVisibility(View.VISIBLE);
-                } else {
-                    titleTv.setTypeface(null, Typeface.NORMAL);
-                    titleTv.setTextColor(mContext.getResources().getColor(R.color.sobot_color_issue_text));
-                    line.setVisibility(View.INVISIBLE);
+            View selectedView = horizontalScrollView_ll.getChildAt(index);
+            final TextView titleTv = selectedView.findViewById(R.id.sobot_tab_item_name);
+
+            selectedView.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Update selected/unselected tab text styles
+                    for (int i = 0; i < horizontalScrollView_ll.getChildCount(); i++) {
+                        View view = horizontalScrollView_ll.getChildAt(i);
+                        TextView itemTitleTv = view.findViewById(R.id.sobot_tab_item_name);
+                        if (index == i) {
+                            itemTitleTv.setTypeface(null, Typeface.BOLD);
+                            itemTitleTv.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_text_first));
+                        } else {
+                            itemTitleTv.setTypeface(null, Typeface.NORMAL);
+                            itemTitleTv.setTextColor(mContext.getResources().getColor(R.color.sobot_color_issue_text));
+                        }
+                    }
+
+                    // Compute target indicator position using target scroll offset
+                    int targetScrollX = computeTargetScrollX(selectedView.getLeft(), titleTv.getWidth());
+                    int finalLeft = selectedView.getLeft() + titleTv.getLeft() - targetScrollX;
+                    int finalWidth = titleTv.getWidth();
+
+                    if (targetScrollX != tab_hot_title.getScrollX()) {
+                        // Need to scroll: cancel any running animation, jump indicator to final
+                        // position immediately, then let the scroll listener keep it in sync
+                        if (indicatorAnimator != null && indicatorAnimator.isRunning()) {
+                            indicatorAnimator.cancel();
+                        }
+                        indicatorLeft = finalLeft;
+                        indicatorWidth = finalWidth;
+                        setIndicatorPosition(finalLeft, finalWidth);
+                        tab_hot_title.smoothScrollTo(targetScrollX, 0);
+                    } else {
+                        animateIndicatorTo(finalLeft, finalWidth);
+                    }
                 }
-            }
+            });
+        }
+    }
+
+    /**
+     * Set indicator position directly without animation
+     */
+    private void setIndicatorPosition(int left, int width) {
+        indicatorLeft = left;
+        indicatorWidth = width;
+        LinearLayout.LayoutParams lineParams = (LinearLayout.LayoutParams) sobot_tab_line.getLayoutParams();
+        lineParams.width = width;
+        lineParams.leftMargin = left;
+        sobot_tab_line.setLayoutParams(lineParams);
+    }
+
+    /**
+     * 计算tab的目标滚动偏移量
+     */
+    private int computeTargetScrollX(int selectedItemLeft, int selectedItemWidth) {
+        int scrollViewWidth = tab_hot_title.getWidth();
+        int scrollX = tab_hot_title.getScrollX();
+        int rightEdge = scrollX + scrollViewWidth;
+
+        if (selectedItemLeft < scrollX) {
+            return selectedItemLeft;
+        } else if (selectedItemLeft + selectedItemWidth > rightEdge) {
+            return selectedItemLeft + selectedItemWidth - scrollViewWidth;
+        }
+        return scrollX;
+    }
+
+    /**
+     * 将指示器动画化至目标位置
+     */
+    private void animateIndicatorTo(int targetLeft, int targetWidth) {
+        final int startLeft = indicatorLeft;
+        final int startWidth = indicatorWidth;
+
+        if (startLeft == targetLeft && startWidth == targetWidth) {
+            return;
         }
 
+        // Cancel previous animation
+        if (indicatorAnimator != null && indicatorAnimator.isRunning()) {
+            indicatorAnimator.cancel();
+        }
+
+        indicatorAnimator = ValueAnimator.ofFloat(0f, 1f);
+        indicatorAnimator.setDuration(200);
+        indicatorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float fraction = animation.getAnimatedFraction();
+                int currentLeft = (int) (startLeft + (targetLeft - startLeft) * fraction);
+                int currentWidth = (int) (startWidth + (targetWidth - startWidth) * fraction);
+
+                indicatorLeft = currentLeft;
+                indicatorWidth = currentWidth;
+
+                LinearLayout.LayoutParams lineParams = (LinearLayout.LayoutParams) sobot_tab_line.getLayoutParams();
+                lineParams.width = currentWidth;
+                lineParams.leftMargin = currentLeft;
+                sobot_tab_line.setLayoutParams(lineParams);
+            }
+        });
+        indicatorAnimator.start();
     }
 
     /**
@@ -349,9 +506,10 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                 public void onClick(View view, int pos) {
                     PAGE_NUM = businessLineRespVoList.get(blockIndex).getGuidePageCount();
                     blockIndex = pos;
-                    fastMenuAdapter.setSelectIndex(blockIndex);
-                    fastMenu.initDatas(fastMenuAdapter);
                     if (businessLineRespVoList.get(blockIndex).getHasGroup() != 2) {
+                        sobot_tab_line.setVisibility(View.GONE);
+                        fastMenuAdapter.setSelectIndex(blockIndex);
+                        fastMenu.initDatas(fastMenuAdapter);
                         //图片
                         if (!TextUtils.isEmpty(businessLineRespVoList.get(blockIndex).getImgUrl())) {
                             ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
@@ -370,7 +528,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                             sobot_hot_pic.setLayoutParams(params);
                             sobot_hot_pic.setVisibility(View.VISIBLE);
 
-                            SobotBitmapUtil.display(mContext, CommonUtils.encode(businessLineRespVoList.get(blockIndex).getImgUrl()), sobot_hot_pic);
+                            SobotBitmapUtil.display(mContext, CommonUtils.encode(businessLineRespVoList.get(blockIndex).getImgUrl()), sobot_hot_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                         } else {
                             sobot_hot_pic.setVisibility(View.GONE);
                         }
@@ -395,27 +553,39 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                         intent.putExtra("url", businessLineRespVoList.get(blockIndex).getBusinessLineUrl());
                         mContext.startActivity(intent);
                     }
+                    if (businessLineRespVoList.get(blockIndex).getHasGroup() != 2 && sobot_ll_content.getVisibility() == View.GONE) {
+                        sobot_ll_content.setVisibility(View.VISIBLE);
+                        if (msgCallBack != null && mData != null) {
+                            msgCallBack.goToCheckIndexItem(mData.getMsgId());
+                        }
+                    }
                 }
             });
             fastMenu.initDatas(fastMenuAdapter);
             PAGE_NUM = businessLineRespVoList.get(blockIndex).getGuidePageCount();
             if (blockIndex == 0) {
-                //图片
-                if (!TextUtils.isEmpty(businessLineRespVoList.get(blockIndex).getImgUrl())) {
-                    ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
-                    params.width = (int) ScreenUtils.dpToPixel(mContext, imagW);
-                    if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
-                        //有tab，设置高度，为(44+10)+(150+10)+28=242
-                        params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
-                    } else {
-                        //无tab,设置高度为(150+10)+28=188
-                        params.height = (int) ScreenUtils.dpToPixel(mContext, imagMinH);
-                    }
-                    sobot_hot_pic.setLayoutParams(params);
-                    sobot_hot_pic.setVisibility(View.VISIBLE);
-                    SobotBitmapUtil.display(mContext, CommonUtils.encode(businessLineRespVoList.get(blockIndex).getImgUrl()), sobot_hot_pic);
+                if (businessLineRespVoList.get(blockIndex).getHasGroup() == 2) {
+                    //隐藏列表
+                    sobot_ll_content.setVisibility(View.GONE);
                 } else {
-                    sobot_hot_pic.setVisibility(View.GONE);
+                    sobot_ll_content.setVisibility(View.VISIBLE);
+                    //图片
+                    if (!TextUtils.isEmpty(businessLineRespVoList.get(blockIndex).getImgUrl())) {
+                        ViewGroup.LayoutParams params = sobot_hot_pic.getLayoutParams();
+                        params.width = (int) ScreenUtils.dpToPixel(mContext, imagW);
+                        if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {
+                            //有tab，设置高度，为(44+10)+(150+10)+28=242
+                            params.height = (int) ScreenUtils.dpToPixel(mContext, imagMaxH);
+                        } else {
+                            //无tab,设置高度为(150+10)+28=188
+                            params.height = (int) ScreenUtils.dpToPixel(mContext, imagMinH);
+                        }
+                        sobot_hot_pic.setLayoutParams(params);
+                        sobot_hot_pic.setVisibility(View.VISIBLE);
+                        SobotBitmapUtil.display(mContext, CommonUtils.encode(businessLineRespVoList.get(blockIndex).getImgUrl()), sobot_hot_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
+                    } else {
+                        sobot_hot_pic.setVisibility(View.GONE);
+                    }
                 }
             }
             if (businessLineRespVoList.get(blockIndex).getHasGroup() == 0) {

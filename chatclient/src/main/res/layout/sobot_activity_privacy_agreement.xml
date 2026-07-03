@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <include layout="@layout/sobot_layout_common_titlebar" />
+
     <com.sobot.chat.widget.SobotWebview
         android:id="@+id/sobot_mWebView"
         android:layout_width="match_parent"

@@ -72,12 +72,8 @@ public class SobotRobotTemplate3PageAdater extends SobotBaseTemplateAdapter {
 
                         SobotMultiDiaRespInfo mMultiDiaRespInfo = messageBase.getAnswer().getMultiDiaRespInfo();
                         if (mMultiDiaRespInfo.getEndFlag() && !TextUtils.isEmpty(interfaceRet.get("anchor"))) {
-                            if (SobotOption.newHyperlinkListener != null) {
-                                //如果返回true,拦截;false 不拦截
-                                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, interfaceRet.get("anchor"));
-                                if (isIntercept) {
-                                    return;
-                                }
+                            if (SobotOption.dispatchUrlClick(context, interfaceRet.get("anchor"))) {
+                                return;
                             }
                             Intent intent = new Intent(context, WebViewActivity.class);
                             intent.putExtra("url", interfaceRet.get("anchor"));
@@ -89,8 +85,18 @@ public class SobotRobotTemplate3PageAdater extends SobotBaseTemplateAdapter {
                 });
                 tempArr.add(convertView);
             }
+            int columns = context.getResources().getInteger(R.integer.sobot_robot_template_columns);
+            if (columns <= 0) {
+                columns = 1;
+            }
+            int rows = context.getResources().getInteger(R.integer.sobot_robot_template_rows);
+            if (rows <= 0) {
+                rows = 3;
+            }
+            // 每页总数 = 列数 × 行数：竖屏 1×3、横屏 2×2、Pad 1×3
+            int groupSize = columns * rows;
+
             List<List<View>> groups = new ArrayList<>(); // 存放分好组的结果
-            int groupSize = 3; // 设置每组的大小
             for (int startIndex = 0; startIndex < tempArr.size(); startIndex += groupSize) {
                 int endIndex = Math.min(startIndex + groupSize, tempArr.size()); // 计算当前组的结尾索引
                 List<View> group = tempArr.subList(startIndex, endIndex); // 获取当前组的子列表
@@ -101,8 +107,31 @@ public class SobotRobotTemplate3PageAdater extends SobotBaseTemplateAdapter {
                 pagell.setOrientation(LinearLayout.VERTICAL);
                 pagell.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 List<View> textViewList = groups.get(j);
-                for (int m = 0; m < textViewList.size(); m++) {
-                    pagell.addView(textViewList.get(m));
+                if (columns == 1) {
+                    for (int m = 0; m < textViewList.size(); m++) {
+                        pagell.addView(textViewList.get(m));
+                    }
+                } else {
+                    // 多列模式：每 columns 个 item 包一行；item 用 weight 等分行宽（卡片内文本 maxLines 已限定，高度天然一致）
+                    for (int m = 0; m < textViewList.size(); m += columns) {
+                        LinearLayout row = new LinearLayout(context);
+                        row.setOrientation(LinearLayout.HORIZONTAL);
+                        row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        for (int k = 0; k < columns; k++) {
+                            int idx = m + k;
+                            if (idx < textViewList.size()) {
+                                View item = textViewList.get(idx);
+                                item.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                                row.addView(item);
+                            } else {
+                                // 末尾不足 columns 个用空白占位保持左对齐
+                                View placeholder = new View(context);
+                                placeholder.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                                row.addView(placeholder);
+                            }
+                        }
+                        pagell.addView(row);
+                    }
                 }
                 mViewList.add(pagell);
             }

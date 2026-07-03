@@ -80,7 +80,7 @@ public class SobotFreeAccountTipDialog extends Dialog {
         sobot_tv_tip = (TextView) findViewById(R.id.sobot_tv_tip);
         sobot_tv_tip.setText(R.string.sobot_chat_free_account_tip);
         sobot_btn_ok.setOnClickListener(itemsOnClick);
-        if(ThemeUtils.isChangedThemeColor(mContext)){
+        if (ThemeUtils.isChangedThemeColor(mContext)) {
             int themeColor = ThemeUtils.getThemeColor(mContext);
             sobot_btn_ok.setTextColor(themeColor);
             sobot_btn_ok.setTextColor(themeColor);

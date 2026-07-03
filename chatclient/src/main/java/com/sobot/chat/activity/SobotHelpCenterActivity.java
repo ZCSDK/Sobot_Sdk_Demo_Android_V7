@@ -93,8 +93,8 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
         ll_sobot_layout_online_service_v.setOnClickListener(this);
         ll_sobot_layout_online_tel_v.setOnClickListener(this);
         mGridView.setOnItemClickListener(this);
-        configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
-        if (configModel != null) {
+        configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), ZhiChiConstant.SOBOT_HELP_CONFIG_MODEL);
+        if (configModel != null && mInfo != null) {
             //进线初始化后的语言
             String initLanguageCode = SharedPreferencesUtil.getStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "");
             if (StringUtils.isEmpty(mInfo.getLocale()) && StringUtils.isNoEmpty(initLanguageCode)) {
@@ -112,40 +112,41 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
             setToolBarDefBg();
             setBottomBtnUI();
         }
-        Map<String, Object> param = new HashMap();
-        param.put("appId", mInfo.getApp_key());
-        param.put("partnerId", mInfo.getPartnerid());
-        if (!TextUtils.isEmpty(mInfo.getMulti_params())) {
-            param.put("multiParams", mInfo.getMulti_params());
-        }
-        if (!TextUtils.isEmpty(mInfo.getIsVip())) {
-            param.put("isVip", mInfo.getIsVip());
-        }
-        if (!TextUtils.isEmpty(mInfo.getVip_level())) {
-            param.put("vipLevel", mInfo.getVip_level());
-        }
-        if (!TextUtils.isEmpty(mInfo.getUser_label())) {
-            param.put("userLabel", mInfo.getUser_label());
-        }
-        if (!TextUtils.isEmpty(mInfo.getParams())) {
-            param.put("params", mInfo.getParams());
-        }
-        if (!TextUtils.isEmpty(mInfo.getCustomer_fields())) {
-            param.put("customerFields", mInfo.getCustomer_fields());
-        }
-        if (!TextUtils.isEmpty(mInfo.getSystemLanguage())) {
-            param.put("language", mInfo.getSystemLanguage());
-        }
-        if (!TextUtils.isEmpty(mInfo.getLocale())) {
-            param.put("locale", mInfo.getLocale());
-        }
-        if (ChatUtils.checkConfigChange(getSobotBaseActivity(), mInfo.getApp_key(), mInfo)) {
-            SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
+        if (mInfo != null) {
+            Map<String, Object> param = new HashMap();
+            param.put("appId", mInfo.getApp_key());
+            param.put("partnerId", mInfo.getPartnerid());
+            if (!TextUtils.isEmpty(mInfo.getMulti_params())) {
+                param.put("multiParams", mInfo.getMulti_params());
+            }
+            if (!TextUtils.isEmpty(mInfo.getIsVip())) {
+                param.put("isVip", mInfo.getIsVip());
+            }
+            if (!TextUtils.isEmpty(mInfo.getVip_level())) {
+                param.put("vipLevel", mInfo.getVip_level());
+            }
+            if (!TextUtils.isEmpty(mInfo.getUser_label())) {
+                param.put("userLabel", mInfo.getUser_label());
+            }
+            if (!TextUtils.isEmpty(mInfo.getParams())) {
+                param.put("params", mInfo.getParams());
+            }
+            if (!TextUtils.isEmpty(mInfo.getCustomer_fields())) {
+                param.put("customerFields", mInfo.getCustomer_fields());
+            }
+            if (!TextUtils.isEmpty(mInfo.getSystemLanguage())) {
+                param.put("language", mInfo.getSystemLanguage());
+            }
+            if (!TextUtils.isEmpty(mInfo.getLocale())) {
+                param.put("locale", mInfo.getLocale());
+            }
+            if (ChatUtils.checkConfigChange(getSobotBaseActivity(), mInfo.getApp_key(), mInfo)) {
+                SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi().getVisitorAndHelpConfig(this, param, new SobotResultCallBack<HelpConfigModel>() {
 
                 @Override
                 public void onSuccess(HelpConfigModel o) {
                     configModel = o;
-                    if (configModel != null) {
+                    if (configModel != null && mInfo != null) {
                         try {
                             String initLanguageCode = SharedPreferencesUtil.getStringData(getSobotBaseActivity(), ZhiChiConstant.SOBOT_INIT_LANGUAGE, "zh");
                             if (StringUtils.isEmpty(mInfo.getLocale()) && StringUtils.isNoEmpty(initLanguageCode)) {
@@ -176,7 +177,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                         } catch (Exception e) {
                         }
                     }
-                    SharedPreferencesUtil.saveObject(getSobotBaseActivity(), "SobotHelpConfigModel", o);
+                    SharedPreferencesUtil.saveObject(getSobotBaseActivity(), ZhiChiConstant.SOBOT_HELP_CONFIG_MODEL, o);
                     setToolBarDefBg();
                     setBottomBtnUI();
                 }
@@ -186,6 +187,7 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
                 }
             });
+            }
         }
 
         displayInNotch(mGridView);
@@ -231,6 +233,9 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
     @Override
     protected void initData() {
+        if (mInfo == null) {
+            return;
+        }
         ZhiChiApi api = SobotMsgManager.getInstance(getApplicationContext()).getZhiChiApi();
         api.getCategoryList(SobotHelpCenterActivity.this, mInfo.getApp_key(), new StringResultCallBack<List<StCategoryModel>>() {
             @Override
@@ -263,6 +268,9 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
     @Override
     public void onClick(View v) {
+        if (mInfo == null) {
+            return;
+        }
         if (v == ll_sobot_layout_online_service || v == ll_sobot_layout_online_service_v) {
             if (SobotOption.openChatListener != null) {
                 boolean isIntercept = SobotOption.openChatListener.onOpenChatClick(getSobotBaseActivity(), mInfo);
@@ -277,11 +285,8 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
                 if (SobotOption.functionClickListener != null) {
                     SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_PhoneCustomerService);
                 }
-                if (SobotOption.newHyperlinkListener != null) {
-                    boolean isIntercept = SobotOption.newHyperlinkListener.onPhoneClick(getSobotBaseActivity(), "tel:" + tel);
-                    if (isIntercept) {
-                        return;
-                    }
+                if (SobotOption.dispatchPhoneClick(getSobotBaseActivity(), "tel:" + tel)) {
+                    return;
                 }
                 ChatUtils.callUp(tel, getSobotBaseActivity());
             }
@@ -290,6 +295,9 @@ public class SobotHelpCenterActivity extends SobotBaseHelpCenterActivity impleme
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mInfo == null) {
+            return;
+        }
         List<StCategoryModel> datas = mAdapter.getDatas();
         StCategoryModel data = datas.get(position);
         Intent intent = SobotProblemCategoryActivity.newIntent(getApplicationContext(), mInfo, data, configModel);

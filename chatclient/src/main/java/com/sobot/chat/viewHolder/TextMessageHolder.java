@@ -1,10 +1,12 @@
 package com.sobot.chat.viewHolder;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -95,7 +97,10 @@ public class TextMessageHolder extends MsgHolderBase {
                     SobotMsgManager.getInstance(mContext).getZhiChiApi().getHtmlAnalysis(context, content, new StringResultCallBack<SobotLink>() {
                         @Override
                         public void onSuccess(SobotLink link) {
-                            if (link != null) {
+                            if (link != null && view != null && mContext != null) {
+                                if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                                    return;
+                                }
                                 message.setSobotLink(link);
                                 TextView tv_title = view.findViewById(R.id.tv_title);
                                 TextView tv_des = view.findViewById(R.id.tv_des);
@@ -118,7 +123,10 @@ public class TextMessageHolder extends MsgHolderBase {
 
                         @Override
                         public void onFailure(Exception e, String s) {
-                            if (view != null) {
+                            if (view != null && mContext != null) {
+                                if (mContext instanceof Activity && (((Activity) mContext).isFinishing() || ((Activity) mContext).isDestroyed())) {
+                                    return;
+                                }
                                 TextView tv_title = view.findViewById(R.id.tv_title);
                                 tv_title.setText(content);
                                 ImageView image_link = view.findViewById(R.id.image_link);
@@ -137,12 +145,8 @@ public class TextMessageHolder extends MsgHolderBase {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (SobotOption.newHyperlinkListener != null) {
-                            //如果返回true,拦截;false 不拦截
-                            boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, content);
-                            if (isIntercept) {
-                                return;
-                            }
+                        if (SobotOption.dispatchUrlClick(mContext, content)) {
+                            return;
                         }
                         Intent intent = new Intent(context, WebViewActivity.class);
                         intent.putExtra("url", content);
@@ -246,7 +250,29 @@ public class TextMessageHolder extends MsgHolderBase {
                 @Override
                 public boolean onLongClick(View view) {
                     if (!TextUtils.isEmpty(msg.getText().toString())) {
-                        showCopyAndAppointPopWindows(context, sobot_msg_content_ll, msg.getText().toString().replace("&amp;", "&"), 0, 18);
+                        // 先显示遮罩
+                        showPressMask();
+
+                        // 延迟一点时间再显示弹窗，确保遮罩已经渲染
+                        sobot_msg_content_ll.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showCopyAndAppointPopWindows(context, sobot_msg_content_ll, msg.getText().toString().replace("&amp;", "&"), 0, 18);
+                            }
+                        }, 50);
+
+                        // 监听触摸事件，手指抬起时移除遮罩
+                        view.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v2, MotionEvent event) {
+                                if (event.getAction() == MotionEvent.ACTION_UP ||
+                                        event.getAction() == MotionEvent.ACTION_CANCEL) {
+                                    removePressMask();
+                                    view.setOnTouchListener(null);
+                                }
+                                return false;
+                            }
+                        });
                     }
                     return true;
                 }

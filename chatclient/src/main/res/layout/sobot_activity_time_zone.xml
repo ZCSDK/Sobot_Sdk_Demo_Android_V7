@@ -6,82 +6,85 @@
     android:gravity="bottom"
     android:orientation="vertical">
 
-    <View
-        android:id="@+id/v_top"
-        android:layout_width="1dp"
-        android:layout_height="45dp"
-        android:background="@color/sobot_color_transparent" />
-
-    <LinearLayout
+    <com.sobot.chat.widget.SobotMHLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/sobot_dialog_title_bg"
-        android:paddingBottom="40dp"
-        app:sobot_mhv_HeightRatio="0.9"
-        android:orientation="vertical">
-
-        <include layout="@layout/sobot_dialog_title" />
+        android:orientation="vertical"
+        app:sobot_mhv_HeightRatio="0.9">
 
         <LinearLayout
+            android:id="@+id/ll_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/sobot_dialog_title_bg"
+            app:sobot_mhv_HeightRatio="0.9"
+            android:paddingBottom="24dp"
             android:orientation="vertical">
 
+            <include layout="@layout/sobot_dialog_title" />
+
             <LinearLayout
-                android:id="@+id/timepicker"
+                android:id="@+id/sobot_dialog_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginTop="15dp"
-                android:paddingEnd="@dimen/sobot_dialog_margin"
-                android:paddingStart="@dimen/sobot_dialog_margin"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                    android:id="@+id/year"
+                <LinearLayout
+                    android:id="@+id/timepicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.96" />
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:paddingEnd="@dimen/sobot_dialog_margin"
+                    android:paddingStart="@dimen/sobot_dialog_margin"
+                    android:orientation="horizontal">
 
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                        android:id="@+id/year"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.96" />
 
-                    android:id="@+id/month"
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+
+                        android:id="@+id/month"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                        android:id="@+id/day"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                        android:id="@+id/hour"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                        android:id="@+id/min"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <com.sobot.chat.widget.timePicker.lib.SobotWheelView
+                        android:id="@+id/second"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnSubmit"
+                    style="@style/sobot_dialog_bottom_btn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                    android:id="@+id/day"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                    android:id="@+id/hour"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                    android:id="@+id/min"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <com.sobot.chat.widget.timePicker.lib.SobotWheelView
-                    android:id="@+id/second"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_marginTop="16dp"
+                    android:text="@string/sobot_btn_submit" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/btnSubmit"
-                style="@style/sobot_dialog_bottom_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/sobot_btn_submit" />
         </LinearLayout>
-    </LinearLayout>
+    </com.sobot.chat.widget.SobotMHLinearLayout>
 </LinearLayout>

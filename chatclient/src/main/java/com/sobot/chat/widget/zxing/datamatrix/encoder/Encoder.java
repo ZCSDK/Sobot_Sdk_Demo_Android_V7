@@ -18,8 +18,8 @@ package com.sobot.chat.widget.zxing.datamatrix.encoder;
 
 interface Encoder {
 
-  int getEncodingMode();
+    int getEncodingMode();
 
-  void encode(EncoderContext context);
+    void encode(EncoderContext context);
 
 }

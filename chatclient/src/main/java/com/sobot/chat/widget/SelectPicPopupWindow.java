@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -255,13 +254,13 @@ public class SelectPicPopupWindow extends PopupWindow {
             fos.close();
         } catch (FileNotFoundException e) {
             ToastUtil.showToast(context, context.getResources().getString(R.string.sobot_save_error_file));
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } catch (IOException e) {
             ToastUtil.showToast(context, context.getResources().getString(R.string.sobot_save_err));
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } catch (Exception e) {
             ToastUtil.showToast(context, context.getResources().getString(R.string.sobot_save_err));
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         notifyUpdatePic(file, fileName);
@@ -299,14 +298,54 @@ public class SelectPicPopupWindow extends PopupWindow {
     }
 
     // 最后通知图库更新
+    // CWE-1108: MediaStore.Images.Media.insertImage 在 API 29+ 已废弃，
+    // 改用 ContentValues + ContentResolver.insert + IS_PENDING 流程（Q 上更稳定）。
     public void notifyUpdatePic(File file, String fileName) {
-        try {
-            if (file != null && file.exists() && !TextUtils.isEmpty(fileName)) {
-                MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
-                MediaScannerConnection.scanFile(context, new String[]{file.toString()}, null, null);
+        if (file == null || !file.exists() || TextUtils.isEmpty(fileName)) {
+            showHint(context.getResources().getString(R.string.sobot_already_save_to_picture));
+            return;
+        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            android.content.ContentValues values = new android.content.ContentValues();
+            values.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            values.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+            values.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
+                    android.os.Environment.DIRECTORY_PICTURES + "/Sobot");
+            values.put(android.provider.MediaStore.MediaColumns.IS_PENDING, 1);
+            android.net.Uri uri = context.getContentResolver().insert(
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                java.io.InputStream in = null;
+                java.io.OutputStream out = null;
+                try {
+                    in = new FileInputStream(file);
+                    out = context.getContentResolver().openOutputStream(uri);
+                    if (out != null) {
+                        byte[] buf = new byte[8192];
+                        int n;
+                        while ((n = in.read(buf)) > 0) {
+                            out.write(buf, 0, n);
+                        }
+                    }
+                    values.clear();
+                    values.put(android.provider.MediaStore.MediaColumns.IS_PENDING, 0);
+                    context.getContentResolver().update(uri, values, null, null);
+                } catch (Exception e) {
+                    LogUtils.e("save to gallery failed", e);
+                } finally {
+                    try {
+                        if (in != null) in.close();
+                    } catch (Exception ignore) {
+                    }
+                    try {
+                        if (out != null) out.close();
+                    } catch (Exception ignore) {
+                    }
+                }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } else {
+            // API < Q: 仍使用旧的 MediaScanner 触发；废弃 insertImage 已移除
+            MediaScannerConnection.scanFile(context, new String[]{file.toString()}, null, null);
         }
         showHint(context.getResources().getString(R.string.sobot_already_save_to_picture));
     }
@@ -332,7 +371,7 @@ public class SelectPicPopupWindow extends PopupWindow {
         } catch (IOException e) {
             isSuccess = false;
             ToastUtil.showToast(context, context.getResources().getString(R.string.sobot_save_err));
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         } finally {
             try {
                 if (fi != null) {
@@ -348,7 +387,7 @@ public class SelectPicPopupWindow extends PopupWindow {
                     out.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
                 isSuccess = false;
             }
         }

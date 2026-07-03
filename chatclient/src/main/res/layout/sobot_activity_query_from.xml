@@ -62,14 +62,14 @@
                 android:textColor="@color/sobot_color_text_second"
                 android:textSize="@dimen/sobot_text_font_14"
                 android:visibility="gone" />
+
             <TextView
                 android:id="@+id/sobot_btn_submit"
                 style="@style/sobot_dialog_bottom_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/sobot_btn_submit_text"
-                 />
+                android:text="@string/sobot_btn_submit_text" />
 
         </LinearLayout>
 

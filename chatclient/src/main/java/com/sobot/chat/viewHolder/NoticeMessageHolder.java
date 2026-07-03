@@ -56,7 +56,7 @@ public class NoticeMessageHolder extends MsgHolderBase {
                         }
                     }
                 });
-                iv_expand.setOnClickListener(new View.OnClickListener() {
+                ll_expand.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if (message.getNoticeExceedStatus() == 2) {

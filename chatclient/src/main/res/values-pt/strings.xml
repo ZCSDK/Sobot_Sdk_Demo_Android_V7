@@ -8,7 +8,7 @@
     <string name="sobot_ver_code">Código de verificação</string>
     <string name="sobot_upload_vodie_length">A duração do vídeo carregado não pode exceder 15s</string>
     <string name="sobot_upload_video">Vídeo</string>
-    <string name="sobot_upload">Fotografias</string>
+    <string name="sobot_upload">Imagem</string>
     <string name="sobot_unable_transfer_to_customer_service">Desculpe, os agentes estão ocupados no momento</string>
     <string name="sobot_unable_to_evaluate">Não é possível avaliar o serviço neste momento</string>
     <string name="sobot_try_again">Ocorreu um erro de rede, por favor, verifique a rede e tente novamente</string>
@@ -17,7 +17,7 @@
     <string name="sobot_title_date">Data</string>
     <string name="sobot_title">Título</string>
     <string name="sobot_the_label_is_required">A opção etiquetaéa opção obrigatória</string>
-    <string name="sobot_thank_dialog_hint">Obrigado pelo seu comentário!</string>
+    <string name="sobot_thank_dialog_hint">Obrigado pela sua avaliação!</string>
     <string name="sobot_temporary_leave">Sair temporariamente</string>
     <string name="sobot_temporarily_not_evaluation">Pular</string>
     <string name="sobot_tap_hold_camera">Tirar fotos e filmar</string>
@@ -48,6 +48,7 @@
     <string name="sobot_receive_new_message">Você recebeu uma nova mensagem</string>
     <string name="sobot_rating_score">Pontos de avaliação</string>
     <string name="sobot_rating_dec">Comentários</string>
+    <!--    <string name="sobot_question">Seu problema foi resolvido?</string>-->
     <string name="sobot_question">%s resolveu o seu problema?</string>
     <string name="sobot_processing">Em processamento</string>
     <string name="sobot_problem_types">Classificação do problema</string>
@@ -59,8 +60,8 @@
     <string name="sobot_please_load">Por favor, carregue um anexo</string>
     <string name="sobot_please_leave_a_message">Deixar mensagem</string>
     <string name="sobot_please_input_reply_no_empty">O conteúdo da resposta não pode estar vazio</string>
-    <string name="sobot_please_input_reply_hint">Por favor, introduza a sua resposta</string>
-    <string name="sobot_please_evaluate_this_service">Comentário de serviço</string>
+    <string name="sobot_please_input_reply_hint">Inserir sua resposta</string>
+    <string name="sobot_please_evaluate_this_service">Avaliação do serviço</string>
     <string name="sobot_please_evaluate">convida-o a avaliar este serviço</string>
     <string name="sobot_please_comment">Por favor, avalie este serviço~</string>
     <string name="sobot_pic_type_error">O formato da imagem está errado</string>
@@ -97,7 +98,7 @@
     <string name="sobot_location">Locais</string>
     <string name="sobot_line_transfinite_def_hint">Desculpe, a linha do serviço de atendimento humano está cheia. Por favor, deixe uma mensagem. Temos um pessoal especial para tratar directamente  do problema que submeteu ~</string>
     <string name="sobot_leaveMsg_to_ticket">Ir ao histórico das mensagens</string>
-    <string name="sobot_leavemsg_title">Mensagem offline</string>
+    <string name="sobot_leavemsg_title">Mensagem</string>
     <string name="sobot_leavemsg_success_tip">Submetido com sucesso</string>
     <string name="sobot_leavemsg_error_tip">Falha na submissão</string>
     <string name="sobot_leaveMsg_create_success_des">Informaremos para si sobre o estado do processamento da ordens de trabalho por link na sessão</string>
@@ -125,7 +126,7 @@
     <string name="sobot_email_no_empty">O e-mail não pode estar vazia</string>
     <string name="sobot_email_dialog_hint">O formato do seu e-mail está incorreto</string>
     <string name="sobot_email">E-mail</string>
-    <string name="sobot_edittext_hint">Para as nossas sugestões</string>
+    <string name="sobot_edittext_hint">Fique à vontade para deixar sugestões sobre nosso atendimento~</string>
     <string name="sobot_do_you_delete_video">Você quer apagar este vídeo?</string>
     <string name="sobot_do_you_delete_picture">Quer excluir esta imagem?</string>
     <string name="sobot_ding_cai_sessionoff">Fim da sessão, sem se poder dar feedback</string>
@@ -135,7 +136,7 @@
     <string name="sobot_delete">Excluir</string>
     <string name="sobot_data_wrong_hint">Dados errados</string>
     <string name="sobot_cus_service">Agente</string>
-    <string name="sobot_ctrl_v_success">Copie isso com sucesso!</string>
+    <string name="sobot_ctrl_v_success">Copiado para a área de transferência</string>
     <string name="sobot_ctrl_copy">Copiar</string>
     <string name="sobot_created_1">Criado</string>
     <string name="sobot_count_down">Contagem decrescente</string>
@@ -159,7 +160,7 @@
     <string name="sobot_cancle_conversation">Terminar a sessão</string>
     <string name="sobot_can">Você pode.</string>
     <string name="sobot_button_send">Enviar</string>
-    <string name="sobot_btn_submit_text">Submeter</string>
+    <string name="sobot_btn_submit_text">Enviar</string>
     <string name="sobot_btn_submit">Confirmar</string>
     <string name="sobot_btn_cancle">Cancelar</string>
     <string name="sobot_attach_take_pic">Câmara</string>
@@ -254,13 +255,10 @@
     <string name="sobot_region_level3">Procurar todos os condados (distritos)</string>
     <string name="sobot_region_level4">Procurem em todas as ruas</string>
     <string name="sobot_permission_use_info">Instruções de utilização da permissão</string>
-    <string name="sobot_album_permission_yongtu">Estamos solicitando seus direitos de acesso e uso de fotos e vídeos. Após a permissão, fotos e vídeos podem ser enviados ao consultar o atendimento ao cliente e deixar mensagens</string>
     <string name="sobot_please_open_album">A pedir permissão para usar o álbum</string>
     <string name="sobot_use_album">Usado para acessar e usar fotos e vídeos neste dispositivo</string>
-    <string name="sobot_camera_permission_yongtu">Peço permissão para usar sua câmera. Após permissão, você pode tirar fotos e gravar vídeos para upload ao consultar o atendimento ao cliente e deixar mensagens</string>
     <string name="sobot_please_open_camera">Pedido para activar as permissões da câmara</string>
     <string name="sobot_use_camera">Usado para obter permissões de utilização da câmara</string>
-    <string name="sobot_microphone_permission_yongtu">Pedindo permissão para usar seu microfone. Após a permissão, mensagens de voz podem ser enviadas ao consultar o atendimento ao cliente</string>
     <string name="sobot_please_open_microphone">Pedir permissão para activar o microfone</string>
     <string name="sobot_use_microphone">Usado para obter permissão para usar microfones</string>
     <string name="sobot_storage_permission_yongtu">Estamos solicitando seus direitos de acesso e uso de arquivos. Após a permissão, os arquivos podem ser enviados ao consultar o atendimento ao cliente e deixar mensagens</string>
@@ -278,15 +276,15 @@
     <string name="sobot_phone_code_hint">Selecione o indicativo</string>
     <string name="sobot_satisfied">Satisfeito</string>
     <string name="sobot_dissatisfied">Insatisfeito</string>
+    <string name="sobot_ticket_me_reply">Sua resposta</string>
     <string name="sobot_ticket_service_reply">Respondeu-lhe</string>
-    <string name="sobot_ticket_me_reply">A sua resposta</string>
     <string name="sobot_ticket_update_file">Enviar Anexo</string>
     <string name="sobot_notice_expand_all">Expandir Tudo</string>
     <string name="sobot_notice_collapse">Recolher</string>
     <string name="sobot_ticket_no_reply">Sem resposta</string>
     <string name="sobot_please_input">Por favor inserir...</string>
     <string name="sobot_ticket_update_file_hite">Carregue no máximo %s que não exceda %s</string>
-    <string name="sobot_ticket_update_file_max_hite">Limite de 15 atingido</string>
+    <string name="sobot_ticket_update_file_max_hite">Limite de %1$d atingido</string>
     <string name="sobot_cus_level_all">Tudo</string>
     <string name="sobot_please_choice">Por favor selecione...</string>
     <string name="sobot_skill_no_service">Sem agente online. Clique para sair do envio</string>
@@ -311,14 +309,17 @@
     <string name="sobot_no_microphone_des">Para gravar áudio, autorize as permissões de microfone no seu dispositivo em \"Configurações\" >\"Apps\" > \"%s\" > \"Permissões\".</string>
     <string name="sobot_continue_shooting">Continuar gravando</string>
     <string name="sobot_audio_go_setting">Microfone não ativado. Não é possível gravar áudio.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Solicitando permissão para usar o microfone. Após a aprovação, você poderá enviar/carregar vídeos gravados ao consultar o agente e deixar mensagens.</string>
     <string name="sobot_agree_agreement">Eu li e concordo com os %s.</string>
     <string name="sobot_agree">Concordar</string>
     <string name="sobot_keep_queuing">clique para continuar na fila</string>
     <string name="sobot_keep_queuing_string">Se deseja continuar esperando, clique para continuar na fila.</string>
-    <string name="sobot_i_know">OK</string>
+    <string name="sobot_i_know">Entendido</string>
     <string name="sobot_reference_materials">Referências</string>
     <string name="sobot_reference_materials_quantity">Consulte %d documento(s) de referência.</string>
     <string name="sobot_start_chat">Iniciar consulta</string>
     <string name="sobot_variable_title">Preencher informações</string>
+    <string name="sobot_ctrl_ticket_success">Número do ticket copiado</string>
+    <string name="sobot_album_permission_yongtu">Permissão de fotos necessária para enviar mensagens de imagem. Funciona normalmente se negada.</string>
+    <string name="sobot_microphone_permission_yongtu">Permissão de microfone necessária para enviar mensagens de voz/vídeo. Funciona normalmente se negada.</string>
+    <string name="sobot_camera_permission_yongtu">Permissão de câmera necessária para enviar fotos/vídeos. Funciona normalmente se negada.</string>
 </resources>

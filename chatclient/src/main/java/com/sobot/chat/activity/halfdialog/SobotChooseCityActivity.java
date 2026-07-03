@@ -62,7 +62,7 @@ public class SobotChooseCityActivity extends SobotDialogBaseActivity {
         if (cusFieldConfig != null && !TextUtils.isEmpty(cusFieldConfig.getFieldName())) {
             sobot_tv_title.setText(cusFieldConfig.getFieldName());
         }
-         mFiledId = mIntentBundleData.getString(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_FIELD_ID);
+        mFiledId = mIntentBundleData.getString(ZhiChiConstant.SOBOT_INTENT_BUNDLE_DATA_FIELD_ID);
         if (mProvinInfo != null && mProvinInfo.getProvinces() != null) {
             //存贮一级List
             currentLevel = 1;

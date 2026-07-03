@@ -50,6 +50,7 @@ import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
 
 import com.sobot.chat.R;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.widget.refresh.layout.api.RefreshComponent;
 import com.sobot.chat.widget.refresh.layout.api.RefreshContent;
 import com.sobot.chat.widget.refresh.layout.api.RefreshFooter;
@@ -623,6 +624,15 @@ public class SobotRefreshLayout extends ViewGroup implements RefreshLayout, Nest
      */
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        // 防御：极端布局压缩（如横屏键盘弹起时 layout_above 链 cascade 导致父容器给的高度为负）下，
+        // 把所有子 view 强制 layout 到 (0,0,0,0)。否则 Translate header 之前 layout 的 (top=-mHeaderHeight, bottom=0)
+        // 位置会被 dispatchDraw 沿用，加上 setClipChildren(false) 让 header 内容被父容器异常绘制到屏幕上。
+        if (b - t <= 0) {
+            for (int i = 0, len = super.getChildCount(); i < len; i++) {
+                super.getChildAt(i).layout(0, 0, 0, 0);
+            }
+            return;
+        }
         final View thisView = this;
         final int paddingLeft = thisView.getPaddingLeft();
         final int paddingTop = thisView.getPaddingTop();
@@ -2946,7 +2956,7 @@ public class SobotRefreshLayout extends ViewGroup implements RefreshLayout, Nest
                     mFooterNoMoreDataEffective = false;
                     String msg = "Footer:" + mRefreshFooter + " NoMoreData is not supported.(不支持NoMoreData，请使用[ClassicsFooter]或者[自定义Footer并实现setNoMoreData方法且返回true])";
                     Throwable e = new RuntimeException(msg);
-                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
             }
 

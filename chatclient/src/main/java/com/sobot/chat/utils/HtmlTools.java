@@ -1,6 +1,7 @@
 package com.sobot.chat.utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -9,15 +10,12 @@ import android.text.TextUtils;
 import android.text.style.URLSpan;
 import android.widget.TextView;
 
-import com.sobot.chat.core.HttpUtils;
-import com.sobot.chat.core.HttpUtils.FileCallBack;
 import com.sobot.chat.widget.LinkMovementClickMethod;
 import com.sobot.chat.widget.html.SobotCustomTagHandler;
 import com.sobot.chat.widget.rich.EmailSpan;
 import com.sobot.chat.widget.rich.MyURLSpan;
 import com.sobot.chat.widget.rich.PhoneSpan;
 
-import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,31 +151,6 @@ public class HtmlTools {
         this.context = context.getApplicationContext();
     }
 
-    public void loadPic(final TextView textView, String source, final String htmlContent,
-                        String fileString, final int color) {
-        // 启动新线程下载
-
-        final File file = new File(fileString);
-
-        HttpUtils.getInstance().download(source, file, null, new FileCallBack() {
-
-            @Override
-            public void onResponse(File result) {
-                setRichText(textView, htmlContent, color);
-            }
-
-            @Override
-            public void onError(Exception e, String msg, int responseCode) {
-                LogUtils.i(" 文本图片的下载失败", e);
-            }
-
-            @Override
-            public void inProgress(int progress) {
-                LogUtils.i(" 文本图片的下载进度" + progress);
-            }
-        });
-    }
-
     /**
      * 设置富文本
      *
@@ -293,7 +266,10 @@ public class HtmlTools {
         if (textView == null || TextUtils.isEmpty(htmlContent)) {
             return Html.fromHtml("", null, null);
         }
-        return Html.fromHtml(("<span>" + htmlContent + "</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors(), isHistoryMsg, isCanClickAiButton));
+        String safe = WebViewSecurityUtil.sanitizeHtml(htmlContent);
+        Spanned spanned = Html.fromHtml(("<span>" + safe + "</span>").replace("span", "sobotspan").replaceAll("<img[^>]*>", ""), null, new SobotCustomTagHandler(context, textView.getTextColors(), isHistoryMsg, isCanClickAiButton));
+        // 闭合深度防御链：剥离 fromHtml 解析出的 URLSpan 中残留的危险协议（CWE-79）
+        return WebViewSecurityUtil.sanitizeSpanned(spanned);
     }
 
     /**
@@ -377,19 +353,19 @@ public class HtmlTools {
         }
     }
 
+    // 安全：用于通知文本展示。改用 Android Html 解析器替代纯正则，
+    // 可正确处理 HTML 实体编码、嵌套标签等 XSS 绕过场景 (CWE-79)
     public String getHTMLStr(String htmlStr) {
         if (TextUtils.isEmpty(htmlStr)) {
             return "";
         }
-
-        //先将换行符保留，然后过滤标签
-        Pattern p_enter = Pattern.compile("<br/>", Pattern.CASE_INSENSITIVE);
-        Matcher m_enter = p_enter.matcher(htmlStr);
-        htmlStr = m_enter.replaceAll("\n");
-
-        //过滤html标签
-        Pattern p_html = Pattern.compile("<[^>]+>", Pattern.CASE_INSENSITIVE);
-        Matcher m_html = p_html.matcher(htmlStr);
-        return m_html.replaceAll("");
+        String preserved = htmlStr.replaceAll("(?i)<br\\s*/?>", "\n");
+        Spanned spanned;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            spanned = Html.fromHtml(preserved, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            spanned = Html.fromHtml(preserved);
+        }
+        return spanned.toString().trim();
     }
 }

@@ -80,17 +80,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 LogUtils.i("自定义卡片跳转链接为空，不跳转，不拦截");
                                 return;
                             }
-                            if (SobotOption.hyperlinkListener != null) {
-                                SobotOption.hyperlinkListener.onUrlClick(customGoods.getCustomCardLink());
+                            if (SobotOption.dispatchUrlClick(context, customGoods.getCustomCardLink())) {
                                 return;
-                            }
-
-                            if (SobotOption.newHyperlinkListener != null) {
-                                //如果返回true,拦截;false 不拦截
-                                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, customGoods.getCustomCardLink());
-                                if (isIntercept) {
-                                    return;
-                                }
                             }
                             Intent intent = new Intent(context, WebViewActivity.class);
                             intent.putExtra("url", customGoods.getCustomCardLink());
@@ -124,7 +115,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             if (!TextUtils.isEmpty(customGoods.getCustomCardThumbnail())) {
                 SobotBitmapUtil.display(context, CommonUtils.encode(customGoods.getCustomCardThumbnail())
-                        , holder.sobot_goods_pic);
+                        , holder.sobot_goods_pic, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
                 holder.sobot_goods_pic.setVisibility(View.VISIBLE);
             } else {
                 holder.sobot_goods_pic.setVisibility(View.GONE);
@@ -148,7 +139,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     price += customGoods.getCustomCardAmountSymbol();
                 }
                 if (!StringUtils.isEmpty(customGoods.getCustomCardAmount())) {
-                    price += StringUtils.getMoney(customGoods.getCustomCardAmount());
+                    price += customGoods.getCustomCardAmount();
                 }
                 holder.sobot_price.setVisibility(View.VISIBLE);
                 holder.sobot_price.setText(price);
@@ -170,6 +161,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 holder.sobot_price.setVisibility(View.GONE);
             }
             //自定义
+            // 先清空，避免 ViewHolder 复用时残留旧 child 导致 setRowCount 抛 IllegalArgumentException
+            holder.cusrLayout.removeAllViews();
             if (customGoods.getCustomField() != null && customGoods.getCustomField().size() > 0) {
                 holder.cusrLayout.setColumnCount(2);
                 holder.cusrLayout.setRowCount(customGoods.getCustomField().size());
@@ -202,6 +195,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             if (!isRight && holder.sobot_ll_btns != null) {
                 holder.sobot_ll_btns.setVisibility(View.VISIBLE);
+                // 先清空，避免 ViewHolder 复用时残留旧按钮造成重复堆叠
+                holder.sobot_ll_btns.removeAllViews();
                 if (customGoods.getCustomMenus() != null && customGoods.getCustomMenus().size() > 0) {
                     List<SobotChatCustomMenu> menusList = customGoods.getCustomMenus();
                     for (int i = 0; i < menusList.size(); i++) {

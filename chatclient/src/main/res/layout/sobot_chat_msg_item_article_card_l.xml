@@ -44,7 +44,8 @@
             <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/sobot_msg_content_ll"
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
-                app:sobot_max_width="@dimen/sobot_msg_max_width"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent"
+                android:minWidth="@dimen/sobot_msg_min_width"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingStart="0dp"

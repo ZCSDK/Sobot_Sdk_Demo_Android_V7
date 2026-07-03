@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.sobot.chat.utils.LogUtils;
+
 import java.lang.reflect.Method;
 
 /**
@@ -286,7 +288,7 @@ public class OSUtils {
             Method method = clz.getMethod("get", String.class, String.class);
             return (String) method.invoke(clz, key, "");
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
         return "";
     }

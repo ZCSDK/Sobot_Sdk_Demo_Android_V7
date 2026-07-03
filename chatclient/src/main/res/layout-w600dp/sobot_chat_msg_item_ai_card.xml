@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  手机横屏（w600dp 且 h < 600dp）专用 AiCard 商品 item：
+  当带自定义字段时，商品信息（左半）与自定义字段（右半）左右并排，中间竖线分隔。
+  无自定义字段时，cusrLayout / 竖线 GONE，左半商品独占该 item 宽度。
+  所有 view id 与默认 layout 保持一致，Adapter / Holder 无需改动。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_real_ll_content"
+    style="@style/sobot_msg_content_ll_hollow_bg_ai_style"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!--头部订单号-->
+    <com.sobot.chat.widget.SobotTextView
+        android:id="@+id/tv_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="@color/sobot_color_text_first"
+        android:textSize="@dimen/sobot_text_font_12"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sobot_line_height_dp"
+        android:background="@color/sobot_color_line_divider_3" />
+
+    <!--商品 + 自定义字段 左右并排-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!--左半：商品（图 + 标题 / 描述 / 数量价格）-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <com.sobot.chat.widget.image.SobotRCImageView
+                android:id="@+id/sobot_goods_pic"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/sobot_icon_consulting_default_pic"
+                android:visibility="visible"
+                app:sobot_round_corner="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.sobot.chat.widget.SobotTextView
+                    android:id="@+id/sobot_goods_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="2"
+                    android:textColor="@color/sobot_goods_title_text_color"
+                    android:textSize="@dimen/sobot_text_font_12"
+                    android:textStyle="bold" />
+
+                <com.sobot.chat.widget.SobotTextView
+                    android:id="@+id/sobot_goods_des"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="2"
+                    android:textColor="@color/sobot_card_goods_desc"
+                    android:textSize="@dimen/sobot_text_font_12" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp">
+
+                    <com.sobot.chat.widget.SobotTextView
+                        android:id="@+id/sobot_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        android:lines="1"
+                        android:textColor="@color/sobot_color_text_first"
+                        android:textSize="@dimen/sobot_text_font_12" />
+
+                    <com.sobot.chat.widget.SobotTextView
+                        android:id="@+id/sobot_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/sobot_ten_evaluate_select"
+                        android:textSize="@dimen/sobot_text_font_12"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--中间竖线（替代原横向 v_line_bottom，复用同一 id 由 Adapter 控制可见性）-->
+        <View
+            android:id="@+id/v_line_bottom"
+            android:layout_width="@dimen/sobot_line_height_dp"
+            android:layout_height="match_parent"
+            android:background="@color/sobot_color_line_divider_3"
+            android:visibility="gone" />
+
+        <!--右半：自定义字段表格（GridLayout 由 Adapter 动态填充 key/value）-->
+        <GridLayout
+            android:id="@+id/curs_grid_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:alignmentMode="alignBounds"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp" />
+    </LinearLayout>
+
+    <!--底部按钮区（Detail 等）-->
+    <LinearLayout
+        android:id="@+id/sobot_ll_btns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

@@ -16,9 +16,9 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:visibility="gone"
-            app:backgroundColor="@color/sobot_color_loading_bg"
-            app:progressColor="@color/sobot_color"
-            app:strokeWidth="2dp" />
+            app:sobot_background_color="@color/sobot_color_loading_bg"
+            app:sobot_progress_color="@color/sobot_color"
+            app:sobot_strokeWidth="2dp" />
 
         <!-- 显示加载文字的动画 -->
 

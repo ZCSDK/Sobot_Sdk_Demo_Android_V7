@@ -9,9 +9,10 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <!-- Devices running Android 12L (API level 32) or lower  -->
+    <!-- 安全：API 33+ 已用细粒度 READ_MEDIA_IMAGES / READ_MEDIA_VIDEO 替代，仅在低版本声明 -->
     <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.google.android.apps.photos.permission.GOOGLE_PHOTOS" />
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -26,8 +27,13 @@
         android:xlargeScreens="true" />
 
     <application>
+        <!-- 安全：所有 Activity 显式声明 android:exported="false"。
+             SDK 内部 Activity 不接受外部 Intent 调用，避免未来误加 intent-filter 时暴露 (CWE-16)。
+             备份/网络安全策略由宿主 App 在自身 Manifest 中声明（android:allowBackup
+             / android:fullBackupContent / android:networkSecurityConfig）。 -->
         <activity
             android:name=".activity.SobotPrivacyAgreementActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
@@ -35,6 +41,7 @@
 
         <activity
             android:name=".conversation.SobotChatActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:launchMode="singleTask"
             android:screenOrientation="behind"
@@ -42,133 +49,175 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.SobotPhotoActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:hardwareAccelerated="false"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.WebViewActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.halfdialog.SobotSkillGroupActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.SobotTicketNewActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.SobotTicketListActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.halfdialog.SobotPostRegionActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
-            android:name=".activity.halfdialog.SobotMuItiPostMsgActivtyListener"
+            android:name=".activity.halfdialog.SobotMuItiPostMsgActivty"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.SobotConsultationListActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.halfdialog.SobotCusFieldActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".activity.halfdialog.SobotPostCategoryActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.SobotQueryFromActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.halfdialog.SobotChooseCityActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.SobotFileDetailActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotCameraActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotVideoActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotTicketDetailActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotHelpCenterActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotProblemCategoryActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotProblemDetailActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotPostLeaveMsgActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".activity.halfdialog.SobotReplyActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent2" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent2"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".activity.halfdialog.SobotRobotListActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotTicketEvaluateActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotEvaluateActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotAIEvaluateActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotAiCardMoreActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotPostCascadeActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.SobotQuoteDetailActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
@@ -177,52 +226,73 @@
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.SobotSelectPicAndVideoActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
             android:launchMode="singleTask"
             android:screenOrientation="behind"
             android:theme="@style/sobot_activity_def_theme" />
         <activity
             android:name=".activity.halfdialog.SobotTimeZoneActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotDateTimeActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotZoneActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotPhoneCodeDialog"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotChooseLanguaeActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotFormInfoActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotFormSearchDialog"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotAIFromListActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
         <activity
             android:name=".activity.halfdialog.SobotFormVariableActivity"
+            android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|touchscreen|navigation|locale|fontScale|uiMode|screenLayout|smallestScreenSize"
-            android:theme="@style/sobot_AppThemeDialogIsTranslucent" />
+            android:screenOrientation="behind"
+            android:theme="@style/sobot_AppThemeDialogIsTranslucent3" />
 
         <service
             android:name=".core.channel.SobotTCPServer"
             android:exported="false"
             android:label="SobotChatTCPServer" />
-        <service android:name=".server.SobotSessionServer" />
+        <service
+            android:name=".server.SobotSessionServer"
+            android:exported="false" />
 
         <provider
             android:name=".provider.SobotFileProvider"

@@ -42,9 +42,9 @@ public class SobotProgressView extends View {
     private void init(AttributeSet attrs) {
         if (attrs != null) {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.SobotLoadingView);
-            backgroundColor = a.getColor(R.styleable.SobotLoadingView_backgroundColor, Color.GRAY);
-            progressColor = a.getColor(R.styleable.SobotLoadingView_progressColor, Color.BLUE);
-            strokeWidth = a.getDimension(R.styleable.SobotLoadingView_strokeWidth, 8f);
+            backgroundColor = a.getColor(R.styleable.SobotLoadingView_sobot_background_color, Color.GRAY);
+            progressColor = a.getColor(R.styleable.SobotLoadingView_sobot_progress_color, Color.BLUE);
+            strokeWidth = a.getDimension(R.styleable.SobotLoadingView_sobot_strokeWidth, 8f);
             a.recycle();
         }
 
@@ -84,6 +84,7 @@ public class SobotProgressView extends View {
 
     /**
      * 设置进度值
+     *
      * @param progress 进度值 0-100
      */
     public void setProgress(int progress) {
@@ -93,6 +94,7 @@ public class SobotProgressView extends View {
 
     /**
      * 获取当前进度值
+     *
      * @return 当前进度值
      */
     public int getProgress() {

@@ -18,9 +18,9 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            app:backgroundColor="@color/sobot_color_loading_bg"
-            app:progressColor="@color/sobot_color"
-            app:strokeWidth="2dp" />
+            app:sobot_background_color="@color/sobot_color_loading_bg"
+            app:sobot_progress_color="@color/sobot_color"
+            app:sobot_strokeWidth="2dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -44,7 +44,8 @@
                 android:id="@+id/sobot_listview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/sobot_ticket_list_top_margin"
+                android:layout_marginBottom="15dp"
                 android:minHeight="536dp" />
 
             <TextView
@@ -63,18 +64,18 @@
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="5dp"
-                android:layout_marginBottom="26dp"
+                android:layout_marginBottom="@dimen/sobot_ticket_new_btn_bottom_margin"
                 android:outlineSpotShadowColor="@color/sobot_color_shadow_four"
                 android:background="@drawable/sobot_bg_theme_color_20dp"
                 android:elevation="8dp"
                 android:gravity="center"
-                android:minWidth="130dp"
+                android:minWidth="@dimen/sobot_ticket_new_btn_min_width"
                 android:translationY="6dp"
                 android:orientation="horizontal"
-                android:paddingStart="30dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="30dp"
-                android:paddingBottom="10dp"
+                android:paddingStart="@dimen/sobot_ticket_new_btn_padding_h"
+                android:paddingTop="@dimen/sobot_ticket_new_btn_padding_v"
+                android:paddingEnd="@dimen/sobot_ticket_new_btn_padding_h"
+                android:paddingBottom="@dimen/sobot_ticket_new_btn_padding_v"
                 android:visibility="gone">
 
                 <ImageView

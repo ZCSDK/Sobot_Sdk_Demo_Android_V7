@@ -20,9 +20,10 @@ import java.util.List;
 /**
  * 自定义卡片--横向多张卡片
  */
-public class CustomCardHorizontalMessageHolder extends MsgHolderBase  {
+public class CustomCardHorizontalMessageHolder extends MsgHolderBase {
     private RecyclerView goods_list_h;//横向商品列表
     private SobotChatCustomCard customCard;
+
     public CustomCardHorizontalMessageHolder(Context context, View convertView) {
         super(context, convertView);
         goods_list_h = convertView.findViewById(R.id.rv_goods_list_h);

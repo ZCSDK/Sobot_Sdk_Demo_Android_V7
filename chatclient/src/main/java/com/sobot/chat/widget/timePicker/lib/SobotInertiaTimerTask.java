@@ -1,8 +1,10 @@
 package com.sobot.chat.widget.timePicker.lib;
 
 import java.util.TimerTask;
+
 /**
  * 滚动惯性的实现
+ *
  * @author 小嵩
  */
 final class SobotInertiaTimerTask extends TimerTask {
@@ -42,18 +44,17 @@ final class SobotInertiaTimerTask extends TimerTask {
             float itemHeight = loopView.itemHeight;
             float top = (-loopView.initPosition) * itemHeight;
             float bottom = (loopView.getItemsCount() - 1 - loopView.initPosition) * itemHeight;
-            if(loopView.totalScrollY - itemHeight*0.25 < top){
+            if (loopView.totalScrollY - itemHeight * 0.25 < top) {
                 top = loopView.totalScrollY + i;
-            }
-            else if(loopView.totalScrollY + itemHeight*0.25 > bottom){
+            } else if (loopView.totalScrollY + itemHeight * 0.25 > bottom) {
                 bottom = loopView.totalScrollY + i;
             }
 
-            if (loopView.totalScrollY <= top){
+            if (loopView.totalScrollY <= top) {
                 a = 40F;
-                loopView.totalScrollY = (int)top;
+                loopView.totalScrollY = (int) top;
             } else if (loopView.totalScrollY >= bottom) {
-                loopView.totalScrollY = (int)bottom;
+                loopView.totalScrollY = (int) bottom;
                 a = -40F;
             }
         }

@@ -4,6 +4,6 @@
     <solid android:color="@color/sobot_color_transparent" />
     <stroke
         android:width="@dimen/sobot_line_height_dp"
-        android:color="@color/sobot_color_line_divider" />
+        android:color="@color/sobot_dialog_input" />
     <corners android:radius="8dp" />
 </shape>

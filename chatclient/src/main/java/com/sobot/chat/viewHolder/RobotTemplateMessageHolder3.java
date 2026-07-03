@@ -18,13 +18,14 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
+import com.sobot.chat.widget.SobotMaxSizeLinearLayout;
 import com.sobot.chat.widget.robottemplate.RobotTemplate3ViewPager;
 
 import java.util.List;
 import java.util.Map;
 
 public class RobotTemplateMessageHolder3 extends MsgHolderBase {
-
+    private SobotMaxSizeLinearLayout msgContentLL;
     private TextView tvTip;
     private LinearLayout llPreviousPage;//上一页
     private ImageView ivPreviousPage;//上一页
@@ -39,6 +40,7 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
 
     public RobotTemplateMessageHolder3(Context context, View convertView) {
         super(context, convertView);
+        msgContentLL=  convertView.findViewById(R.id.sobot_msg_content_ll);
         tvTip = (TextView) convertView.findViewById(R.id.tv_template_tip);
         tvCusPageCount = convertView.findViewById(R.id.tv_cus_page_count);
         ivPreviousPage = convertView.findViewById(R.id.iv_previous_page);
@@ -53,6 +55,10 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
     @Override
     public void bindData(final Context context, ZhiChiMessageBase message) {
         this.message = message;
+        // ViewHolder 复用兜底：默认按内容自适应，仅卡片列表分支撑宽
+        if (msgContentLL != null) {
+            msgContentLL.setFillToMaxWidth(false);
+        }
         if (message.getAnswer() != null && message.getAnswer().getMultiDiaRespInfo() != null) {
             final SobotMultiDiaRespInfo multiDiaRespInfo = message.getAnswer().getMultiDiaRespInfo();
             String msgStr = ChatUtils.getMultiMsgTitle(multiDiaRespInfo);
@@ -67,6 +73,9 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
             if ("000000".equals(multiDiaRespInfo.getRetCode())) {
                 List<Map<String, String>> interfaceRetList = multiDiaRespInfo.getInterfaceRetList();
                 if (interfaceRetList != null && !interfaceRetList.isEmpty()) {
+                    if (msgContentLL!=null){
+                        msgContentLL.setFillToMaxWidth(true);
+                    }
                     resetMaxWidth();
                     //+10 左右阴影间距5
                     templatePageAdater = new SobotRobotTemplate3PageAdater(mContext, msgMaxWidth + ScreenUtils.dip2px(mContext, 10), pvTemplateThird, interfaceRetList, message, msgCallBack);
@@ -74,9 +83,9 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
                     pvTemplateThird.setTemplatePageAdater(templatePageAdater, message);
                     pvTemplateThird.setAdapter(templatePageAdater);
                     pvTemplateThird.setCurrentItem(message.getCurrentPageNum());
-                    if (interfaceRetList.size() > 3) {
-                        // 每页3个，计算总页数
-                        int totalPageCount = (int) Math.ceil(interfaceRetList.size() / 3.0);
+                    int pageSize = getPageSize();
+                    if (interfaceRetList.size() > pageSize) {
+                        int totalPageCount = (int) Math.ceil(interfaceRetList.size() / (double) pageSize);
                         tvCusPageCount.setText((message.getCurrentPageNum() + 1) + "/" + totalPageCount);
                         llPage.setVisibility(View.VISIBLE);
                         updatePreAndLastUI();
@@ -91,7 +100,10 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
                 pvTemplateThird.setVisibility(View.GONE);
             }
         }
-        pvTemplateThird.setLayoutParams(new LinearLayout.LayoutParams(msgCardWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // 多列模式（横屏）让 ViewPager 跟随气泡实际宽度，避免右列被 msgCardWidth(288dp) 裁切
+        int columns = mContext.getResources().getInteger(R.integer.sobot_robot_template_columns);
+        int pagerWidth = columns > 1 ? ViewGroup.LayoutParams.MATCH_PARENT : msgCardWidth;
+        pvTemplateThird.setLayoutParams(new LinearLayout.LayoutParams(pagerWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
         pvTemplateThird.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
@@ -154,6 +166,19 @@ public class RobotTemplateMessageHolder3 extends MsgHolderBase {
         }
     }
 
+
+    // 每页总数 = 列数 × 行数（跟随屏幕限定符）
+    private int getPageSize() {
+        int columns = mContext.getResources().getInteger(R.integer.sobot_robot_template_columns);
+        if (columns <= 0) {
+            columns = 1;
+        }
+        int rows = mContext.getResources().getInteger(R.integer.sobot_robot_template_rows);
+        if (rows <= 0) {
+            rows = 3;
+        }
+        return columns * rows;
+    }
 
     //上一页下一页 UI
     public void updatePreAndLastUI() {

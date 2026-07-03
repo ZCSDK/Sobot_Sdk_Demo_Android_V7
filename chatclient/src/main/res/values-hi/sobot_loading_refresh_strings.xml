@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">सामग्री दृश्य नहीं मिला। क्या आप XML लेआउट फ़ाइल में इसे जोड़ना भूल गए?</string>
+    <string name="sobot_srl_header_pulling">ताज़ा करने के लिए नीचे खींचें</string>
+    <string name="sobot_srl_header_refreshing">ताज़ा हो रहा है…</string>
+    <string name="sobot_srl_header_loading">निचला भाग लोड होने की प्रतीक्षा करें…</string>
+    <string name="sobot_srl_header_release">तुरंत ताज़ा करने के लिए छोड़ें</string>
+    <string name="sobot_srl_header_finish">ताज़ा करना पूर्ण</string>
+    <string name="sobot_srl_header_failed">ताज़ा करना विफल</string>
+    <string name="sobot_srl_header_update">अंतिम अपडेट %s</string>
+    <string name="sobot_srl_header_secondary">दूसरी मंज़िल में प्रवेश करने के लिए छोड़ें</string>
+    <string name="sobot_srl_footer_pulling">अधिक लोड करने के लिए ऊपर खींचें</string>
+    <string name="sobot_srl_footer_release">तुरंत लोड करने के लिए छोड़ें</string>
+    <string name="sobot_srl_footer_loading">लोड हो रहा है…</string>
+    <string name="sobot_srl_footer_refreshing">शीर्ष ताज़ा होने की प्रतीक्षा करें…</string>
+    <string name="sobot_srl_footer_finish">लोड करना पूर्ण</string>
+    <string name="sobot_srl_footer_failed">लोड करना विफल</string>
+    <string name="sobot_srl_footer_nothing">कोई और डेटा नहीं है</string>
+    <string name="sobot_no_data_string">अभी कोई डेटा नहीं</string>
+    <string name="sobot_no_net_string">नेटवर्क कनेक्शन नहीं है, कृपया अपना नेटवर्क जांचें...</string>
+    <string name="sobot_error_click_reload_string">लोड करना विफल, पुनः प्रयास करने के लिए क्लिक करें~~</string>
+    <string name="sobot_loading_string">लोड हो रहा है...</string>
+</resources>

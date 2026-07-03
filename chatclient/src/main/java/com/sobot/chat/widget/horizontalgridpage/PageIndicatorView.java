@@ -1,12 +1,13 @@
 package com.sobot.chat.widget.horizontalgridpage;
 
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ThemeUtils;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
  * @author 吴昊
  */
 public class PageIndicatorView extends LinearLayout {
-    private String TAG="PageIndicatorView";
+    private String TAG = "PageIndicatorView";
 
     private ArrayList<View> indicatorViews; // 指示器容器
     private int indicatorSize;  //指示器大小
@@ -72,10 +73,10 @@ public class PageIndicatorView extends LinearLayout {
      * @param currentPage 当前页
      */
     public void update(int currentPage) {
-        if (indicatorViews==null){
+        if (indicatorViews == null) {
             return;
         }
-        if (message!=null){
+        if (message != null) {
             message.setCurrentPageNum(currentPage);
         }
         for (int i = 0; i < indicatorViews.size(); i++) {
@@ -89,10 +90,10 @@ public class PageIndicatorView extends LinearLayout {
     }
 
     public int getCurrIndex() {
-        if (message==null){
+        if (message == null) {
             return 0;
         }
-        Log.e(TAG, "getCurrIndex: "+message.getCurrentPageNum());
+        LogUtils.e("getCurrIndex: " + message.getCurrentPageNum());
         return message.getCurrentPageNum();
     }
 }

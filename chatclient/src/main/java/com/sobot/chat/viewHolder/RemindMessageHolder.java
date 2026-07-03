@@ -1,8 +1,8 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.CycleInterpolator;
@@ -20,6 +20,7 @@ import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.HtmlTools;
 import com.sobot.chat.utils.ResourceUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.image.SobotRCImageView;
@@ -41,7 +42,7 @@ public class RemindMessageHolder extends MsgHolderBase {
     //有边框的边框
     private LinearLayout ll_notice;
     private TextView sobot_center_Remind_note3;
-    private ImageView iv_notice_left,iv_notice_right;
+    private ImageView iv_notice_left, iv_notice_right;
 
     public RemindMessageHolder(Context context, View convertView) {
         super(context, convertView);
@@ -74,9 +75,9 @@ public class RemindMessageHolder extends MsgHolderBase {
     public void bindData(Context context, ZhiChiMessageBase message) {
         rl_connect_service_card.setVisibility(View.GONE);
         iv_notice_left.setVisibility(View.GONE);
-        if (ChatUtils.isRtl(mContext)){
+        if (ChatUtils.isRtl(mContext)) {
             iv_notice_right.setImageResource(R.drawable.sobot_icon_right_arrow_rtl);
-        }else {
+        } else {
             iv_notice_right.setImageResource(R.drawable.sobot_icon_right_arrow);
         }
         if (message.getAnswer() != null && !TextUtils.isEmpty(message.getAnswer().getMsg())) {
@@ -173,7 +174,7 @@ public class RemindMessageHolder extends MsgHolderBase {
 //                    }
                     if (remindType == ZhiChiConstant.sobot_remind_type_accept_request) {
                         //接受了您的请求
-                        center_Remind_Info.setText(Html.fromHtml(message.getAnswer().getMsg()));
+                        center_Remind_Info.setText(WebViewSecurityUtil.safeFromHtml(message.getAnswer().getMsg()));
                     }
 
                 } else if (ZhiChiConstant.sobot_outline_leverByManager.equals(message
@@ -233,6 +234,10 @@ public class RemindMessageHolder extends MsgHolderBase {
             HtmlTools.getInstance(context).setRichText(center_Remind_Info2, message.getMsg(), ResourceUtils.getIdByName(context, "color", "sobot_color"));
         }
         refreshReadStatus();
+        setPressListener(ll_notice);
+        setPressListener(sobot_center_Remind_note3);
+        setPressListener(iv_notice_left);
+        setPressListener(iv_notice_right);
     }
 
     /**
@@ -260,7 +265,7 @@ public class RemindMessageHolder extends MsgHolderBase {
     private void setRemindToCustom(Context context, TextView remindInfo) {
         String content = context.getResources().getString(R.string.sobot_cant_solve_problem_new);
         String click = "<a href='sobot:SobotToCustomer'> " + context.getResources().getString(R.string.sobot_customer_service) + "</a>";
-        HtmlTools.getInstance(context).setRichText(remindInfo, String.format(content,click), getRemindLinkTextColor());
+        HtmlTools.getInstance(context).setRichText(remindInfo, String.format(content, click), getRemindLinkTextColor());
         remindInfo.setEnabled(true);
     }
 
@@ -269,5 +274,22 @@ public class RemindMessageHolder extends MsgHolderBase {
         translateAnimation.setInterpolator(new CycleInterpolator(counts));
         translateAnimation.setDuration(1000);
         return translateAnimation;
+    }
+
+    private void setPressListener(final View view) {
+        if (view != null) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        ll_notice.setPressed(true);
+                    } else if (event.getAction() == MotionEvent.ACTION_UP ||
+                            event.getAction() == MotionEvent.ACTION_CANCEL) {
+                        ll_notice.setPressed(false);
+                    }
+                    return false;
+                }
+            });
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.sobot.chat.adapter;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,8 @@ import com.sobot.chat.R;
 import com.sobot.chat.adapter.base.SobotBaseAdapter;
 import com.sobot.chat.api.model.SobotMsgCenterModel;
 import com.sobot.chat.utils.DateUtil;
+import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.pictureframe.SobotBitmapUtil;
 
 import java.util.List;
@@ -71,12 +72,12 @@ public class SobotMsgCenterAdapter extends SobotBaseAdapter<SobotMsgCenterModel>
             this.data = model;
             SobotBitmapUtil.display(context, model.getFace(), sobot_iv_face, defaultFaceId, defaultFaceId);
             sobot_tv_title.setText(model.getName());
-            sobot_tv_content.setText(TextUtils.isEmpty(model.getLastMsg()) ? "" : Html.fromHtml(model.getLastMsg()).toString());
+            sobot_tv_content.setText(TextUtils.isEmpty(model.getLastMsg()) ? "" : WebViewSecurityUtil.safeFromHtml(model.getLastMsg()).toString());
             if (!TextUtils.isEmpty(model.getLastDateTime())) {
                 try {
                     sobot_tv_date.setText(DateUtil.formatDateTime2(model.getLastDateTime()));
                 } catch (Exception e) {
-                    //ignor
+                    LogUtils.e("uncaught", e);
                 }
             }
             setUnReadNum(sobot_tv_unread_count, model.getUnreadCount());

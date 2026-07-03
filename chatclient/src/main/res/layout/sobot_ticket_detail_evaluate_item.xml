@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/sobot_color_text_first"
             android:textSize="@dimen/sobot_text_font_14"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <com.sobot.chat.widget.SobotFiveStarsSmallLayout
             android:id="@+id/sobot_ratingBar"

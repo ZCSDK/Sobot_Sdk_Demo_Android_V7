@@ -29,7 +29,7 @@ public class EllipsizeTextView extends TextView {
         super(context, attrs);
 //        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.EllipsizeTextView);
         mEllipsizeIndex = 0;
-        mEllipsizeText =null;
+        mEllipsizeText = null;
 
         if (mEllipsizeText == null) {
             mEllipsizeText = DEFAULT_ELLIPSIZE_TEXT;
@@ -59,7 +59,7 @@ public class EllipsizeTextView extends TextView {
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
         if (mIsExactlyMode) {
-          requestLayout();
+            requestLayout();
         }
     }
 
@@ -74,7 +74,7 @@ public class EllipsizeTextView extends TextView {
     private void adjustEllipsizeEndText(Layout layout) {
         try {
             final CharSequence originText = getText();
-            if(TextUtils.isEmpty(originText)){
+            if (TextUtils.isEmpty(originText)) {
                 return;
             }
             final CharSequence restSuffixText = originText.subSequence(
@@ -102,20 +102,20 @@ public class EllipsizeTextView extends TextView {
                 append(mEllipsizeText);
                 append(restSuffixText);
             }
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
 
         }
     }
 
     private int computeMaxLineCount(Layout layout) {
-      int availableHeight = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
-      for (int i = 0; i < layout.getLineCount(); i++) {
-        if (availableHeight < layout.getLineBottom(i)) {
-          return i;
+        int availableHeight = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
+        for (int i = 0; i < layout.getLineCount(); i++) {
+            if (availableHeight < layout.getLineBottom(i)) {
+                return i;
+            }
         }
-      }
 
-      return layout.getLineCount();
+        return layout.getLineCount();
     }
 
     private int computeRemovedEllipsizeEndCharacterCount(final int widthDiff, final CharSequence text) {

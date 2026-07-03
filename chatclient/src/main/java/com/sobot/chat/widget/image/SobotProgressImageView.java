@@ -27,8 +27,6 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
     private SobotRCRelativeLayout rcRoot;//根布局
     private ProgressBar progressBar;
     private ImageView mImageView;
-    //加载失败图片控件
-    private ImageView imageview_error;
     //图片最大高
     private int mMaxHeight;
     //图片最大宽
@@ -44,6 +42,7 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
     //是否显示加载中控件 默认 不显示
     private boolean isShowProgressbar = false;
     private int bgColot;//预加载背景色
+    private int loadingResId = 0;//预加载图片资源 ID
     private OnDisplayImageListener listener;//图片加载结果监听
 
 
@@ -67,6 +66,7 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
         layoutChangeAnimate = ta.getBoolean(R.styleable.sobot_progress_imageview_image_layout_change_animate, false);
         isShowProgressbar = ta.getBoolean(R.styleable.sobot_progress_imageview_image_is_show_progressbar, false);
         bgColot = ta.getColor(R.styleable.sobot_progress_imageview_image_bg, getResources().getColor(R.color.sobot_color_progress_image_bg));
+        loadingResId = ta.getResourceId(R.styleable.sobot_progress_imageview_image_loading_drawable, 0);
         //回收资源，这一句必须调用
         ta.recycle();
     }
@@ -85,7 +85,6 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
             rcRoot.setLayoutTransition(transition);
         }
         mImageView = findViewById(R.id.imageview);
-        imageview_error = findViewById(R.id.imageview_error);
         progressBar = findViewById(R.id.progress_bar);
         if (isShowProgressbar) {
             progressBar.setVisibility(VISIBLE);
@@ -141,14 +140,13 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
                     preloadWidth = ScreenUtils.dip2px(getContext(), mImageWidth);
                     preloadHeight = ScreenUtils.dip2px(getContext(), mImageHeight);
                 }
-                SobotBitmapUtil.display(getContext(), imageUrl, mImageView, 0, 0, preloadWidth, preloadHeight, new SobotImageLoader.SobotDisplayImageListener() {
+                SobotBitmapUtil.display(getContext(), imageUrl, mImageView, loadingResId, 0, preloadWidth, preloadHeight, new SobotImageLoader.SobotDisplayImageListener() {
                     @Override
                     public void onSuccess(View view, String path) {
                         if (listener != null) {
                             listener.onSuccess(view);
                         }
                         progressBar.setVisibility(GONE);
-                        imageview_error.setVisibility(GONE);
                         rcRoot.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.sobot_color_transparent));
                         if (mImageWidth == 0 && mImageHeight == 0) {
                             rcRoot.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -168,16 +166,23 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
                             listener.onFail(view);
                         }
                         progressBar.setVisibility(GONE);
-                        imageview_error.setVisibility(VISIBLE);
-                        rcRoot.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.sobot_color_progress_image_bg));
                     }
                 });
             } else {
                 progressBar.setVisibility(GONE);
-                imageview_error.setVisibility(GONE);
             }
         }
     }
+
+    /**
+     * 设置预加载图片（本地资源）
+     *
+     * @param resId 图片资源 ID
+     */
+    public void setLoadingDrawable(int resId) {
+        loadingResId = resId;
+    }
+
 
     /**
      * 设置本地图片
@@ -185,7 +190,6 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
     public void setImageLocal(int imageResouseId) {
         if (mImageView != null) {
             progressBar.setVisibility(GONE);
-            imageview_error.setVisibility(GONE);
             rcRoot.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             rcRoot.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.sobot_color_transparent));
             SobotBitmapUtil.display(getContext(), imageResouseId, mImageView);
@@ -201,7 +205,6 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
         }
         if (mImageView != null) {
             progressBar.setVisibility(GONE);
-            imageview_error.setVisibility(GONE);
             rcRoot.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             rcRoot.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.sobot_color_transparent));
             SobotBitmapUtil.display(getContext(), imageResouseId, mImageView);
@@ -301,10 +304,6 @@ public class SobotProgressImageView extends SobotRCRelativeLayout {
             if (progressBar != null) {
                 progressBar.setVisibility(GONE);
             }
-            if (imageview_error != null) {
-                imageview_error.setVisibility(GONE);
-            }
-
             // 设置透明背景
             if (rcRoot != null) {
                 rcRoot.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.sobot_color_transparent));

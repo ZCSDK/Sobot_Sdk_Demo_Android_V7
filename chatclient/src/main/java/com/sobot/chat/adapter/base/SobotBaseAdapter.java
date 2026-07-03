@@ -16,7 +16,7 @@ public abstract class SobotBaseAdapter<T> extends BaseAdapter {
         this.list = list;
         this.context = context;
         if (this.list == null) {
-            this.list=new ArrayList<>();
+            this.list = new ArrayList<>();
         }
     }
 

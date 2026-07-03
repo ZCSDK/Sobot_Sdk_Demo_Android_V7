@@ -14,6 +14,7 @@ import com.sobot.chat.activity.halfdialog.SobotPostRegionActivity;
 import com.sobot.chat.activity.halfdialog.SobotTimeZoneActivity;
 import com.sobot.chat.activity.halfdialog.SobotZoneActivity;
 import com.sobot.chat.api.model.CommonModel;
+import com.sobot.chat.api.model.SobotCacheFile;
 import com.sobot.chat.api.model.SobotCityResult;
 import com.sobot.chat.api.model.SobotConnCusParam;
 import com.sobot.chat.api.model.SobotCusFieldConfig;
@@ -98,8 +99,8 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
         sobot_btn_submit.setText(R.string.sobot_btn_queryfrom_submit_text);
         sobot_btn_submit.setOnClickListener(this);
         if (ThemeUtils.isChangedThemeColor(this)) {
-            Drawable d = getResources().getDrawable(R.drawable.sobot_btn_bg_28);
-            sobot_btn_submit.setBackground(ThemeUtils.applyColorToDrawable(d, ThemeUtils.getThemeColor(this)));
+            Drawable d = getResources().getDrawable(R.drawable.sobot_bg_theme_color_28dp);
+            sobot_btn_submit.setBackground(ThemeUtils.applyColorWithMultiplyMode(d, ThemeUtils.getThemeColor(this)));
             sobot_btn_submit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
         }
         sobot_container = (LinearLayout) findViewById(R.id.sobot_container);
@@ -116,7 +117,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
             }
         }
         displayInNotch(sobot_tv_doc);
-        StCusFieldPresenter.addWorkOrderCusFieldsNew(SobotQueryFromActivity.this,  mField, sobot_container, SobotQueryFromActivity.this);
+        StCusFieldPresenter.addWorkOrderCusFieldsNew(SobotQueryFromActivity.this, mField, sobot_container, SobotQueryFromActivity.this);
     }
 
     @Override
@@ -168,7 +169,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
             setResult(ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM, intent);
             finish();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -224,6 +225,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
         setResult(ZhiChiConstant.REQUEST_COCE_TO_QUERY_FROM_CANCEL, new Intent());
         finish();
     }
+
     @Override
     public void onClickCusField(final TextView view, final SobotCusFieldConfig field, final SobotFieldModel cusField) {
         switch (field.getFieldType()) {
@@ -281,18 +283,19 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
 
     private ArrayList<SobotTimezone> list;
     private int requestCount = 0;//请求的次数
+
     @Override
-    public void selectLeftOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectLeftOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时区
         if (list == null || list.size() == 0) {
-            requestZone(true,fieldConfig);
+            requestZone(true, fieldConfig);
         } else {
             showZoneDialog(fieldConfig);
         }
     }
 
     @Override
-    public void selectRightOnclick(TextView view , SobotCusFieldConfig fieldConfig) {
+    public void selectRightOnclick(TextView view, SobotCusFieldConfig fieldConfig) {
         //时间
         if (fieldConfig != null) {
             Intent intent = new Intent(getSobotBaseActivity(), SobotTimeZoneActivity.class);
@@ -302,14 +305,15 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
             startActivityForResult(intent, fieldConfig.getFieldType());
         }
     }
-//================自定义字段上传======start===========
+
+    //================自定义字段上传======start===========
     @Override
-    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+    public void onClickDelete(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
 
     }
 
     @Override
-    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig) {
+    public void onClickPreview(SobotUploadView view, SobotCusFieldConfig fieldConfig, SobotCacheFile cacheFile) {
 
     }
 
@@ -318,11 +322,13 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
 
     }
 //================自定义字段上传======end===========
+
     /**
      * 请求时区
+     *
      * @param showDialog
      */
-    private void requestZone(final boolean showDialog,SobotCusFieldConfig fieldConfig) {
+    private void requestZone(final boolean showDialog, SobotCusFieldConfig fieldConfig) {
         if (requestCount > 5) {
             //显示暂无数据
             if (showDialog) {
@@ -346,7 +352,7 @@ public class SobotQueryFromActivity extends SobotChatBaseActivity implements Sob
 
             @Override
             public void onFailure(Exception e, String s) {
-                requestZone(showDialog,fieldConfig);
+                requestZone(showDialog, fieldConfig);
             }
         });
     }

@@ -24,14 +24,14 @@ public class FlowRadioGroup extends RadioGroup {
         super(context, attrs);
     }
 
-    public void setMaxWidth(int maxWidth,int padding) {
+    public void setMaxWidth(int maxWidth, int padding) {
         this.maxWidth = maxWidth;
         this.padding = padding;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if(maxWidth==0) {
+        if (maxWidth == 0) {
             maxWidth = MeasureSpec.getSize(widthMeasureSpec);
         }
         int childCount = getChildCount();
@@ -53,7 +53,7 @@ public class FlowRadioGroup extends RadioGroup {
                 x += width;
 //                LogUtils.d(index + "===width=====" + width + ",===x==" + x + "======oneWidth===" + oneWidth);
                 y = row * height + height;
-                if (x +padding> maxWidth) {
+                if (x + padding > maxWidth) {
                     x = width;
                     row++;
                     y = row * height + height;
@@ -86,7 +86,7 @@ public class FlowRadioGroup extends RadioGroup {
                 int height = child.getMeasuredHeight();
                 x += width;
                 y = row * height + height;
-                if (x +padding> maxWidth) {
+                if (x + padding > maxWidth) {
                     x = width;
                     row++;
                     y = row * height + height;

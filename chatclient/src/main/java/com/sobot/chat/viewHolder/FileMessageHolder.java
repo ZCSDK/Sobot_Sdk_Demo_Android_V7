@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sobot.chat.R;
@@ -42,7 +41,6 @@ public class FileMessageHolder extends MsgHolderBase implements View.OnClickList
     private final SobotSectorProgressView sobot_file_icon;
     private final TextView sobot_file_name;
     private final TextView sobot_file_size;
-    private final RelativeLayout sobot_ll_file_container;
 
     private ZhiChiMessageBase mData;
     private String mTag;
@@ -57,9 +55,8 @@ public class FileMessageHolder extends MsgHolderBase implements View.OnClickList
         sobot_file_icon = convertView.findViewById(R.id.sobot_file_icon);
         sobot_file_name = convertView.findViewById(R.id.sobot_file_name);
         sobot_file_size = convertView.findViewById(R.id.sobot_file_size);
-        sobot_ll_file_container = convertView.findViewById(R.id.sobot_ll_file_container);
         mResNetError = R.drawable.sobot_icon_send_fail;
-        sobot_ll_file_container.setOnClickListener(this);
+        sobot_msg_content_ll.setOnClickListener(this);
     }
 
     @Override
@@ -100,14 +97,14 @@ public class FileMessageHolder extends MsgHolderBase implements View.OnClickList
                 msgStatus.setOnClickListener(this);
             }
         }
-        setLongClickListener(sobot_ll_file_container);
+        setLongClickListener(sobot_msg_content_ll);
     }
 
 
     @Override
     public void onClick(View v) {
         if (mData != null) {
-            if (sobot_ll_file_container == v) {
+            if (sobot_msg_content_ll == v) {
                 if (mData.getAnswer() != null && mData.getAnswer().getCacheFile() != null) {
                     // 打开详情页面
                     Intent intent = new Intent(mContext, SobotFileDetailActivity.class);
@@ -251,7 +248,7 @@ public class FileMessageHolder extends MsgHolderBase implements View.OnClickList
 
         @Override
         public void onFinish(SobotUploadModelBase result, SobotProgress progress) {
-            LogUtils.d("tag="+tag+"--------------holder.getTag()="+holder.getTag());
+            LogUtils.d("tag=" + tag + "--------------holder.getTag()=" + holder.getTag());
             if (tag == holder.getTag()) {
                 holder.refreshUploadUi(progress);
                 if (initModel != null && initModel.getMsgAppointFlag() == 1 && message != null && message.getAnswer() != null && message.getAnswer().getCacheFile() != null) {
@@ -268,7 +265,7 @@ public class FileMessageHolder extends MsgHolderBase implements View.OnClickList
                     messageMsgModel.setContent(fileModel);
                     message.setMessage(SobotGsonUtil.beanToJson(messageMsgModel));
                 }
-                LogUtils.d("msgCallBack="+msgCallBack+"--------------message="+message);
+                LogUtils.d("msgCallBack=" + msgCallBack + "--------------message=" + message);
                 if (msgCallBack != null && message != null) {
                     msgCallBack.sendFileToRobot(message.getMsgId(), "4", progress.url);
                 }

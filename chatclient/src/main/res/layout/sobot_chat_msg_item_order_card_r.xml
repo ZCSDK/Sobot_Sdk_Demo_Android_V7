@@ -69,7 +69,9 @@
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:minWidth="@dimen/sobot_msg_min_width"
+                android:orientation="vertical"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                 <LinearLayout
                     android:id="@+id/sobot_goods_rl"
@@ -147,6 +149,7 @@
                     android:id="@+id/sobot_order_see_all"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/sobot_button_bg_first"
                     android:ellipsize="end"
                     android:gravity="center"
                     android:lines="1"

@@ -52,7 +52,7 @@ public abstract class SobotDialogBaseFullActivity extends SobotChatBaseActivity 
     @Override
     protected void initView() {
         iv_closes = findViewById(R.id.iv_closes);
-        if(iv_closes!=null) {
+        if (iv_closes != null) {
             //关闭
             iv_closes.setOnClickListener(new View.OnClickListener() {
                 @Override

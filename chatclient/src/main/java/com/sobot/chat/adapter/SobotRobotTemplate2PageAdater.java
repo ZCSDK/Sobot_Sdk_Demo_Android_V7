@@ -101,12 +101,8 @@ public class SobotRobotTemplate2PageAdater extends SobotBaseTemplateAdapter {
                         SobotMultiDiaRespInfo multiDiaRespInfo = messageBase.getAnswer().getMultiDiaRespInfo();
                         SobotLablesViewModel lablesViewModel = label.get(finalI);
                         if (multiDiaRespInfo != null && multiDiaRespInfo.getEndFlag() && !TextUtils.isEmpty(lablesViewModel.getAnchor())) {
-                            if (SobotOption.newHyperlinkListener != null) {
-                                //如果返回true,拦截;false 不拦截
-                                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(context, lablesViewModel.getAnchor());
-                                if (isIntercept) {
-                                    return;
-                                }
+                            if (SobotOption.dispatchUrlClick(context, lablesViewModel.getAnchor())) {
+                                return;
                             }
                             Intent intent = new Intent(context, WebViewActivity.class);
                             intent.putExtra("url", lablesViewModel.getAnchor());
@@ -125,13 +121,74 @@ public class SobotRobotTemplate2PageAdater extends SobotBaseTemplateAdapter {
                 List<View> group = tempArr.subList(startIndex, endIndex); // 获取当前组的子列表
                 groups.add(group); // 将当前组添加到结果列表中
             }
+            int columns = context.getResources().getInteger(R.integer.sobot_robot_template_columns);
+            if (columns <= 0) {
+                columns = 1;
+            }
             for (int j = 0; j < groups.size(); j++) {
                 LinearLayout pagell = new LinearLayout(context);
                 pagell.setOrientation(LinearLayout.VERTICAL);
                 pagell.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 List<View> textViewList = groups.get(j);
-                for (int m = 0; m < textViewList.size(); m++) {
-                    pagell.addView(textViewList.get(m));
+                if (columns == 1) {
+                    for (int m = 0; m < textViewList.size(); m++) {
+                        pagell.addView(textViewList.get(m));
+                    }
+                } else {
+                    // 多列模式：每 columns 个 item 包一行；item 用 weight 等分行宽、高度 WRAP_CONTENT
+                    // 行的高度跟自身内容自然撑开，避免与 ViewPager 强制 EXACTLY 高度的父链交互产生异常拉伸；
+                    // 同行两列等高（以高者为准）通过 post() 在首次 layout 后做对齐
+                    for (int m = 0; m < textViewList.size(); m += columns) {
+                        final LinearLayout row = new LinearLayout(context);
+                        row.setOrientation(LinearLayout.HORIZONTAL);
+                        row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        final List<View> rowItems = new ArrayList<>();
+                        for (int k = 0; k < columns; k++) {
+                            int idx = m + k;
+                            if (idx < textViewList.size()) {
+                                View item = textViewList.get(idx);
+                                item.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                                row.addView(item);
+                                rowItems.add(item);
+                            } else {
+                                // 末尾不足 columns 个用空白占位保持左对齐
+                                View placeholder = new View(context);
+                                placeholder.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                                row.addView(placeholder);
+                            }
+                        }
+                        // 首次 layout 后对齐本行 item 高度（以高者为准），同步把白底 TextView 撑满
+                        row.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int maxH = 0;
+                                for (View item : rowItems) {
+                                    if (item.getHeight() > maxH) {
+                                        maxH = item.getHeight();
+                                    }
+                                }
+                                boolean changed = false;
+                                for (View item : rowItems) {
+                                    if (item.getHeight() < maxH) {
+                                        ViewGroup.LayoutParams lp = item.getLayoutParams();
+                                        lp.height = maxH;
+                                        item.setLayoutParams(lp);
+                                        View titleView = item.findViewById(R.id.sobot_template_item_title);
+                                        if (titleView != null) {
+                                            ViewGroup.LayoutParams tlp = titleView.getLayoutParams();
+                                            tlp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                                            titleView.setLayoutParams(tlp);
+                                        }
+                                        changed = true;
+                                    }
+                                }
+                                if (changed) {
+                                    row.requestLayout();
+                                }
+                            }
+                        });
+                        pagell.addView(row);
+                    }
                 }
                 mViewList.add(pagell);
             }

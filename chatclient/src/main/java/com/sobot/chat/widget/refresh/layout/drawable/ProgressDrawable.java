@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
  * Created by scwang on 2017/6/16.
  */
 @SuppressWarnings("WeakerAccess")
-public class ProgressDrawable extends PaintDrawable implements Animatable , ValueAnimator.AnimatorUpdateListener{
+public class ProgressDrawable extends PaintDrawable implements Animatable, ValueAnimator.AnimatorUpdateListener {
 
     protected int mWidth = 0;
     protected int mHeight = 0;
@@ -60,7 +60,7 @@ public class ProgressDrawable extends PaintDrawable implements Animatable , Valu
         canvas.save();
         canvas.rotate(mProgressDegree, (width) / 2f, (height) / 2f);
         for (int i = 0; i < 12; i++) {
-            mPaint.setAlpha((i+5) * 0x11);
+            mPaint.setAlpha((i + 5) * 0x11);
             canvas.rotate(30, (width) / 2f, (height) / 2f);
             canvas.drawPath(mPath, mPaint);
         }

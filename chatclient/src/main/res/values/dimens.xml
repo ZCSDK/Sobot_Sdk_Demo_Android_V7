@@ -49,23 +49,26 @@
     <!--行间距 -->
     <dimen name="sobot_text_line_spacing_extra">4dp</dimen>
     <!--大模型 答案有按钮时 行间距 -->
-    <dimen name="sobot_text_line_spacing_aianswar_button">7dp</dimen>
+    <dimen name="sobot_text_line_spacing_aianswar_button">4dp</dimen>
+
+    <!--富文本内联按钮（转人工 / 来源 等 sobotbutton）总高度 -->
+    <dimen name="sobot_rich_text_button_total_height">23.5dp</dimen>
 
     <!--activity界面导航栏通用高度（不包含状态栏） -->
-    <dimen name="sobot_common_titlebar_hight">54dp</dimen>
+    <dimen name="sobot_common_titlebar_hight">@dimen/sobot_page_navigation_bar_height</dimen>
     <!---activity界面导航栏 标题文字大小-->
-    <dimen name="sobot_common_titlebar_name_sp">@dimen/sobot_text_font_16</dimen>
+    <dimen name="sobot_common_titlebar_name_sp">@dimen/sobot_text_font_14</dimen>
 
     <!--通用 距屏幕边 间距 -->
-    <dimen name="sobot_Left_right_margin_edge">20dp</dimen>
+    <dimen name="sobot_Left_right_margin_edge">@dimen/sobot_layout_guide_margin</dimen>
 
     <!-- 通用头部 中间文字最大宽度 -->
     <dimen name="sobot_title_max_width">260dp</dimen>
     <!--聊天界面-->
     <!--头部导航栏高度（不包含状态栏） -->
-    <dimen name="sobot_header_titlebar_hight">54dp</dimen>
+    <dimen name="sobot_header_titlebar_hight">@dimen/sobot_page_navigation_bar_height</dimen>
     <!--导航栏头像 宽高 -->
-    <dimen name="sobot_header_face_width_heigth">36dp</dimen>
+    <dimen name="sobot_header_face_width_heigth">@dimen/sobot_page_navigation_avatar</dimen>
     <!--头部导航栏昵称 文字 大小 -->
     <dimen name="sobot_header_titlebar_name_sp">@dimen/sobot_text_font_14</dimen>
     <!--头部导航栏公司 文字 大小 -->
@@ -73,7 +76,7 @@
 
     <!--聊天界面 中间消息列表 -->
     <!--两个消息 上下间 间距 -->
-    <dimen name="sobot_msg_top_bottom_margin">20dp</dimen>
+    <dimen name="sobot_msg_top_bottom_margin">@dimen/sobot_form_vertical_gap</dimen>
     <!--两个消息 上下间 间距 1分钟相邻两条消息是同一个人发的，调整间距变小 -->
     <dimen name="sobot_msg_top_bottom_small_margin">4dp</dimen>
     <!--头像 宽高 -->
@@ -81,14 +84,16 @@
     <!--昵称 文字 大小 -->
     <dimen name="sobot_msg_nickname_size">12sp</dimen>
     <!--左、右侧消息 距屏幕边 间距 -->
-    <dimen name="sobot_msg_margin_edge">20dp</dimen>
+    <dimen name="sobot_msg_margin_edge">@dimen/sobot_layout_guide_margin</dimen>
     <!--左、右侧消息 距屏幕边 间距 阴影卡片类使用 -->
     <dimen name="sobot_msg_margin_edge_card">12dp</dimen>
     <dimen name="sobot_msg_margin_edge_card_margin">8dp</dimen>
     <!--左、右侧消息 气泡左右内间距 -->
     <dimen name="sobot_msg_left_right_padding_edge">16dp</dimen>
     <!--左、右侧消息 气泡上下内间距 -->
-    <dimen name="sobot_msg_top_bottom_padding_edge">13dp</dimen>
+    <dimen name="sobot_msg_top_bottom_padding_edge">11dp</dimen>
+    <!--通告横幅 高度 -->
+    <dimen name="sobot_announcement_height">40dp</dimen>
     <!--线条边框消息 内间距 ，例如小程序 文章 商品、订单卡片消息  -->
     <dimen name="sobot_msg_frame_msgtype_spacing">12dp</dimen>
     <!--左、右侧消息 气泡 小圆角弧度 -->
@@ -104,17 +109,25 @@
     <!--右侧消息 (文件、商品卡片、订单卡片、文件类型的气泡) 线框边框宽度 -->
     <dimen name="sobot_right_msg_line_width">1dp</dimen>
     <!--消息气泡边界到屏幕边上的宽度 -->
-    <dimen name="sobot_chat_msg_boundary_to_empty_width">60dp</dimen>
+    <dimen name="sobot_chat_msg_boundary_to_empty_width">40dp</dimen>
     <!--消息 头像和昵称之间的间距 头像和气泡上线布局 -->
-    <dimen name="sobot_chat_msg_nick_face_margin_edge">8dp</dimen>
+    <dimen name="sobot_chat_msg_nick_face_margin_edge">4dp</dimen>
     <!--消息 昵称和气泡之间的间距 头像昵称和气泡上线布局-->
     <dimen name="sobot_chat_msg_nick_bubble_margin_edge">4dp</dimen>
-    <!--消息 （多轮等）最大宽度-->
-    <dimen name="sobot_msg_max_width">432dp</dimen>
+    <!--消息气泡通用最大宽度（手机竖屏 0dp = 不启用上限，自动适配；手机横屏/Pad 见各 values-w600dp 目录 600dp）-->
+    <dimen name="sobot_msg_max_width">0dp</dimen>
+    <!--文件/文章/appoint 消息卡片屏宽百分比上限（手机竖屏 0 = 不启用，自动适配；手机横屏/Pad 见各 values-w600dp 目录 0.67 = 屏宽 2/3）-->
+    <item name="sobot_msg_card_max_width_percent" type="dimen" format="float">0</item>
+    <!--选择语言、选择技能组等气泡屏宽百分比主动撑宽（手机竖屏 0 = 不启用，自动适配；手机横屏/Pad 见各 values-w600dp 目录 0.833 = 屏宽 5/6）-->
+    <item name="sobot_msg_max_width_percent" type="dimen" format="float">0</item>
+    <!--多轮气泡屏宽百分比主动撑宽（手机竖屏 0 = 不启用，自动适配；手机横屏/Pad 见各 values-w600dp 目录 0.91 = 屏宽 ）-->
+    <item name="sobot_msg_template_max_width_percent" type="dimen" format="float">0</item>
+    <!--点踩原因卡片、变量手机屏宽百分比主动撑宽（手机竖屏 0 = 不启用，自动适配；手机横屏/Pad 见各 values-w600dp 目录 0.68 = 屏宽 ）-->
+    <item name="sobot_msg_cai_card_max_width_percent" type="dimen" format="float">0</item>
     <!--消息 （多轮内容等）最大宽度-->
     <dimen name="sobot_msg_content_max_width">288dp</dimen>
     <!--消息 （文章、文件、多轮等）最小宽度-->
-    <dimen name="sobot_msg_min_width">268dp</dimen>
+    <dimen name="sobot_msg_min_width">100dp</dimen>
 
     <!--线条高度 -->
     <dimen name="sobot_line_height_dp">0.6dp</dimen>
@@ -122,6 +135,12 @@
     <!---聊天界面 底部 快捷菜单 输入框 扩展菜单 -->
     <!--快捷菜单 菜单之间的间距 -->
     <dimen name="sobot_layout_lable_margin_right">8dp</dimen>
+    <!--快捷菜单 距上方间距 -->
+    <dimen name="sobot_custom_menu_margin_top">12dp</dimen>
+    <!--快捷菜单 距下方输入框间距 -->
+    <dimen name="sobot_custom_menu_panel_margin">6dp</dimen>
+    <!--聊天底部 输入框面板 上下内边距 -->
+    <dimen name="sobot_chat_bottom_panel_padding">6dp</dimen>
 
 
     <dimen name="sobot_min_panel_height">280dp</dimen>
@@ -134,17 +153,142 @@
     <!--弹窗的边距-->
     <dimen name="sobot_dialog_margin">24dp</dimen>
 
+    <!--留言列表 顶部间距-->
+    <dimen name="sobot_ticket_list_top_margin">8dp</dimen>
+    <!--留言列表 "新建留言" 浮动按钮 底部间距 / 内边距 / 最小宽-->
+    <dimen name="sobot_ticket_new_btn_bottom_margin">26dp</dimen>
+    <dimen name="sobot_ticket_new_btn_padding_h">30dp</dimen>
+    <dimen name="sobot_ticket_new_btn_padding_v">10dp</dimen>
+    <dimen name="sobot_ticket_new_btn_min_width">130dp</dimen>
+    <!--留言记录 item 内边距-->
+    <dimen name="sobot_tiket_item_padding_h">20dp</dimen>
+    <dimen name="sobot_tiket_item_padding_top">24dp</dimen>
+    <!--留言模板 item 顶部占位线高度（仅竖屏使用）-->
+    <dimen name="sobot_tiket_template_top_line_height">12dp</dimen>
+    <!--留言模板 item 左右 / 底部外边距（竖屏使用，宽屏由 ItemDecoration 控制改为 0dp）-->
+    <dimen name="sobot_tiket_template_item_margin_h">20dp</dimen>
+    <dimen name="sobot_tiket_template_item_margin_bottom">12dp</dimen>
+    <!--宽屏 双列网格 间距：留言记录 列/行 12dp（对齐 Figma node 658:19682 gap-x/gap-y）-->
+    <dimen name="sobot_ticket_grid_record_h_space">12dp</dimen>
+    <dimen name="sobot_ticket_grid_record_v_space">12dp</dimen>
+    <!--宽屏 双列网格 间距：留言模板 列/行 12dp -->
+    <dimen name="sobot_ticket_grid_template_h_space">12dp</dimen>
+    <dimen name="sobot_ticket_grid_template_v_space">12dp</dimen>
+    <!--宽屏 留言模板 RecyclerView 底部额外内边距，给 item 的 elevation 阴影留出绘制空间（竖屏不使用，置 0dp）-->
+    <dimen name="sobot_ticket_grid_template_shadow_padding">0dp</dimen>
+
+    <!--留言详情 右侧固定面板宽度（基准占位，竖屏 XML 不引用，仅供回落）-->
+    <dimen name="sobot_ticket_side_panel_width">122dp</dimen>
+    <!--留言详情 右侧面板内左右内边距-->
+    <dimen name="sobot_ticket_side_padding">16dp</dimen>
+    <!--回复弹窗 输入框 最小 / 横屏固定高度-->
+    <dimen name="sobot_reply_edit_min_height">112dp</dimen>
+    <dimen name="sobot_reply_edit_height_wide">96dp</dimen>
+    <!--回复弹窗 底部栏 间距 / 附件按钮宽高 / 按钮间距-->
+    <dimen name="sobot_reply_bottom_margin_top">8dp</dimen>
+    <dimen name="sobot_reply_file_btn_w">66dp</dimen>
+    <dimen name="sobot_reply_file_btn_h">36dp</dimen>
+    <dimen name="sobot_reply_btn_gap">12dp</dimen>
+
+    <!--留言表单 左右内边距 / 列间距 / 行间距（横屏由 values-w600dp 覆盖）-->
+    <dimen name="sobot_ticket_form_padding_h">16dp</dimen>
+    <dimen name="sobot_ticket_form_h_space">0dp</dimen>
+    <dimen name="sobot_ticket_form_v_space">20dp</dimen>
+    <!--SobotInputView 字段间垂直间距（首行 label 到上一字段输入框）：竖屏 20dp，横屏 12dp（figma node 723:22735）-->
+    <dimen name="sobot_form_field_top_margin">20dp</dimen>
+    <!--留言完成态 父间距（对齐设计稿：竖屏左右 20dp、底部 60dp）-->
+    <dimen name="sobot_completed_actions_margin_h">20dp</dimen>
+    <dimen name="sobot_completed_actions_margin_top">24dp</dimen>
+    <dimen name="sobot_completed_actions_margin_bottom">60dp</dimen>
+    <!--留言完成态 按钮（pill 药丸样式：固定高度 40dp + 半径=高度一半=20dp，宽度铺满父容器）-->
+    <dimen name="sobot_completed_btn_height">40dp</dimen>
+    <dimen name="sobot_completed_btn_top_margin">24dp</dimen>
+    <dimen name="sobot_completed_btn_gap">16dp</dimen>
+    <dimen name="sobot_completed_btn_corner">20dp</dimen>
+    <!--留言记录 item 卡片圆角（figma node 745:57961，宽屏档卡片样式，竖屏暂未使用）-->
+    <dimen name="sobot_ticket_card_radius">12dp</dimen>
 
     <!--底部多功能菜单高度 -->
     <!--底部多功能菜单一行的高度 -->
     <dimen name="sobot_chat_plus_one_line_height">158dp</dimen>
     <!--底部多功能菜单两行的高度 -->
     <dimen name="sobot_chat_plus_two_line_height">250dp</dimen>
-    <!--加号里边表情区域 高度 竖屏-->
+    <!--加号里边表情区域 高度（手机竖屏 / Pad 横竖屏；手机横屏在 values-w600dp 覆盖为 140dp）-->
     <dimen name="sobot_emoji_panel_height">284dp</dimen>
-    <!--加号里边表情区域 高度 横屏-->
-    <dimen name="sobot_emoji_panel_height_h">140dp</dimen>
+    <!--横屏 popup 浮卡的内边距 -->
+    <dimen name="sobot_chat_bottom_panel_popup_padding">10dp</dimen>
+    <!--横屏 popup 浮卡距输入栏顶部的垂直偏移（≈8dp）-->
+    <dimen name="sobot_chat_bottom_panel_popup_offset">8dp</dimen>
+    <!--横屏 popup 浮卡 elevation（与 ll_chat_keyboard_panle 对齐）-->
+    <dimen name="sobot_chat_bottom_panel_popup_elevation">16dp</dimen>
+    <!--横屏 popup 浮卡外层透明 padding，给 elevation 阴影留扩散空间，避免被 PopupWindow decor 裁切-->
+    <dimen name="sobot_chat_bottom_panel_popup_shadow_inset">10dp</dimen>
+    <!--横屏 popup 浮卡内加号功能 grid 的水平 padding-->
+    <dimen name="sobot_chat_bottom_panel_popup_grid_h_padding">20dp</dimen>
+    <!--分词联想 popup GridView 上下外边距 / GridView 内边距 / 单行高度 / 与圆角输入框上沿的视觉间隙（横屏在 values-w600dp 进一步收紧）-->
+    <dimen name="sobot_autocomplete_margin_top">8dp</dimen>
+    <dimen name="sobot_autocomplete_margin_bottom">8dp</dimen>
+    <dimen name="sobot_autocomplete_grid_padding">4dp</dimen>
+    <dimen name="sobot_autocomplete_row_height">36dp</dimen>
+    <dimen name="sobot_autocomplete_anchor_gap">4dp</dimen>
+    <!--表情面板内删除按钮宽高（手机竖屏 / Pad 横竖屏）-->
+    <dimen name="sobot_del_emoji_width">92dp</dimen>
+    <dimen name="sobot_del_emoji_height">95dp</dimen>
     <!--表情 宽高度-->
-    <dimen name="sobot_item_emoticon_size_default">28dp</dimen>
+    <dimen name="sobot_item_emoticon_size_default">32dp</dimen>
     <dimen name="sobot_tiket_head_w">24dp</dimen>
+
+    <!-- ============== Figma 原子 token（Mobile Portrait 基准） ============== -->
+    <!-- 来源：Figma 设计系统 Responsive 表，后续 Figma 生成的 UI 直接引用这些 token -->
+
+    <!--栅格 边距（屏幕左右安全间距） -->
+    <dimen name="sobot_layout_guide_margin">16dp</dimen>
+    <!--栅格 列间距 -->
+    <dimen name="sobot_layout_guide_gutter">16dp</dimen>
+
+    <!--表单 项与项之间的横向间距 -->
+    <dimen name="sobot_form_horizontal_gap">16dp</dimen>
+    <!--表单 项与项之间的纵向间距 -->
+    <dimen name="sobot_form_vertical_gap">16dp</dimen>
+
+    <!--列表项 横向间距 -->
+    <dimen name="sobot_list_item_horizontal_gap">0dp</dimen>
+    <!--列表项 纵向间距 -->
+    <dimen name="sobot_list_item_vertical_gap">16dp</dimen>
+
+    <!--满意度面板 顶部圆角 -->
+    <dimen name="sobot_satisfaction_panel_radius_top">16dp</dimen>
+    <!--满意度面板 底部圆角 -->
+    <dimen name="sobot_satisfaction_panel_radius_bottom">0dp</dimen>
+
+    <!--顶部导航 高度 -->
+    <dimen name="sobot_page_navigation_bar_height">52dp</dimen>
+    <!--顶部导航 头像 宽高 -->
+    <dimen name="sobot_page_navigation_avatar">32dp</dimen>
+
+    <!--消息 纵向间距 -->
+    <dimen name="sobot_message_vertical_gap">12dp</dimen>
+    <!--消息 气泡内容内边距 -->
+    <dimen name="sobot_message_content_padding">11dp</dimen>
+
+    <!--弹窗 内容内边距 -->
+    <dimen name="sobot_modal_content_padding">16dp</dimen>
+
+    <!--卡片 按钮高度 -->
+    <dimen name="sobot_card_button_height">48dp</dimen>
+    <!--卡片 内容内边距 -->
+    <dimen name="sobot_card_content_padding">16dp</dimen>
+
+    <!--卡片内 分割线下方间距（竖屏 16dp / 横屏 Pad 12dp） -->
+    <dimen name="sobot_card_divider_margin_bottom">16dp</dimen>
+    <!--语言列表 item 间距（手机竖屏 12dp）-->
+    <dimen name="sobot_languae_list_item_gap">12dp</dimen>
+
+    <!--评价弹窗 横屏覆盖式标题栏高度（基准给占位回落值，layout-w600dp 引用）-->
+    <dimen name="sobot_evaluate_title_height_land">44dp</dimen>
+    <!--评价弹窗 横屏覆盖式关闭按钮尺寸-->
+    <dimen name="sobot_evaluate_close_btn_size">24dp</dimen>
+
+    <!--AI Agent 底部按钮 上下内边距（手机竖屏 / Pad 11dp，手机横屏见 values-w600dp 8dp）-->
+    <dimen name="sobot_aiagent_button_item_padding_v">11dp</dimen>
 </resources>

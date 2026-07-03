@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.DownloadListener;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import com.sobot.chat.R;
 import com.sobot.chat.activity.base.SobotChatBaseActivity;
+import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 
 public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
 
@@ -57,7 +60,7 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent();
                 intent.putExtra("policyAgree", true);
-                setResult(RESULT_OK,intent);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -65,13 +68,16 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
         showLeftMenu(true);
         initWebView();
         displayInNotch(mWebView);
+        // Why: JS 已关闭，暗色模式改为内联 CSS（兼容 API 29 以下设备，API 29+ 由 setForceDark 兜底）
+        String darkBodyCss = isDarkMode ? "body{background-color:#121212;color:#ffffff;}" : "";
         //修改图片高度为自适应宽度
-       String mUrl = "<!DOCTYPE html>\n" +
+        String mUrl = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "    <head>\n" +
                 "        <meta charset=\"utf-8\">\n" +
                 "        <title></title>\n" +
                 "        <style>\n" +
+                darkBodyCss +
                 "            img{\n" +
                 "                width: auto;\n" +
                 "                height:auto;\n" +
@@ -86,7 +92,7 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
                 "            }" +
                 "        </style>\n" +
                 "    </head>\n" +
-                "    <body>" + policyContent + "  </body>\n" +
+                "    <body>" + WebViewSecurityUtil.sanitizeHtml(policyContent) + "  </body>\n" +
                 "</html>";
         //显示文本内容
         mWebView.loadDataWithBaseURL("about:blank", mUrl.replace("<p>", "").replace("</p>", "<br/>").replace("<P>", "").replace("</P>", "<br/>"), "text/html", "utf-8", null);
@@ -101,22 +107,26 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
     @SuppressLint("NewApi")
     private void initWebView() {
 //        if(){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                mWebView.getSettings().setForceDark(WebSettings.FORCE_DARK_ON);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mWebView.getSettings().setForceDark(WebSettings.FORCE_DARK_ON);
+        }
 
 //        }
         if (Build.VERSION.SDK_INT >= 11) {
             try {
                 mWebView.removeJavascriptInterface("searchBoxJavaBridge_");
             } catch (Exception e) {
-                //ignor
+                LogUtils.e("uncaught", e);
             }
         }
         mWebView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                //检测到下载文件就打开系统浏览器
+                // CWE-319: 仅允许 https，与 WebViewActivity 对齐，拒 http 明文派发
+                if (TextUtils.isEmpty(url) || !url.toLowerCase().startsWith("https://")) {
+                    LogUtils.i("PrivacyAgreement download refuse non-https");
+                    return;
+                }
                 Intent intent = new Intent();
                 intent.setAction("android.intent.action.VIEW");
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -130,19 +140,21 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
         mWebView.getSettings().setDefaultFontSize(16);
         mWebView.getSettings().setTextZoom(100);
         mWebView.getSettings().setAllowFileAccess(false);
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setAllowFileAccessFromFileURLs(false);
+        mWebView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+        // 安全：本页仅渲染服务端隐私协议 HTML，无 JS 业务需求 → 关闭以阻断 sanitizer 绕过型 XSS
+        mWebView.getSettings().setJavaScriptEnabled(false);
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-        // 设置可以使用localStorage
-        mWebView.getSettings().setDomStorageEnabled(true);
+        // localStorage 同步关闭
+        mWebView.getSettings().setDomStorageEnabled(false);
         mWebView.getSettings().setLoadsImagesAutomatically(true);
         mWebView.getSettings().setBlockNetworkImage(false);
         mWebView.getSettings().setSavePassword(false);
 //        mWebView.getSettings().setUserAgentString(mWebView.getSettings().getUserAgentString() + " sobot");
 
-        //关于webview的http和https的混合请求的，从Android5.0开始，WebView默认不支持同时加载Https和Http混合模式。
-        // 在API>=21的版本上面默认是关闭的，在21以下就是默认开启的，直接导致了在高版本上面http请求不能正确跳转。
+        //安全：禁止 HTTPS 页面加载 HTTP 资源
         if (Build.VERSION.SDK_INT >= 21) {
-            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+            mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         }
 
         //Android 4.4 以下的系统中存在一共三个有远程代码执行漏洞的隐藏接口
@@ -150,22 +162,37 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
         mWebView.removeJavascriptInterface("accessibility");
         mWebView.removeJavascriptInterface("accessibilityTraversal");
 
-        // 应用可以有数据库
-        mWebView.getSettings().setDatabaseEnabled(true);
+        // 安全：关闭 WebSQL
+        mWebView.getSettings().setDatabaseEnabled(false);
 
         mWebView.setWebViewClient(new WebViewClient() {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                //注释的地方是打开其它应用，比如qq
-                /*if (url.startsWith("http") || url.startsWith("https")) {
-                    return false;
-                } else {
-                    Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(in);
+                if (TextUtils.isEmpty(url)) {
                     return true;
-                }*/
-                return false;
+                }
+                String lower = url.toLowerCase();
+                // CWE-319: https-only，与 WebViewActivity 一致，拒 http 明文导航
+                if (lower.startsWith("https://")) {
+                    return false;
+                }
+                if (lower.startsWith("http://")) {
+                    LogUtils.i("PrivacyAgreement block http(non-tls) navigation");
+                    return true;
+                }
+                if (lower.startsWith("tel:") || lower.startsWith("mailto:")) {
+                    try {
+                        Intent dispatchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        dispatchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(dispatchIntent);
+                    } catch (Exception e) {
+                        LogUtils.e("PrivacyAgreement dispatch intent failed", e);
+                    }
+                    return true;
+                }
+                LogUtils.i("PrivacyAgreement block non-whitelist scheme");
+                return true;
             }
 
             @Override
@@ -177,33 +204,16 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // 注入深色模式 CSS
-                if(isDarkMode) {
-                    String javascript = "javascript:(function() { " +
-                            "document.documentElement.style.setProperty('--background-color', '#121212'); " +
-                            "document.documentElement.style.setProperty('--text-color', '#ffffff'); " +
-                            "document.body.style.backgroundColor = '#121212'; " +
-                            "document.body.style.color = '#ffffff'; " +
-                            "})()";
-
-                    mWebView.loadUrl(javascript);
-                }
-
-//                canGoBack = mWebView.canGoBack();
-//                canGoForward = mWebView.canGoForward();
-//                sobot_webview_goback.setEnabled(canGoBack);
-//                sobot_webview_forward.setEnabled(canGoForward);
-//                refreshBtn();
-//                if (isUrlOrText && !mUrl.replace("http://", "").replace("https://", "").equals(view.getTitle()) && sobot_webview_title_display) {
-//                    setTitle(view.getTitle());
-//                }
+                // 暗色模式 CSS 已内联到 HTML wrapper，无需再注入 JS
             }
         });
     }
+
     @Override
     protected void initData() {
         // 初始化数据
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -219,6 +229,7 @@ public class SobotPrivacyAgreementActivity extends SobotChatBaseActivity {
         }
         super.onPause();
     }
+
     @Override
     protected void onDestroy() {
         if (mWebView != null) {

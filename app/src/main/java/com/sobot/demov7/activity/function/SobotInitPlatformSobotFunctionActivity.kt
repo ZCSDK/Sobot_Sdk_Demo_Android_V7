@@ -74,11 +74,11 @@ class SobotInitPlatformSobotFunctionActivity : SobotDemoBaseActivity(), View.OnC
                     return
                 }
                 ZCSobotApi.initSobotSDK(context, information!!.app_key, information!!.partnerid)
-                ZCSobotApi.initPlatformUnion(
-                    context,
-                    otherModel!!.platformUnionCode,
-                    otherModel!!.platformSecretkey
-                )
+//                ZCSobotApi.initPlatformUnion(
+//                    context,
+//                    otherModel!!.platformUnionCode,
+//                    otherModel!!.platformSecretkey
+//                )
                 ToastUtil.showCustomToast(context, "已初始化")
                 finish()
             }

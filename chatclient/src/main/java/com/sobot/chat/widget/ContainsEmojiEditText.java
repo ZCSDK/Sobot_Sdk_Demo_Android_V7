@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -14,11 +13,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -38,6 +38,7 @@ import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.network.http.callback.StringResultCallBack;
 
@@ -87,6 +88,10 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         setOnFocusChangeListener(this);
         myEmojiWatcher = new MyEmojiWatcher();
         addTextChangedListener(myEmojiWatcher);
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            // 触发 setImeOptions 的 override，确保首次 IME 绑定前 NO_EXTRACT_UI | NO_FULLSCREEN 已生效
+            setImeOptions(getImeOptions());
+        }
         boolean supportFlag = SharedPreferencesUtil.getBooleanData(getContext(), ZhiChiConstant.SOBOT_CONFIG_SUPPORT, false);
         if (!supportFlag) {
             return;
@@ -138,6 +143,19 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         }
     }
 
+    /**
+     * 横屏下强制保留 NO_EXTRACT_UI | NO_FULLSCREEN，防止外部调用 setImeOptions 时
+     * 覆盖标志后 IME 重启切回抽取/全屏模式遮挡输入框。
+     */
+    @Override
+    public void setImeOptions(int imeOptions) {
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            imeOptions |= EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                    | EditorInfo.IME_FLAG_NO_FULLSCREEN;
+        }
+        super.setImeOptions(imeOptions);
+    }
+
     public void doAfterTextChanged(String s) {
         if (!mIsAutoComplete) {
             return;
@@ -187,7 +205,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
                                 showPop((View) ContainsEmojiEditText.this.getParent(), respInfoList);
                             }
                         } catch (Exception e) {
-//                        e.printStackTrace();
+                            LogUtils.e("uncaught", e);
                         }
                     }
 
@@ -269,22 +287,63 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
         dismissPop();
         View contentView = getContentView();
         //处理popWindow 显示内容
-        final ListView listView = handleListView(contentView, list);
-        if (mPopWindow == null) {
-            mPopWindow = new SobotCustomPopWindow.PopupWindowBuilder(getContext())
-                    .setView(contentView)
-                    .setFocusable(false)
-                    .setOutsideTouchable(false)
-                    .setWidthMatchParent(true)
-                    .create();
+        final GridView listView = handleListView(contentView, list);
+
+        // 找到圆角输入框容器(ll_chat_keyboard_panle)作为对齐目标，
+        // 使弹窗左右与输入框对齐，同时天然避开横屏刘海屏（容器已由 Activity 根布局做了 cutout padding）。
+        // 找不到时回退到 anchorView，行为与改动前一致。
+        View alignTarget = anchorView;
+        ViewParent parent = anchorView.getParent();
+        while (parent instanceof View) {
+            View v = (View) parent;
+            if (v.getId() == R.id.ll_chat_keyboard_panle) {
+                alignTarget = v;
+                break;
+            }
+            parent = v.getParent();
         }
-        int[] location = new int[2];
-        anchorView.getLocationOnScreen(location);
-        mPopWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, location[0], location[1] - ScreenUtils.dip2px(getContext(), 36) * (list.size() > MAX_AUTO_COMPLETE_NUM ? MAX_AUTO_COMPLETE_NUM : list.size()) - ScreenUtils.dip2px(getContext(), 16+20));
+        int alignWidth = alignTarget.getWidth();
+        if (alignWidth <= 0) {
+            alignWidth = anchorView.getWidth();
+        }
+        int[] alignLoc = new int[2];
+        alignTarget.getLocationOnScreen(alignLoc);
+
+        // 直接读 GridView LayoutParams 算 popup 高度，避免依赖 measure pass —— measure 在第一次 show 时
+        // GridView 还未完成 layout、setLayoutParams 未生效，会拿到偏差值。
+        // popup 高度 = GridView height(rows*行高) + 上下 margin（LinearLayout 自身无 padding）。
+        LinearLayout.LayoutParams gvLp = (LinearLayout.LayoutParams) listView.getLayoutParams();
+        int popupHeight = gvLp.height + gvLp.topMargin + gvLp.bottomMargin;
+        int anchorGapPx = getResources().getDimensionPixelSize(R.dimen.sobot_autocomplete_anchor_gap);
+        int x = alignLoc[0];
+        int y = alignLoc[1] - popupHeight - anchorGapPx;
+
+        // 关键：每次都用 explicit 宽高新建 PopupWindow，不复用 —— 复用 + WRAP_CONTENT 自测会导致
+        // "首次过高、复用过矮"的行数不一致 bug；用 explicit 高度构造，PopupWindow 从头到尾不需要自测 contentView。
+        if (mPopWindow != null) {
+            try {
+                mPopWindow.dissmiss();
+            } catch (Exception e) {
+                LogUtils.e("uncaught", e);
+            }
+        }
+        mPopWindow = new SobotCustomPopWindow.PopupWindowBuilder(getContext())
+                .setView(contentView)
+                .setFocusable(false)
+                .setOutsideTouchable(false)
+                .size(alignWidth, popupHeight)
+                .create();
+        mPopWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, x, y);
+        // 强制 update 一次，兜底 SobotCustomPopWindow 内部 build 末尾的 update() noop 路径
+        // （在 show 之前 update() 直接 return，导致 explicit height 没真正写入 WindowManager.LayoutParams）。
+        PopupWindow rawPopup = mPopWindow.getPopupWindow();
+        if (rawPopup != null && rawPopup.isShowing()) {
+            rawPopup.update(x, y, alignWidth, popupHeight);
+        }
     }
 
-    private ListView handleListView(View contentView, final List<RespInfoListBean> list) {
-        final ListView listView = (ListView) contentView.findViewById(R.id.sobot_lv_menu);
+    private GridView handleListView(View contentView, final List<RespInfoListBean> list) {
+        final GridView listView = contentView.findViewById(R.id.sobot_lv_menu);
         notifyAdapter(listView, list);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -305,36 +364,31 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
 
     }
 
-    private void notifyAdapter(ListView listView, final List<RespInfoListBean> list) {
+    private void notifyAdapter(GridView listView, final List<RespInfoListBean> list) {
         if (list == null || listView == null) {
             return;
         }
-        if (mAdapter == null) {
-            List<RespInfoListBean> tmpList = new ArrayList<>();
-            tmpList.clear();
-            tmpList.addAll(list);
-            mAdapter = new SobotAutoCompelteAdapter(getContext(), tmpList);
-            listView.setAdapter(mAdapter);
-        } else {
-            List<RespInfoListBean> datas = mAdapter.getDatas();
-            if (datas != null) {
-                datas.clear();
-                datas.addAll(list);
-            }
-            mAdapter.notifyDataSetChanged();
-        }
+        // 与 mContentView 一致，每次新建 adapter；旧 adapter 已绑定到旧 listView，无需复用
+        mAdapter = new SobotAutoCompelteAdapter(getContext(), new ArrayList<>(list));
+        listView.setAdapter(mAdapter);
         listView.setSelection(0);
 
         measureListViewHeight(listView, list.size());
     }
 
-    private void measureListViewHeight(ListView listView, int count) {
-        int listHeight;
-        if (count > MAX_AUTO_COMPLETE_NUM) {
-            listHeight = ScreenUtils.dip2px(getContext(), 36) * MAX_AUTO_COMPLETE_NUM;
-        } else {
-            listHeight = ScreenUtils.dip2px(getContext(), 36) * count;
-        }
+    /**
+     * 按 GridView 实际列数计算高度：行数 = ceil(展示 item 数 / 列数)。
+     * 列数由 @integer/sobot_list_span_count 在资源限定符下决定（手机竖屏/Pad=1，手机横屏=2）。
+     * 单行高度走 dimen @dimen/sobot_autocomplete_row_height（手机横屏 32dp，其他 36dp）。
+     */
+    private void measureListViewHeight(GridView listView, int count) {
+        int displayCount = Math.min(count, MAX_AUTO_COMPLETE_NUM);
+        // 不能用 listView.getNumColumns()——GridView 首次 measure 之前返回 0，
+        // 会让 columns 退化成 1，rows 被算成 item 数。直接读 integer 资源。
+        int columns = Math.max(1, getResources().getInteger(R.integer.sobot_list_span_count));
+        int rows = (int) Math.ceil(displayCount * 1.0 / columns);
+        int rowHeightPx = getResources().getDimensionPixelSize(R.dimen.sobot_autocomplete_row_height);
+        int listHeight = rowHeightPx * rows;
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) listView.getLayoutParams();
         params.height = listHeight;
         listView.setLayoutParams(params);
@@ -345,19 +399,21 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
             try {
                 mPopWindow.dissmiss();
             } catch (Exception e) {
-                e.printStackTrace();
+                LogUtils.e("uncaught", e);
             }
         }
     }
 
     private View getContentView() {
-        if (mContentView == null) {
-            synchronized (ContainsEmojiEditText.class) {
-                if (mContentView == null) {
-                    mContentView = LayoutInflater.from(getContext()).inflate(R.layout.sobot_layout_auto_complete, null);
-                }
-            }
-        }
+        // 每次重 inflate，不复用 mContentView —— 复用会让 PopupWindow 内部 layout 缓存在多次 show/dismiss
+        // 后状态不一致（同样 1 行触发但高度不同），是 "首次高、复用矮" 的根因。
+        mContentView = LayoutInflater.from(getContext()).inflate(R.layout.sobot_layout_auto_complete, null);
+        // inflate(layout, null) 不会给 root 生成 LayoutParams（getLayoutParams() == null）；PopupWindow.createBackgroundView
+        // 据此走 MATCH_PARENT 分支，把 LinearLayout 撑满 popup window，造成"内容上排、底部留白"。
+        // 显式设 WRAP_CONTENT 强制走 WRAP_CONTENT 分支，让 contentView 真实跟随 LinearLayout 测量结果。
+        mContentView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         return mContentView;
     }
 
@@ -379,7 +435,7 @@ public class ContainsEmojiEditText extends AppCompatEditText implements View.OnF
             }
             RespInfoListBean child = list.get(position);
             if (child != null && !TextUtils.isEmpty(child.getHighlight())) {
-                holder.sobot_child_menu.setText(Html.fromHtml(child.getHighlight()));
+                holder.sobot_child_menu.setText(WebViewSecurityUtil.safeFromHtml(child.getHighlight()));
             } else {
                 holder.sobot_child_menu.setText("");
             }

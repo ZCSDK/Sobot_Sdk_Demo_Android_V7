@@ -140,7 +140,7 @@
     <string name="sobot_delete">删除</string>
     <string name="sobot_data_wrong_hint">数据错误</string>
     <string name="sobot_cus_service">客服</string>
-    <string name="sobot_ctrl_v_success">复制成功！</string>
+    <string name="sobot_ctrl_v_success">已复制到剪贴板</string>
     <string name="sobot_ctrl_copy">复制</string>
     <string name="sobot_created_1">已创建</string>
     <string name="sobot_count_down">倒计时</string>
@@ -265,13 +265,10 @@
     <string name="sobot_search_no_date">无结果</string>
     <!--    4.1.6-->
     <string name="sobot_permission_use_info">权限使用说明</string>
-    <string name="sobot_album_permission_yongtu">正在申请您的照片和视频访问及使用权限。允许后，在咨询客服和留言时可发送照片和视频</string>
     <string name="sobot_please_open_album">请求使用相册权限</string>
     <string name="sobot_use_album">用于访问及使用此设备上的照片和视频</string>
-    <string name="sobot_camera_permission_yongtu">正在申请您的相机使用权限。允许后，在咨询客服和留言时可拍照和录制视频进行上传</string>
     <string name="sobot_please_open_camera">请求开启相机权限</string>
     <string name="sobot_use_camera">用于获取相机的使用权限</string>
-    <string name="sobot_microphone_permission_yongtu">正在申请您的麦克风使用权限。允许后，在咨询客服时可发送语音消息</string>
     <string name="sobot_please_open_microphone">请求开启麦克风权限</string>
     <string name="sobot_use_microphone">用于获取麦克风的使用权限</string>
     <string name="sobot_storage_permission_yongtu">正在申请您的文件访问及使用权限。允许后，在咨询客服和留言时可发送文件</string>
@@ -302,7 +299,7 @@
     <string name="sobot_notice_expand_all">展开全部</string>
     <string name="sobot_ticket_no_reply">暂无回复</string>
     <string name="sobot_ticket_update_file_hite">最多上传 %s 个，大小不超过 %s</string>
-    <string name="sobot_ticket_update_file_max_hite">已达上限 15 个</string>
+    <string name="sobot_ticket_update_file_max_hite">已达上限 %1$d 个</string>
     <string name="sobot_cus_level_all">全部</string>
     <string name="sobot_please_choice">请选择...</string>
     <string name="sobot_skill_no_service">暂无客服在线，点击进行留言。</string>
@@ -328,7 +325,6 @@
     <string name="sobot_no_microphone_des">无法录制声音，前往\“设置 > 应用 > %s > 权限\”中打开麦克风权限</string>
     <string name="sobot_continue_shooting">继续拍摄</string>
     <string name="sobot_audio_go_setting">未开启麦克风，无法录制声音</string>
-    <string name="sobot_microphone_permission_yongtu_camera">正在申请麦克风使用权限。允许后，咨询客服和留言时可以发送/上传录制的视频。</string>
     <string name="sobot_agree_agreement">我已阅读并同意 %s。</string>
     <string name="sobot_agree">同意</string>
     <!--    4.5.0 继续排队-->
@@ -340,4 +336,8 @@
     <string name="sobot_reference_materials_quantity">参考 %d 篇资料</string>
     <string name="sobot_start_chat">开始咨询</string>
     <string name="sobot_variable_title">填写信息</string>
+    <string name="sobot_ctrl_ticket_success">已复制工单编号</string>
+    <string name="sobot_album_permission_yongtu">请求访问照片权限。用于发送图片消息。不允许访客权限时，仍可正常使用应用</string>
+    <string name="sobot_microphone_permission_yongtu">请求访问麦克风权限。用于发送语音、视频消息，不允许访客权限时，仍可正常使用应用。</string>
+    <string name="sobot_camera_permission_yongtu">请求访问相机权限。用于发送图片、录像消息。不允许访客权限时，仍可正常使用应用。</string>
 </resources>

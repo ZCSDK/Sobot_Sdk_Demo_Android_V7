@@ -45,7 +45,7 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="44dp"
+                android:minHeight="28dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 
@@ -81,7 +81,7 @@
                 <TextView
                     android:id="@+id/sobot_msg"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:includeFontPadding="false"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                     android:textColor="@color/sobot_left_msg_text_color"
@@ -256,7 +256,7 @@
                         android:layout_width="12dp"
                         android:layout_height="12dp"
                         android:layout_marginStart="5dp"
-                        android:src="@drawable/sobot_notice_arrow_down"
+                        android:src="@drawable/sobot_arrow_down"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>

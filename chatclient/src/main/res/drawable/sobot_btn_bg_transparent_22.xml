@@ -5,7 +5,7 @@
         <shape>
             <solid android:color="@color/sobot_color_transparent" />
 
-            <stroke android:width="0.5dp" android:color="@color/sobot_common_green" />
+            <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_common_green" />
 
             <corners android:radius="22dp" />
         </shape>

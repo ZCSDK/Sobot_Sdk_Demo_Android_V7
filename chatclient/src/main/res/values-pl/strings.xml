@@ -135,7 +135,7 @@
     <string name="sobot_delete">Usuń</string>
     <string name="sobot_data_wrong_hint">Bląd danych</string>
     <string name="sobot_cus_service">Agent</string>
-    <string name="sobot_ctrl_v_success">Kopiuj pomyślnie!</string>
+    <string name="sobot_ctrl_v_success">Skopiowano do schowka</string>
     <string name="sobot_ctrl_copy">Kopiuj</string>
     <string name="sobot_created_1">Utworzony</string>
     <string name="sobot_count_down">Odliczanie</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">Przeszukaj wszystkie powiaty (okręgi)</string>
     <string name="sobot_region_level4">Przeszukaj wszystkie ulice</string>
     <string name="sobot_permission_use_info">Instrukcje użycia uprawnień</string>
-    <string name="sobot_album_permission_yongtu">Wnioskujemy o Państwa prawa dostępu i użytkowania zdjęć i wideo. Po zgodzie zdjęcia i filmy mogą być wysyłane podczas konsultacji z obsługą klienta i zostawiania wiadomości</string>
     <string name="sobot_please_open_album">Proszę o zgodę na użycie albumu</string>
     <string name="sobot_use_album">Używane do uzyskiwania dostępu do zdjęć i używania filmów na tym urządzeniu</string>
-    <string name="sobot_camera_permission_yongtu">Proszę o pozwolenie na użycie kamery. Po zezwoleniu możesz robić zdjęcia i nagrywać filmy do przesyłania, konsultując się z obsługą klienta i zostawiając wiadomości</string>
     <string name="sobot_please_open_camera">Żądanie włączenia uprawnień kamery</string>
     <string name="sobot_use_camera">Używane do uzyskania uprawnień do użytkowania kamery</string>
-    <string name="sobot_microphone_permission_yongtu">Proszę o pozwolenie na używanie mikrofonu. Po zgodzie wiadomości głosowe mogą być wysyłane podczas konsultacji z obsługą klienta</string>
     <string name="sobot_please_open_microphone">Proszę o pozwolenie na włączenie mikrofonu</string>
     <string name="sobot_use_microphone">Używane do uzyskania zezwolenia na korzystanie z mikrofonów</string>
     <string name="sobot_storage_permission_yongtu">Wnioskujemy o Państwa prawa dostępu do plików i ich użytkowania. Po zgodzie pliki mogą być wysyłane podczas konsultacji z obsługą klienta i pozostawiania wiadomości</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">Brak odpowiedzi</string>
     <string name="sobot_please_input">Wpisz...</string>
     <string name="sobot_ticket_update_file_hite">Maksymalnie można wgrać %s, o rozmiarze nie przekraczającym %s</string>
-    <string name="sobot_ticket_update_file_max_hite">Osiągnięto limit 15</string>
+    <string name="sobot_ticket_update_file_max_hite">Osiągnięto limit %1$d</string>
     <string name="sobot_cus_level_all">Wszystko</string>
     <string name="sobot_please_choice">Proszę wybrać...</string>
     <string name="sobot_skill_no_service">Brak obecnie dostępnych operatorów obsługi klienta. Kliknij, aby pozostawić wiadomość.</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">Nie można nagrać dźwięku. Przejdź do „Ustawienia > Aplikacje > %s > Uprawnienia\” i włącz uprawnienia do mikrofonu.</string>
     <string name="sobot_continue_shooting">Kontynuuj nagrywanie</string>
     <string name="sobot_audio_go_setting">Mikrofon nie jest włączony, nie można nagrać dźwięku.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Trwa żądanie uprawnień do korzystania z mikrofonu. Po zezwoleniu, podczas kontaktu z obsługą klienta i składania wiadomości, będzie można wysłać/przesłać nagrane filmy.</string>
     <string name="sobot_agree_agreement">Zapoznałem/am się z %s i wyrażam na nie zgodę.</string>
     <string name="sobot_agree">Zgadzam się</string>
     <string name="sobot_keep_queuing">kliknij, aby pozostać w kolejce</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">Zobacz $%dźródeł</string>
     <string name="sobot_start_chat">Rozpocznij konsultację</string>
     <string name="sobot_variable_title">Wypełnij informacje</string>
+    <string name="sobot_ctrl_ticket_success">Skopiowano numer zgłoszenia</string>
+    <string name="sobot_album_permission_yongtu">Wymagany dostęp do zdjęć do wysyłania wiadomości graficznych. Aplikacja działa normalnie po odmowie.</string>
+    <string name="sobot_microphone_permission_yongtu">Wymagany dostęp do mikrofonu do wysyłania wiadomości głosowych/wideo. Aplikacja działa normalnie po odmowie.</string>
+    <string name="sobot_camera_permission_yongtu">Wymagany dostęp do kamery do wysyłania zdjęć/wideo. Aplikacja działa normalnie po odmowie.</string>
 </resources>

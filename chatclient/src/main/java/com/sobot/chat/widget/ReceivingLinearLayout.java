@@ -94,24 +94,24 @@ public class ReceivingLinearLayout extends LinearLayout {
      * @param expandRes
      * @param foldRes
      */
-    public void bindExpandButton(LinearLayout ll_expandt,ImageView view, TextView textView, final int expandRes, final int foldRes) {
+    public void bindExpandButton(LinearLayout ll_expandt, ImageView view, TextView textView, final int expandRes, final int foldRes) {
         this.ll_expand = ll_expandt;
         mExpandBtn = view;
         ExpandBtn = textView;
         if (textView == null) {
             return;
         }
-        textView.setOnClickListener(new OnClickListener() {
+        ll_expand.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                LogUtils.d("=====setOnClickListener===mIsExpand="+mIsExpand);
-                if(!mIsExpand) {
+                LogUtils.d("=====setOnClickListener===mIsExpand=" + mIsExpand);
+                if (!mIsExpand) {
                     ll_expand.setVisibility(GONE);
                     mExpandBtn.setVisibility(GONE);
                     ExpandBtn.setVisibility(GONE);
-                }else{
+                } else {
                     ll_expand.setVisibility(VISIBLE);
-                    mExpandBtn.setImageResource( expandRes);
+                    mExpandBtn.setImageResource(expandRes);
                     ExpandBtn.setText(getResources().getString(R.string.sobot_card_open));
                 }
                 setIsExpand(!mIsExpand);
@@ -155,9 +155,9 @@ public class ReceivingLinearLayout extends LinearLayout {
      */
     public void setIsExpand(boolean isExpand) {
         this.mIsExpand = isExpand;
-        if(isExpand){
-            mExpandBtn.setImageResource(R.drawable.sobot_notice_arrow_up);
-            ExpandBtn.setText( getResources().getString(R.string.sobot_card_open));
+        if (isExpand) {
+            mExpandBtn.setImageResource(R.drawable.sobot_arrow_up);
+            ExpandBtn.setText(getResources().getString(R.string.sobot_card_open));
         }
         requestLayout();
     }
@@ -200,6 +200,7 @@ public class ReceivingLinearLayout extends LinearLayout {
             }
         }
     }
+
     public void setExpandBtnVVisiable(int visiable) {
         if (mExpandBtn != null) {
             ll_expand.setVisibility(visiable);

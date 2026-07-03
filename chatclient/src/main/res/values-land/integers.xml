@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  手机横屏（屏幕宽 < 600dp 的横屏机型兜底）
+  仅覆盖与 values/ 基准不同的整型；相同项回落到 values/
+-->
+<resources>
+
+    <!--语言选择弹窗列数（横屏 2 列）-->
+    <integer name="sobot_dialog_languae_span_count">2</integer>
+
+</resources>

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.sobot.chat.utils.LogUtils;
 
 public class PagerGridSmoothScroller extends LinearSmoothScroller {
-    private String TAG="PagerGridSmoothScroller";
+    private String TAG = "PagerGridSmoothScroller";
     private RecyclerView mRecyclerView;
 
     public PagerGridSmoothScroller(@NonNull RecyclerView recyclerView) {

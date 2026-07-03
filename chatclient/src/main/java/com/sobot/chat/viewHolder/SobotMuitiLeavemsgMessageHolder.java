@@ -1,7 +1,6 @@
 package com.sobot.chat.viewHolder;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
@@ -15,8 +14,10 @@ import androidx.core.content.ContextCompat;
 
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
+import com.sobot.chat.utils.WebViewSecurityUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 
@@ -64,7 +65,7 @@ public class SobotMuitiLeavemsgMessageHolder extends MsgHolderBase implements Vi
                 sobot_msgProgressBar.setVisibility(View.VISIBLE);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
     }
 
@@ -75,12 +76,12 @@ public class SobotMuitiLeavemsgMessageHolder extends MsgHolderBase implements Vi
             String[] arr = message.getAnswer().getMsg().split("\n");
             for (int i = 0; i < arr.length; i++) {
                 TextView textView = new TextView(mContext);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimensionPixelSize(R.dimen.sobot_text_font_14));
                 LinearLayout.LayoutParams wlayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
                 if (i != 0) {
                     wlayoutParams.setMargins(0, ScreenUtils.dip2px(context, 8), 0, 0);
-                }else{
+                } else {
                     wlayoutParams.setMargins(0, 0, 0, 0);
                 }
                 textView.setLayoutParams(wlayoutParams);
@@ -90,11 +91,11 @@ public class SobotMuitiLeavemsgMessageHolder extends MsgHolderBase implements Vi
                     if (StringUtils.isEmpty(arr[i])) {
                         textView.setText(" - -");
                     } else {
-                        textView.setText(Html.fromHtml(arr[i]).toString().trim());
+                        textView.setText(WebViewSecurityUtil.safeFromHtml(arr[i]).toString().trim());
                     }
                     textView.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_text_first));
                 } else {
-                    textView.setText(Html.fromHtml(arr[i]).toString().trim() + ":");
+                    textView.setText(WebViewSecurityUtil.safeFromHtml(arr[i]).toString().trim() + ":");
                     textView.setTextColor(ContextCompat.getColor(mContext, R.color.sobot_color_text_second));
                 }
                 if ((i + 1) % 2 == 0 && i < (arr.length - 1)) {

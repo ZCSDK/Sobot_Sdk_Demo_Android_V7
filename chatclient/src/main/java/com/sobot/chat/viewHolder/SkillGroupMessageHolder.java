@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sobot.chat.R;
@@ -20,6 +19,7 @@ import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.horizontalgridpage.SobotRecyclerCallBack;
+import com.sobot.chat.widget.recycler.GridSpacingItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * 转人工--技能组
  */
-public class SkillGroupMessageHolder extends MsgHolderBase  {
+public class SkillGroupMessageHolder extends MsgHolderBase {
     private RecyclerView sobot_rcy_skill;
 
     private TextView sobot_tv_title;
@@ -50,25 +50,46 @@ public class SkillGroupMessageHolder extends MsgHolderBase  {
         if (message.getSkillGroups() != null && !message.getSkillGroups().isEmpty()) {
             list_skill.clear();
             list_skill.addAll(message.getSkillGroups());
-            if (list_skill.get(0).getGroupStyle() == 1) {
+            // 横屏 / Pad 走宽屏布局（由 sobot_list_span_count 资源限定符决定，>1 即宽屏）
+            int spanFromRes = mContext.getResources().getInteger(R.integer.sobot_list_span_count);
+            boolean isWideLayout = spanFromRes > 1;
+            int size = list_skill.size();
+            int groupStyle = list_skill.get(0).getGroupStyle();
+            int spanCount = 1;
+            int spacingDp = 0;
+            if (groupStyle == 1) {
                 //图文样式
-                GridLayoutManager gridlayoutmanager = new GridLayoutManager(mContext, 3);
-                sobot_rcy_skill.setLayoutManager(gridlayoutmanager);
-                sobot_rcy_skill.setPadding(ScreenUtils.dip2px(mContext, 24), ScreenUtils.dip2px(mContext, 24), ScreenUtils.dip2px(mContext, 24), ScreenUtils.dip2px(mContext, 24));
-            } else if (list_skill.get(0).getGroupStyle() == 2) {
-                //图文加描述
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
-                sobot_rcy_skill.setLayoutManager(linearLayoutManager);
+                if (isWideLayout) {
+                    // 横屏 / Pad：≤4 时按数量平分，>4 时固定 4 列
+                    spanCount = Math.min(size, 4);
+                } else {
+                    // 竖屏：2 / 4 → 2 列，其余 3 列
+                    spanCount = (size == 2 || size == 4) ? 2 : 3;
+                }
+            } else if (groupStyle == 2) {
+                //图文加描述：宽屏 2 列、竖屏单列，间距 8dp
+                spanCount = spanFromRes;
+                spacingDp = 8;
             } else {
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
-                sobot_rcy_skill.setLayoutManager(linearLayoutManager);
+                //其他模式：宽屏 2 列、竖屏单列，间距 10dp
+                spanCount = spanFromRes;
+                spacingDp = 10;
             }
+            sobot_rcy_skill.setLayoutManager(new GridLayoutManager(mContext, spanCount));
+            // ViewHolder 复用时 bindData 会重复触发，先清空避免 ItemDecoration 累加
+            while (sobot_rcy_skill.getItemDecorationCount() > 0) {
+                sobot_rcy_skill.removeItemDecorationAt(0);
+            }
+            int spacingPx = ScreenUtils.dip2px(mContext, spacingDp);
+            sobot_rcy_skill.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacingPx, false));
             sobotSkillAdapter = new SobotSkillAdapter(context, list_skill, msgFlag, new SobotRecyclerCallBack() {
                 @Override
                 public void onItemClickListener(View view, int position) {
                     if (list_skill != null && !list_skill.isEmpty()) {
                         Intent intent = new Intent();
                         intent.setAction(ZhiChiConstant.ACTION_SKILL_GRROUP);
+                        // 安全：限定本进程，避免技能组对象泄漏给其他应用 (CWE-927)
+                        intent.setPackage(context.getPackageName());
                         if (getInitModel() != null && getInitModel().getAssignmentMode() == 1) {
                             //异步接待 进行转人工
                             if (!TextUtils.isEmpty(list_skill.get(position).getGroupName())) {

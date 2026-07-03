@@ -308,7 +308,7 @@ public class CaptureButton extends View {
         public void run() {
             state = STATE_LONG_PRESS;   //如果按下后经过500毫秒则会修改当前状态为长按状态
             //没有录制权限
-            if(!captureLisenter.checkAutoPremission()){
+            if (!captureLisenter.checkAutoPremission()) {
                 captureLisenter.recordError();
                 return;
             }

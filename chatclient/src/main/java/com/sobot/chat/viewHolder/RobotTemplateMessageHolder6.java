@@ -43,7 +43,7 @@ public class RobotTemplateMessageHolder6 extends MsgHolderBase {
                     setSuccessView();
                     if (TextUtils.isEmpty(interfaceRet.get("tempStr"))) {
                         sobot_template6_title.setVisibility(View.GONE);
-                        sobot_template6_msg.setMinHeight(ScreenUtils.dip2px(mContext, 46));
+                        sobot_template6_msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));
                     } else {
                         sobot_template6_title.setVisibility(View.VISIBLE);
                         sobot_template6_msg.setMinHeight(ScreenUtils.dip2px(mContext, 22));

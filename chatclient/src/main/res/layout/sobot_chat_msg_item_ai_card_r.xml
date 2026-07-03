@@ -72,10 +72,12 @@
                 <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                     android:id="@+id/sobot_msg_content_ll"
                     style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
-                    android:layout_width="260dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minWidth="260dp"
                     android:orientation="vertical"
-                    android:paddingTop="16dp">
+                    android:paddingTop="16dp"
+                    app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent">
                     <!--标题-->
                     <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/tv_head"
@@ -138,14 +140,13 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:gravity="bottom"
                                 android:orientation="horizontal"
                                 android:paddingTop="8dp">
 
                                 <com.sobot.chat.widget.SobotTextView
                                     android:id="@+id/sobot_count"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="8dp"
                                     android:layout_weight="1"
@@ -180,7 +181,7 @@
                         android:paddingStart="16dp"
                         android:paddingTop="8dp"
                         android:paddingEnd="16dp"
-                        android:paddingBottom="16dp"></GridLayout>
+                        android:paddingBottom="16dp" />
 
                 </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
             </LinearLayout>

@@ -22,8 +22,9 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
     private List<PlaceModel> list;
     private Context mContext;
     private DialogItemOnClick listener;
-    private String selectId ="";
-    private int themeColor ;
+    private String selectId = "";
+    private int themeColor;
+
     public SobotRegionAdapter(Context context, List<PlaceModel> list, DialogItemOnClick listener) {
         this.mContext = context;
         this.list = list;
@@ -45,24 +46,24 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        final int findIndex=i;
+        final int findIndex = i;
         final PlaceModel checkin = list.get(findIndex);
         MyViewHolder vh = (MyViewHolder) viewHolder;
         if (checkin != null) {
             vh.tv_ext.setText(checkin.getName());
 
-            if(checkin.isHasChild()){
+            if (checkin.isHasChild()) {
                 vh.iv_exts.setImageResource(R.drawable.sobot_icon_right_arrow);
                 vh.iv_exts.setVisibility(View.VISIBLE);
                 if (selectId.equals(checkin.getId())) {
-                    if(themeColor!=0) {
+                    if (themeColor != 0) {
                         vh.tv_selected.setTextColor(themeColor);
                     }
                     vh.tv_selected.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     vh.tv_selected.setVisibility(View.GONE);
                 }
-            }else{
+            } else {
                 vh.tv_selected.setVisibility(View.GONE);
                 if (selectId.equals(checkin.getId())) {
                     if (ThemeUtils.isChangedThemeColor(mContext)) {
@@ -76,7 +77,7 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
                     vh.iv_exts.setVisibility(View.GONE);
                 }
             }
-            if(selectId.equals("")){
+            if (selectId.equals("")) {
 
             }
             vh.itemView.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +98,7 @@ public class SobotRegionAdapter extends RecyclerView.Adapter {
         return list.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder{
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView iv_exts;
         private TextView tv_ext;
         private TextView tv_selected;

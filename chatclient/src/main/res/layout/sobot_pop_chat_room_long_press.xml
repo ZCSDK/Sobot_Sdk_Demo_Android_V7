@@ -5,65 +5,81 @@
     android:background="@drawable/sobot_pop_copy_bg"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="12dp"
-    android:paddingTop="12dp"
-    android:paddingEnd="12dp"
-    android:paddingBottom="15dp">
+    android:paddingBottom="8dp">
 
     <LinearLayout
-        android:id="@+id/ll_click_appoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/sobon_icon_appoint" />
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/ll_click_appoint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:background="@drawable/sobot_bg_preess_color_2dp"
             android:gravity="center"
-            android:paddingBottom="2dp"
-            android:text="@string/sobot_str_appoint"
-            android:textColor="@color/sobot_color_white"
-            android:textSize="@dimen/sobot_text_font_14" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp">
 
-    <View
-        android:id="@+id/view_split"
-        android:layout_width="@dimen/sobot_line_height_dp"
-        android:layout_height="12dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="@color/sobot_color_line_divider" />
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/sobon_icon_appoint" />
 
-    <LinearLayout
-        android:id="@+id/ll_click_copy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingBottom="2dp"
+                android:singleLine="true"
+                android:text="@string/sobot_str_appoint"
+                android:textColor="@color/sobot_color_white"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
 
-        <ImageView
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/sobon_icon_copy" />
+        <View
+            android:id="@+id/view_split"
+            android:layout_width="@dimen/sobot_line_height_dp"
+            android:layout_height="12dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/sobot_color_line_divider" />
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/ll_click_copy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:background="@drawable/sobot_bg_preess_color_2dp"
             android:gravity="center"
-            android:text="@string/sobot_ctrl_copy"
-            android:paddingBottom="2dp"
-            android:textColor="@color/sobot_color_white"
-            android:textSize="@dimen/sobot_text_font_14" />
-    </LinearLayout>
+            android:orientation="horizontal"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp">
 
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/sobon_icon_copy" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:paddingBottom="2dp"
+                android:singleLine="true"
+                android:text="@string/sobot_ctrl_copy"
+                android:textColor="@color/sobot_color_white"
+                android:textSize="@dimen/sobot_text_font_14" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

@@ -267,7 +267,7 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
             outRect.right = leftRight / 2;
         }
 
-        if (childPosition>=totalCount-surplusCount) {//最后一行
+        if (childPosition >= totalCount - surplusCount) {//最后一行
             outRect.bottom = 0;
         } else {
             outRect.bottom = topBottom;

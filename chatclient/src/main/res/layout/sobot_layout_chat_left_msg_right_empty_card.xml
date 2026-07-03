@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--聊天界面 消息列表 右侧空白区域 顶踩-->
+<?xml version="1.0" encoding="utf-8"?><!--聊天界面 消息列表 右侧空白区域 顶踩-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/sobot_left_msg_right_empty_rl"
     style="@style/sobot_left_msg_right_empty_bg_style_card"

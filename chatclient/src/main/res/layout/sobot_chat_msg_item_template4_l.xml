@@ -45,9 +45,11 @@
                 style="@style/sobot_msg_left_content_ll_bg_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minWidth="@dimen/sobot_msg_min_width"
                 android:orientation="vertical"
                 android:paddingStart="0dp"
-                android:paddingEnd="0dp">
+                android:paddingEnd="0dp"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                 <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/sobot_template4_temp_title"
@@ -97,7 +99,7 @@
                     android:textSize="@dimen/sobot_text_font_12" />
 
                 <View
-                    android:id="@+id/sobot_template3_line"
+                    android:id="@+id/sobot_template4_line"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/sobot_line_height_dp"
                     android:layout_marginTop="16dp"

@@ -3,11 +3,12 @@
     <!--顶和踩阴影边框-->
     <!--最底下的一层-->
     <item>
-        <shape >
-            <corners android:bottomLeftRadius="12dp"
+        <shape>
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0286a3bf" />
         </shape>
     </item>
@@ -17,10 +18,11 @@
         android:right="0.3dp"
         android:top="0.3dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0386a3bf" />
         </shape>
     </item>
@@ -30,10 +32,11 @@
         android:right="0.5dp"
         android:top="0.5dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0486a3bf" />
         </shape>
     </item>
@@ -45,10 +48,11 @@
         android:right="1dp"
         android:top="1dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0586a3bf" />
         </shape>
     </item>
@@ -60,10 +64,11 @@
         android:right="1.5dp"
         android:top="1.5dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0686a3bf" />
         </shape>
     </item>
@@ -75,10 +80,11 @@
         android:right="2dp"
         android:top="2dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0786a3bf" />
         </shape>
     </item>
@@ -88,10 +94,11 @@
         android:right="2.5dp"
         android:top="2.5dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="#0886a3bf" />
         </shape>
     </item>
@@ -102,10 +109,11 @@
         android:right="3dp"
         android:top="3dp">
         <shape android:shape="rectangle">
-            <corners android:bottomLeftRadius="12dp"
+            <corners
+                android:bottomLeftRadius="12dp"
                 android:bottomRightRadius="12dp"
                 android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+                android:topRightRadius="12dp" />
             <solid android:color="@color/sobot_color_bg_first" />
         </shape>
     </item>

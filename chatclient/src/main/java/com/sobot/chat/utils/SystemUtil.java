@@ -70,7 +70,7 @@ public class SystemUtil {
             //返回版本号
             return packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         return null;
@@ -93,7 +93,7 @@ public class SystemUtil {
             //返回版本号
             return packageInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         return 0;
@@ -116,13 +116,13 @@ public class SystemUtil {
             //获取albelRes
             int labelRes = applicationInfo.labelRes;
             //返回App的名称
-            if(labelRes>0){
-                return context.getResources().getString(labelRes)+ File.separator;
-            }else {
+            if (labelRes > 0) {
+                return context.getResources().getString(labelRes) + File.separator;
+            } else {
                 return "";
             }
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogUtils.e("uncaught", e);
         }
 
         return "";

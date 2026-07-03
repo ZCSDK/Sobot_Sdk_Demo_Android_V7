@@ -44,7 +44,7 @@ public class SmartUtil implements Interpolator {
     public static int measureViewHeight(View view) {
         ViewGroup.LayoutParams p = view.getLayoutParams();
         if (p == null) {
-            p = new ViewGroup.LayoutParams(MATCH_PARENT,WRAP_CONTENT);
+            p = new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         }
         int childHeightSpec;
         int childWidthSpec = ViewGroup.getChildMeasureSpec(0, 0, p.width);
@@ -123,8 +123,9 @@ public class SmartUtil implements Interpolator {
 
     /**
      * 判断内容是否可以刷新
+     *
      * @param targetView 内容视图
-     * @param touch 按压事件位置
+     * @param touch      按压事件位置
      * @return 是否可以刷新
      */
     public static boolean canRefresh(@NonNull View targetView, PointF touch) {
@@ -155,8 +156,9 @@ public class SmartUtil implements Interpolator {
 
     /**
      * 判断内容视图是否可以加载更多
-     * @param targetView 内容视图
-     * @param touch 按压事件位置
+     *
+     * @param targetView  内容视图
+     * @param touch       按压事件位置
      * @param contentFull 内容是否填满页面 (未填满时，会通过canScrollUp自动判断)
      * @return 是否可以刷新
      */
@@ -189,7 +191,7 @@ public class SmartUtil implements Interpolator {
 
     //<editor-fold desc="transform Point">
 
-    public static boolean isTransformedTouchPointInView(@NonNull View group,@NonNull View child, float x, float y,PointF outLocalPoint) {
+    public static boolean isTransformedTouchPointInView(@NonNull View group, @NonNull View child, float x, float y, PointF outLocalPoint) {
         if (child.getVisibility() != View.VISIBLE) {
             return false;
         }
@@ -204,7 +206,7 @@ public class SmartUtil implements Interpolator {
                 && point[0] < (child.getWidth())
                 && point[1] < ((child.getHeight()));
         if (isInView && outLocalPoint != null) {
-            outLocalPoint.set(point[0]-x, point[1]-y);
+            outLocalPoint.set(point[0] - x, point[1] - y);
         }
         return isInView;
     }
@@ -215,6 +217,7 @@ public class SmartUtil implements Interpolator {
 
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     *
      * @param dpValue 虚拟像素
      * @return 像素
      */
@@ -224,6 +227,7 @@ public class SmartUtil implements Interpolator {
 
     /**
      * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     *
      * @param pxValue 像素
      * @return 虚拟像素
      */
@@ -233,7 +237,9 @@ public class SmartUtil implements Interpolator {
     //</editor-fold>
 
     //<editor-fold desc="ViscousFluidInterpolator">
-    /** Controls the viscous fluid effect (how much of it). */
+    /**
+     * Controls the viscous fluid effect (how much of it).
+     */
     private static final float VISCOUS_FLUID_SCALE = 8.0f;
 
     private static final float VISCOUS_FLUID_NORMALIZE;
@@ -249,10 +255,10 @@ public class SmartUtil implements Interpolator {
     private static float viscousFluid(float x) {
         x *= VISCOUS_FLUID_SCALE;
         if (x < 1.0f) {
-            x -= (1.0f - (float)Math.exp(-x));
+            x -= (1.0f - (float) Math.exp(-x));
         } else {
             float start = 0.36787944117f;   // 1/e == exp(-1)
-            x = 1.0f - (float)Math.exp(1.0f - x);
+            x = 1.0f - (float) Math.exp(1.0f - x);
             x = start + x * (1.0f - start);
         }
         return x;

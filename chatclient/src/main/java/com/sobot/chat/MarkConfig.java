@@ -29,6 +29,12 @@ public class MarkConfig {
      */
     public static final int IS_CLOSE_SYSTEMRTL = 0b1000;
 
+    /**
+     * 是否使用传感器（距离传感器、加速度传感器等）
+     * 默认 false 不使用
+     */
+    public static final int SOBOT_COLLECT_SENSOR = 0b10000;
+
 
     /**
      * 获取开关位

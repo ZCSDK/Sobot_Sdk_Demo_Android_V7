@@ -18,7 +18,7 @@ class PreviewState implements State {
     private CameraMachine machine;
     private Context context;
 
-    PreviewState(CameraMachine machine,Context context) {
+    PreviewState(CameraMachine machine, Context context) {
         this.machine = machine;
         this.context = context;
     }
@@ -61,12 +61,12 @@ class PreviewState implements State {
                 machine.setState(machine.getBorrowPictureState());
                 StCmeraLog.i("capture");
             }
-        },context);
+        }, context);
     }
 
     @Override
     public void record(Surface surface, float screenProp) {
-        CameraInterface.getInstance().startRecord(surface, screenProp, null,context);
+        CameraInterface.getInstance().startRecord(surface, screenProp, null, context);
     }
 
     @Override

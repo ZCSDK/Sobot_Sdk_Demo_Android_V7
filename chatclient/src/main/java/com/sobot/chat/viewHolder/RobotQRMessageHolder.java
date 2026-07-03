@@ -63,7 +63,7 @@ public class RobotQRMessageHolder extends MsgHolderBase {
                         viewHolder = (QuestionRecommendViewHolder) convertView.getTag();
                     } else {
                         View view = View.inflate(context, R.layout.sobot_chat_msg_item_qr_item, null);
-                        viewHolder = new QuestionRecommendViewHolder(context, view,msgCallBack);
+                        viewHolder = new QuestionRecommendViewHolder(context, view, msgCallBack);
                         view.setTag(viewHolder);
                         sobot_horizontal_scrollview_layout.addView(view);
                     }
@@ -84,7 +84,7 @@ public class RobotQRMessageHolder extends MsgHolderBase {
         SobotQuestionRecommend.SobotQRMsgBean mQrMsgBean;
         SobotMsgAdapter.SobotMsgCallBack msgCallBack;
 
-        private QuestionRecommendViewHolder(Context context, View convertView,SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
+        private QuestionRecommendViewHolder(Context context, View convertView, SobotMsgAdapter.SobotMsgCallBack msgCallBack) {
             this.msgCallBack = msgCallBack;
             sobotLayout = (LinearLayout) convertView.findViewById(R.id.sobot_template1_item);
             sobotThumbnail = (ImageView) convertView.findViewById(R.id.sobot_item_thumbnail);
@@ -99,7 +99,7 @@ public class RobotQRMessageHolder extends MsgHolderBase {
                 sobotTitle.setText(TextUtils.isEmpty(qrMsgBean.getTitle()) ? qrMsgBean.getQuestion() : qrMsgBean.getTitle());
                 sobotLayout.setOnClickListener(this);
                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) sobotLayout.getLayoutParams();
-                layoutParams.setMargins(layoutParams.leftMargin, layoutParams.topMargin, isLast ? (int) ScreenUtils.dip2px(mContext,15) : 0, layoutParams.bottomMargin);
+                layoutParams.setMargins(layoutParams.leftMargin, layoutParams.topMargin, isLast ? (int) ScreenUtils.dip2px(mContext, 15) : 0, layoutParams.bottomMargin);
                 sobotLayout.setLayoutParams(layoutParams);
             }
         }

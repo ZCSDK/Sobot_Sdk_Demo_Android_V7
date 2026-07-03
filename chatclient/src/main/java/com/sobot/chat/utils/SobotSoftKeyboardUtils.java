@@ -33,6 +33,7 @@ public class SobotSoftKeyboardUtils {
         }
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
+
     /**
      * 键盘状态
      *

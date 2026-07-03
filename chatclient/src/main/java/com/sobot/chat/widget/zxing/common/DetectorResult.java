@@ -27,20 +27,20 @@ import com.sobot.chat.widget.zxing.ResultPoint;
  */
 public class DetectorResult {
 
-  private final com.sobot.chat.widget.zxing.common.BitMatrix bits;
-  private final ResultPoint[] points;
+    private final com.sobot.chat.widget.zxing.common.BitMatrix bits;
+    private final ResultPoint[] points;
 
-  public DetectorResult(com.sobot.chat.widget.zxing.common.BitMatrix bits, ResultPoint[] points) {
-    this.bits = bits;
-    this.points = points;
-  }
+    public DetectorResult(com.sobot.chat.widget.zxing.common.BitMatrix bits, ResultPoint[] points) {
+        this.bits = bits;
+        this.points = points;
+    }
 
-  public final BitMatrix getBits() {
-    return bits;
-  }
+    public final BitMatrix getBits() {
+        return bits;
+    }
 
-  public final ResultPoint[] getPoints() {
-    return points;
-  }
+    public final ResultPoint[] getPoints() {
+        return points;
+    }
 
 }

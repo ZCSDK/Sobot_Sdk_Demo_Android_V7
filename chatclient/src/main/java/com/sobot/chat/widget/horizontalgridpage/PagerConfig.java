@@ -1,6 +1,7 @@
 package com.sobot.chat.widget.horizontalgridpage;
 
-import android.util.Log;
+
+import com.sobot.chat.utils.LogUtils;
 
 public class PagerConfig {
     private static final String TAG = "PagerGrid";
@@ -66,11 +67,11 @@ public class PagerConfig {
 
     public static void Logi(String msg) {
         if (!PagerConfig.isShowLog()) return;
-        Log.i(TAG, msg);
+        LogUtils.i(msg);
     }
 
     public static void Loge(String msg) {
         if (!PagerConfig.isShowLog()) return;
-        Log.e(TAG, msg);
+        LogUtils.e(msg);
     }
 }

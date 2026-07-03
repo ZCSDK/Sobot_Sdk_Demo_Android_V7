@@ -36,7 +36,7 @@ public class LinkMovementClickMethod extends LinkMovementMethod {
 
             if (link.length != 0) {
                 if (action == MotionEvent.ACTION_UP) {
-                    if(System.currentTimeMillis() - lastClickTime < CLICK_DELAY){
+                    if (System.currentTimeMillis() - lastClickTime < CLICK_DELAY) {
                         link[0].onClick(widget);
                     }
                 } else if (action == MotionEvent.ACTION_DOWN) {
@@ -54,8 +54,8 @@ public class LinkMovementClickMethod extends LinkMovementMethod {
         return super.onTouchEvent(widget, buffer, event);
     }
 
-    public static LinkMovementClickMethod getInstance(){
-        if(null == sInstance){
+    public static LinkMovementClickMethod getInstance() {
+        if (null == sInstance) {
             sInstance = new LinkMovementClickMethod();
         }
         return sInstance;

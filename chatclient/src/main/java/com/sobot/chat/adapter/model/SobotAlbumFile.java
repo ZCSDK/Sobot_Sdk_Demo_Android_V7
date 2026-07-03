@@ -31,7 +31,7 @@ public class SobotAlbumFile implements Parcelable, Comparable<SobotAlbumFile> {
     public static final int TYPE_ADD = 3;
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TYPE_IMAGE, TYPE_VIDEO,TYPE_ADD})
+    @IntDef({TYPE_IMAGE, TYPE_VIDEO, TYPE_ADD})
     public @interface MediaType {
     }
 

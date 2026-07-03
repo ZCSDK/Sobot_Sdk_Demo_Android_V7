@@ -58,7 +58,7 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
         if (!super.equals(obj)) {
             if (obj instanceof RefreshComponent) {
                 final RefreshComponent thisView = this;
-                return thisView.getView() == ((RefreshComponent)obj).getView();
+                return thisView.getView() == ((RefreshComponent) obj).getView();
             }
             return false;
         }
@@ -79,7 +79,7 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
     }
 
     @Override
-    public void setPrimaryColors(@ColorInt int ... colors) {
+    public void setPrimaryColors(@ColorInt int... colors) {
         if (mWrappedInternal != null && mWrappedInternal != this) {
             mWrappedInternal.setPrimaryColors(colors);
         }

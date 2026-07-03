@@ -9,5 +9,20 @@
     <item name="action_bar_container" type="id" />
 
     <item name="sobot_srl_tag" type="id" />
-    <item name="sobot_child_type_tag" type="id"/>
+    <item name="sobot_child_type_tag" type="id" />
+    <item name="sobot_tag_origin_padding" type="id" />
+    <!-- 缓存固定宽度 view 的 原始 marginStart/marginEnd（applyNotchMarginToFixedSizeView 使用，避免旋转时累加）-->
+    <item name="sobot_tag_origin_margin" type="id" />
+
+    <!-- 留言表单横屏两列：标题/分类、邮箱/手机 两个行容器 ID（仅 layout-w600dp 内被引用，
+         在竖屏 XML 中 findViewById 返回 null，applyTwoColRowVisibility() 内做 null 兜底） -->
+    <item name="sobot_row_title_type" type="id" />
+    <item name="sobot_row_email_phone" type="id" />
+
+    <!-- 留言详情 横屏右侧面板 4 个圆形图标按钮 ID（仅 layout-w600dp 引用，
+         竖屏 / Pad / 折叠屏内屏 findViewById 返回 null，Java 端通过 R.integer.sobot_list_span_count > 1 分流） -->
+    <item name="iv_side_scroll_up" type="id" />
+    <item name="iv_side_evaluate" type="id" />
+    <item name="iv_side_reply" type="id" />
+    <item name="iv_side_scroll_down" type="id" />
 </resources>

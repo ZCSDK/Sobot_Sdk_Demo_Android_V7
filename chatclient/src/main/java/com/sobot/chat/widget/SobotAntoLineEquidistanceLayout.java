@@ -32,9 +32,9 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
 
     private List<Integer> childOfLine; //Save the count of child views of each line;
     private List<Integer> mOriginWidth;
-    private int maxWight=0;//最大宽度
+    private int maxWight = 0;//最大宽度
     private boolean isChange;// 是否需要换行
-    private int themeColor ;
+    private int themeColor;
 
     public SobotAntoLineEquidistanceLayout(Context context) {
         super(context);
@@ -76,7 +76,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         childOfLine = new ArrayList<>();
         int childCount = getChildCount();
-        int totalHeight = 0,tempTotalH= ScreenUtils.dip2px(getContext(), 46);
+        int totalHeight = 0, tempTotalH = ScreenUtils.dip2px(getContext(), 46);
         int totalWidth = MeasureSpec.getSize(widthMeasureSpec);
         int curLineChildCount = 0;
         int curLineWidth = 0;
@@ -107,7 +107,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
                 totalHeight += maxHeight;
                 maxHeight = childHeight;
             }
-            if(i>0)
+            if (i > 0)
                 tempTotalH += childHeight;
         }
         childOfLine.add(curLineChildCount);
@@ -117,7 +117,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
             }
         }
         List<Integer> childLines = new ArrayList<>();
-        if(childOfLine.size()>1) {
+        if (childOfLine.size() > 1) {
             for (int i = 0; i < childOfLine.size(); i++) {
                 int tempCount = childOfLine.get(i);
                 if (tempCount > 1) {
@@ -129,11 +129,11 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
                 }
             }
         }
-        if(childLines.size()>childOfLine.size()) {
+        if (childLines.size() > childOfLine.size()) {
             childOfLine.clear();
             childOfLine.addAll(childLines);
             totalHeight += (mVerticalGap * (childOfLine.size() - 1) + tempTotalH);
-        }else {
+        } else {
             totalHeight += (mVerticalGap * (childOfLine.size() - 1) + maxHeight);
         }
         setMeasuredDimension(totalWidth, totalHeight);
@@ -171,7 +171,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
         int index = 0;
         int curHeight = 0;
         int wight = getWidth();
-        if(childOfLine.size() == 1){
+        if (childOfLine.size() == 1) {
             //如果一行超过1个，宽度平分
             int childCount = childOfLine.get(0);
             int maxHeight = 0;
@@ -186,7 +186,7 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
             }
             curHeight += maxHeight + mVerticalGap;
 
-        }else {
+        } else {
             //如果多行，每行显示一个，宽度是最大宽度
             for (int i = 0; i < childOfLine.size(); i++) {
                 int childCount = childOfLine.get(i);
@@ -204,8 +204,9 @@ public class SobotAntoLineEquidistanceLayout extends ViewGroup {
             }
         }
     }
-    private void setBtnBg(View view, boolean isFrist){
-        if(view instanceof TextView) {
+
+    private void setBtnBg(View view, boolean isFrist) {
+        if (view instanceof TextView) {
             Drawable drawable = getContext().getResources().getDrawable(R.drawable.sobot_evaluate_commit_selector);
             drawable = ThemeUtils.applyColorToDrawable(drawable, themeColor);
             if (isFrist) {

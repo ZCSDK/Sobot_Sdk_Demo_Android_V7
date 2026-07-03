@@ -135,7 +135,7 @@
     <string name="sobot_delete">Löschen</string>
     <string name="sobot_data_wrong_hint">Falsche daten</string>
     <string name="sobot_cus_service">Agent</string>
-    <string name="sobot_ctrl_v_success">Erfolgreich kopieren!</string>
+    <string name="sobot_ctrl_v_success">In die Zwischenablage kopiert</string>
     <string name="sobot_ctrl_copy">Kopieren</string>
     <string name="sobot_created_1">Erstellt</string>
     <string name="sobot_count_down">Countdown</string>
@@ -254,13 +254,10 @@
     <string name="sobot_region_level3">Alle Landkreise durchsuchen</string>
     <string name="sobot_region_level4">Alle Straßen durchsuchen</string>
     <string name="sobot_permission_use_info">Anweisungen zur Verwendung von Berechtigungen</string>
-    <string name="sobot_album_permission_yongtu">Wir beantragen Ihre Foto- und Videozugriffs- und Nutzungsrechte. Nach Genehmigung können Fotos und Videos gesendet werden, wenn Sie den Kundenservice konsultieren und Nachrichten hinterlassen.</string>
     <string name="sobot_please_open_album">Erlaubnis zur Verwendung des Albums anfordern</string>
     <string name="sobot_use_album">Wird für den Zugriff auf und die Verwendung von Fotos und Videos auf diesem Gerät verwendet</string>
-    <string name="sobot_camera_permission_yongtu">Bitte um Erlaubnis, Ihre Kamera zu benutzen. Nach Genehmigung können Sie Fotos und Videos zum Hochladen aufnehmen, wenn Sie den Kundenservice konsultieren und Nachrichten hinterlassen</string>
     <string name="sobot_please_open_camera">Anforderung zur Aktivierung von Kameraberechtigungen</string>
     <string name="sobot_use_camera">Wird verwendet, um Berechtigungen zur Kameranutzung zu erhalten</string>
-    <string name="sobot_microphone_permission_yongtu">Bitte um Erlaubnis zur Verwendung Ihres Mikrofons. Nach Genehmigung können Sprachnachrichten gesendet werden, wenn der Kundenservice konsultiert wird</string>
     <string name="sobot_please_open_microphone">Erlaubnis zum Aktivieren des Mikrofons anfordern</string>
     <string name="sobot_use_microphone">Wird verwendet, um die Erlaubnis zur Verwendung von Mikrofonen zu erhalten</string>
     <string name="sobot_storage_permission_yongtu">Wir beantragen Ihre Dateizugriffs- und Nutzungsrechte. Nach Genehmigung können Dateien gesendet werden, wenn Sie den Kundenservice konsultieren und Nachrichten hinterlassen</string>
@@ -286,7 +283,7 @@
     <string name="sobot_ticket_no_reply">Keine Rückmeldungen vorhanden</string>
     <string name="sobot_please_input">Bitte eingeben...</string>
     <string name="sobot_ticket_update_file_hite">Maximal %s hochladen, mit einer Größe von nicht mehr als %s</string>
-    <string name="sobot_ticket_update_file_max_hite">Obergrenze erreicht: 15</string>
+    <string name="sobot_ticket_update_file_max_hite">Obergrenze erreicht: %1$d</string>
     <string name="sobot_cus_level_all">Alle</string>
     <string name="sobot_please_choice">Bitte wählen Sie...</string>
     <string name="sobot_skill_no_service">Kein Agent online. Klicken Sie hier, um die Übermittlung zu verlassen</string>
@@ -311,7 +308,6 @@
     <string name="sobot_no_microphone_des">Erteilen Sie zum Aufnehmen von Audio die Mikrofonberechtigungen in „Einstellungen\" > „Apps\" > „%s\" > „Berechtigungen\" Ihres Geräts.</string>
     <string name="sobot_continue_shooting">Aufnahme fortsetzen</string>
     <string name="sobot_audio_go_setting">Mikrofon nicht aktiviert. Das Audio kann nicht aufgenommen werden.</string>
-    <string name="sobot_microphone_permission_yongtu_camera">Die Mikrofonnutzungsberechtigung wird angefordert. Nach der Genehmigung können beim Chat mit dem Agenten und bei der Nachrichtenhinterlassung aufgenommene Videos gesendet/hochgeladen werden.</string>
     <string name="sobot_agree_agreement">Ich habe die %s gelesen und stimme ihnen zu.</string>
     <string name="sobot_agree">Zustimmen</string>
     <string name="sobot_keep_queuing">klicken Sie auf "Weiter in der Warteschlange"</string>
@@ -321,4 +317,8 @@
     <string name="sobot_reference_materials_quantity">Referenzieren Sie %d  Dokumente</string>
     <string name="sobot_start_chat">Beratung starten</string>
     <string name="sobot_variable_title">Informationen ausfüllen</string>
+    <string name="sobot_ctrl_ticket_success">Ticket-Nummer wurde kopiert.</string>
+    <string name="sobot_album_permission_yongtu">Fotozugriff für Bildnachrichten benötigt. App funktioniert weiterhin normal, wenn verweigert.</string>
+    <string name="sobot_microphone_permission_yongtu">Mikrofonzugriff für Sprach-/Videonachrichten benötigt. App funktioniert weiterhin normal, wenn verweigert.</string>
+    <string name="sobot_camera_permission_yongtu">Kamerazugriff für Bilder/Videos benötigt. App funktioniert weiterhin normal, wenn verweigert.</string>
 </resources>

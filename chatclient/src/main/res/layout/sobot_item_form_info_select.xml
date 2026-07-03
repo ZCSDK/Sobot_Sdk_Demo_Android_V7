@@ -30,6 +30,7 @@
         android:paddingBottom="9dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/work_order_customer_field_text_single"
             android:layout_width="match_parent"

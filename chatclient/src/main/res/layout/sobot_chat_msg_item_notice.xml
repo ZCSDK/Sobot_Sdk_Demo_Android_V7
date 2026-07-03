@@ -25,9 +25,9 @@
             android:layout_height="wrap_content"
             android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
             android:paddingStart="16dp"
-            android:paddingTop="10dp"
+            android:paddingTop="8dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="10dp"
+            android:paddingBottom="8dp"
             android:textColor="@color/sobot_announcement_title_color"
             android:textSize="@dimen/sobot_text_font_12"
             android:textStyle="bold" />
@@ -51,7 +51,7 @@
                 android:paddingEnd="30dp"
                 android:paddingBottom="8dp"
                 android:layout_marginBottom="3dp"
-                android:src="@drawable/sobot_notice_arrow_down" />
+                android:src="@drawable/sobot_arrow_down" />
         </LinearLayout>
     </FrameLayout>
 

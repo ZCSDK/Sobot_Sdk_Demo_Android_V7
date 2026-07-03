@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 按压状态：添加 6% 不透明度黑色遮罩 -->
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- 底层：原始背景 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_common_btn_bg" />
+                    <stroke android:width="@dimen/sobot_line_height_dp" android:color="@color/sobot_dialog_btn_line" />
+                    <corners android:radius="28dp" />
+                </shape>
+            </item>
+            <!-- 上层：6% 黑色遮罩 -->
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color" />
+                    <corners android:radius="28dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- 默认状态 -->
     <item>
         <shape>
             <solid android:color="@color/sobot_common_btn_bg" />

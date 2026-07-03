@@ -49,7 +49,7 @@ public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickL
         if (articleModel != null) {
             if (!TextUtils.isEmpty(articleModel.getSnapshot())) {
                 iv_snapshot.setVisibility(View.VISIBLE);
-                SobotBitmapUtil.display(mContext, articleModel.getSnapshot(), iv_snapshot);
+                SobotBitmapUtil.display(mContext, articleModel.getSnapshot(), iv_snapshot, R.drawable.sobot_image_loading_bg, R.drawable.sobot_image_loading_bg);
             } else {
                 iv_snapshot.setVisibility(View.GONE);
             }
@@ -95,12 +95,8 @@ public class ArticleMessageHolder extends MsgHolderBase implements View.OnClickL
     @Override
     public void onClick(View v) {
         if (v == sobot_msg_content_ll && articleModel != null && !TextUtils.isEmpty(articleModel.getRichMoreUrl())) {
-            if (SobotOption.newHyperlinkListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.newHyperlinkListener.onUrlClick(mContext, articleModel.getRichMoreUrl());
-                if (isIntercept) {
-                    return;
-                }
+            if (SobotOption.dispatchUrlClick(mContext, articleModel.getRichMoreUrl())) {
+                return;
             }
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", articleModel.getRichMoreUrl());

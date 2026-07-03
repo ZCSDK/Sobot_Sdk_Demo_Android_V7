@@ -39,15 +39,15 @@ public class SobotTipDialog extends Dialog {
     private int screenHeight;
 
     private MyClickListener myClickListener;
-    private String tipContent,btnContent;
+    private String tipContent, btnContent;
     private Context mContext;
     private int linkTextColor;
 
     /**
      * @param context
-     * @param tipContent       提示内容
+     * @param tipContent 提示内容
      */
-    public SobotTipDialog(Context context,  String tipContent) {
+    public SobotTipDialog(Context context, String tipContent) {
         super(context, R.style.sobot_noAnimDialogStyle);
         this.mContext = context;
         this.myClickListener = myClickListener;
@@ -90,15 +90,17 @@ public class SobotTipDialog extends Dialog {
         setContentView(R.layout.sobot_layout_tip_dialog);
         initView();
     }
+
     public void setmMessage(String mMessage) {
         this.tipContent = mMessage;
-        if(StringUtils.isNoEmpty(mMessage)) {
+        if (StringUtils.isNoEmpty(mMessage)) {
             tv_tip_content.setVisibility(SobotLoadingView.VISIBLE);
-            HtmlTools.getInstance(getContext()).setRichText(tv_tip_content,tipContent , linkTextColor);
-        }else{
+            HtmlTools.getInstance(getContext()).setRichText(tv_tip_content, tipContent, linkTextColor);
+        } else {
             tv_tip_content.setVisibility(SobotLoadingView.GONE);
         }
     }
+
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (!(event.getX() >= -10 && event.getY() >= -10)
@@ -108,13 +110,14 @@ public class SobotTipDialog extends Dialog {
         }
         return true;
     }
+
     private void initView() {
         coustom_pop_layout = findViewById(R.id.pop_layout);
         sobot_btn_i_know = findViewById(R.id.sobot_btn_i_know);
         tv_tip_content = findViewById(R.id.tv_tip_content);
 
         if (StringUtils.isNoEmpty(tipContent)) {
-            HtmlTools.getInstance(getContext()).setRichText(tv_tip_content,tipContent , linkTextColor);
+            HtmlTools.getInstance(getContext()).setRichText(tv_tip_content, tipContent, linkTextColor);
             tv_tip_content.setVisibility(View.VISIBLE);
         } else {
             tv_tip_content.setVisibility(View.GONE);
@@ -147,12 +150,13 @@ public class SobotTipDialog extends Dialog {
 
         void clickCancle();
     }
+
     public void updateUIByThemeColor() {
         if (ThemeUtils.isChangedThemeColor(getContext())) {
             int color = ThemeUtils.getThemeColor(getContext());
             Drawable bg = getContext().getResources().getDrawable(R.drawable.sobot_bg_theme_color_20dp);
             if (bg != null) {
-                sobot_btn_i_know.setBackground(ThemeUtils.applyColorToDrawable(bg, color));
+                sobot_btn_i_know.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, color));
             }
             sobot_btn_i_know.setTextColor(ThemeUtils.getThemeTextAndIconColor(getContext()));
         }

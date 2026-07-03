@@ -28,7 +28,7 @@ public class SobotAiCardMoreActivity extends SobotDialogBaseActivity implements 
     private TextView sobot_tv_title;
     private RecyclerView rv_list;
     private List<SobotChatCustomGoods> mDatas;
-    private SobotChatCustomCard customCard,showCustomCard;
+    private SobotChatCustomCard customCard, showCustomCard;
     private SobotAiCardAdapter mListAdapter;
 
 
@@ -43,25 +43,26 @@ public class SobotAiCardMoreActivity extends SobotDialogBaseActivity implements 
         rv_list = findViewById(R.id.rv_list);
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         rv_list.setLayoutManager(new LinearLayoutManager(this));
+        displayInNotch(rv_list);
     }
 
     @Override
     protected void setRequestTag() {
-        REQUEST_TAG="SobotAiCardMoreActivity";
+        REQUEST_TAG = "SobotAiCardMoreActivity";
     }
 
     @Override
     protected void initData() {
         mDatas = new ArrayList<>();
-        boolean isHistoy = getIntent().getBooleanExtra("isHistoy",false);
+        boolean isHistoy = getIntent().getBooleanExtra("isHistoy", false);
         showCustomCard = (SobotChatCustomCard) getIntent().getSerializableExtra("customCard");
-        if(showCustomCard==null ){
+        if (showCustomCard == null) {
             finish();
         }
-        sobot_tv_title.setText(StringUtils.isNoEmpty(showCustomCard.getCardGuide())?showCustomCard.getCardGuide():"");
+        sobot_tv_title.setText(StringUtils.isNoEmpty(showCustomCard.getCardGuide()) ? showCustomCard.getCardGuide() : "");
         customCard = (SobotChatCustomCard) getIntent().getSerializableExtra("customCard");
         mDatas.addAll(showCustomCard.getCustomCards());
-        mListAdapter = new SobotAiCardAdapter(this, mDatas,false, isHistoy );
+        mListAdapter = new SobotAiCardAdapter(this, mDatas, false, isHistoy);
         mListAdapter.setOnItemClickListener(new SobotAiCardAdapter.OnItemListener() {
             @Override
             public void onSendClick(String menuName, SobotChatCustomGoods goods) {

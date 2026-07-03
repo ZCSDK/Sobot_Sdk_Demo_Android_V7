@@ -3,7 +3,6 @@ package com.sobot.chat.activity.base;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -21,14 +20,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.LocaleList;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.DisplayCutout;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -42,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -56,6 +61,7 @@ import com.sobot.chat.activity.SobotSelectPicAndVideoActivity;
 import com.sobot.chat.api.ZhiChiApi;
 import com.sobot.chat.api.apiUtils.SobotBaseUrl;
 import com.sobot.chat.api.model.HelpConfigModel;
+import com.sobot.chat.api.model.Information;
 import com.sobot.chat.api.model.ZhiChiInitModeBase;
 import com.sobot.chat.application.MyApplication;
 import com.sobot.chat.core.HttpUtils;
@@ -97,6 +103,8 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
     public boolean isLandscapeScreen = false;
     public String REQUEST_TAG = "Sobot";
     public boolean isContinueShooting = false;//是否点击过继续拍摄
+    //上次的屏幕宽度 dp，用于检测折叠屏折叠/展开切换，触发 recreate 让 w 资源限定符生效
+    private int mLastScreenWidthDp = -1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,6 +126,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             super.onCreate(savedInstanceState);
             initMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            mLastScreenWidthDp = getResources().getConfiguration().screenWidthDp;
             if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
                 isLandscapeScreen = true;
                 // 支持显示到刘海区域
@@ -174,7 +183,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 displayInNotch(getLeftMenu());
             }
         } catch (Exception e) {
-//            e.printStackTrace();
+            LogUtils.e("uncaught", e);
 //            LogUtils.e(e.getMessage());
         }
     }
@@ -187,24 +196,206 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
                     if (notchScreenInfo.hasNotch) {
                         for (Rect rect : notchScreenInfo.notchRects) {
+                            // 用 rect.width() 表示刘海宽度；rect.right 是绝对 x 坐标，
+                            // 刘海在右侧时 ≈ 屏幕宽度，会把 padding 撑爆导致控件坍缩
+                            int notchWidth = Math.max(rect.width(), 90);
                             if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
                                 LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 44);
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 44);
+                                layoutParams.setMarginEnd(notchWidth + 44);
+                                layoutParams.setMarginStart(notchWidth + 44);
                                 view.setLayoutParams(layoutParams);
                             } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                                layoutParams.setMarginEnd((Math.max(rect.right, 90)) + 44);
-                                layoutParams.setMarginStart((Math.max(rect.right, 90)) + 44);
+                                layoutParams.setMarginEnd(notchWidth + 44);
+                                layoutParams.setMarginStart(notchWidth + 44);
                                 view.setLayoutParams(layoutParams);
                             } else {
-                                view.setPadding((Math.max(rect.right, 90)) + view.getPaddingLeft(), view.getPaddingTop(), (rect.right < 90 ? 90 : rect.right) + view.getPaddingRight(), view.getPaddingBottom());
+                                view.setPadding(notchWidth + view.getPaddingLeft(), view.getPaddingTop(), notchWidth + view.getPaddingRight(), view.getPaddingBottom());
                             }
                         }
                     }
                 }
             });
 
+        }
+    }
+
+    /**
+     * 单侧刘海屏适配：根据当前横屏方向自动只在带刘海的一侧（左或右）加 padding/margin。
+     * API 28+ 走系统 {@link android.view.DisplayCutout}，旋转后由系统自动重新派发 insets；
+     * API < 28 走旧 NotchScreenManager + rotation 判定，区分 home 键在左 / 在右两种横屏方向。
+     */
+    public void displayInNotchSingleSide(final View view) {
+        if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
+                || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
+                || view == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // API 28+：用系统 WindowInsets.getDisplayCutout()，系统会在旋转后自动派发新的 insets，
+            // 自动适配双向横屏（ROTATION_90↔ROTATION_270），无需手动检测 rotation
+            applyDisplayCutoutPaddingListener(view);
+            return;
+        }
+        // API < 28：用 NotchScreenManager + rotation 判定（区分 home 键左右两种横屏方向）
+        NotchScreenManager.getInstance().getNotchInfo(this, new INotchScreen.NotchScreenCallback() {
+            @Override
+            public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
+                if (!notchScreenInfo.hasNotch || notchScreenInfo.notchRects == null || notchScreenInfo.notchRects.isEmpty()) {
+                    return;
+                }
+                // rotation == 270 时刘海在物理右侧（home 键在左），其余横屏（90）刘海在物理左侧
+                int rotation = getWindowManager().getDefaultDisplay().getRotation();
+                boolean notchOnRight = (rotation == Surface.ROTATION_270);
+                for (Rect rect : notchScreenInfo.notchRects) {
+                    int inset = Math.max(rect.width(), 90) + 14;
+                    if (view instanceof WebView && view.getParent() instanceof LinearLayout) {
+                        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) view.getLayoutParams();
+                        if (notchOnRight) {
+                            lp.setMarginEnd(inset);
+                        } else {
+                            lp.setMarginStart(inset);
+                        }
+                        view.setLayoutParams(lp);
+                    } else if (view instanceof WebView && view.getParent() instanceof RelativeLayout) {
+                        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                        if (notchOnRight) {
+                            lp.setMarginEnd(inset);
+                        } else {
+                            lp.setMarginStart(inset);
+                        }
+                        view.setLayoutParams(lp);
+                    } else {
+                        int padInset = Math.max(rect.width(), 90);
+                        if (notchOnRight) {
+                            view.setPadding(view.getPaddingLeft(), view.getPaddingTop(),
+                                    padInset + view.getPaddingRight(), view.getPaddingBottom());
+                        } else {
+                            view.setPadding(padInset + view.getPaddingLeft(), view.getPaddingTop(),
+                                    view.getPaddingRight(), view.getPaddingBottom());
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * API 28+ 的刘海屏适配：通过 OnApplyWindowInsetsListener 让系统自动派发 DisplayCutout，
+     * 旋转后由系统重新触发 insets 派发，自动切换左右侧适配方向。
+     */
+    /**
+     * 固定宽度 view 的刘海屏避让（用 marginStart/marginEnd 推开整个 view，而非 setPadding 撑大内部）。
+     *
+     * 适用场景：layout_width 固定（如返回按钮 36dp）+ 内含图标的 ImageView。
+     * 这类 view 用 setPadding 会导致：
+     *   - paddingLeft+paddingRight 超出 view 宽 → 图标可绘制区域 ≤ 0 → 图标被压缩或消失
+     *   - 即使没溢出，scaleType 仍让图标居中显示 → 视觉上图标位置不变 → 没避开刘海
+     *
+     * 用 marginStart 推开整个 view 才能真正让按钮（含触摸区域）避开刘海。
+     * 与 displayInNotch / displayInNotchSingleSide 区别：那两个用 padding 适合自适应宽度 view（WebView、列表）。
+     */
+    public void applyNotchMarginToFixedSizeView(final View view) {
+        if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
+                || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
+                || view == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            // API < 28：暂走 displayInNotchSingleSide 路径（rare），不再单独实现
+            displayInNotchSingleSide(view);
+            return;
+        }
+        if (!(view.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+        // 用带 key 的 setTag 缓存原始 marginStart/marginEnd，避免旋转 / 重复调用时累加
+        int[] base = (int[]) view.getTag(R.id.sobot_tag_origin_margin);
+        if (base == null) {
+            android.view.ViewGroup.MarginLayoutParams lp =
+                    (android.view.ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            base = new int[]{lp.getMarginStart(), lp.getMarginEnd()};
+            view.setTag(R.id.sobot_tag_origin_margin, base);
+        }
+        final int origStart = base[0];
+        final int origEnd = base[1];
+        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public android.view.WindowInsets onApplyWindowInsets(View v, android.view.WindowInsets insets) {
+                android.view.DisplayCutout cutout = insets.getDisplayCutout();
+                android.view.ViewGroup.MarginLayoutParams params =
+                        (android.view.ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                if (cutout != null) {
+                    params.setMarginStart(origStart + cutout.getSafeInsetLeft());
+                    params.setMarginEnd(origEnd + cutout.getSafeInsetRight());
+                } else {
+                    params.setMarginStart(origStart);
+                    params.setMarginEnd(origEnd);
+                }
+                v.setLayoutParams(params);
+                return insets;
+            }
+        });
+        // 首次进入时主动请求一次派发；若 view 尚未 attach，requestApplyInsets 会被忽略，用 attach 监听兜底
+        if (view.isAttachedToWindow()) {
+            view.requestApplyInsets();
+        } else {
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    v.requestApplyInsets();
+                    v.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                }
+            });
+        }
+    }
+
+    private void applyDisplayCutoutPaddingListener(final View view) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return;
+        }
+        // 用带 key 的 setTag 缓存原始 padding，避免占用全局 tag 槽位被业务/三方库覆盖（覆盖会导致旋转时累加）
+        int[] base = (int[]) view.getTag(R.id.sobot_tag_origin_padding);
+        if (base == null) {
+            base = new int[]{view.getPaddingLeft(), view.getPaddingRight()};
+            view.setTag(R.id.sobot_tag_origin_padding, base);
+        }
+        final int origLeft = base[0];
+        final int origRight = base[1];
+        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                DisplayCutout cutout = insets.getDisplayCutout();
+                if (cutout != null) {
+                    v.setPadding(origLeft + cutout.getSafeInsetLeft(),
+                            v.getPaddingTop(),
+                            origRight + cutout.getSafeInsetRight(),
+                            v.getPaddingBottom());
+                } else {
+                    v.setPadding(origLeft, v.getPaddingTop(), origRight, v.getPaddingBottom());
+                }
+                return insets;
+            }
+        });
+        // 首次进入时主动请求一次派发；若 view 尚未 attach，requestApplyInsets 会被忽略，因此用 attach 监听兜底
+        if (view.isAttachedToWindow()) {
+            view.requestApplyInsets();
+        } else {
+            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                    v.requestApplyInsets();
+                    v.removeOnAttachStateChangeListener(this);
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                }
+            });
         }
     }
 
@@ -232,8 +423,13 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             // 更新资源配置
             Resources res = getResources();
             DisplayMetrics dm = res.getDisplayMetrics();
-            Configuration conf = new Configuration();
+            // 保留 screenWidthDp / densityDpi / uiMode 等原配置，避免清空引起副作用
+            Configuration conf = new Configuration(res.getConfiguration());
             conf.setLocale(locale);
+            // Android 13+ 部分 OEM ROM 优先读 LocaleList[0]，与 attachBaseContext 保持一致
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                conf.setLocales(new LocaleList(locale));
+            }
             if (!ChatUtils.isRtl(getSobotBaseActivity())) {
                 //禁止镜像
                 conf.setLayoutDirection(Locale.ENGLISH);//表示英语语言环境。在这个上下文中，它的作用是强制设置应用的布局方向为从左到右(LTR)。
@@ -288,6 +484,14 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
             } else {
                 getLeftMenu().setImageResource(R.drawable.sobot_icon_titlebar_back);
             }
+            getLeftMenu().setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    updateMoreBtnUi(true, getLeftMenu());
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    updateMoreBtnUi(false, getLeftMenu());
+                }
+                return false;
+            });
             //找到 Toolbar 的返回按钮,并且设置点击事件,点击关闭这个 Activity
             getLeftMenu().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -295,6 +499,33 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     onLeftMenuClick(v);
                 }
             });
+        }
+    }
+
+    /**
+     * 按钮的背景
+     *
+     * @param isShowBg 是否显示背景色 true 显示 ;false 不显示
+     */
+    private void updateMoreBtnUi(boolean isShowBg, ImageView imageView) {
+        if (imageView != null) {
+            if (isShowBg) {
+                boolean isBlack = (ThemeUtils.getToolBarTextAndIconColorType(getSobotBaseActivity()) == 1);
+                if (isBlack) {
+                    //黑色
+                    Drawable moreBgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_chat_titlebar_more_bg_black, null);
+                    if (moreBgDrawable != null) {
+                        imageView.setBackground(moreBgDrawable);
+                    }
+                } else {
+                    Drawable whiteMoreBgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_chat_titlebar_more_bg_white, null);
+                    if (whiteMoreBgDrawable != null) {
+                        imageView.setBackground(whiteMoreBgDrawable);
+                    }
+                }
+            } else {
+                imageView.setBackground(null);
+            }
         }
     }
 
@@ -379,6 +610,9 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         }
         if (isShow) {
             tmpMenu.setVisibility(View.VISIBLE);
+            // 返回按钮是固定 36dp 宽 ImageView，用 setPadding 视觉上不生效（图标 scaleType 仍居中）。
+            // 改用 marginStart/marginEnd 推开整个 view，才能真正避开刘海。
+            applyNotchMarginToFixedSizeView(tmpMenu);
         } else {
             tmpMenu.setVisibility(View.GONE);
         }
@@ -502,7 +736,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                     }
                     removePerssionUi();
                 } catch (Exception e) {
-//                    e.printStackTrace();
+//                    LogUtils.e("uncaught", e);
                 }
                 break;
         }
@@ -649,7 +883,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 tv_setting_title.setText(getResources().getString(R.string.sobot_please_open_camera));
                 tv_setting_content.setText(getResources().getString(R.string.sobot_use_camera));
             } else if (type == 4) {
-                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_microphone_permission_yongtu_camera));
+                tv_content.setText("\"" + getAppName() + "\" " + getResources().getString(R.string.sobot_microphone_permission_yongtu));
                 tv_setting_title.setText(getResources().getString(R.string.sobot_no_microphone));
                 String tempStr = getResources().getString(R.string.sobot_no_microphone_des);
                 try {
@@ -1010,31 +1244,70 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         if (initMode != currentNightMode) {
             initMode = currentNightMode;
             recreate();
+            return;
+        }
+        //折叠屏折叠/展开切换：screenWidthDp 变化时 recreate，让 w 资源限定符生效
+        //横竖屏不会触发此分支（方向已通过 setRequestedOrientation 在 onCreate 中锁定）
+        if (mLastScreenWidthDp != newConfig.screenWidthDp) {
+            mLastScreenWidthDp = newConfig.screenWidthDp;
+            recreate();
         }
     }
 
     // 在 attachBaseContext 方法中处理布局方向
     @Override
     protected void attachBaseContext(Context newBase) {
-        Context context = null;
+        Context context = newBase;
         try {
             Locale language = (Locale) SharedPreferencesUtil.getObject(newBase, ZhiChiConstant.SOBOT_LANGUAGE);
-            context = newBase;
+            // 兜底：SOBOT_LANGUAGE 未生效（接入方未调 setInternationalLanguage / config 接口失败 / 反序列化失败）时，
+            // 退而从 Information.locale 读取接入方期望的语言，避免回落系统语言导致 UI 文案与会话语言不一致。
+            if (language == null) {
+                language = resolveFallbackLocale(newBase);
+            }
             if (language != null) {
-                Configuration config = newBase.getResources().getConfiguration();
-                config = new Configuration(config);
+                Configuration config = new Configuration(newBase.getResources().getConfiguration());
                 config.setLocale(language);
-                // 根据是否为RTL语言设置布局方向
+                // Android 13+ 部分 OEM ROM（华为 / 小米 / 三星 / vivo）优先读 LocaleList[0]，
+                // 仅 setLocale 不 setLocales 会导致资源仍回落系统语言。
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    config.setLocales(new LocaleList(language));
+                }
                 if (ChatUtils.isRtl(newBase)) {
                     config.setLayoutDirection(language);
                 } else {
                     config.setLayoutDirection(Locale.ENGLISH);
                 }
-                // 创建新的上下文
                 context = newBase.createConfigurationContext(config);
             }
-            super.attachBaseContext(context);
         } catch (Exception e) {
+            LogUtils.e("attachBaseContext apply locale failed", e);
+        }
+        super.attachBaseContext(context);
+    }
+
+    // 从 sobot_last_current_info.locale 兜底解析 SDK 用 Locale，映射规则与 ZCSobotApi.setInternationalLanguage 保持一致。
+    private static Locale resolveFallbackLocale(Context ctx) {
+        try {
+            Object obj = SharedPreferencesUtil.getObject(ctx, ZhiChiConstant.sobot_last_current_info);
+            if (!(obj instanceof Information)) {
+                return null;
+            }
+            String code = ((Information) obj).getLocale();
+            if (TextUtils.isEmpty(code)) {
+                return null;
+            }
+            if ("he".equals(code)) {
+                return new Locale("iw");
+            } else if ("zh-Hans".equals(code)) {
+                return new Locale("zh");
+            } else if ("zh-Hant".equals(code)) {
+                return new Locale("zh", "TW");
+            }
+            return new Locale(code);
+        } catch (Exception e) {
+            LogUtils.e("resolveFallbackLocale failed", e);
+            return null;
         }
     }
 
@@ -1172,7 +1445,7 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      */
     public void setToolBarDefBg() {
         try {
-            HelpConfigModel configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), "SobotHelpConfigModel");
+            HelpConfigModel configModel = (HelpConfigModel) SharedPreferencesUtil.getObject(getSobotBaseActivity(), ZhiChiConstant.SOBOT_HELP_CONFIG_MODEL);
             if (getToolBar() == null) {
                 return;
             }
@@ -1275,28 +1548,23 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         String path = SobotPathManager.getInstance().getPicDir() + System.currentTimeMillis() + ".jpg";
         // 创建图片文件存放的位置
         File cameraFile = new File(path);
-        IOUtils.createFolder(cameraFile.getParentFile());
-        Uri uri;
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                ContentValues contentValues = new ContentValues(1);
-                contentValues.put(MediaStore.Images.Media.DATA, cameraFile.getAbsolutePath());
-                uri = act.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues);
+        try {
+            IOUtils.createFolder(cameraFile.getParentFile());
+            // 相机临时图统一走 FileProvider，minSdk=21 全版本可用，
+            // 不再回退 Uri.fromFile（Android 7+ 跨进程 file:// URI 会抛 FileUriExposedException）。
+            Uri uri = ChatUtils.getUri(act, cameraFile);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore
+                    .EXTRA_OUTPUT, uri);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // 防御：无相机 App / FileProvider 配置错误 / SobotPathManager 返回 null 等场景，
+            // 启动失败时记日志但不杀进程；调用方 onActivityResult 不触发，cameraFile 自然不会被读。
+            if (childFragment != null) {
+                childFragment.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
             } else {
-                uri = ChatUtils.getUri(act, cameraFile);
+                act.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
             }
-
-        } else {
-            uri = Uri.fromFile(cameraFile);
-        }
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore
-                .EXTRA_OUTPUT, uri);
-//        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        if (childFragment != null) {
-            childFragment.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
-        } else {
-            act.startActivityForResult(intent, ZCSobotConstant.REQUEST_CODE_OPENCAMERA);
+        } catch (Exception e) {
+            LogUtils.e("openCamera failed", e);
         }
 
         return cameraFile;

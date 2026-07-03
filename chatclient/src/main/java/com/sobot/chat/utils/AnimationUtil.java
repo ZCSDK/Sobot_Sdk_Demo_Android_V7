@@ -10,7 +10,7 @@ import android.view.animation.RotateAnimation;
  */
 public class AnimationUtil {
     //旋转动画
-    public static void rotate(View v){
+    public static void rotate(View v) {
         //创建旋转动画 对象   fromDegrees:旋转开始的角度  toDegrees:结束的角度
         RotateAnimation rotateAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         //设置动画的显示时间

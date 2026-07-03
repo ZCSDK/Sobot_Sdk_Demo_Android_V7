@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言回复 横屏 发送按钮 胶囊背景（Figma node 4095-29678，rounded-[9999px]）
+  - 白底 + 18dp 圆角（高度 36dp 的一半）
+  - 由 Java 端 ThemeUtils.applyColorWithMultiplyMode 染色为主题色
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true">
+        <layer-list>
+            <item>
+                <shape>
+                    <solid android:color="#FFFFFF" />
+                    <corners android:radius="18dp" />
+                </shape>
+            </item>
+            <item>
+                <shape>
+                    <solid android:color="@color/sobot_press_color_first" />
+                    <corners android:radius="18dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <item>
+        <shape>
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+</selector>

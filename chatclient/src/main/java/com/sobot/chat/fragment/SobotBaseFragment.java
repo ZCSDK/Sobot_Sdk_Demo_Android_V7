@@ -198,7 +198,7 @@ public abstract class SobotBaseFragment extends Fragment {
                     }
                     removePerssionUi();
                 } catch (Exception e) {
-//                    e.printStackTrace();
+                    LogUtils.e("uncaught", e);
                 }
                 break;
         }

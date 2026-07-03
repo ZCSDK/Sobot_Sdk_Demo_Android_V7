@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sobot_srl_content_empty">مواد کا منظر نہیں ملا۔ کیا آپ XML لے آؤٹ فائل میں اسے شامل کرنا بھول گئے؟</string>
+    <string name="sobot_srl_header_pulling">ریفریش کرنے کے لیے نیچے کھینچیں</string>
+    <string name="sobot_srl_header_refreshing">ریفریش ہو رہا ہے…</string>
+    <string name="sobot_srl_header_loading">نچلے حصے کے لوڈ ہونے کا انتظار کریں…</string>
+    <string name="sobot_srl_header_release">فوری ریفریش کے لیے چھوڑیں</string>
+    <string name="sobot_srl_header_finish">ریفریش مکمل</string>
+    <string name="sobot_srl_header_failed">ریفریش ناکام</string>
+    <string name="sobot_srl_header_update">آخری اپ ڈیٹ %s</string>
+    <string name="sobot_srl_header_secondary">دوسری منزل میں داخل ہونے کے لیے چھوڑیں</string>
+    <string name="sobot_srl_footer_pulling">مزید لوڈ کرنے کے لیے اوپر کھینچیں</string>
+    <string name="sobot_srl_footer_release">فوری لوڈ کے لیے چھوڑیں</string>
+    <string name="sobot_srl_footer_loading">لوڈ ہو رہا ہے…</string>
+    <string name="sobot_srl_footer_refreshing">ہیڈر ریفریش ہونے کا انتظار کریں…</string>
+    <string name="sobot_srl_footer_finish">لوڈ مکمل</string>
+    <string name="sobot_srl_footer_failed">لوڈ ناکام</string>
+    <string name="sobot_srl_footer_nothing">مزید ڈیٹا نہیں ہے</string>
+    <string name="sobot_no_data_string">ابھی کوئی ڈیٹا نہیں</string>
+    <string name="sobot_no_net_string">نیٹ ورک کنیکشن نہیں، براہ کرم اپنا نیٹ ورک چیک کریں...</string>
+    <string name="sobot_error_click_reload_string">لوڈ ناکام، دوبارہ کوشش کے لیے کلک کریں~~</string>
+    <string name="sobot_loading_string">لوڈ ہو رہا ہے...</string>
+</resources>

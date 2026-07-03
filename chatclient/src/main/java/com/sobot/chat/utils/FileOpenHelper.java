@@ -156,7 +156,8 @@ public class FileOpenHelper {
     public static Intent getOtherFileIntent(Context context, File file) {
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        // CWE-927: ACTION_VIEW 接收方为任意第三方，仅授读，杜绝外部 App 改写 SDK 文件
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setAction(Intent.ACTION_VIEW);
         Uri uri = getUri(context, file, intent);
         intent.setDataAndType(uri, MapTable.getMIMEType(file.getPath()));
@@ -164,24 +165,36 @@ public class FileOpenHelper {
     }
 
     private static Uri getUri(Context context, File file, Intent intent) {
-        Uri uri;
+        Uri uri = null;
         if (Build.VERSION.SDK_INT >= 24) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            try {
+                uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            } catch (IllegalArgumentException e) {
+                // FileProvider 未声明该路径时降级为 null，避免进程崩溃
+                // 需在 sobot_provider_paths.xml 中补齐对应路径声明
+                LogUtils.e("SobotFileProvider 未声明路径：" + file.getPath(), e);
+            }
         } else {
             uri = Uri.fromFile(file);
         }
         return uri;
     }
+
     public static Uri getUri(Context context, String filePath) {
-        File file=new File(filePath);
+        File file = new File(filePath);
         return getUri(context, file);
     }
 
     public static Uri getUri(Context context, File file) {
-        Uri uri;
+        Uri uri = null;
         if (Build.VERSION.SDK_INT >= 24) {
-            uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            try {
+                uri = FileProvider.getUriForFile(context, context.getPackageName() + ".sobot_fileprovider", file);
+            } catch (IllegalArgumentException e) {
+                // CWE-755：FileProvider 未声明该路径时降级为 null，避免进程崩溃
+                LogUtils.e("SobotFileProvider 未声明路径：" + file.getPath(), e);
+            }
         } else {
             uri = Uri.fromFile(file);
         }
@@ -200,7 +213,7 @@ public class FileOpenHelper {
                 }
             }
         } catch (Exception e) {
-            //ignor
+            LogUtils.e("uncaught", e);
         }
         return false;
     }
@@ -234,11 +247,15 @@ public class FileOpenHelper {
                 intent = getOtherFileIntent(context, file);
             }
             try {
+                if (intent == null || intent.getData() == null) {
+                    // FileProvider 未声明该路径时 uri 为 null，给出友好提示而不是闪退
+                    ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_cannot_open_file"));
+                    return;
+                }
                 context.startActivity(intent);
             } catch (Exception e) {
-                //ignor
-                ToastUtil.showToast(context,ResourceUtils.getResString(context,"sobot_cannot_open_file"));
-//                e.printStackTrace();
+                ToastUtil.showToast(context, ResourceUtils.getResString(context, "sobot_cannot_open_file"));
+                LogUtils.e("uncaught", e);
             }
         }
     }

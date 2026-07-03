@@ -57,7 +57,7 @@ public class SobotFiveStarsLayout extends LinearLayout {
                 ImageView imageView = new ImageView(getContext());
                 lp = new LayoutParams(ScreenUtils.dip2px(getContext(), itemW),
                         ScreenUtils.dip2px(getContext(), itemW));
-                imageView.setBackgroundResource(R.drawable.sobot_dialog_close_bg);
+                imageView.setBackgroundResource(R.drawable.sobot_button_bg);
                 int p = ScreenUtils.dip2px(getContext(), 3);
                 imageView.setPadding(p, p, p, p);
                 if (i != 4) {

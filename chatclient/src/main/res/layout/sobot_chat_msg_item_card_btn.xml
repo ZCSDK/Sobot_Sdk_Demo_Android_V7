@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:background="@drawable/sobot_btn_bg_28"
+    android:background="@drawable/sobot_bg_theme_color_28dp"
     android:ellipsize="end"
     android:gravity="center"
     android:lines="1"
