@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言详情 inline 回复输入栏（竖屏 / Pad 共用，走查 #3）。
+  替代原 SobotReplyActivity 弹窗——点"回复"后在详情页底部显隐此容器。
+  对齐 Figma「底部输入区」：白底 + pad=16 + 胶囊输入框 + 附件 + 发送。
+  默认 gone，由 SobotTicketDetailActivity 控制 VISIBLE / GONE。
+
+  注意：以下 view ID 与原 sobot_layout_dialog_reply.xml 保持一致，
+  迁入的附件/选图/上传/提交逻辑可零改动复用。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sobot_reply_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/sobot_color_dialog_bg"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/sobot_msg_margin_edge"
+    android:paddingTop="10dp"
+    android:paddingEnd="@dimen/sobot_msg_margin_edge"
+    android:paddingBottom="10dp"
+    android:visibility="gone">
+
+    <!-- 多行输入框：胶囊灰底，对齐 Figma 输入容器 r=22 -->
+    <com.sobot.chat.widget.SobotEditText
+        android:id="@+id/sobot_reply_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sobot_bg_line2_4"
+        android:enabled="true"
+        android:gravity="top"
+        android:hint="@string/sobot_please_input"
+        android:inputType="textMultiLine"
+        android:maxLength="200"
+        android:minHeight="@dimen/sobot_reply_edit_min_height"
+        android:minLines="3"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="5dp"
+        android:scrollbars="vertical"
+        android:textColor="@color/sobot_color_text_first"
+        android:textColorHint="@color/sobot_color_text_third"
+        android:textCursorDrawable="@drawable/sobot_cursor_drawable"
+        android:textSize="@dimen/sobot_text_font_14" />
+
+    <!-- 底部操作行：附件 + 占位 + 取消 + 发送 -->
+    <LinearLayout
+        android:id="@+id/ll_sobot_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sobot_reply_bottom_margin_top"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/sobot_btn_file"
+            android:layout_width="@dimen/sobot_reply_file_btn_w"
+            android:layout_height="@dimen/sobot_reply_file_btn_h"
+            android:paddingStart="24dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="24dp"
+            android:src="@drawable/sobot_upload_file" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- 取消：收起 inline 栏（不提交） -->
+        <TextView
+            android:id="@+id/sobot_btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/sobot_reply_btn_gap"
+            android:background="@drawable/sobot_btn_bg_help_center"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            android:text="@string/sobot_btn_cancle"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <TextView
+            android:id="@+id/sobot_btn_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/sobot_bg_theme_color_16dp"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            android:text="@string/sobot_button_send"
+            android:textColor="@color/sobot_color_white"
+            android:textSize="@dimen/sobot_text_font_14" />
+    </LinearLayout>
+
+    <!-- 附件横向 chip 列表（仅 pic_list 非空时 VISIBLE） -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sobot_reply_msg_pic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:listSelector="@android:color/transparent"
+        android:visibility="gone" />
+</LinearLayout>

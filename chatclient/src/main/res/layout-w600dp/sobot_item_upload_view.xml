@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  横屏专用上传字段布局（w >= 600dp，走查 #4）。
+  与竖屏 layout/sobot_item_upload_view.xml 的所有 view ID 严格一致，
+  仅上传按钮 background 由 sobot_dialog_bg_line_6 改为 sobot_bg_upload_btn_wide
+  （白底 + 深描边，增强在白底虚线区内的可见性）。竖屏不受影响。
+  左右 padding 统一 0dp（与其他字段 item 一致，由表单容器 form_padding_h 控制留白；
+  此前这里硬编码 20dp 是"附件灰框比其他字段窄 40dp"的根因）。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/sobot_title_lable"
+        style="@style/sobot_cur_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sobot_form_field_top_margin"
+        android:clickable="false"
+        android:focusable="false"
+        android:text="" />
+
+    <!-- 虚线边框上传区域 -->
+    <LinearLayout
+        android:id="@+id/sobot_upload_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/sobot_upload_area_dashed_bg"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <!-- 上传按钮（横屏走查 #4：白底 + 深描边，增强可见性） -->
+        <TextView
+            android:id="@+id/sobot_btn_file"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/sobot_bg_upload_btn_wide"
+            android:clickable="true"
+            android:drawableStart="@drawable/sobot_upload_file"
+            android:drawablePadding="6dp"
+            android:focusable="true"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/sobot_ticket_update_file"
+            android:textColor="@color/sobot_color_text_first"
+            android:textSize="@dimen/sobot_text_font_14" />
+
+        <!-- 提示文字 -->
+        <TextView
+            android:id="@+id/sobot_file_hite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_12" />
+
+    </LinearLayout>
+
+    <!-- 已上传文件列表（横向滚动，每项由 addPicView 动态添加） -->
+    <HorizontalScrollView
+        android:id="@+id/sobot_file_list_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:scrollbars="none"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/sobot_layout_file_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/sobot_file_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+        android:textColor="@color/sobot_dialog_input_error"
+        android:textSize="@dimen/sobot_text_font_14"
+        android:visibility="gone" />
+
+</LinearLayout>

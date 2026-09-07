@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  留言详情底部操作栏背景（走查 #2 / Fix2）。
+  精确对齐 Figma 底部通知区：白底 + 向上阴影（offset_y=-2 blur=8 alpha=0.12）。
+  用 layer-list 在 view 边界内模拟方向性阴影：
+  顶部 8dp 渐变（透明→12%黑），模拟 blur=8 的向上漫射效果。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 底栏本体：不透明白色 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/sobot_color_dialog_bg" />
+        </shape>
+    </item>
+    <!-- 顶部向上渐变阴影：对齐 Figma offset_y=-2 blur=8 alpha=0.12(=#1F000000)。
+         angle=90 = 从上到下：start(透明) → end(12%黑)，靠近 bar 处最深 -->
+    <item android:height="8dp" android:gravity="top">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="90"
+                android:startColor="@android:color/transparent"
+                android:endColor="#1F000000"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>
