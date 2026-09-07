@@ -15,7 +15,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
+import com.sobot.chat.ZCSobotApi;
 import com.sobot.chat.activity.WebViewActivity;
 import com.sobot.chat.api.model.customcard.SobotChatCustomCard;
 import com.sobot.chat.api.model.customcard.SobotChatCustomGoods;
@@ -61,7 +63,16 @@ public class SobotGoodsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.context = context;
         this.ticketPartnerField = ticketPartnerField;
         this.customField = customField;
-        itemWidth = ScreenUtils.getScreenWidth((Activity) context) * 60 / 100 + ScreenUtils.dip2px(context, 36);
+        //平铺 item 卡片宽度（仅 cardStyle==0 时通过 setLayoutParams 生效）
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            //横屏：外层气泡被 sobot_msg_card_max_width_percent（0.6）限到 0.6 屏宽，
+            //item 卡片宽 = 气泡内可用宽（0.6屏 - 气泡左右内边距 32dp）- 卡片右侧 16dp 间隔，
+            //若沿用竖屏的固定宽会溢出气泡被裁剪（图片/文字/按钮显示不全），60/100 需与该 dimen 保持同步
+            itemWidth = ScreenUtils.getScreenWidth((Activity) context) * 60 / 100 - ScreenUtils.dip2px(context, 48);
+        } else {
+            //竖屏：气泡不限宽（percent=0），由 item 撑开，维持原固定宽
+            itemWidth = ScreenUtils.getScreenWidth((Activity) context) * 60 / 100 + ScreenUtils.dip2px(context, 36);
+        }
         changeThemeColor = ThemeUtils.isChangedThemeColor(context);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(context);

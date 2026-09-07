@@ -245,6 +245,13 @@ public class SobotTicketEvaluateActivity extends SobotDialogBaseActivity impleme
     @Override
     protected void initView() {
         super.initView();
+        // 横屏挖孔避让：竖屏顶部居中的挖孔旋转后落在屏幕侧边中段，对应弹窗内容区（非标题栏），
+        // 基类只避让了 ll_title_bar，这里给内容容器 sobot_relative 单独加避让。
+        // 用单侧 safeInset 版本：旧 displayInNotch 在 Android 15 强制 e2e 下短路（评价布局无 view_root，无人兜底），
+        // 且双侧 padding 会让无挖孔一侧多让一截
+        displayInNotchSingleSide(findViewById(R.id.sobot_relative));
+        // 底部提交按钮行是 sobot_relative 的兄弟节点（在 ScrollView 外），需单独避让
+        displayInNotchSingleSide(findViewById(R.id.sobot_ll_evaluate_bottom));
         mEvaluate = (SobotUserTicketEvaluate) getIntent().getSerializableExtra("sobotUserTicketEvaluate");
         sobot_btn_submit = findViewById(R.id.sobot_close_now);
         sobot_btn_submit.setText(getSafeStringResource(R.string.sobot_btn_submit_text));

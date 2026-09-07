@@ -145,6 +145,11 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Vi
      */
     private int commentType;
     /**
+     * 本次评价是否经过 isComment=0 检查的链路（仅"用户主动结束/Push 204 客服主动结束 → isComment=0 → 弹评价"链路为 true）。
+     * 决定评价提交成功后是否调用 recordInviteFreq；Push 209 / Push 204 超时/踢下线 / 主动评价 / 未调 isComment 的链路均为 false。
+     */
+    private boolean isInviteFrequencyChecked;
+    /**
      * 人工客服名称，用于"xxx是否解决了您的问题？"的显示
      */
     private String customName;
@@ -365,6 +370,13 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Vi
     @Override
     protected void initView() {
         super.initView();
+        // 横屏挖孔避让：竖屏顶部居中的挖孔旋转后落在屏幕侧边中段，对应弹窗内容区（非标题栏），
+        // 基类只避让了 ll_title_bar，这里给内容容器 sobot_relative 单独加避让。
+        // 用单侧 safeInset 版本：旧 displayInNotch 在 Android 15 强制 e2e 下短路（评价布局无 view_root，无人兜底），
+        // 且双侧 padding 会让无挖孔一侧多让一截
+        displayInNotchSingleSide(findViewById(R.id.sobot_relative));
+        // 底部提交按钮行是 sobot_relative 的兄弟节点（在 ScrollView 外），需单独避让
+        displayInNotchSingleSide(findViewById(R.id.sobot_ll_evaluate_bottom));
         // 从SharedPreferences获取用户配置信息（包含评价标签显示/隐藏等配置）
         information = (Information) SharedPreferencesUtil.getObject(getContext(), "sobot_last_current_info");
         // 解析Intent传入的参数
@@ -375,6 +387,7 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Vi
         this.initModel = (ZhiChiInitModeBase) getIntent().getSerializableExtra("initModel");
         this.current_model = getIntent().getIntExtra("current_model", 0);
         this.commentType = getIntent().getIntExtra("commentType", 0);
+        this.isInviteFrequencyChecked = getIntent().getBooleanExtra("isInviteFrequencyChecked", false);
         this.customName = getIntent().getStringExtra("customName");
         this.isSolve = getIntent().getIntExtra("isSolve", -1);
         this.evaluateChecklables = getIntent().getStringExtra("checklables");
@@ -1173,6 +1186,31 @@ public class SobotEvaluateActivity extends SobotDialogBaseActivity implements Vi
                 new StringResultCallBack<CommonModel>() {
                     @Override
                     public void onSuccess(CommonModel result) {
+                        // ====== 满意度邀评限频 - 记录邀评次数 ======
+                        // 仅"邀请评价(commentType=0) + 人工场景 + 有有效 uid + 经过 isComment=0 检查"时调用。
+                        // 即只有"用户主动结束/Push 204 客服主动结束 → isComment 返回 0 → 弹评价 → 评价提交成功"链路才计数；
+                        // Push 209 / Push 204 超时/踢下线 / 主动评价 / 未调 isComment 的链路均不计数。
+                        // 成功/失败均不影响评价主流程（评价已经提交成功），不关闭弹窗、不提示用户。
+                        if (commentType == 0
+                                && current_model == ZhiChiConstant.client_model_customService
+                                && isInviteFrequencyChecked
+                                && initModel != null
+                                && !TextUtils.isEmpty(initModel.getPartnerid())) {
+                            zhiChiApi.recordInviteFreq(SobotEvaluateActivity.this, initModel.getPartnerid(),
+                                    new StringResultCallBack<JSONObject>() {
+                                        @Override
+                                        public void onSuccess(JSONObject resp) {
+                                            LogUtils.d("recordInviteFreq success");
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e, String des) {
+                                            LogUtils.e("recordInviteFreq failed: " + des);
+                                        }
+                                    });
+                        }
+                        // ====== 满意度邀评限频 - 记录邀评次数 结束 ======
+
                         //评论成功 发送广播
                         Intent intent = new Intent();
                         intent.setAction(ZhiChiConstants.dcrc_comment_state);

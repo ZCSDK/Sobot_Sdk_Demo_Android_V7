@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   手机横屏（w600dp 且 h < 600dp）右侧卡片：
   - 气泡 sobot_msg_content_ll 宽度由竖屏 260dp 放宽到 520dp，给左右并排腾出空间；
-    实际宽度仍受 sobot_msg_cai_card_max_width_percent 限制（窄屏会自动收）。
+    实际宽度仍受 sobot_msg_card_max_width_percent 限制（窄屏会自动收）。
   - 商品（左半）与自定义字段（右半）左右并排，v_line_bottom 改为竖线。
   - 所有 view id 与默认 layout 保持一致，AiCardRightMessageHolder 无需改动。
 -->
@@ -83,7 +83,7 @@
                     android:minWidth="260dp"
                     android:orientation="vertical"
                     android:paddingTop="16dp"
-                    app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent">
+                    app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
                     <!--标题-->
                     <com.sobot.chat.widget.SobotTextView
                         android:id="@+id/tv_head"
@@ -109,10 +109,11 @@
                         android:baselineAligned="false"
                         android:orientation="horizontal">
 
-                        <!--左半：商品（图 + 标题 / 描述 / 数量价格）-->
+                        <!--左半：商品（图 + 标题 / 描述 / 数量价格）；右侧自定义字段较多时，左侧商品内容垂直居中-->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             android:layout_marginTop="8dp"
                             android:layout_weight="1"
                             android:orientation="horizontal"

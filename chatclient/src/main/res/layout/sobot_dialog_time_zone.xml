@@ -1,54 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 时区/区号选择弹窗：结构与 sobot_activity_cusfield.xml（下拉弹窗）保持同构，
+     内容从顶部向下排布、高度比 0.7，键盘弹出时搜索框不会被推出屏幕外（修复：搜索框获取焦点后消失） -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sobot_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:focusable="true"
+    android:layout_gravity="bottom"
+    android:background="@android:color/transparent"
     android:gravity="bottom"
     android:orientation="vertical">
 
     <com.sobot.chat.widget.SobotMHLinearLayout
+        android:id="@+id/sobot_dialog_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        android:paddingBottom="40dp"
-        app:sobot_mhv_HeightRatio="0.9">
+        app:sobot_mhv_HeightRatio="0.7">
 
         <include layout="@layout/sobot_dialog_title" />
 
-        <LinearLayout
-            android:id="@+id/sobot_dialog_content"
+        <include layout="@layout/sobot_dialog_search" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/sobot_color_transparent"
+            android:minHeight="200dp"
+            android:overScrollMode="never" />
 
-            <include layout="@layout/sobot_dialog_search" />
+        <TextView
+            android:id="@+id/tv_nodata"
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:layout_marginBottom="117dp"
+            android:gravity="center"
+            android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+            android:text="@string/sobot_no_data_string"
+            android:textColor="@color/sobot_color_text_third"
+            android:textSize="@dimen/sobot_text_font_14"
+            android:visibility="gone" />
 
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/sobot_color_transparent"
-                android:minHeight="536dp"
-                android:overScrollMode="never" />
-
-            <TextView
-                android:id="@+id/tv_nodata"
-                android:layout_width="match_parent"
-                android:layout_height="110dp"
-                android:layout_marginBottom="117dp"
-                android:gravity="center"
-                android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                android:text="@string/sobot_no_data_string"
-                android:textColor="@color/sobot_color_text_third"
-                android:textSize="@dimen/sobot_text_font_14"
-                android:visibility="gone" />
-
-        </LinearLayout>
     </com.sobot.chat.widget.SobotMHLinearLayout>
 </LinearLayout>

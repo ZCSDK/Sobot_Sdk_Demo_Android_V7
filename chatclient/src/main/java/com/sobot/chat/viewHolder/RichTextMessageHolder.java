@@ -52,12 +52,16 @@ import com.sobot.chat.utils.ThemeUtils;
 import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.viewHolder.base.MsgHolderBase;
 import com.sobot.chat.widget.SobotRightAlignLineLayout;
+import com.sobot.chat.widget.SobotFlowLayout;
 import com.sobot.chat.widget.SobotSectorProgressView;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
 import com.sobot.chat.widget.html.SobotTableSpan;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.network.http.callback.StringResultCallBack;
 import com.sobot.pictureframe.SobotBitmapUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,6 +95,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
     private LinearLayout moreLL;//更多
     private TextView moreTV;
     private ImageView moreIV;
+    private SobotFlowLayout guessAskList;//大模型推荐问题列表，独立于旧关联问题
 
     private List<SobotAiButtonInfo> inputContentList; // 保存输入内容数组
     private int currentLoadedCount = 0; // 当前已加载的数量
@@ -120,6 +125,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
         llButtonRoot = convertView.findViewById(R.id.ll_button_root);
         alButton = convertView.findViewById(R.id.al_button);
         plAiButton = (ProgressBar) convertView.findViewById(R.id.progressbar_loading_ai_button);
+        guessAskList = convertView.findViewById(R.id.sobot_guess_ask_list);
     }
 
     @Override
@@ -131,6 +137,7 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
         }
         //隐藏来源和大模型生成按钮
         hideAIRefetenceUI();
+        hideGuessAskList();
         if (llButtonRoot != null) {
             llButtonRoot.setVisibility(View.GONE);
         }
@@ -310,8 +317,11 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
             } else {
                 hideAnswers();
             }
+            bindGuessAskList();
             msg.setMaxWidth(msgMaxWidth);
 //            sobot_rich_ll.setLayoutParams(new LinearLayout.LayoutParams(msgMaxWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
+            hideGuessAskList();
         }
         setLongClickListener(msg);
         setLongClickListener(sobot_msg_content_ll);
@@ -325,6 +335,146 @@ public class RichTextMessageHolder extends MsgHolderBase implements View.OnClick
             ll_ai_reference_count.setVisibility(View.GONE);
             tv_ai_reference_count.setText("");
         }
+    }
+
+    private void hideGuessAskList() {
+        if (guessAskList != null) {
+            guessAskList.removeAllViews();
+            guessAskList.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 绑定大模型答案下方的猜你想问。该区域与旧关联问题字段完全分离，
+     * 改这里会影响 aiAgent 富文本推荐问题展示、点击发送和当前消息隐藏状态。
+     */
+    private void bindGuessAskList() {
+        if (guessAskList == null || message == null) {
+            return;
+        }
+        hideGuessAskList();
+        List<String> questionList = shouldShowGuessAskList() ? parseGuessAskList(message.getGuessAskList()) : new ArrayList<String>();
+        if (questionList.isEmpty()) {
+            return;
+        }
+        guessAskList.setSingleColumn(mContext.getResources().getConfiguration().screenWidthDp < 600);
+        guessAskList.setVisibility(View.VISIBLE);
+        for (String question : questionList) {
+            TextView item = createGuessAskItem(question);
+            setLongClickListener(item);
+            guessAskList.addView(item);
+        }
+        setGuessAskListWidth();
+    }
+
+    private boolean shouldShowGuessAskList() {
+        // 历史记录不展示猜你想问，仅实时问答案结束后展示。
+        if (message.getSugguestionsFontColor() == 1
+                || message.isHideGuessAskList()
+                || (msgCallBack != null && msgCallBack.isCurrentCustomServiceMode())
+                || !"aiagent".equals(message.getServant())) {
+            return false;
+        }
+        return (message.isAiAgentReceiveMsgEnd() || "2".equals(message.getSendStatus()))
+                && hasAiAgentRichContent()
+                && StringUtils.isNoEmpty(message.getGuessAskList());
+    }
+
+    private boolean hasAiAgentRichContent() {
+        if (message.getAnswer() == null || message.getAnswer().getRichList() == null) {
+            return false;
+        }
+        for (ChatMessageRichListModel richListModel : message.getAnswer().getRichList()) {
+            if (richListModel != null && StringUtils.isNoEmpty(richListModel.getMsg())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * UI 展示阶段解析服务端返回的 guessAskList 原始 JSON，过滤空问题但保留原始顺序。
+     */
+    private List<String> parseGuessAskList(String guessAskListJson) {
+        List<String> questionList = new ArrayList<>();
+        if (StringUtils.isEmpty(guessAskListJson)) {
+            return questionList;
+        }
+        try {
+            JSONArray jsonArray = new JSONArray(guessAskListJson);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String question = StringUtils.checkStringIsNull(jsonArray.optString(i)).trim();
+                if (StringUtils.isNoEmpty(question)) {
+                    questionList.add(question);
+                }
+            }
+        } catch (JSONException e) {
+            LogUtils.e("RichTextMessageHolder parse guessAskList failed", e);
+        }
+        return questionList;
+    }
+
+    private TextView createGuessAskItem(String question) {
+        TextView item = (TextView) LayoutInflater.from(mContext).inflate(R.layout.sobot_item_aiagent_guess_ask, guessAskList, false);
+        item.setText(question);
+        item.setMaxLines(Integer.MAX_VALUE);
+        item.setEllipsize(null);
+        item.setMaxWidth(getGuessAskListMaxWidth());
+        item.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onGuessAskClick(question);
+            }
+        });
+        return item;
+    }
+
+    /**
+     * 推荐问题区域左侧跟气泡对齐，右侧使用屏幕剩余空间，避免短气泡把按钮压成逐字换行。
+     */
+    private void setGuessAskListWidth() {
+        if (guessAskList == null) {
+            return;
+        }
+        int targetWidth = getGuessAskListMaxWidth();
+        ViewGroup.LayoutParams layoutParams = guessAskList.getLayoutParams();
+        if (layoutParams != null && targetWidth > 0 && layoutParams.width != targetWidth) {
+            layoutParams.width = targetWidth;
+            guessAskList.setLayoutParams(layoutParams);
+        }
+        if (sobot_msg_ll != null && sobot_msg_ll.getLeft() <= 0) {
+            sobot_msg_ll.post(new Runnable() {
+                @Override
+                public void run() {
+                    setGuessAskListWidth();
+                }
+            });
+        }
+    }
+
+    private int getGuessAskListMaxWidth() {
+        int screenWidth = ScreenUtils.getScreenWidth(mContext);
+        int startOffset = ScreenUtils.dip2px(mContext, 72);
+        if (sobot_msg_ll != null && sobot_msg_ll.getLeft() > 0) {
+            startOffset = sobot_msg_ll.getLeft() + ScreenUtils.dip2px(mContext, 16);
+        }
+        int rightSafe = ScreenUtils.dip2px(mContext, 16);
+        return Math.max(screenWidth - startOffset - rightSafe, ScreenUtils.dip2px(mContext, 160));
+    }
+
+    /**
+     * 点击猜你想问后复用机器人点击问题发送链路，并只隐藏当前消息下的推荐问题。
+     */
+    private void onGuessAskClick(String question) {
+        if (message == null || msgCallBack == null) {
+            return;
+        }
+        msgCallBack.hidePanelAndKeyboard();
+        message.setHideGuessAskList(true);
+        hideGuessAskList();
+        ZhiChiMessageBase msgObj = new ZhiChiMessageBase();
+        msgObj.setContent(question);
+        msgCallBack.sendMessageToRobot(msgObj, 0, 1, "");
     }
 
     /**

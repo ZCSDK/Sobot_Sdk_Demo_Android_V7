@@ -132,8 +132,36 @@ public class SobotChatBottomPanelPopup {
         if (mFunctionRv.getLayoutManager() == null) {
             mFunctionRv.setLayoutManager(new GridLayoutManager(mActivity, FUNCTION_SPAN_COUNT));
         }
+        updateFunctionVerticalSpacing(items.size());
         mFunctionRv.setAdapter(new FunctionGridAdapter(mActivity, items, listener));
         showAt(verticalAnchor, anchorRightEdgeView);
+    }
+
+    /**
+     * 调整横屏加号菜单的垂直间距；一行或两行菜单与浮卡上下边缘均保持 50dp。
+     * 超过两行时恢复布局默认间距，修改列数时需同步检查这里的数量上限。
+     */
+    private void updateFunctionVerticalSpacing(int itemCount) {
+        if (mFunctionRv == null || mCardView == null) {
+            return;
+        }
+        ViewGroup.LayoutParams layoutParams = mFunctionRv.getLayoutParams();
+        if (!(layoutParams instanceof ViewGroup.MarginLayoutParams)) {
+            return;
+        }
+        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) layoutParams;
+        if (itemCount > 0 && itemCount <= FUNCTION_SPAN_COUNT * 2) {
+            int verticalSpace = mActivity.getResources().getDimensionPixelSize(
+                    R.dimen.sobot_chat_bottom_panel_popup_function_vertical_space);
+            //卡片自身已有 padding，margin 只补足到设计要求的 50dp 总间距
+            marginParams.topMargin = Math.max(0, verticalSpace - mCardView.getPaddingTop());
+            marginParams.bottomMargin = Math.max(0, verticalSpace - mCardView.getPaddingBottom());
+        } else {
+            marginParams.topMargin = mActivity.getResources().getDimensionPixelSize(
+                    R.dimen.sobot_chat_bottom_panel_popup_function_margin_top);
+            marginParams.bottomMargin = 0;
+        }
+        mFunctionRv.setLayoutParams(marginParams);
     }
 
     private void switchType(int newType) {

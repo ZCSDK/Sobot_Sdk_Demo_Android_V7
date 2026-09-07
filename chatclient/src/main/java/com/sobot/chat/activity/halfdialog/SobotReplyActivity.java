@@ -96,6 +96,12 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     private String mTicketId = "";
     private boolean isSave;
 
+    /**
+     * 键盘弹出是否已触发（去重标记）
+     * —— 防止 onWindowFocusChanged 多次变化（弹出/关闭输入法面板自身也会触发 focus 变化）重复调用 showSoftInput
+     */
+    private boolean mKeyboardTriggered = false;
+
     @Override
     public void setRequestedOrientation(int requestedOrientation) {
         // 关键：SobotDialogBaseActivity.onCreate 会按 MarkConfig.LANDSCAPE_SCREEN 强制锁方向。
@@ -110,12 +116,26 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // 回复弹窗显示期间：统一隐藏状态栏（横屏 + 竖屏都隐藏），
+        // 避免状态栏时间/信号图标覆盖在详情页标题栏上，造成视觉重叠。
+        // ⚠️ 之前担心 FLAG_FULLSCREEN 影响 adjustResize——实际上我们用
+        //    ViewTreeObserver.OnGlobalLayoutListener 手动测量键盘高度并给
+        //    sobot_container 设置 paddingBottom，不依赖系统 adjustResize。
+        //    所以可以放心加 FLAG_FULLSCREEN 隐藏状态栏。
+        try {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } catch (Exception e) {
+            LogUtils.e("SobotReply set fullscreen failed", e);
+        }
+
         // 横屏（w>=600dp）改造：
         //   - 锁方向到 SENSOR_LANDSCAPE，避免系统选择器临时竖屏后回不来
-        //   - 清掉 base 类设的 FLAG_FULLSCREEN（fullscreen flag 会让 adjustResize 完全失效）
-        //   - 窗口改为 MATCH_PARENT 全屏（透明背景下视觉无感），让 adjustResize 真正有空间收缩
+        //   - 窗口改为 MATCH_PARENT 全屏（透明背景下视觉无感），让 ViewTreeObserver
+        //     键盘避让计算有完整的屏幕高度
         //   - 外层 layout-w600dp gravity=bottom 把 60dp 回复栏定位到屏幕底部
-        //   - 键盘弹起 → 窗口下边界上移 → 回复栏自动贴在键盘上方
+        //   - 键盘弹起 → ViewTreeObserver 测量键盘高度 → sobot_container 加
+        //     paddingBottom = 键盘高度 → 回复栏自动贴在键盘正上方
         if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
             // 显式锁方向到 SENSOR_LANDSCAPE：绕过自己的 override（用 super 直接调），
             // 这样后续系统图片选择器（强制竖屏）返回后，Reply 会自己强制回到横屏，
@@ -124,25 +144,21 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
 
             Window window = getWindow();
             if (window != null) {
-                // 关键：base 类 SobotChatBaseActivity.onCreate 在 MarkConfig.LANDSCAPE_SCREEN 开关下
-                // 调用了 setFlags(FLAG_FULLSCREEN)，这是 Android 经典 bug ——
-                // FLAG_FULLSCREEN 会让 SOFT_INPUT_ADJUST_RESIZE 完全失效，键盘直接覆盖窗口。
-                // Reply Activity 需要键盘 resize，必须显式清掉这个 flag
-                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
                 WindowManager.LayoutParams lp = window.getAttributes();
                 // 关键：必须用 MATCH_PARENT 高度（之前的 WRAP_CONTENT 让窗口只有 60dp，
-                // 根本没空间让 adjustResize 收缩，键盘必然遮挡）
+                // 根本没空间让键盘避让 paddingBottom 生效，必然遮挡）
                 // 窗口全屏 + windowBackground=transparent 视觉透明 → Detail 仍可见，
                 // 外层 LinearLayout 的 gravity=bottom 把内层 60dp 回复栏定位到屏幕底部
                 lp.width = WindowManager.LayoutParams.MATCH_PARENT;
                 lp.height = WindowManager.LayoutParams.MATCH_PARENT;
                 lp.gravity = Gravity.NO_GRAVITY;
                 window.setAttributes(lp);
-                // 全屏窗口下 adjustResize 才有收缩空间：键盘弹起时窗口下边界上移，
-                // 外层 gravity=bottom 自动让回复栏贴到键盘正上方
+                // 浮动 Dialog 主题（windowIsFloating=true）下 adjustResize 其实不生效，
+                // 真正的避让靠下面 ViewTreeObserver 给 sobot_container 加 paddingBottom。
+                // 这里用 STATE_UNSPECIFIED（禁止系统自动弹键盘），由我们在 onWindowFocusChanged
+                // 延迟 300ms 后手动精确控制（避免系统自动弹与手动弹冲突 → "弹起又消失"）
                 window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-                        | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                        | WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED);
             }
         }
     }
@@ -168,8 +184,11 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
         boolean isWide = getResources().getInteger(R.integer.sobot_list_span_count) > 1;
 
         // 横屏：用 ViewTreeObserver 监听全局布局变化，通过 getWindowVisibleDisplayFrame 实时测量键盘高度，
-        // 然后给外层容器 setPadding(0,0,0,keyboardHeight)。外层 gravity=bottom 会把回复栏推到键盘正上方。
-        // 此方案不依赖 SOFT_INPUT_ADJUST_RESIZE / WindowInsets API，Android 各版本通用稳定。
+        // 然后给外层容器 setPadding(保留原有 left/top/right padding + 调整 bottom)。
+        // 保留原有 top padding 是关键：根布局 fitsSystemWindows=true 会自动加 paddingTop=状态栏高度，
+        // 若强制清零会让内容顶到状态栏下面，遮挡状态栏图标（走查 #6）。
+        // 外层 gravity=bottom 会把回复栏推到键盘正上方；此方案不依赖 ADJUST_RESIZE / WindowInsets，
+        // Android 各版本通用稳定。
         if (isWide) {
             final View decorView = getWindow().getDecorView();
             decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -179,14 +198,19 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                     decorView.getWindowVisibleDisplayFrame(r);
                     int rootHeight = decorView.getRootView().getHeight();
                     int keyboardHeight = rootHeight - r.bottom;
-                    // 阈值过滤导航栏/状态栏（一般 < 屏高 15%），只在键盘弹起时才加 padding
+                    // 读取现有 padding（left/top/right 由 fitsSystemWindows 注入，
+                    // 比如状态栏高度、导航栏高度，绝对不能清零）
+                    int curLeft = sobot_container.getPaddingLeft();
+                    int curTop = sobot_container.getPaddingTop();
+                    int curRight = sobot_container.getPaddingRight();
+                    // 阈值过滤导航栏/状态栏（一般 < 屏高 15%），只在键盘弹起时才加 bottom padding
                     if (keyboardHeight > rootHeight * 0.15) {
                         if (sobot_container.getPaddingBottom() != keyboardHeight) {
-                            sobot_container.setPadding(0, 0, 0, keyboardHeight);
+                            sobot_container.setPadding(curLeft, curTop, curRight, keyboardHeight);
                         }
                     } else {
                         if (sobot_container.getPaddingBottom() != 0) {
-                            sobot_container.setPadding(0, 0, 0, 0);
+                            sobot_container.setPadding(curLeft, curTop, curRight, 0);
                         }
                     }
                 }
@@ -212,20 +236,22 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
                 }
             });
         }
-        sobotReplyEdit.requestFocus();
-        // 横屏：跳过 50ms 自动弹键盘（键盘会完全覆盖 60dp 紧凑栏，让用户先看到完整布局）
-        if (!isWide) {
-            // 延迟显示软键盘
-            sobotReplyEdit.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    if (imm != null) {
-                        imm.showSoftInput(sobotReplyEdit, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                }
-            }, 50);
+
+        // 【关键】先设置 IME flag，再处理焦点/键盘：
+        // 如果先 requestFocus 再改 IME flag，某些 ROM 会把已经建立的 InputConnection 断开，
+        // 导致后面 showSoftInput 失败。正确顺序：setImeOptions → focusable → requestFocus
+        // （真正弹键盘在 onWindowFocusChanged 里，initView 太早 View 还没 attach 到 Window）
+        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
+            sobotReplyEdit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                    | EditorInfo.IME_FLAG_NO_FULLSCREEN);
         }
+
+        // 确保 EditText 可聚焦（Android 12+ 某些主题默认 focusable=false）
+        sobotReplyEdit.setFocusable(true);
+        sobotReplyEdit.setFocusableInTouchMode(true);
+        // initView 阶段可以先发一次 requestFocus（占位，让 View 准备好）
+        // 真正弹键盘在 onWindowFocusChanged(hasFocus=true) 里 —— 那是拿到 InputConnection 的最早可靠时机
+        sobotReplyEdit.requestFocus();
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         // 设置RecyclerView的LayoutManager
@@ -251,10 +277,6 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
 
         if (picTempList != null && !picTempList.isEmpty()) {
             pic_list.addAll(picTempList);
-        }
-        if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)) {
-            sobotReplyEdit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI
-                    | EditorInfo.IME_FLAG_NO_FULLSCREEN);
         }
 
         sobotBtnSubmit.setOnClickListener(this);
@@ -380,7 +402,7 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
             });
 
         }
-        displayInNotch(sobotReplyMsgPic);
+        // 挖孔避让由基类统一处理（对白色背景层整体内缩），不再对附件列表单独避让（避免叠加错位）
     }
 
     @Override
@@ -652,6 +674,92 @@ public class SobotReplyActivity extends SobotDialogBaseActivity implements View.
             SobotDialogUtils.stopProgressDialog(SobotReplyActivity.this);
         }
     };
+
+
+    /**
+     * Window 首次真正获得焦点时才触发键盘弹出 —— 这是浮动 Dialog 主题（windowIsFloating=true）
+     * 下唯一可靠的时机：onCreate / onStart / onResume 阶段 View 还没 attach 到 Window，
+     * InputConnection 未建立，showSoftInput() 100% 返回 false。
+     *
+     * 【关键】延迟 300ms 再真正执行：
+     *   - 等待 Activity 启动动画完全结束（启动动画过程中 Window 焦点会短暂切换）
+     *   - 等待 DecorView 真正 attach 到 WindowManager
+     *   - 避免"键盘刚弹起来 → Activity 焦点被 IME 窗口抢走 → 系统又收起键盘"的闪一下问题
+     */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && !mKeyboardTriggered) {
+            mKeyboardTriggered = true;
+            if (sobotReplyEdit != null) {
+                sobotReplyEdit.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        triggerShowKeyboard();
+                    }
+                }, 300);
+            } else {
+                triggerShowKeyboard();
+            }
+        }
+    }
+
+    /**
+     * 软键盘弹出 —— 简化版稳定触发（避免 showSoftInput + toggleSoftInput 互相冲突导致弹了又收）
+     *
+     * 修复之前"弹起又消失"的根因：
+     *  ① 旧代码同时调用 showSoftInput(SHOW_FORCED) 和 toggleSoftInput(SHOW_FORCED)，
+     *    两个调用在 IMM 队列里互相覆盖，某些 ROM 会判定"先弹再切一次状态"→ 直接收键盘；
+     *  ② 旧代码立即触发，Activity 启动动画还没结束，Window 焦点在 Activity / Launcher / IME
+     *    之间短暂切换 → 系统拿到 focus=false 后主动收键盘。
+     *
+     * 现在做法：
+     *  - 只调 showSoftInput(SHOW_FORCED)（不用 toggleSoftInput，避免状态切换冲突）
+     *  - 前面已经延迟 300ms 让焦点稳定，再在 450ms 后二次兜底（确保 InputConnection 已建立）
+     *  - 每次调用前都检查 isFinishing()，避免泄露
+     */
+    private void triggerShowKeyboard() {
+        if (sobotReplyEdit == null || isFinishing()) {
+            return;
+        }
+        try {
+            // 0. 前置：确保 EditText 可聚焦并真有焦点（如果还没拿到，再要一次）
+            sobotReplyEdit.setFocusable(true);
+            sobotReplyEdit.setFocusableInTouchMode(true);
+            if (!sobotReplyEdit.hasFocus()) {
+                sobotReplyEdit.requestFocus();
+            }
+            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm == null) {
+                return;
+            }
+            // 仅用 showSoftInput(SHOW_FORCED)：不用 toggleSoftInput 避免状态切换冲突
+            //（国产 ROM 对浮动 Dialog 窗口下 toggleSoftInput 有时会判定为"已显示，所以切到隐藏"）
+            imm.showSoftInput(sobotReplyEdit, InputMethodManager.SHOW_FORCED);
+            // 450ms 二次兜底：国产 ROM / 低版本 InputConnection 建立延迟，
+            // 首次 showSoftInput 会失败，等 450ms 再试一次基本 100% 成功
+            sobotReplyEdit.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (isFinishing()) {
+                        return;
+                    }
+                    try {
+                        if (sobotReplyEdit != null && sobotReplyEdit.hasFocus()) {
+                            imm.showSoftInput(sobotReplyEdit, InputMethodManager.SHOW_FORCED);
+                        } else if (sobotReplyEdit != null) {
+                            sobotReplyEdit.requestFocus();
+                            imm.showSoftInput(sobotReplyEdit, InputMethodManager.SHOW_FORCED);
+                        }
+                    } catch (Exception e) {
+                        LogUtils.e("SobotReply retry keyboard failed", e);
+                    }
+                }
+            }, 450);
+        } catch (Exception e) {
+            LogUtils.e("SobotReply trigger keyboard failed", e);
+        }
+    }
 
 
 }

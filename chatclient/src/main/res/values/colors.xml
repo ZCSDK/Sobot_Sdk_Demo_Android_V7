@@ -87,6 +87,10 @@
     <color name="sobot_color_bg_five">#FFFFFF</color>
     <!--线条 按钮边框颜色-->
     <color name="sobot_color_line_button_frame">#D9D9D9</color>
+    <!--大模型推荐问题按钮：默认白底、灰边、按压 6% 黑色-->
+    <color name="sobot_aiagent_guess_ask_bg">#FFFFFF</color>
+    <color name="sobot_aiagent_guess_ask_bg_pressed">#F0F0F0</color>
+    <color name="sobot_aiagent_guess_ask_border">#EBEBEB</color>
     <!--线条 分割线颜色-->
     <color name="sobot_color_line_divider">#EBEBEB</color>
     <!--线条 分割线颜色 夜间模式是完全透明的-->

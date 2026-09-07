@@ -393,9 +393,8 @@ public class AppointTextMessageHolder extends MsgHolderBase {
                                         reply.setDuration(duration);
                                         reply.setMsg(url);
                                         messageBase.setAnswer(reply);
-                                        messageBase.setVoiceIV(voiceIV);
                                         messageBase.setRight(isRight);
-                                        msgCallBack.clickAudioItem(messageBase, null, isRight);
+                                        msgCallBack.clickAudioItem(messageBase, voiceIV, isRight);
                                     }
                                 }
                             });

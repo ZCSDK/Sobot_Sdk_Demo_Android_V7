@@ -9,7 +9,6 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -98,9 +97,11 @@ public class SobotSelectAdapter extends SobotBaseAdapter<SobotOptionModel> {
         private TextView categoryTitle;
         private ImageView categoryIshave;
         private Activity mActivity;
+        private final Context mContext;
 
         ViewHolder(Activity activity, Context context, View view) {
             mActivity = activity;
+            mContext = context;
             categoryTitle = (TextView) view.findViewById(R.id.work_order_category_title);
             categoryIshave = (ImageView) view.findViewById(R.id.work_order_category_ishave);
             displayInNotch(categoryTitle);
@@ -108,13 +109,18 @@ public class SobotSelectAdapter extends SobotBaseAdapter<SobotOptionModel> {
 
         public void displayInNotch(final View view) {
             if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
-                // 支持显示到刘海区域
-                NotchScreenManager.getInstance().setDisplayInNotch(mActivity);
-                // 设置Activity全屏
-                mActivity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+                // 修复闪退（走查：信息收集点选项 NPE）：
+                // ① adapter 构造器只传 Context，mActivity 恒为 null，直接 mActivity.getWindow() 必崩；
+                // ② 此处位于 Dialog 的 item ViewHolder 内，也不该对宿主 Activity window
+                //    重复设置 cutout mode / FLAG_FULLSCREEN —— 宿主基类 onCreate 已统一处理过。
+                // 因此这里只保留真正需要的"按刘海信息给 item 文字加避让 padding"，
+                // activity 从 context（Dialog context 的 ContextWrapper 链）提取，取不到直接跳过。
+                Activity activity = scanForActivity(mActivity != null ? mActivity : mContext);
+                if (activity == null) {
+                    return;
+                }
                 // 获取刘海屏信息
-                NotchScreenManager.getInstance().getNotchInfo(mActivity, new INotchScreen.NotchScreenCallback() {
+                NotchScreenManager.getInstance().getNotchInfo(activity, new INotchScreen.NotchScreenCallback() {
                     @Override
                     public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
                         if (notchScreenInfo.hasNotch) {
@@ -127,6 +133,21 @@ public class SobotSelectAdapter extends SobotBaseAdapter<SobotOptionModel> {
 
             }
         }
+    }
+
+    /**
+     * 从 Context 沿 ContextWrapper 链提取宿主 Activity（Dialog context 是
+     * ContextThemeWrapper 包装的 activity context）。取不到（如 Application
+     * context）返回 null，调用方自行跳过 UI 避让逻辑。
+     */
+    private static Activity scanForActivity(Context context) {
+        while (context instanceof android.content.ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((android.content.ContextWrapper) context).getBaseContext();
+        }
+        return null;
     }
 
     //返回过滤器

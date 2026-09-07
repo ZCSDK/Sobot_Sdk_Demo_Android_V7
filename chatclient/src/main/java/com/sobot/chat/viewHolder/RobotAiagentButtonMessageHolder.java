@@ -18,6 +18,7 @@ import androidx.core.graphics.ColorUtils;
 import com.sobot.chat.R;
 import com.sobot.chat.api.model.ZhiChiMessageBase;
 import com.sobot.chat.utils.HtmlTools;
+import com.sobot.chat.utils.LogUtils;
 import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.StringUtils;
 import com.sobot.chat.utils.ThemeUtils;
@@ -111,11 +112,8 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                 resetMaxWidth();
                 // 首次加载最多8个
                 loadMoreItems(false);
-                if (message.isHideVariableValueEnums()) {
-                    llButtonRoot.setVisibility(View.GONE);
-                } else {
-                    llButtonRoot.setVisibility(View.VISIBLE);
-                }
+                //当前会话的流程选项点击后继续保留；历史态由 SugguestionsFontColor 控制是否可点
+                llButtonRoot.setVisibility(View.VISIBLE);
             } else {
                 alButton.setVisibility(View.GONE);
                 moreLL.setVisibility(View.GONE);
@@ -145,6 +143,8 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                 }
                 return;
             }
+            // 流程选项点击固定使用生成当前选项消息的本次返回 roundId。
+            final String sourceRoundId = StringUtils.checkStringIsNull(message.getRoundId());
 
             // 从message中获取缓存的已加载数量
             int cachedCount = message.getLoadedButtonCount();
@@ -225,20 +225,14 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                                 @Override
                                 public void onClick(View v) {
                                     if (msgCallBack != null) {
-                                        ZhiChiMessageBase msgObj = new ZhiChiMessageBase();
-                                        msgObj.setNodeId(message.getNodeId());
-                                        msgObj.setProcessId(message.getProcessId());
-                                        msgObj.setVariableId(message.getVariableId());
-                                        msgObj.setContent(StringUtils.checkStringIsNull(str));
-                                        msgCallBack.sendMessageToRobot(msgObj, 0, 0, "");
-                                        //隐藏按钮
-                                        message.setHideVariableValueEnums(true);
-                                        llButtonRoot.setVisibility(View.GONE);
+                                        boolean isSent = msgCallBack.sendAiAgentProcessMessage(message,
+                                                StringUtils.checkStringIsNull(str), sourceRoundId);
                                     }
                                 }
                             });
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        LogUtils.e("大模型流程选项渲染失败", e);
                     }
                 }
             }
@@ -252,6 +246,7 @@ public class RobotAiagentButtonMessageHolder extends MsgHolderBase {
                 }
             }
         } catch (Exception e) {
+            LogUtils.e("大模型流程选项加载失败", e);
             if (moreLL != null) {
                 moreLL.setVisibility(View.GONE);
             }

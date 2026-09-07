@@ -104,6 +104,12 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                 }
             }
             List<SobotChatCustomGoods> list = new ArrayList<>();
+            final String sourceMessageId = StringUtils.isNoEmpty(message.getMsgId())
+                    ? message.getMsgId() : message.getId();
+            // 卡片点击必须使用生成当前卡片的本轮 roundId，不能在发送时从后续消息状态重新推断。
+            final String sourceRoundId = StringUtils.checkStringIsNull(message.getRoundId());
+            // 当前会话卡片不因 roundId 为空而禁用；历史态仍沿用既有 isHistory 拦截。
+            final boolean isSendActionEnabled = message.getSugguestionsFontColor() != 1;
 
             if (customCard.getCustomCards().size() > 3) {
                 if (ll_expand != null) {
@@ -117,6 +123,9 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                             intent.putExtra("isHistoy", (message.getSugguestionsFontColor() == 1));
                             intent.putExtra("customCard", customCard);
                             intent.putExtra("title", customCard.getCardGuide());
+                            intent.putExtra(ZhiChiConstants.SOBOT_AI_CARD_SOURCE_MSG_ID, sourceMessageId);
+                            intent.putExtra(ZhiChiConstants.SOBOT_AI_CARD_ROUND_ID, sourceRoundId);
+                            intent.putExtra(ZhiChiConstants.SOBOT_AI_CARD_SEND_ENABLED, isSendActionEnabled);
                             mContext.startActivity(intent);
                         }
                     });
@@ -129,7 +138,8 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                 }
             }
             setupGoodsListLayoutManager(context, list);
-            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight, message.getSugguestionsFontColor() == 1);
+            SobotAiCardAdapter aiCardAdapter = new SobotAiCardAdapter(mContext, list, isRight,
+                    message.getSugguestionsFontColor() == 1, isSendActionEnabled);
             aiCardAdapter.setOnItemClickListener(new SobotAiCardAdapter.OnItemListener() {
                 @Override
                 public void onSendClick(String menuName, SobotChatCustomGoods goods) {
@@ -160,6 +170,8 @@ public class AiCardMessageHolder extends MsgHolderBase implements View.OnClickLi
                     intent.putExtra("btnText", menuName);
                     intent.putExtra("SobotCustomGoods", goods);
                     intent.putExtra("SobotCustomCard", showCustomCard);
+                    intent.putExtra(ZhiChiConstants.SOBOT_AI_CARD_SOURCE_MSG_ID, sourceMessageId);
+                    intent.putExtra(ZhiChiConstants.SOBOT_AI_CARD_ROUND_ID, sourceRoundId);
                     CommonUtils.sendLocalBroadcast(mContext, intent);
                 }
 

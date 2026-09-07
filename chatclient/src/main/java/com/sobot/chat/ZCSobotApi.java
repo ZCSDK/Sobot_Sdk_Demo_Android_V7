@@ -796,6 +796,16 @@ public class ZCSobotApi {
     }
 
     /**
+     * 设置进入客服页面时是否清理 Sobot 通知。
+     * 改为 false 会保留进入页面前已展示的通知，不影响后续通知的接收与展示。
+     *
+     * @param isClear true 清理通知（默认），false 保留通知
+     */
+    public static void setClearNotificationOnEnter(boolean isClear) {
+        MarkConfig.setON_OFF(MarkConfig.CLEAR_NOTIFICATION_ON_ENTER, isClear);
+    }
+
+    /**
      * 清除所有通知
      *
      * @param context

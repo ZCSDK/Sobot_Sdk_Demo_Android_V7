@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 表情属于固定尺寸图标，不跟随系统字体缩放，避免放大后超出固定格子被裁切。 -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/sobot_tv_emoticon"
     android:layout_width="match_parent"
@@ -9,4 +10,4 @@
     android:paddingBottom="4dp"
     android:layout_marginBottom="20dp"
     android:textColor="@color/sobot_common_hese"
-    android:textSize="@dimen/sobot_text_font_22" />
+    android:textSize="22dp" />

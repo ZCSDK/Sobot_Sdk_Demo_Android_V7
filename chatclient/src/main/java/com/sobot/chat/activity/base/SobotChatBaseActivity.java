@@ -47,6 +47,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -140,25 +141,41 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
                 SobotBaseUrl.setApi_Host(host);
             }
             int targetSdkVersion = CommonUtils.getTargetSdkVersion(getSobotBaseActivity());
-            //Android 15 底部避让
+            //Android 15 强制 edge-to-edge 系统栏避让
             if (Build.VERSION.SDK_INT >= 35 && targetSdkVersion >= 35) {
                 try {
-                    View decorView = getWindow().getDecorView();
-                    ViewCompat.setOnApplyWindowInsetsListener(decorView, new OnApplyWindowInsetsListener() {
-                        @Override
-                        public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                            int statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
-                            int bottomInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
-                            View rootView = findViewById(R.id.view_root);
-
-                            if (rootView != null) {
-                                //android 15 api 35 全屏沉侵式 底部避让
-                                rootView.setPadding(0, 0, 0, bottomInset);
+                    //监听器必须注册在 view_root 上而非 decorView：
+                    //SobotBaseSwitchKeyboardUtil 初始化输入面板时会在 decorView 上重设 insets 监听器，
+                    //注册在 decorView 会被覆盖导致避让失效；view_root 是其子 View，派发不受影响
+                    final View rootView = findViewById(R.id.view_root);
+                    if (rootView != null) {
+                        ViewCompat.setOnApplyWindowInsetsListener(rootView, new OnApplyWindowInsetsListener() {
+                            @Override
+                            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                                // 刘海屏 safe inset 与 systemBars 同侧共存时（如手势导航下导航栏 inset 为 0
+                                // 但刘海仍在侧边），统一纳入 root 避让并取 max 而非相加，
+                                // 防止 view 层旧 displayInNotch 短路后内容被刘海戳到、或同侧双重避让
+                                Insets cutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+                                int leftInset = Math.max(systemBars.left, cutout.left);
+                                int rightInset = Math.max(systemBars.right, cutout.right);
+                                int bottomInset = Math.max(systemBars.bottom, cutout.bottom);
+                                //键盘弹起时窗口已按 ime 抬升，bottom 必须置 0 避免双重避让
+                                //（与 SobotSystemKeyboardUtils 写 view_root padding 的约定一致，
+                                // 两处写入值必须相同，否则后执行的一方会破坏另一方的避让）
+                                if (insets.getInsets(WindowInsetsCompat.Type.ime()).bottom > 0) {
+                                    bottomInset = 0;
+                                }
+                                //android 15 api 35 全屏沉浸式系统栏避让：
+                                //竖屏：bottom 避让底部导航栏；横屏：left/right 避让侧边三键导航栏竖条
+                                //（横屏时导航栏在屏幕左侧或右侧，如"切换机器人"按钮贴右缘会被遮挡）
+                                rootView.setPadding(leftInset, 0, rightInset, bottomInset);
+                                LogUtils.d("系统栏insets:======== left=" + systemBars.left
+                                        + " right=" + systemBars.right + " bottom=" + bottomInset);
+                                return insets;
                             }
-                            LogUtils.d("底部状态栏高度:========" + bottomInset);
-                            return insets;
-                        }
-                    });
+                        });
+                    }
                 } catch (Exception e) {
                 }
             }
@@ -188,7 +205,28 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 是否处于 Android 15 强制 edge-to-edge 场景。
+     * 此场景下 view_root 已统一按 systemBars 与 displayCutout 取 max 避让（见 onCreate），
+     * 各 view 层旧式 notch padding/margin 避让（displayInNotch 系列）必须短路返回，
+     * 否则与 root 的避让叠加会出现双重 padding，导致横屏内容左右对不齐。
+     * 改这里会影响所有 displayInNotch* 调用方的避让行为，联动看 onCreate 中 root listener。
+     */
+    protected boolean isForceEdgeToEdge() {
+        try {
+            return Build.VERSION.SDK_INT >= 35
+                    && CommonUtils.getTargetSdkVersion(getSobotBaseActivity()) >= 35;
+        } catch (Exception e) {
+            LogUtils.e("isForceEdgeToEdge", e);
+            return false;
+        }
+    }
+
     public void displayInNotch(final View view) {
+        // 强制 e2e 下由 view_root 统一避让，view 层不再叠加 notch padding（原因见 isForceEdgeToEdge 注释）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
             // 获取刘海屏信息
             NotchScreenManager.getInstance().getNotchInfo(this, new INotchScreen.NotchScreenCallback() {
@@ -226,6 +264,10 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * API < 28 走旧 NotchScreenManager + rotation 判定，区分 home 键在左 / 在右两种横屏方向。
      */
     public void displayInNotchSingleSide(final View view) {
+        // 强制 e2e 下由 view_root 统一避让，view 层不再叠加 notch padding（原因见 isForceEdgeToEdge 注释）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
                 || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
                 || view == null) {
@@ -296,6 +338,10 @@ public abstract class SobotChatBaseActivity extends AppCompatActivity {
      * 与 displayInNotch / displayInNotchSingleSide 区别：那两个用 padding 适合自适应宽度 view（WebView、列表）。
      */
     public void applyNotchMarginToFixedSizeView(final View view) {
+        // 强制 e2e 下由 view_root 统一避让，view 层不再叠加 notch margin（原因见 isForceEdgeToEdge 注释）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
                 || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
                 || view == null) {

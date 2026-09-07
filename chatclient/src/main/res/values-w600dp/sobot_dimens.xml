@@ -155,9 +155,19 @@
     <dimen name="sobot_tiket_item_padding_top">20dp</dimen>
     <!--留言模板 item 顶部占位线高度：宽屏不需要 -->
     <dimen name="sobot_tiket_template_top_line_height">0dp</dimen>
-    <!--留言模板 item 外边距：宽屏由 RecyclerView padding + ItemDecoration 控制 -->
+    <!--留言模板 item 外边距：宽屏由 RecyclerView padding + ItemDecoration 控制，自身 margin 全部清零
+         —— 尤其 marginTop 必须=0dp，否则 GridDecoration 的 vSpace=12 会再叠加 marginTop，
+         导致"行间距(12+2)=14 ≠ 列间距 12"的不一致 bug（硬编码 2dp 现已通过此 dimen 档覆盖清零）-->
     <dimen name="sobot_tiket_template_item_margin_h">0dp</dimen>
+    <dimen name="sobot_tiket_template_item_margin_top">0dp</dimen>
     <dimen name="sobot_tiket_template_item_margin_bottom">0dp</dimen>
+    <!--留言模板 双列网格 间距（手机横屏）：
+         - h_space=12dp：水平两卡阴影互不覆盖，左右各扩散 4-5dp → 净空白 ≈ 12-9 = 3dp
+         - v_space=13dp（= 12 + 1 阴影补偿）：上卡 elevation16 + translationY6 底阴影向下扩散 10dp，
+           几乎占满整 v_space，14dp 时垂直净空白略大，回调 -1dp 到 13dp 后：
+           13-10=3dp，与水平净(3dp) 严格一致。-->
+    <dimen name="sobot_ticket_grid_template_h_space">12dp</dimen>
+    <dimen name="sobot_ticket_grid_template_v_space">12dp</dimen>
     <!--留言模板 RecyclerView 底部额外 padding：手机横屏 elevation(16) + translationY(6) = 24dp，让最后一行阴影显示完整-->
     <dimen name="sobot_ticket_grid_template_shadow_padding">24dp</dimen>
 
@@ -173,14 +183,22 @@
 
     <!-- ============== 留言表单 + 完成态 宽屏档（手机横屏） ============== -->
 
-    <!--表单：双列 + 列间距 20dp，行间距 12dp，左右内边距 24dp-->
-    <dimen name="sobot_ticket_form_padding_h">24dp</dimen>
+    <!--表单：双列 + 列间距 20dp，行间距 12dp，左右内边距 16dp（严格对齐实施文档 §2 1.3.1 设计规格）
+         - sobot_ticket_form_padding_h：表单根容器的左右内边距 → 16dp（与竖屏一致，横屏左右安全区由 NotchScreenManager 额外叠加）
+         - sobot_ticket_form_h_space：双列之间的 Space 宽度 → 20dp（规格明确"列间距 20dp"，之前错写成 12dp，导致两列控件离得太近，视觉挤压）
+         - sobot_ticket_form_v_space：行间垂直间距 → 12dp（规格明确"上下间距 12dp"）
+         - sobot_input_view_padding_h：SobotInputView 内部左右 padding 保持 0dp（避免与外层 padding_h + h_space 叠加，导致两列中间间隙翻倍过大）-->
+    <dimen name="sobot_ticket_form_padding_h">16dp</dimen>
     <dimen name="sobot_ticket_form_h_space">20dp</dimen>
     <dimen name="sobot_ticket_form_v_space">12dp</dimen>
-    <!--SobotInputView 字段间垂直间距（手机横屏，figma node 723:22735）：
-         视觉总间距 = 本 dimen + label 高度(~20dp) + label→input 间距(8dp)。
-         设 8dp 让总间距控制在 ~36dp，对应 figma 横屏视觉 -->
-    <dimen name="sobot_form_field_top_margin">8dp</dimen>
+    <!--SobotInputView 内部左右 padding：手机横屏双列设为 0dp，避免与外层容器 padding + 列间距叠加导致两列控件中间空隙过大-->
+    <dimen name="sobot_input_view_padding_h">0dp</dimen>
+    <!--变量收集卡片(ll_content)左右内边距：手机横屏 16dp（item padding_h=0dp，由容器补足，避免内容顶到卡片边缘）-->
+    <dimen name="sobot_variable_card_padding_h">16dp</dimen>
+    <!--变量收集卡片 提交按钮左右外边距：手机横屏 16dp，与条目内容（容器16+条目0）对齐-->
+    <dimen name="sobot_variable_submit_margin_h">16dp</dimen>
+    <!--SobotInputView 字段标题顶部间距（手机横屏，走查 #2 对齐 figma node 723:22735）-->
+    <dimen name="sobot_form_field_top_margin">12dp</dimen>
     <!--完成态：左右父间距加宽避让安全区；按钮垂直居中无需底间距-->
     <dimen name="sobot_completed_actions_margin_h">60dp</dimen>
     <dimen name="sobot_completed_actions_margin_bottom">0dp</dimen>
@@ -207,5 +225,26 @@
 
     <!--AI Agent 底部按钮 上下内边距（手机横屏屏高紧张，调小 8dp）-->
     <dimen name="sobot_aiagent_button_item_padding_v">8dp</dimen>
+    <!--大模型推荐问题按钮上下内边距（手机横屏屏高紧张，调小 8dp）-->
+    <dimen name="sobot_aiagent_guess_ask_padding_v">8dp</dimen>
+    <!--录音提示区域纵向内边距：手机横屏统一压缩为 20dp-->
+    <dimen name="sobot_sound_recording_padding_top">20dp</dimen>
+    <dimen name="sobot_sound_recording_padding_bottom">20dp</dimen>
+    <!--通用列表弹窗底部内边距：手机横屏取消额外占用-->
+    <dimen name="sobot_dialog_list_padding_bottom">0dp</dimen>
+    <!--技能组图文列表项内边距：手机横屏保持左右 12dp，上下压缩为 8dp-->
+    <dimen name="sobot_skill_pic_text_padding_horizontal">12dp</dimen>
+    <dimen name="sobot_skill_pic_text_padding_vertical">12dp</dimen>
+    <!--通用弹窗标题上下内边距：手机横屏压缩为 10dp-->
+    <dimen name="sobot_dialog_title_padding_vertical">10dp</dimen>
+    <!--表情面板删除按钮区域：手机横屏压缩宽高，减少面板占用-->
+    <dimen name="sobot_del_emoji_width">80dp</dimen>
+    <dimen name="sobot_del_emoji_height">72dp</dimen>
+    <!--表情面板左右内边距：手机横屏取消额外占用-->
+    <dimen name="sobot_emoji_panel_padding_horizontal">0dp</dimen>
+    <!--功能菜单左右内边距：手机横屏取消额外占用-->
+    <dimen name="sobot_function_menu_padding_horizontal">0dp</dimen>
+    <!--聊天发送输入框最大高度：手机横屏压缩纵向占用-->
+    <dimen name="sobot_chat_send_content_max_height">74dp</dimen>
 
 </resources>

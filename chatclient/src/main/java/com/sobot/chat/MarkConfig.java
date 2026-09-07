@@ -5,7 +5,7 @@ package com.sobot.chat;
  */
 public class MarkConfig {
 
-    private static int markValue = 0b00000000110;
+    private static int markValue = 0b00000100110;
 
 
     /**
@@ -34,6 +34,11 @@ public class MarkConfig {
      * 默认 false 不使用
      */
     public static final int SOBOT_COLLECT_SENSOR = 0b10000;
+
+    /**
+     * 进入客服页面时是否清理 Sobot 通知，默认 true 清理
+     */
+    public static final int CLEAR_NOTIFICATION_ON_ENTER = 0b100000;
 
 
     /**

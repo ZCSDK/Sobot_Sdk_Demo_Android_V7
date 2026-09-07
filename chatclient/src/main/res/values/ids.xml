@@ -19,6 +19,12 @@
     <item name="sobot_row_title_type" type="id" />
     <item name="sobot_row_email_phone" type="id" />
 
+    <!-- 留言表单横屏"隐私协议+提交按钮"行容器 ID（仅 layout-w600dp 引用）：
+         挖孔避让作用于此行容器（整行内缩），而非协议自身 ——
+         协议自身加 padding 会增大与提交按钮的间距（20dp 被撑大，走查反馈）。
+         竖屏 / Pad 档协议独占一行，仍对 sobot_ll_policy 避让 -->
+    <item name="sobot_ll_policy_submit_row" type="id" />
+
     <!-- 留言详情 横屏右侧面板 4 个圆形图标按钮 ID（仅 layout-w600dp 引用，
          竖屏 / Pad / 折叠屏内屏 findViewById 返回 null，Java 端通过 R.integer.sobot_list_span_count > 1 分流） -->
     <item name="iv_side_scroll_up" type="id" />

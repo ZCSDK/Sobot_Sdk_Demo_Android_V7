@@ -221,7 +221,7 @@
     <string name="sobot_mini_program_only_open_by_weixin">ウィジェットはウィチャットでのみ開くことができます</string>
     <string name="sobot_parsing">解析中...</string>
     <string name="sobot_ding">有用</string>
-    <string name="sobot_cai">没用</string>
+    <string name="sobot_cai">役に立たなかった</string>
     <string name="sobot_outline_closed">セッションが終了しました。問い合わせを再開できます</string>
     <string name="sobot_service_for_you">オンラインカスタマーサービスが提供しています</string>
     <string name="sobot_btn_queryfrom_submit_text">送信と相談</string>
@@ -237,7 +237,7 @@
     <string name="sobot_re_write">情報の再入力</string>
     <string name="sobot_str_please_check_is_solve">問題を解決したかどうかを選択してください</string>
     <string name="sobot_evaluate_lab">ラベル</string>
-    <string name="sobot_evaluate_issolve">解決するかどうか</string>
+    <string name="sobot_evaluate_issolve">解決しましたか？</string>
     <string name="sobot_str_appoint">引用</string>
     <string name="sobot_str_my">私</string>
     <string name="sobot_str_robot">ロボット</string>

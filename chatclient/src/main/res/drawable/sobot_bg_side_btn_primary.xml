@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  留言详情 横屏右侧面板 主操作（回复）圆形按钮：纯色圆
-  填充色由 Java 端通过 ThemeUtils.applyColorWithMultiplyMode() 替换为主题色
-  此处用白色作为基底，染色时按主题色相乘
+  留言详情 横屏侧边主操作（回复）圆形按钮 selector。
+
+  阴影策略（单一来源，与 sobot_bg_side_btn_default 一致）：
+  由宿主 View 的原生 elevation（6dp，比普通按钮 4dp 略高，更悬浮）+ Java 侧
+  oval ViewOutlineProvider 渲染真阴影；本 drawable 只负责底色 / 按压态，
+  不叠加 layer-list 假阴影层（两套阴影同时渲染会过黑）。
+
+  内容圆铺满画布、纯白实心、无描边：Java 端通过
+  ThemeUtils.applyColorWithMultiplyMode() 用 MULTIPLY 颜色过滤器染成主题色。
+  阴影由系统渲染（outlineSpotShadowColor 指定的半透明黑），不会被 MULTIPLY 染色。
+
+  【关键约束】与 sobot_bg_side_btn_default.xml 保持"同为纯内容层"的结构，
+  阴影强弱差异全部交给各自 elevation（6dp vs 4dp），避免再引入双重阴影。
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 按下状态：纯白（MULTIPLY 染色后仍为主题色），无阴影层变化 -->
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <solid android:color="@color/sobot_color_dialog_bg" />
         </shape>
     </item>
 
+    <!-- 默认状态：纯白实心圆（无描边），MULTIPLY 染成主题色 -->
     <item>
         <shape android:shape="oval">
             <solid android:color="@color/sobot_color_dialog_bg" />

@@ -7,14 +7,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <LinearLayout
+    <!-- 自定义卡片-单商品（type 48）/ 商品咨询（type 7）共用布局：横屏用 SobotMaxSizeLinearLayout 限制最大宽度，与商品/订单卡片一致；竖屏 percent=0 不生效，行为不变 -->
+    <com.sobot.chat.widget.SobotMaxSizeLinearLayout
         android:id="@+id/sobot_container"
         style="@style/sobot_msg_content_ll_hollow_bg_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/sobot_msg_margin_edge"
         android:layout_marginEnd="@dimen/sobot_msg_margin_edge"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -103,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:orientation="vertical" />
-    </LinearLayout>
+    </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
 
 </LinearLayout>

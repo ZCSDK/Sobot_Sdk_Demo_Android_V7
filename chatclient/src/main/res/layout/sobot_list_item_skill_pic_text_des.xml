@@ -6,7 +6,10 @@
     android:layout_height="wrap_content"
     android:background="@drawable/sobot_bg_dialog_item_group"
     android:orientation="horizontal"
-   android:padding="12dp"
+    android:paddingStart="@dimen/sobot_skill_pic_text_padding_horizontal"
+    android:paddingTop="@dimen/sobot_skill_pic_text_padding_vertical"
+    android:paddingEnd="@dimen/sobot_skill_pic_text_padding_horizontal"
+    android:paddingBottom="@dimen/sobot_skill_pic_text_padding_vertical"
     android:gravity="center_vertical">
 
     <com.sobot.chat.widget.image.SobotRCImageView

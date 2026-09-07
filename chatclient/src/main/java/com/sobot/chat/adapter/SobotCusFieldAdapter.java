@@ -160,7 +160,7 @@ public class SobotCusFieldAdapter extends SobotBaseAdapter<SobotCusFieldDataInfo
             categorySmallTitle = (TextView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_title);
             categorySmallIshave = (ImageView) view.findViewById(R.id.sobot_activity_cusfield_listview_items_ishave);
             categoryDuoIshave = (ImageView) view.findViewById(R.id.sobot_duo_cusfield_listview_items_ishave);
-            displayInNotch(categorySmallTitle);
+            // 挖孔避让由宿主弹窗基类统一处理（白色背景层整体内缩），item 内不再单独避让（避免叠加错位）
         }
 
         public void displayInNotch(final View view) {

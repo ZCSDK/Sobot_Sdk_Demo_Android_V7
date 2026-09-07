@@ -10,14 +10,16 @@
         android:id="@+id/tl_titlebar"
         layout="@layout/sobot_layout_common_titlebar" />
 
-    <!--列表-->
+    <!--列表：Pad/折叠屏内屏；走查 #2 加底部留白 + clipToPadding-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sobot_listview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clipToPadding="false"
         android:divider="@null"
-        android:overScrollMode="never" />
+        android:overScrollMode="never"
+        android:paddingBottom="20dp" />
 
     <LinearLayout
         android:id="@+id/sobot_ticket_bottom_ll"
@@ -44,14 +46,13 @@
             android:textSize="@dimen/sobot_text_font_14" />
     </LinearLayout>
 
+    <!--走查 #2：底部栏阴影改为方向性（向上 offset_y=-2 blur=8），替代原 elevation 四周漫射-->
     <LinearLayout
         android:id="@+id/sobot_ticket_success_bottom_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/sobot_color_dialog_bg"
+        android:background="@drawable/sobot_bg_detail_bottom_bar"
         android:orientation="vertical"
-        android:elevation="8dp"
-        android:outlineSpotShadowColor="@color/sobot_color_shadow"
         android:visibility="visible">
 
         <TextView
@@ -202,5 +203,10 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    <!--走查 #3：inline 回复输入栏（替代原 SobotReplyActivity 弹窗），默认 gone；Pad 复用竖屏 include-->
+    <include
+        android:id="@+id/sobot_reply_container"
+        layout="@layout/sobot_include_ticket_reply_input" />
 
 </LinearLayout>

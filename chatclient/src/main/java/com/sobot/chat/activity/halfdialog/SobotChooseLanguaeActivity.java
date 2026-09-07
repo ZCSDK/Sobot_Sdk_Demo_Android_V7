@@ -107,7 +107,8 @@ public class SobotChooseLanguaeActivity extends SobotDialogBaseActivity implemen
             }
         });
         rv_list = findViewById(R.id.rv_list);
-        displayInNotch(rv_list);
+        // 挖孔避让由基类统一处理（对白色背景层整体内缩，搜索框/列表/无数据文案一起避让）。
+        // 不再对 rv_list 单独避让 —— 会与基类叠加造成列表比搜索框多缩一段（内容错位）
         int spanCount = getResources().getInteger(R.integer.sobot_dialog_languae_span_count);
         rv_list.setLayoutManager(new GridLayoutManager(this, spanCount));
 

@@ -101,13 +101,16 @@
         android:background="@color/sobot_color_line_divider_3"
         android:visibility="gone" />
 
+    <!--自定义字段表格（GridLayout 由 Adapter 动态填充 key/value）：
+        走查调参——原 paddingTop=8dp 叠加上方图文区 paddingBottom=16dp，顶部间距 24dp > 底部 16dp；
+        归零后顶部 16dp = 底部 16dp（上下一致），左右 16dp 保持卡片内边距节奏-->
     <GridLayout
         android:id="@+id/curs_grid_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alignmentMode="alignBounds"
         android:paddingStart="16dp"
-        android:paddingTop="8dp"
+        android:paddingTop="0dp"
         android:paddingEnd="16dp"
         android:paddingBottom="16dp"></GridLayout>
 

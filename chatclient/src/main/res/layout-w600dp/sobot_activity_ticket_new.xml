@@ -51,11 +51,13 @@
         <ScrollView
             android:id="@+id/sobot_sv_root"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:fillViewport="true"
             android:scrollbars="none">
 
+            <!-- 表单根容器：统一加左右 padding = sobot_ticket_form_padding_h（实施文档 §2.4.1，手机横屏 24dp）
+                 避免每个 block 单独写 marginStart/End 导致硬编码或遗漏 -->
             <LinearLayout
                 android:id="@+id/sobot_post_msg_layout"
                 android:layout_width="match_parent"
@@ -63,24 +65,25 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:orientation="vertical"
-                >
+                android:paddingStart="@dimen/sobot_ticket_form_padding_h"
+                android:paddingEnd="@dimen/sobot_ticket_form_padding_h">
 
-                <!-- 引导文案：铺满 -->
+                <!-- 引导文案：铺满。上下 block 间距由下方 sobot_row_title_type 的 marginTop 控制 -->
                 <TextView
                     android:id="@+id/sobot_tv_post_msg"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
                     android:textColor="@color/sobot_color_text_third"
                     android:textSize="@dimen/sobot_text_font_14" />
 
-                <!-- 第 1 行：标题 + 分类（两列 weight=1） -->
+                <!-- 第 1 行：标题 + 分类（两列 weight=1）；
+                     marginTop = sobot_ticket_form_v_space（手机横屏 16dp，实施文档 §2.4.1）-->
                 <LinearLayout
                     android:id="@+id/sobot_row_title_type"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/sobot_ticket_form_v_space"
                     android:baselineAligned="false"
                     android:orientation="horizontal">
 
@@ -106,14 +109,16 @@
                         app:sobot_input_type="select" />
                 </LinearLayout>
 
-                <!-- 自定义字段容器：铺满（内部由 Presenter 动态填充，仍单列） -->
+                <!-- 自定义字段容器：铺满（内部由 Presenter 动态填充，横屏双列、竖屏单列）。
+                     外层不加 v_space margin，字段间隔统一由 item 内部标题的
+                     sobot_form_field_top_margin 控制（与动态自定义字段间距一致） -->
                 <LinearLayout
                     android:id="@+id/sobot_post_customer_field"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
 
-                <!-- 描述：铺满 -->
+                <!-- 描述：铺满（间隔同上，由 item 内部控制） -->
                 <com.sobot.chat.widget.SobotInputView
                     android:id="@+id/sobot_post_description"
                     android:layout_width="match_parent"
@@ -121,14 +126,14 @@
                     app:sobot_input_hint="@string/sobot_please_input"
                     app:sobot_input_type="many_lines" />
 
-                <!-- 附件上传：直接复用自定义字段附件 widget，横竖屏共用同一控件，统一新建 / 自定义字段视觉与交互 -->
+                <!--附件上传：直接复用自定义字段附件 widget，横竖屏共用同一控件，统一新建 / 自定义字段视觉与交互 -->
                 <com.sobot.chat.widget.SobotUploadView
                     android:id="@+id/ll_upload_file"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
 
-                <!-- 第 2 行：邮箱 + 手机（两列） -->
+                <!-- 第 2 行：邮箱 + 手机（两列，间隔同上由 item 内部控制） -->
                 <LinearLayout
                     android:id="@+id/sobot_row_email_phone"
                     android:layout_width="match_parent"
@@ -158,60 +163,83 @@
                         app:sobot_input_hint="@string/sobot_please_input"
                         app:sobot_input_view_type="input_two" />
                 </LinearLayout>
+
+                <!-- 占位：内容不满一屏时（fillViewport 已开）撑开剩余空间，把协议/提交按钮行推到底部贴底 -->
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- 隐私协议 + 提交按钮一行（横屏）：随滚动区（键盘弹起时不整体抬升，滚动可露出）；
+                     整体水平居中；协议宽度自适应（wrap），按钮固定 264dp × 36dp、文字居中，
+                     按钮与协议之间固定间距 20dp（marginStart 控制）。
+                     挖孔避让作用于此行容器（Java displayInNotch(sobot_ll_policy_submit_row)，
+                     整行内缩不改变内部 20dp 间距） -->
+                <LinearLayout
+                    android:id="@+id/sobot_ll_policy_submit_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/sobot_ll_policy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/iv_policy"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:background="@drawable/sobot_icon_checkbox_n"
+                            android:padding="2dp" />
+
+                        <TextView
+                            android:id="@+id/sobot_tv_policy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:layout_marginEnd="0dp"
+                            android:text="@string/sobot_agree_agreement"
+                            android:textColor="@color/sobot_policy_text"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/sobot_btn_submit"
+                        android:layout_width="264dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="20dp"
+                        android:background="@drawable/sobot_bg_theme_color_20dp"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:stateListAnimator="@null"
+                        android:textAllCaps="false"
+                        android:textColor="@color/sobot_color_white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
 
-        <!-- 隐私协议 -->
-        <LinearLayout
-            android:id="@+id/sobot_ll_policy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/iv_policy"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/sobot_icon_checkbox_n"
-                android:padding="2dp" />
-
-            <TextView
-                android:id="@+id/sobot_tv_policy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="@string/sobot_agree_agreement"
-                android:textColor="@color/sobot_policy_text"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <!-- 提交按钮 -->
-        <TextView
-            android:id="@+id/sobot_btn_submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/sobot_bg_theme_color_20dp"
-            android:gravity="center"
-            android:minWidth="130dp"
-            android:padding="8dp"
-            android:stateListAnimator="@null"
-            android:textAllCaps="false"
-            android:textColor="@color/sobot_color_white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
     </LinearLayout>
 
-    <!-- 完成态：与竖屏一致，按钮容器仍由代码切方向 -->
+    <!-- 完成态：背景统一走 sobot_color_bg_first（与表单态一致，日间=白，夜间=深色，避免硬编码 sobot_white 在夜间变成白底）
+         按钮容器仍由代码 bindCompletedActionsByOrientation 切方向 -->
     <LinearLayout
         android:id="@+id/sobot_ll_completed"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:background="@color/sobot_color_bg_first"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:visibility="gone">
@@ -220,12 +248,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <!-- 完成态内容容器：去掉原来的硬编码 marginStart/End=20dp，
+                 内部 actions 容器已通过 sobot_completed_actions_margin_h 统一控制左右边距 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
 

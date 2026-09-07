@@ -55,17 +55,18 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
     }
 
     /**
-     * 列数由资源限定符决定：values/ 默认 1（手机竖屏单列）；values-land/ 与 values-w600dp/ 覆盖为 2 列，附 10dp 列/行间距。
+     * 列数由资源限定符决定：values/ 默认 1（手机竖屏单列）；values-w600dp/ 及大屏档覆盖为 2 列。
+     * 单列与多列均保留 10dp 行间距，多列额外保留 10dp 列间距。
      */
     private void setupRecyclerLayout() {
         int spanCount = getResources().getInteger(R.integer.sobot_list_span_count);
+        int spacing = ScreenUtils.dip2px(this, 10);
         if (spanCount > 1) {
-            int spacing = ScreenUtils.dip2px(this, 10);
             rv_list.setLayoutManager(new GridLayoutManager(this, spanCount));
-            rv_list.addItemDecoration(new GridSpacingItemDecoration(spanCount, spacing));
         } else {
             rv_list.setLayoutManager(new LinearLayoutManager(this));
         }
+        rv_list.addItemDecoration(new ListSpacingItemDecoration(spanCount, spacing));
     }
 
     @Override
@@ -111,7 +112,8 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
                 }
             });
             rv_list.setAdapter(mListAdapter);
-            displayInNotch(rv_list);
+            // rv_list 挖孔避让由基类统一处理：布局根已加 sobot_container id，
+            // 基类 initView 会对白底层内所有内容行挂单侧 safeInset 避让（含 e2e 场景）
         } else {
             tv_nodata.setVisibility(View.VISIBLE);
             rv_list.setVisibility(View.GONE);
@@ -127,14 +129,14 @@ public class SobotRobotListActivity extends SobotDialogBaseActivity implements V
     }
 
     /**
-     * 多列模式下的列间距与行间距。
+     * 列表项的行间距，以及多列模式下的列间距。
      * 不在最外侧加边距，外边距由布局的 sobot_modal_content_padding 负责。
      */
-    private static class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+    private static class ListSpacingItemDecoration extends RecyclerView.ItemDecoration {
         private final int spanCount;
         private final int spacing;
 
-        GridSpacingItemDecoration(int spanCount, int spacing) {
+        ListSpacingItemDecoration(int spanCount, int spacing) {
             this.spanCount = spanCount;
             this.spacing = spacing;
         }

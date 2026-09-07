@@ -26,5 +26,6 @@
         android:background="@drawable/sobot_btn_zan_cai_bg_selector"
         android:gravity="center"
         android:padding="8dp"
-        android:src="@drawable/sobot_evaleuate_btn_cai_selector" />
+        android:src="@drawable/sobot_evaleuate_btn_cai_selector"
+        android:visibility="gone" />
 </RelativeLayout>

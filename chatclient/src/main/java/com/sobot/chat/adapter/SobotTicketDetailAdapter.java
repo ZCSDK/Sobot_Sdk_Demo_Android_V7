@@ -45,9 +45,11 @@ import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.SobotFiveStarsSmallLayout;
 import com.sobot.chat.widget.SobotGridSpacingItemDecoration;
 import com.sobot.chat.widget.attachment.FileTypeConfig;
+import com.sobot.chat.widget.dialog.SobotCusFieldImagePreviewDialog;
 import com.sobot.chat.widget.image.SobotProgressImageView;
 import com.sobot.chat.widget.toast.ToastUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,60 +71,89 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
     public static final int MSG_TYPE_EVALUATE = 2;
     public static final int MSG_TYPE_NO_DATA = 3;
 
-    SobotUploadFileAdapter.Listener listener = new SobotUploadFileAdapter.Listener() {
-        @Override
-        public void downFileLister(SobotFileModel fileModel) {
-            // 打开文件详情页面
-            Intent intent = new Intent(mActivity, SobotFileDetailActivity.class);
-            SobotCacheFile cacheFile = new SobotCacheFile();
-            cacheFile.setFileName(fileModel.getFileName());
-            cacheFile.setUrl(fileModel.getFileUrl());
-            cacheFile.setFileType(FileTypeConfig.getFileType(fileModel.getFileType()));
-            cacheFile.setMsgId(fileModel.getFileId());
-            intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, cacheFile);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mActivity.startActivity(intent);
+    /**
+     * 构造当前 cell（工单头 / 单条回复）的附件点击回调。
+     * previewPic 会收集同一 cell 内所有图片，多图用支持左右滑动 + "x/n" 指示器的
+     * {@link SobotCusFieldImagePreviewDialog}，单图仍走 {@link SobotPhotoActivity}（保留长按下载等）。
+     * <p>
+     * —— 走查 #5：详情附件预览需支持上一张/下一张、jpg 左右滑动。
+     * 改这里会影响：{@link #onBindViewHolder} 中 HEAD / ITEM 两个分支构造 SobotUploadFileAdapter 的调用。
+     *
+     * @param fileList 当前 cell 的附件列表（用于收集图片 url 与定位点击项 startIndex）
+     */
+    private SobotUploadFileAdapter.Listener createFileListener(final List<SobotFileModel> fileList) {
+        return new SobotUploadFileAdapter.Listener() {
+            @Override
+            public void downFileLister(SobotFileModel fileModel) {
+                // 打开文件详情页面
+                Intent intent = new Intent(mActivity, SobotFileDetailActivity.class);
+                SobotCacheFile cacheFile = new SobotCacheFile();
+                cacheFile.setFileName(fileModel.getFileName());
+                cacheFile.setUrl(fileModel.getFileUrl());
+                cacheFile.setFileType(FileTypeConfig.getFileType(fileModel.getFileType()));
+                cacheFile.setMsgId(fileModel.getFileId());
+                intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, cacheFile);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mActivity.startActivity(intent);
 
-        }
-
-        @Override
-        public void previewMp4(SobotFileModel fileModel) {
-            SobotCacheFile cacheFile = new SobotCacheFile();
-            String name = MD5Util.encode(fileModel.getFileUrl());
-            int dotIndex = fileModel.getFileUrl().lastIndexOf('.');
-            if (dotIndex == -1) {
-                name = name + ".mp4";
-            } else {
-                name = name + fileModel.getFileUrl().substring(dotIndex + 1);
             }
-            cacheFile.setFileName(name);
-            cacheFile.setUrl(fileModel.getFileUrl());
-            cacheFile.setFileType(FileTypeConfig.getFileType(fileModel.getFileType()));
-            cacheFile.setMsgId(fileModel.getFileId());
-            Intent intent = SobotVideoActivity.newIntent(mActivity, cacheFile);
-            mActivity.startActivity(intent);
 
-        }
+            @Override
+            public void previewMp4(SobotFileModel fileModel) {
+                SobotCacheFile cacheFile = new SobotCacheFile();
+                String name = MD5Util.encode(fileModel.getFileUrl());
+                int dotIndex = fileModel.getFileUrl().lastIndexOf('.');
+                if (dotIndex == -1) {
+                    name = name + ".mp4";
+                } else {
+                    name = name + fileModel.getFileUrl().substring(dotIndex + 1);
+                }
+                cacheFile.setFileName(name);
+                cacheFile.setUrl(fileModel.getFileUrl());
+                cacheFile.setFileType(FileTypeConfig.getFileType(fileModel.getFileType()));
+                cacheFile.setMsgId(fileModel.getFileId());
+                Intent intent = SobotVideoActivity.newIntent(mActivity, cacheFile);
+                mActivity.startActivity(intent);
 
-        @Override
-        public void deleteFile(SobotFileModel fileModel) {
+            }
 
-        }
+            @Override
+            public void deleteFile(SobotFileModel fileModel) {
 
-        @Override
-        public void previewPic(String fileUrl, String fileName) {
-            if (SobotOption.imagePreviewListener != null) {
-                //如果返回true,拦截;false 不拦截
-                boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(mActivity, fileUrl);
-                if (isIntercept) {
-                    return;
+            }
+
+            @Override
+            public void previewPic(String fileUrl, String fileName) {
+                if (SobotOption.imagePreviewListener != null) {
+                    //如果返回true,拦截;false 不拦截
+                    boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(mActivity, fileUrl);
+                    if (isIntercept) {
+                        return;
+                    }
+                }
+                // 收集同一 cell 内所有图片类型附件，多图用左右滑动预览，单图走原 SobotPhotoActivity
+                List<String> imageUrls = new ArrayList<>();
+                int startIndex = 0;
+                if (fileList != null && !fileList.isEmpty()) {
+                    for (SobotFileModel f : fileList) {
+                        if (FileTypeConfig.getFileType(f.getFileType()) == FileTypeConfig.MSGTYPE_FILE_PIC) {
+                            if (TextUtils.equals(f.getFileUrl(), fileUrl)) {
+                                startIndex = imageUrls.size();
+                            }
+                            imageUrls.add(f.getFileUrl());
+                        }
+                    }
+                }
+                if (imageUrls.size() > 1) {
+                    new SobotCusFieldImagePreviewDialog(mActivity, imageUrls, startIndex, true).show();
+                } else {
+                    Intent intent = new Intent(mActivity, SobotPhotoActivity.class);
+                    intent.putExtra("imageUrL", fileUrl);
+                    mActivity.startActivity(intent);
                 }
             }
-            Intent intent = new Intent(mActivity, SobotPhotoActivity.class);
-            intent.putExtra("imageUrL", fileUrl);
-            mActivity.startActivity(intent);
-        }
-    };
+        };
+    }
 
     public SobotTicketDetailAdapter(Activity activity, List list) {
         this.mActivity = activity;
@@ -194,6 +225,10 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                     final StTicketDetailInfo data = (StTicketDetailInfo) list.get(position);
                     if (data != null && !TextUtils.isEmpty(data.getTicketTitle())) {
                         vh.tv_ticket_title.setText(data.getTicketTitle());
+                        vh.tv_ticket_title.setVisibility(View.VISIBLE);
+                    } else {
+                        // 标题为空时隐藏 TextView，避免空行高 + marginTop 造成顶部大空白（走查 #21）
+                        vh.tv_ticket_title.setVisibility(View.GONE);
                     }
                     // 邮件引用：有引用内容时显示 ... 按钮
                     String emailQuoteContent = data.getEmailQuoteContent();
@@ -211,6 +246,10 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
                     if (data != null && !TextUtils.isEmpty(data.getTicketContent())) {
                         HtmlTools.getInstance(mActivity).setRichText(vh.tv_ticket_content, StringUtils.checkStringIsNull(data.getTicketContent()).replaceAll("<br/>", "").replaceAll("\n", "<br/>").replaceAll("<img.*?/>", " [" + mActivity.getResources().getString(R.string.sobot_upload) + "] "), getLinkTextColor());
+                        vh.tv_ticket_content.setVisibility(View.VISIBLE);
+                    } else {
+                        // 内容为空时隐藏 TextView，避免空行高 + marginTop 造成顶部大空白（走查 #21）
+                        vh.tv_ticket_content.setVisibility(View.GONE);
                     }
 
                     SobotTicketStatus status = getStatus(data.getTicketStatus());
@@ -247,7 +286,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
                     if (null != data.getFileList() && !data.getFileList().isEmpty()) {
                         vh.recyclerView.setVisibility(View.VISIBLE);
-                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(), false, listener));
+                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, data.getFileList(), false, createFileListener(data.getFileList())));
                     } else {
                         vh.recyclerView.setVisibility(View.GONE);
                     }
@@ -264,7 +303,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                 StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
                 if (mEvaluate.getQuestionFlag() >= 0) {
                     vh.sobot_tv_isSolve.setVisibility(View.VISIBLE);
-                    String solve = mActivity.getResources().getString(R.string.sobot_evaluate_issolve) + ": ";
+                    String solve = mActivity.getResources().getString(R.string.sobot_evaluate_issolve) + " ";
                     int solveLen = solve.length();
                     if (mEvaluate.getQuestionFlag() == 0) {
                         solve += mActivity.getResources().getText(R.string.sobot_evaluate_no).toString();
@@ -339,7 +378,14 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
                         if (TextUtils.isEmpty(reply.getReplyContent())) {
                             vh.sobot_tv_content_detail.setVisibility(View.GONE);
                             vh.sobot_tv_content_detail.setOnClickListener(null);
-                            vh.sobot_tv_content.setPadding(0, 0, 0, 0);
+                            // 横屏走查 #13：只有附件无文本时，文本 View 直接 GONE，消除其 marginTop=8dp 占位，
+                            // 避免头像与附件之间出现空白；竖屏保留原 setPadding(0,0,0,0) 行为不变
+                            if (mActivity.getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+                                vh.sobot_tv_content.setVisibility(View.GONE);
+                                vh.sobot_tv_content.setOnClickListener(null);
+                            } else {
+                                vh.sobot_tv_content.setPadding(0, 0, 0, 0);
+                            }
                         } else {
                             //如果回复里包含图片（img标签），如果有，显示查看详情，并且跳转到WebViewActivity展示
                             if (StringUtils.getImgSrc(reply.getReplyContent()).size() > 0) {
@@ -383,7 +429,7 @@ public class SobotTicketDetailAdapter extends RecyclerView.Adapter {
 
                     if (null != reply.getFileList() && !reply.getFileList().isEmpty()) {
                         vh.recyclerView.setVisibility(View.VISIBLE);
-                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, listener));
+                        vh.recyclerView.setAdapter(new SobotUploadFileAdapter(mActivity, reply.getFileList(), false, createFileListener(reply.getFileList())));
                     } else {
                         vh.recyclerView.setVisibility(View.GONE);
                     }

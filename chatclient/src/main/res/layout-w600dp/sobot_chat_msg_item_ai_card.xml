@@ -38,10 +38,11 @@
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!--左半：商品（图 + 标题 / 描述 / 数量价格）-->
+        <!--左半：商品（图 + 标题 / 描述 / 数量价格）；右侧自定义字段较多时，左侧商品内容垂直居中-->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:orientation="horizontal"
             android:layout_marginTop="8dp"
@@ -123,18 +124,23 @@
             android:background="@color/sobot_color_line_divider_3"
             android:visibility="gone" />
 
-        <!--右半：自定义字段表格（GridLayout 由 Adapter 动态填充 key/value）-->
+        <!--右半：自定义字段表格（GridLayout 由 Adapter 动态填充 key/value）。
+            走查调参——layout_gravity=center_vertical 让字段块在行内整体垂直居中：
+            上/下间隙由居中自动对称（替代此前 paddingTop/paddingBottom 手动配平的方案），
+            纵向 padding 归零让块紧贴内容、居中无偏置；行间 8dp 间距由 Adapter 按行索引控制；
+            右侧文字遮挡由 Adapter 给 value 列设 columnWeight 修复-->
         <GridLayout
             android:id="@+id/curs_grid_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="0dp"
             android:layout_weight="1"
             android:alignmentMode="alignBounds"
             android:paddingStart="16dp"
-            android:paddingTop="8dp"
+            android:paddingTop="0dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="16dp" />
+            android:paddingBottom="0dp" />
     </LinearLayout>
 
     <!--底部按钮区（Detail 等）-->

@@ -66,6 +66,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private int indicatorLeft = 0;
     private int indicatorWidth = 0;
     private ValueAnimator indicatorAnimator;
+    private ViewTreeObserver.OnScrollChangedListener scrollChangedListener;
 
     private List<FaqDocRespVo> faqDocRespVoList = new ArrayList<>();
 
@@ -111,7 +112,14 @@ public class HotIssueMessageHolder extends MsgHolderBase {
 
     @Override
     public void bindData(Context context, final ZhiChiMessageBase message) {
+        boolean dataChanged = (mData != message);
         mData = message;
+        if (dataChanged) {
+            removeScrollListener();
+            blockIndex = 0;
+            groupIndex = 0;
+            curPageNum = 0;
+        }
         SobotFaqDetailModel bean = message.getFaqDetailModel();
         PAGE_NUM = bean.getGuidePageCount();
         //图片
@@ -119,8 +127,9 @@ public class HotIssueMessageHolder extends MsgHolderBase {
         if (bean.getShowType() == 1) {
             PAGE_NUM = bean.getGuidePageCount();
             sobot_hot_pic.setVisibility(View.GONE);
+            fastMenu.setVisibility(View.GONE);
+            sobot_tab_line.setVisibility(View.GONE);
             //只显示列表
-            curPageNum = 0;
             faqDocRespVoList = bean.getFaqDocRespVos();
             if (StringUtils.isNoEmpty(bean.getGuideWords())) {
                 //显示引导语
@@ -149,6 +158,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
 
         } else if (bean.getShowType() == 2) {
             PAGE_NUM = bean.getGuidePageCount();
+            fastMenu.setVisibility(View.GONE);
             List<GroupRespVo> groupRespVoList = bean.getGroupRespVos();
 
             if (!TextUtils.isEmpty(bean.getImgUrl())) {
@@ -286,6 +296,13 @@ public class HotIssueMessageHolder extends MsgHolderBase {
 
     }
 
+    private void removeScrollListener() {
+        if (scrollChangedListener != null) {
+            tab_hot_title.getViewTreeObserver().removeOnScrollChangedListener(scrollChangedListener);
+            scrollChangedListener = null;
+        }
+    }
+
     private void showTab(final List<GroupRespVo> groupRespVoList) {
         if (groupRespVoList != null && !groupRespVoList.isEmpty()) {
             groupIndex = 0;
@@ -352,13 +369,17 @@ public class HotIssueMessageHolder extends MsgHolderBase {
             }
 
             // 添加滚动监听器，以便在滚动时跟随指示器
-            tab_hot_title.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            removeScrollListener();
+            scrollChangedListener = new ViewTreeObserver.OnScrollChangedListener() {
                 @Override
                 public void onScrollChanged() {
                     if (groupIndex >= 0 && groupIndex < horizontalScrollView_ll.getChildCount()) {
                         View selectedView = horizontalScrollView_ll.getChildAt(groupIndex);
                         if (selectedView != null) {
                             TextView titleTv = selectedView.findViewById(R.id.sobot_tab_item_name);
+                            if (titleTv == null) {
+                                return;
+                            }
                             int baseLeft = selectedView.getLeft() + titleTv.getLeft();
                             int currentScrollX = tab_hot_title.getScrollX();
                             int adjustedLeft = baseLeft - currentScrollX;
@@ -373,7 +394,8 @@ public class HotIssueMessageHolder extends MsgHolderBase {
                         }
                     }
                 }
-            });
+            };
+            tab_hot_title.getViewTreeObserver().addOnScrollChangedListener(scrollChangedListener);
 
         } else {
             tab_hot_title.setVisibility(View.GONE);
@@ -385,7 +407,13 @@ public class HotIssueMessageHolder extends MsgHolderBase {
     private void updateIndicator(int index) {
         if (horizontalScrollView_ll.getChildCount() > 0) {
             View selectedView = horizontalScrollView_ll.getChildAt(index);
+            if (selectedView == null) {
+                return;
+            }
             final TextView titleTv = selectedView.findViewById(R.id.sobot_tab_item_name);
+            if (titleTv == null) {
+                return;
+            }
 
             selectedView.post(new Runnable() {
                 @Override
@@ -499,6 +527,7 @@ public class HotIssueMessageHolder extends MsgHolderBase {
      */
     private void showBlock(List<BusinessLineRespVo> businessLineList, int businessSetType) {
         if (businessLineList != null && businessLineList.size() > 0) {
+            fastMenu.setVisibility(View.VISIBLE);
             final List<BusinessLineRespVo> businessLineRespVoList = changeBusinessTitleMaxLength(businessLineList);
             fastMenuAdapter = new IssueViewPagerdAdapter(mContext, businessLineRespVoList, blockIndex, businessSetType);
             fastMenu.setOnItemClickListener(new MyHorizontalScrollView.OnItemClickListener() {

@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  留言详情 横屏右侧面板 普通圆形按钮 selector：白底 + 1dp 描边
-  尺寸：宿主 ImageView 通过 padding 控制视觉与点击区域（推荐视觉 24dp + padding 8dp = 40dp 点击区）
+  留言详情 横屏圆形按钮 selector（右侧面板 44dp 滚顶/评价/滚底 + 回复主按钮的普通档）。
+
+  本 drawable 用于"带真阴影"的按钮：阴影由宿主 View 的原生 elevation + Java 侧
+  oval ViewOutlineProvider 统一渲染（API 28+ 颜色走 outlineSpotShadowColor）。
+  drawable 只负责底色 / 描边 / 按压态，纯内容圆铺满画布与 oval outline 重合。
+  （回复栏附件 / 关闭小按钮不带阴影，用 sobot_bg_reply_small_btn.xml，不要复用本文件）
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 按下状态：下沉感 —— 浅灰按压底 + 1dp 描边 -->
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <solid android:color="@color/sobot_ticket_item_press" />
@@ -14,6 +19,7 @@
         </shape>
     </item>
 
+    <!-- 默认状态：白底 + 1dp 描边（对齐 Figma border #D9D9D9） -->
     <item>
         <shape android:shape="oval">
             <solid android:color="@color/sobot_color_dialog_bg" />

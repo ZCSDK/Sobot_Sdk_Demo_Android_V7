@@ -32,15 +32,17 @@
             android:id="@+id/ll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/sobot_variable_card_padding_h"
+            android:paddingEnd="@dimen/sobot_variable_card_padding_h" />
 
         <TextView
             android:id="@+id/sobot_submit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="@dimen/sobot_variable_submit_margin_h"
             android:layout_marginTop="30dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="@dimen/sobot_variable_submit_margin_h"
             android:background="@drawable/sobot_bg_theme_color_28dp"
             android:gravity="center"
             android:includeFontPadding="false"

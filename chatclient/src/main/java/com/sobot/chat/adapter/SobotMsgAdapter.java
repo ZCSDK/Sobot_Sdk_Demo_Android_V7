@@ -656,6 +656,18 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         return MSG_TYPE_ILLEGAL;
     }
 
+    /**
+     * 获取连续消息分组使用的发送者类型。
+     * 大模型流程选项使用特殊 senderType 选择按钮 ViewHolder，但业务发送者仍是机器人；
+     * 修改此映射会同时影响历史消息加载和实时消息追加时的头像昵称、消息间距及气泡圆角。
+     */
+    private static int getMessageGroupSenderType(int senderType) {
+        if (ZhiChiConstant.message_sender_type_aiagent_button == senderType) {
+            return ZhiChiConstant.message_sender_type_robot;
+        }
+        return senderType;
+    }
+
     @Override
     public int getItemCount() {
         if (list != null) {
@@ -682,8 +694,9 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         int unReadIndex = 0;
         for (int i = 0; i < msgLists.size(); i++) {
             ZhiChiMessageBase base = msgLists.get(i);
+            int currentMsgSenderType = getMessageGroupSenderType(base.getSenderType());
             //相邻两条消息是同一个人发的，并且时间相隔1分钟，不显示头像昵称
-            if (previousMsgTime != 0 && !TextUtils.isEmpty(base.getT()) && ((Long.parseLong(base.getT()) - previousMsgTime) < (1000 * 60)) && previousMsgSenderType == base.getSenderType()) {
+            if (previousMsgTime != 0 && !TextUtils.isEmpty(base.getT()) && ((Long.parseLong(base.getT()) - previousMsgTime) < (1000 * 60)) && previousMsgSenderType == currentMsgSenderType) {
                 base.setShowFaceAndNickname(false);
                 if (i != 0) {
                     //修改上一条消息的字段
@@ -712,7 +725,7 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
 
                 }
             }
-            previousMsgSenderType = base.getSenderType();
+            previousMsgSenderType = currentMsgSenderType;
             //判断未读消息的位置
             if (ZhiChiConstant.message_sender_type_remide_info == base.getSenderType() && base.getAnswer() != null && base.getAnswer().getRemindType() == ZhiChiConstant.sobot_remind_type_below_unread) {
                 unReadIndex = i;
@@ -851,6 +864,8 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                         //只有最后一个显示关联问题
                         zhiChiMessageBase.setSugguestions(null);
                         zhiChiMessageBase.setListSuggestions(null);
+                        // 大模型推荐问题只允许挂在最终答案上，避免一问多答拆分后每段都展示。
+                        zhiChiMessageBase.setGuessAskList(null);
                     }
                     addMsg(zhiChiMessageBase);
                 }
@@ -868,13 +883,14 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         try {
             if (!list.isEmpty() && (list.get(list.size() - 1) != null) && !TextUtils.isEmpty(list.get(list.size() - 1).getT())) {
                 long previousMsgTime = Long.parseLong(list.get(list.size() - 1).getT());
-                int previousMsgSenderType = list.get(list.size() - 1).getSenderType();
+                int previousMsgSenderType = getMessageGroupSenderType(list.get(list.size() - 1).getSenderType());
+                int currentMsgSenderType = getMessageGroupSenderType(message.getSenderType());
                 if (ZhiChiConstant.message_sender_type_system == message.getSenderType() || ZhiChiConstant.message_sender_type_ai_tobot_cai_card == message.getSenderType()) {
                     //系统消息 点踩原因卡片 都不显示头像昵称
                     message.setShowFaceAndNickname(false);
                 } else {
                     //相邻两条消息是同一个人发的，并且时间相隔1分钟，不显示头像昵称
-                    if (previousMsgTime != 0 && !TextUtils.isEmpty(message.getT()) && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60)) && previousMsgSenderType == message.getSenderType()) {
+                    if (previousMsgTime != 0 && !TextUtils.isEmpty(message.getT()) && ((Long.parseLong(message.getT()) - previousMsgTime) <= (1000 * 60)) && previousMsgSenderType == currentMsgSenderType) {
                         message.setShowFaceAndNickname(false);
                         ZhiChiMessageBase preMsg = list.get(list.size() - 1);
                         if (preMsg != null) {
@@ -1218,6 +1234,10 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         if (msgInfo != null) {
             msgInfo.setAiAgentReceiveMsgEnd(isEnd);
             msgInfo.setId(id);//覆盖id,防止（ai直接回答）替换三个点时id 还是aiagent+发送msgid
+            if (StringUtils.isNoEmpty(data.getRoundId())) {
+                //SSE 分片会复用同一条消息，轮次ID必须合并到列表中的承载消息，供后续卡片点击读取
+                msgInfo.setRoundId(data.getRoundId());
+            }
             if (StringUtils.isNoEmpty(data.getRobotAnswerType()) && "SENSITIVE_WORD".equals(data.getRobotAnswerType())) {
                 //SENSITIVE_WORD 是敏感词，直接覆盖显示
                 updateMsgDataByMsgId(id, data);
@@ -1331,11 +1351,25 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
                 }
             }
         } else {
-            if (data.getAnswer() != null) {
+            //解析层已经生成的图片、视频、文件或结构化卡片不能再按 Markdown 覆盖。
+            //这里会影响一个 AI 回答中后续新 msgId 的首次入栈展示。
+            if (shouldParseAiMarkdown(data.getAnswer())) {
                 doMarkDownData(data.getAnswer().getMsg(), data.getAnswer());
             }
             justAddData(data);
         }
+    }
+
+    /**
+     * 判断 AI 新消息是否还需要 Markdown 转换。
+     * 仅处理尚无 richList 的文本类消息，保留 GsonUtil 已解析出的媒体和结构化消息类型。
+     */
+    private static boolean shouldParseAiMarkdown(ZhiChiReplyAnswer answer) {
+        if (answer == null || (answer.getRichList() != null && !answer.getRichList().isEmpty())) {
+            return false;
+        }
+        return answer.getMsgType() == ZhiChiConstant.message_type_text
+                || answer.getMsgType() == ZhiChiConstant.message_type_emoji;
     }
 
     private static void subLoadingStr(List<ChatMessageRichListModel> newRichList, String endStr) {
@@ -2037,6 +2071,17 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         void sendMessageToRobot(ZhiChiMessageBase base, int type, int questionFlag, String docId, String multiRoundMsg);
 
         /**
+         * 发送大模型答案中的流程选项。实现层会组装 PROCESS_CLICK，
+         * 来源答案有 roundId 时每次点击都作为 clickRoundId 回传；改动该方法需同步检查流程选项 ViewHolder。
+         *
+         * @param sourceMessage 来源大模型答案消息
+         * @param content       被点击的选项文案
+         * @param sourceRoundId 生成当前选项消息的本次返回roundId，作为clickRoundId原样回传
+         * @return true 表示本次点击已进入发送链路，false 表示被会话状态或并发状态拦截
+         */
+        boolean sendAiAgentProcessMessage(ZhiChiMessageBase sourceMessage, String content, String sourceRoundId);
+
+        /**
          * 消息底部转人工按钮事件
          *
          * @param base
@@ -2081,5 +2126,10 @@ public class SobotMsgAdapter extends RecyclerView.Adapter<MsgHolderBase> {
         void goToCheckIndexItem(String msgId);
 
         void variableFrom(SobotRobot newRobotId, List<SobotVariableModel> variables);
+
+        /**
+         * 当前是否已经处于人工客服模式；用于历史/缓存消息重新绑定时统一隐藏大模型推荐问题。
+         */
+        boolean isCurrentCustomServiceMode();
     }
 }

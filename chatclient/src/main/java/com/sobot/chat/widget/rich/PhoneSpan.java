@@ -16,12 +16,20 @@ public class PhoneSpan extends ClickableSpan {
 
     public PhoneSpan(Context context, String phone, int color) {
         this.phone = phone;
-        try {
+        if (isColorResource(color)) {
             this.color = context.getResources().getColor(color);
-        } catch (Exception e) {
+        } else {
             this.color = color;
         }
         this.context = context;
+    }
+
+    /**
+     * 区分 Android 资源 ID 与服务端下发的 ARGB 色值，避免把颜色值当资源查询。
+     */
+    private static boolean isColorResource(int color) {
+        int packageId = color >>> 24;
+        return packageId == 0x01 || packageId == 0x7f;
     }
 
     @Override

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -32,20 +33,23 @@
                 android:fillViewport="true"
                 android:scrollbars="none">
 
+                <!-- 表单容器补 20dp 左右内边距（字段 item 的 padding 已统一归零，由宿主容器控制留白；
+                     加在表单层而非 sobot_ll_container，避免影响容器内的提交按钮边距）。
+                     引导文案原有 20dp margin 同步去掉，由本容器统一 -->
                 <LinearLayout
                     android:id="@+id/sobot_post_msg_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp">
 
                     <TextView
                         android:id="@+id/sobot_tv_post_msg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginEnd="20dp"
                         android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
                         android:text="公告"
                         android:textColor="@color/sobot_color_text_first"

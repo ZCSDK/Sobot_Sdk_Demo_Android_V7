@@ -38,13 +38,15 @@
                 android:textSize="@dimen/sobot_text_font_12" />
 
 
-            <!--自定义字段布局-->
+            <!--自定义字段布局：容器补 20dp 左右内边距（字段 item 的 padding 已统一归零，由宿主容器控制留白）-->
             <LinearLayout
                 android:id="@+id/sobot_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/sobot_color_bg_first"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp" />
 
             <View
                 android:layout_width="match_parent"

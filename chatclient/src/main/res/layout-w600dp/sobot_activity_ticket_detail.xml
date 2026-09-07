@@ -28,17 +28,25 @@
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- 详情列表 -->
+        <!-- 详情列表：横屏无底部操作栏（用右侧面板替代），最后一条消息底部需留白 32dp；
+             clipToPadding=false 保证最后一条消息可以完整滚动进留白区，底部文字不贴屏幕边缘
+             （走查 #7 Excel 未通过：原 20dp 留白不够 → 加大到 32dp；Java initView 端会再次 force 设置，
+             防止 adapter / presenter / itemDecoration 覆盖 XML 属性）-->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/sobot_listview"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:divider="@null"
-            android:overScrollMode="never" />
+            android:overScrollMode="never"
+            android:paddingBottom="32dp" />
 
-        <!-- 列表与右侧面板之间 1dp 分割线（对齐 Figma border-l #F0F0F0 / night #353535） -->
+        <!-- 列表与右侧面板之间 1dp 分割线（对齐 Figma border-l #F0F0F0 / night #353535）。
+             Fix4: 加 id，inline 回复栏弹起时随侧边面板一起隐藏 -->
         <View
+            android:id="@+id/v_side_divider"
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="@color/sobot_color_line_divider" />
@@ -54,21 +62,27 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <!-- ↑ 滚动到列表顶部 -->
+            <!-- ↑ 滚动到列表顶部：柔和阴影由 bg_side_btn_default（layer-list 渐进
+                 半透明圆）自带，在 44dp 画布内独立绘制，不依赖原生 elevation
+                 （selector 背景在部分 API 上取不到圆形 outline，elevation 阴影不可靠）。
+                 outlineSpotShadowColor 染色消除"阴影偏右下"观感（同切换机器人按钮做法），
+                 API 28+ 生效；走查调参：elevation 6dp + 25% spot 色保证阴影可见
+                 （原 3dp + 15% 太淡几乎不可见） -->
             <ImageView
                 android:id="@+id/iv_side_scroll_up"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:background="@drawable/sobot_bg_side_btn_default"
                 android:contentDescription="@null"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow_third"
+                android:outlineAmbientShadowColor="@android:color/transparent"
+                android:padding="8dp"
                 android:elevation="4dp"
-                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
-                android:outlineSpotShadowColor="@color/sobot_color_shadow"
-                android:padding="14dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/sobot_arrow_up" />
 
-            <!-- 👍 评价（type=1/2 且 mEvaluate!=null 才显示） -->
+            <!-- 👍 评价（type=1/2 且 mEvaluate!=null 才显示），阴影规格同滚顶按钮
+                 （6dp + 25% spot 色，走查调参增强可见度） -->
             <ImageView
                 android:id="@+id/iv_side_evaluate"
                 android:layout_width="44dp"
@@ -76,15 +90,16 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/sobot_bg_side_btn_default"
                 android:contentDescription="@null"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow_third"
+                android:outlineAmbientShadowColor="@android:color/transparent"
                 android:elevation="4dp"
-                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
-                android:outlineSpotShadowColor="@color/sobot_color_shadow"
-                android:padding="14dp"
+                android:padding="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/sobot_icon_zan_def"
                 android:visibility="gone" />
 
-            <!-- 💬 回复（type=0/1 显示，type=2 隐藏） -->
+            <!-- 💬 回复（type=0/1 显示，type=2 隐藏）：主操作按钮，阴影比普通按钮更大更悬浮
+                 （10dp + 25% spot 色，走查调参增强可见度） -->
             <ImageView
                 android:id="@+id/iv_side_reply"
                 android:layout_width="44dp"
@@ -92,14 +107,14 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/sobot_bg_side_btn_primary"
                 android:contentDescription="@null"
-                android:elevation="6dp"
-                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
-                android:outlineSpotShadowColor="@color/sobot_color_shadow"
-                android:padding="11dp"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow_third"
+                android:outlineAmbientShadowColor="@android:color/transparent"
+                android:elevation="4dp"
+                android:padding="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/sobot_ic_side_reply" />
 
-            <!-- ↓ 滚动到列表底部 -->
+            <!-- ↓ 滚动到列表底部，阴影规格同滚顶按钮（6dp + 25% spot 色，走查调参增强可见度） -->
             <ImageView
                 android:id="@+id/iv_side_scroll_down"
                 android:layout_width="44dp"
@@ -107,10 +122,10 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/sobot_bg_side_btn_default"
                 android:contentDescription="@null"
+                android:outlineSpotShadowColor="@color/sobot_color_shadow_third"
+                android:outlineAmbientShadowColor="@android:color/transparent"
                 android:elevation="4dp"
-                android:outlineAmbientShadowColor="@color/sobot_color_shadow"
-                android:outlineSpotShadowColor="@color/sobot_color_shadow"
-                android:padding="14dp"
+                android:padding="8dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/sobot_arrow_down" />
 
@@ -181,4 +196,11 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <!--走查 #3：inline 回复输入栏（横屏紧凑胶囊样式），默认 gone；点右侧面板回复图标后显隐，
+         横跨列表+侧边面板整宽，覆盖在底部-->
+    <include
+        android:id="@+id/sobot_reply_container"
+        layout="@layout/sobot_include_ticket_reply_input" />
+
 </LinearLayout>

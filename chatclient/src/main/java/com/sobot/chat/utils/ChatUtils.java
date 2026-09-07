@@ -531,7 +531,8 @@ public class ChatUtils {
         return zhichiMessage;
     }
 
-    public static HashMap<String, Object> getSendAiCardParameter(String btnText, SobotChatCustomGoods goods, SobotChatCustomCard card) {
+    public static HashMap<String, Object> getSendAiCardParameter(String btnText, SobotChatCustomGoods goods,
+                                                                 SobotChatCustomCard card, String clickRoundId) {
         HashMap<String, Object> parame = new HashMap<>();
         try {
             JSONArray questionArray = new JSONArray();
@@ -570,6 +571,10 @@ public class ChatUtils {
             parame.put("question", SobotJsonUtils.object2Json(questionArray));//String 点击卡片的节点
             parame.put("showQuestion", cardOriginalInfo);//String 点击卡片的所有属性
             parame.put("inputTypeEnum", "PROCESS_CARD_CLICK");
+            if (StringUtils.isNoEmpty(clickRoundId)) {
+                //来源答案有 roundId 时，首次和重复点击都写入
+                parame.put("clickRoundId", clickRoundId);
+            }
             if (StringUtils.isNoEmpty(card.getInterfaceInfo())) {
                 parame.put("interfaceInfo", SobotGsonUtil.jsonToMaps(card.getInterfaceInfo()));//全量的对象
             } else {

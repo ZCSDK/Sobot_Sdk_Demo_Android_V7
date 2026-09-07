@@ -92,7 +92,31 @@ public abstract class SobotBaseFragment extends Fragment {
         }
     }
 
+    /**
+     * 是否处于 Android 15 强制 edge-to-edge 场景（与 SobotChatBaseActivity#isForceEdgeToEdge 逻辑一致）。
+     * 此场景下宿主 Activity 的 view_root 已统一按 systemBars 与 displayCutout 取 max 避让，
+     * Fragment 内 view 层旧式 notch padding/margin 避让必须短路返回，
+     * 否则与 root 避让叠加出现双重 padding，导致横屏内容左右对不齐。
+     */
+    protected boolean isForceEdgeToEdge() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            return false;
+        }
+        try {
+            return Build.VERSION.SDK_INT >= 35
+                    && CommonUtils.getTargetSdkVersion(activity) >= 35;
+        } catch (Exception e) {
+            LogUtils.e("isForceEdgeToEdge", e);
+            return false;
+        }
+    }
+
     public void displayInNotch(final View view) {
+        // 强制 e2e 下由宿主 Activity 的 view_root 统一避让，view 层不再叠加 notch padding（原因见 isForceEdgeToEdge 注释）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
             // 获取刘海屏信息
             NotchScreenManager.getInstance().getNotchInfo(getActivity(), new INotchScreen.NotchScreenCallback() {

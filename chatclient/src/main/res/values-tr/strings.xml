@@ -218,7 +218,7 @@
     <string name="sobot_write_info_string">Bilgi doldur</string>
     <string name="sobot_line_up_close_chat">Otomatik bağlantısını kapattıktan sonra oturum bitir</string>
     <string name="sobot_mini_program">Aplet</string>
-    <string name="sobot_mini_program_only_open_by_weixin">Applet can only be opened through wechat</string>
+    <string name="sobot_mini_program_only_open_by_weixin">Applet yalnızca WeChat üzerinden açılabilir</string>
     <string name="sobot_parsing">ParsingAnalisi</string>
     <string name="sobot_ding">Faydalı</string>
     <string name="sobot_cai">Faydasız</string>
@@ -237,12 +237,12 @@
     <string name="sobot_re_write">Bilgileri tekrar doldur</string>
     <string name="sobot_str_please_check_is_solve">Lütfen sorununuz çözüldüğünü seçin.</string>
     <string name="sobot_evaluate_lab">Etiket</string>
-    <string name="sobot_evaluate_issolve">Çözümlenmiş</string>
+    <string name="sobot_evaluate_issolve">Çözüldü mü?</string>
     <string name="sobot_str_appoint">Alıntı</string>
     <string name="sobot_str_my">Ben</string>
     <string name="sobot_str_robot">Robot</string>
-    <string name="sobot_str_article">Article</string>
-    <string name="sobot_str_link">Link</string>
+    <string name="sobot_str_article">Makale</string>
+    <string name="sobot_str_link">Bağlantı</string>
     <string name="sobot_str_goto_setting_info">Şu anda fotoğraflara ya da videolara sadece parçacık erişim izin verildi.</string>
     <string name="sobot_str_goto_setting_allow">Bütün izin verin></string>
     <string name="sobot_str_select_pic_video">Fotoğrafları ve videoları seçin</string>

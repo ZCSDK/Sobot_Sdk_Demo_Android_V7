@@ -81,6 +81,7 @@ import com.sobot.chat.gson.SobotGsonUtil;
 import com.sobot.chat.handler.SobotMsgHandler;
 import com.sobot.chat.notchlib.INotchScreen;
 import com.sobot.chat.notchlib.NotchScreenManager;
+import com.sobot.chat.presenter.SobotAiAgentNoSpeakManager;
 import com.sobot.chat.utils.AudioTools;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.CommonUtils;
@@ -111,12 +112,15 @@ import java.util.TimerTask;
 /**
  * @author Created by jinxl on 2018/2/9.
  */
-public abstract class SobotChatBaseFragment extends SobotBaseFragment implements SensorEventListener {
+public abstract class SobotChatBaseFragment extends SobotBaseFragment implements SensorEventListener,
+        SobotAiAgentNoSpeakManager.NoSpeakListener {
 
     protected Context mAppContext;
 
     protected SobotMsgAdapter messageAdapter;
     private SobotMsgHandler msgHandler;//ai 消息显示
+    //进程级静默管理器只持 ApplicationContext，页面销毁后仍可继续轮询并缓存待展示消息。
+    protected SobotAiAgentNoSpeakManager mAiAgentNoSpeakManager;
 
     //消息发送状态
     protected static final int SEND_VOICE = 0;
@@ -250,6 +254,11 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     }
 
     public void displayInNotch(final View view) {
+        // 强制 e2e 下由宿主 Activity 的 view_root 统一避让，view 层不再叠加 notch padding
+        // （判断方法 isForceEdgeToEdge 定义在父类 SobotBaseFragment）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN) && ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH) && view != null) {
             // 获取刘海屏信息
             NotchScreenManager.getInstance().getNotchInfo(getActivity(), new INotchScreen.NotchScreenCallback() {
@@ -288,6 +297,10 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
      * API < 28 走旧 NotchScreenManager + rotation 判定，区分 home 键在左 / 在右两种横屏方向。
      */
     public void displayInNotchSingleSide(final View view) {
+        // 强制 e2e 下由宿主 Activity 的 view_root 统一避让，view 层不再叠加 notch padding（原因见 isForceEdgeToEdge 注释）
+        if (isForceEdgeToEdge()) {
+            return;
+        }
         if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
                 || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)
                 || view == null) {
@@ -438,7 +451,9 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 restartInputListener();
                 CommonUtils.sendLocalBroadcast(appContext, new Intent(Const.SOBOT_CHAT_CHECK_CONNCHANNEL));
             }
-            NotificationUtils.cancleAllNotification(appContext);
+            if (MarkConfig.getON_OFF(MarkConfig.CLEAR_NOTIFICATION_ON_ENTER)) {
+                NotificationUtils.cancleAllNotification(appContext);
+            }
         }
 
         if (MarkConfig.getON_OFF(MarkConfig.SOBOT_COLLECT_SENSOR) && _sensorManager != null) {
@@ -724,6 +739,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
      */
     protected void sendMessageWithLogic(String msgId, String context,
                                         ZhiChiInitModeBase initModel, final Handler handler, int current_client_model, int questionFlag, String question, Map<String, Object> customerParams) {
+        //访客进入真实发送链路即终止上一轮静默任务，发送失败也不恢复旧任务。
+        stopAiAgentNoSpeakPolling();
         if (ZhiChiConstant.client_model_robot == current_client_model) { // 客户和机械人进行聊天
             if (ZhiChiConstant.client_model_customService_assignment == current_client_model_assignment) {
                 if (getInitModel().getAssignmentMode() == 1 && type == ZhiChiConstant.type_custom_only) {
@@ -776,6 +793,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             customerServiceOffline(getInitModel(), 5);
             return;
         }
+        //部分表单、文件和卡片不经过 sendMessageWithLogic，必须在统一机器人请求入口再次兜底停止。
+        stopAiAgentNoSpeakPolling();
         final Map<String, Object> params = new HashMap<>();
         String appointMessageStr = "";
         if (appointMessage != null) {
@@ -935,6 +954,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                             msgHandler.showMsg(msgCopy);
                                         }
                                     }
+                                    //静默提醒必须先于原 delay 轮询触发，两条线路允许同时运行。
+                                    startAiAgentNoSpeakPolling(msg);
                                     if (msg.getDelay() > 0) {
                                         //切轮询
                                         aiMsgId = msg.getMsgId();
@@ -946,6 +967,7 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                                             //异常处理
                                             if (msg.getRobotAnswerMessageType().equals("SESSION_ERROR_ADMIN")) {
                                                 //会话已在客服上
+                                                stopAiAgentNoSpeakPolling();
                                                 connectCustomerService(null);
                                             } else {
                                                 //会话状态异常,结束会话
@@ -1080,6 +1102,9 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                 ZCSobotApi.checkIMConnected(getSobotActivity(), info.getPartnerid());
                 current_client_model = ZhiChiConstant.client_model_customService;
                 current_client_model_assignment = ZhiChiConstant.client_model_customService;
+                if (messageAdapter != null) {
+                    messageAdapter.notifyDataSetChanged();
+                }
             } else {
                 clearAppointUI();
                 // 机械人的回答语
@@ -1373,6 +1398,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     protected void uploadFile(File selectedFile, Handler handler,
                               final SobotMsgAdapter messageAdapter, boolean isCamera) {
         if (selectedFile != null && selectedFile.exists()) {
+            //确认文件有效并进入上传流程后停止，文件选择取消或无效文件不影响静默任务。
+            stopAiAgentNoSpeakPolling();
             // 发送文件
             int readFlag;
             if (current_client_model == ZhiChiConstant.client_model_customService) {
@@ -1481,6 +1508,9 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     }
 
     protected void uploadVideo(File videoFile, Uri fileUri, SobotMsgAdapter messageAdapter) {
+        if (videoFile == null || !videoFile.exists()) {
+            return;
+        }
         String tmpMsgId = getMsgId();
         LogUtils.i("tmpMsgId:" + tmpMsgId);
         String fName = MD5Util.encode(videoFile.getAbsolutePath());
@@ -1502,6 +1532,8 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
             ToastUtil.showToast(getSobotActivity(), getResources().getString(R.string.sobot_pic_type_error));
             return;
         }
+        //视频准备成功、即将进入解码和上传链路时终止上一轮静默任务。
+        stopAiAgentNoSpeakPolling();
         MediaMetadataRetriever media = new MediaMetadataRetriever();
         try {
             media.setDataSource(filePath);//path 本地视频的路径
@@ -1679,6 +1711,10 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
      */
     protected void sendVoice(final String voiceMsgId, final String voiceTimeLongStr,
                              String cid, String uid, final String filePath, final Handler handler) {
+        if (StringUtils.isNoEmpty(filePath)) {
+            //取消录音不会进入本方法；有效语音进入发送链路后停止旧静默任务。
+            stopAiAgentNoSpeakPolling();
+        }
         if (current_client_model == ZhiChiConstant.client_model_robot || current_client_model_assignment == ZhiChiConstant.client_model_customService_assignment) {
             if (getInitModel().isAiAgent()) {
                 //大模型机器人发送语音消息
@@ -2476,13 +2512,15 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
     }
 
     /**
-     * 获取用户是否有新留言回复
+     * 获取用户是否有新留言回复。
+     * 留言开关（msgFlag）关闭时同样查询并展示"留言状态有更新"提示条（开关关闭仅限制新开留言，
+     * 不限制提醒与继续回复历史留言），故这里不再判断留言开关，只保留 customerId 非空校验（接口必填参数）。
+     * 改这里会影响所有导航/init/onResume 触发的提醒查询，联动看 SobotChatFragment.onResume 的补查逻辑。
      */
     protected void processNewTicketMsg(final Handler handler) {
-        if (getInitModel().getMsgFlag() == ZhiChiConstant.sobot_msg_flag_open
-                && !TextUtils.isEmpty(getInitModel().getCustomerId())) {
+        if (!TextUtils.isEmpty(getInitModel().getCustomerId())) {
             isRemindTicketInfo = true;
-            //留言开关打开并且 customerId不为空时获取最新的工单信息
+            //customerId不为空时获取最新的工单信息
             zhiChiApi.checkUserTicketInfo(SobotChatBaseFragment.this, getInitModel().getPartnerid(), getInitModel().getCompanyId(), getInitModel().getCustomerId(), new StringResultCallBack<SobotUserTicketInfoFlag>() {
                 @Override
                 public void onSuccess(SobotUserTicketInfoFlag data) {
@@ -2502,12 +2540,18 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
                         message.what = ZhiChiConstant.hander_send_msg;
                         message.obj = base;
                         handler.sendMessage(message);
+                    } else if (messageAdapter != null) {
+                        //已无未读留言回复（用户查看过详情后服务端清除未读标记）：移除消息流中残留的旧"留言状态有更新"提示条，
+                        //否则 onResume 补查后旧提示条会一直残留；removeByAction 只删数据不刷新，需手动 notify
+                        messageAdapter.removeByAction(ZhiChiConstant.action_remind_livemsg_new);
+                        messageAdapter.notifyDataSetChanged();
                     }
                 }
 
                 @Override
                 public void onFailure(Exception e, String des) {
-
+                    //查询失败不影响主流程，仅记录日志
+                    LogUtils.e("checkUserTicketInfo failed", e);
                 }
             });
         }
@@ -2938,11 +2982,106 @@ public abstract class SobotChatBaseFragment extends SobotBaseFragment implements
         }
     }
 
+    /**
+     * 根据当前 SSE 消息幂等启动静默提醒；改这里会影响新旧轮询并行和会话归属。
+     */
+    protected void startAiAgentNoSpeakPolling(ZhiChiMessageBase message) {
+        ZhiChiInitModeBase initModel = getInitModel();
+        if (message == null || initModel == null) {
+            return;
+        }
+        if (!isNoSpeakPollingAvailable(initModel.getPartnerid(), initModel.getCid())) {
+            return;
+        }
+        SobotAiAgentNoSpeakManager manager = getAiAgentNoSpeakManager();
+        if (manager == null) {
+            return;
+        }
+        manager.bind(this, initModel.getPartnerid(), initModel.getCid(), zhiChiApi);
+        manager.startIfNeeded(message, initModel.getPartnerid(), initModel.getCid(), initModel, zhiChiApi);
+    }
+
+    /**
+     * 停止静默提醒并使晚到回调失效；用户发送、转人工和会话变化入口统一复用。
+     */
+    protected void stopAiAgentNoSpeakPolling() {
+        SobotAiAgentNoSpeakManager manager = mAiAgentNoSpeakManager == null
+                ? SobotAiAgentNoSpeakManager.getExistingInstance() : mAiAgentNoSpeakManager;
+        if (manager != null) {
+            manager.stop();
+        }
+    }
+
+    /**
+     * 聊天页可见时绑定 UI；同 uid/cid 的离页缓存会在这里按接收顺序补显。
+     */
+    protected void bindAiAgentNoSpeakManager() {
+        ZhiChiInitModeBase initModel = getInitModel();
+        if (initModel == null || TextUtils.isEmpty(initModel.getPartnerid())
+                || TextUtils.isEmpty(initModel.getCid())) {
+            return;
+        }
+        SobotAiAgentNoSpeakManager manager = getAiAgentNoSpeakManager();
+        if (manager != null) {
+            manager.bind(this, initModel.getPartnerid(), initModel.getCid(), zhiChiApi);
+        }
+    }
+
+    /**
+     * 页面离开时只释放 UI 监听，轮询任务仍由进程级管理器持有。
+     */
+    protected void unbindAiAgentNoSpeakManager() {
+        if (mAiAgentNoSpeakManager != null) {
+            mAiAgentNoSpeakManager.unbind(this);
+        }
+    }
+
+    private SobotAiAgentNoSpeakManager getAiAgentNoSpeakManager() {
+        if (mAiAgentNoSpeakManager == null) {
+            mAiAgentNoSpeakManager = SobotAiAgentNoSpeakManager.getInstance(getSobotApplicationContext());
+        }
+        return mAiAgentNoSpeakManager;
+    }
+
+    /**
+     * 初始化或重建会话后检查 owner，避免旧静默消息跨 uid/cid 回显。
+     */
+    protected void checkAiAgentNoSpeakOwner() {
+        if (getInitModel() != null) {
+            SobotAiAgentNoSpeakManager manager = getAiAgentNoSpeakManager();
+            if (manager != null) {
+                manager.checkOwner(getInitModel().getPartnerid(), getInitModel().getCid());
+                bindAiAgentNoSpeakManager();
+            }
+        }
+    }
+
+    @Override
+    public boolean isNoSpeakPollingAvailable(String ownerUid, String ownerCid) {
+        ZhiChiInitModeBase initModel = getInitModel();
+        return isActive()
+                && initModel != null
+                && initModel.isAiAgent()
+                && current_client_model == ZhiChiConstant.client_model_robot
+                && customerState != CustomerState.Online
+                && TextUtils.equals(ownerUid, initModel.getPartnerid())
+                && TextUtils.equals(ownerCid, initModel.getCid());
+    }
+
+    @Override
+    public void showNoSpeakMessage(ZhiChiMessageBase message) {
+        if (message != null && msgHandler != null && isActive()) {
+            msgHandler.showMsg(message);
+        }
+    }
+
 
     @Override
     public void onDestroy() {
         stopPolling();
         getPollingHandler().removeCallbacks(pollingRun);
+        unbindAiAgentNoSpeakManager();
+        mAiAgentNoSpeakManager = null;
         HttpUtils.getInstance().cancelTag(SobotChatBaseFragment.this);
         super.onDestroy();
     }

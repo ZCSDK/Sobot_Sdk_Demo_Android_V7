@@ -24,11 +24,45 @@
             android:scrollbars="none">
 
             <LinearLayout
-                android:id="@+id/ll_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/sobot_color_transparent"
-                android:orientation="vertical" />
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tv_start_tip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sobot_color_bg_second"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:lineSpacingExtra="@dimen/sobot_text_line_spacing_extra"
+                    android:paddingStart="@dimen/sobot_msg_margin_edge"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="@dimen/sobot_msg_margin_edge"
+                    android:paddingBottom="10dp"
+                    android:visibility="gone"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_12" />
+                <!--信息收集/表单信息弹窗 列表容器：横屏 SobotInputView 自身 padding_h=0dp，由本容器补左右内边距（0dp 竖屏/16dp 横屏），避免内容贴边-->
+                <LinearLayout
+                    android:id="@+id/ll_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sobot_color_transparent"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/sobot_variable_card_padding_h"
+                    android:paddingEnd="@dimen/sobot_variable_card_padding_h" />
+                <TextView
+                    android:id="@+id/tv_permission_tip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:paddingStart="@dimen/sobot_msg_margin_edge"
+                    android:paddingEnd="@dimen/sobot_msg_margin_edge"
+                    android:textColor="@color/sobot_color_text_third"
+                    android:textSize="@dimen/sobot_text_font_14"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
         </ScrollView>
 
         <TextView

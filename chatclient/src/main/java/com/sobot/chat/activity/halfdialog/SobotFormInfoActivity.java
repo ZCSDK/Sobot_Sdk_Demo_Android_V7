@@ -49,7 +49,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     private List<FormNodeRelInfo> relationshipList;//数据关系
     private FormInfoModel formInfoModel;//原数据
     private LinearLayout ll_list;
-    private TextView topView, bottomView;
+    private TextView tv_start_tip, tv_permission_tip;
     private ScrollView sobot_scroll_v;
     private TextView btnSubmit, tv_nodata;
     private String formExplain = "";
@@ -105,9 +105,8 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     }
                 }
                 if (!allData.isEmpty() && StringUtils.isNoEmpty(allData.get(0).getTips())) {
-                    topView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
-                    topView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    topView.setText(allData.get(0).getTips());
+                    tv_start_tip.setText(allData.get(0).getTips());
+                    tv_start_tip.setVisibility(View.VISIBLE);
                     //第一个节点是开始
                     showStartData(allData.get(0).getId());
                 }
@@ -115,7 +114,6 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
 
         }
         //隐私引导语不为空
-        if (StringUtils.isNoEmpty(formExplain)) {
             //获取多语言的的隐私引导语
             zhiChiApi.queryFormConfig(this, uid, new StringResultCallBack<SobotQueryFormModel>() {
                 @Override
@@ -124,22 +122,23 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         formExplain = sobotQueryFormModel.getFormSafety();
                     }
                     if (StringUtils.isNoEmpty(formExplain)) {
-                        bottomView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
-                        bottomView.setText(formExplain);
-                        bottomView.setTextColor(getResources().getColor(R.color.sobot_color_text_third));
-                    }
+                            tv_permission_tip.setVisibility(View.VISIBLE);
+                            tv_permission_tip.setText(formExplain);
+                        } else {
+                            tv_permission_tip.setVisibility(View.GONE);
+                        }
                 }
 
                 @Override
                 public void onFailure(Exception e, String s) {
                     if (StringUtils.isNoEmpty(formExplain)) {
-                        bottomView = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.sobot_from_info_top, null);
-                        bottomView.setText(formExplain);
-                        bottomView.setTextColor(getResources().getColor(R.color.sobot_color_text_third));
+                        tv_permission_tip.setVisibility(View.VISIBLE);
+                        tv_permission_tip.setText(formExplain);
+                    } else {
+                        tv_permission_tip.setVisibility(View.GONE);
                     }
                 }
             });
-        }
     }
 
     @Override
@@ -160,6 +159,8 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
     protected void initView() {
         super.initView();
         coustom_pop_layout = findViewById(R.id.sobot_container);
+        tv_start_tip = findViewById(R.id.tv_start_tip);
+        tv_permission_tip = findViewById(R.id.tv_permission_tip);
         coustom_pop_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,12 +211,6 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
         tv_nodata.setVisibility(View.GONE);
         ll_list.setVisibility(View.VISIBLE);
         ll_list.removeAllViews();
-        if (topView != null) {
-            ll_list.addView(topView, 0);
-        }
-        if (bottomView != null) {
-            ll_list.addView(bottomView);
-        }
         addList(datas);
 
     }
@@ -328,9 +323,6 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                         SobotInputView view = ll_list.findViewWithTag(selectNode.getId());
                         //删除选项之后的view
                         delectList(selectNode.getId());
-                        if (bottomView != null) {
-                            ll_list.addView(bottomView);
-                        }
                         //找到下个节点的线
                         if (view != null) {
                             view.setInputValue(formNodeInfo.getName());//
@@ -540,11 +532,7 @@ public class SobotFormInfoActivity extends SobotDialogBaseActivity implements Vi
                     v.setViweType("phone");
                 }
             }
-            if (bottomView != null) {
-                ll_list.addView(v, ll_list.getChildCount() - 1);
-            } else {
-                ll_list.addView(v);
-            }
+            ll_list.addView(v);
         }
     }
 

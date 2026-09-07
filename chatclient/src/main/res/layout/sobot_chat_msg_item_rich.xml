@@ -261,5 +261,17 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+        <!-- 大模型猜你想问推荐问题，和旧关联问题 sobot_answersList 分开渲染 -->
+        <com.sobot.chat.widget.SobotFlowLayout
+            android:id="@+id/sobot_guess_ask_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_button_root"
+            android:layout_alignStart="@+id/sobot_msg_ll"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:sobot_horizontalGap="8dp"
+            app:sobot_verticalGap="8dp" />
     </RelativeLayout>
 </LinearLayout>

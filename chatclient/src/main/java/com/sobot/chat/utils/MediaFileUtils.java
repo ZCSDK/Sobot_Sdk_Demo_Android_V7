@@ -164,12 +164,9 @@ public class MediaFileUtils {
     //根据视频文件路径判断文件类型
     public static boolean isVideoFileType(String path) {  //自己增加
         if (!TextUtils.isEmpty(path)) {
-            File file = new File(path);
-            if (file.exists()) {
-                MediaFileType type = getFileType(path);
-                if (null != type) {
-                    return isVideoFileType(type.fileType);
-                }
+            MediaFileType type = getFileType(path);
+            if (null != type) {
+                return isVideoFileType(type.fileType);
             }
         }
         return false;
@@ -192,12 +189,9 @@ public class MediaFileUtils {
      */
     public static boolean isImageFileType(String path) {
         if (!TextUtils.isEmpty(path)) {
-            File file = new File(path);
-            if (file.exists()) {
-                MediaFileType type = getFileType(path);
-                if (null != type) {
-                    return isImageFileType(type.fileType);
-                }
+            MediaFileType type = getFileType(path);
+            if (null != type) {
+                return isImageFileType(type.fileType);
             }
         }
         return false;

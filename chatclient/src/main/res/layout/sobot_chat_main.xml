@@ -213,15 +213,16 @@
         <LinearLayout
             android:id="@+id/ll_sound_recording"
             android:layout_width="match_parent"
-            android:layout_height="220dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="67dp"
+            android:layout_marginBottom="60dp"
             android:background="@drawable/sobot_recording_hint_bg"
             android:gravity="center_horizontal|bottom"
             android:orientation="vertical"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
-            android:paddingBottom="40dp"
+            android:paddingTop="@dimen/sobot_sound_recording_padding_top"
+            android:paddingBottom="@dimen/sobot_sound_recording_padding_bottom"
             android:visibility="gone">
 
             <TextView

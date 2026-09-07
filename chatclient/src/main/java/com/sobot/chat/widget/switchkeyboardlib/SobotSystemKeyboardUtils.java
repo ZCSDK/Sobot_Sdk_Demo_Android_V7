@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -43,7 +44,11 @@ public class SobotSystemKeyboardUtils {
                     //android 15 api 35 全屏沉侵式 页面的最根部控件加上id=view_root 才底部避让（聊天页面是activity+fragment）
                     View userrootView = rootView.findViewById(R.id.view_root);
                     if (userrootView != null) {
-                        userrootView.setPadding(0, 0, 0, bottomInset);
+                        //left/right 保留系统栏左右避让（横屏侧边三键导航栏），不能写 0：
+                        //此处 setPadding 会覆盖 SobotChatBaseActivity 写入的同位置 padding，
+                        //清零左右会导致横屏键盘弹/收后内容再次被侧边导航栏遮挡（历史踩坑点）
+                        Insets sb = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                        userrootView.setPadding(sb.left, 0, sb.right, bottomInset);
                     }
                 }
             }

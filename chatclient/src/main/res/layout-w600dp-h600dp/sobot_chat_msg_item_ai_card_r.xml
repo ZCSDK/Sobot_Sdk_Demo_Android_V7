@@ -75,7 +75,7 @@
                     android:layout_width="260dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
+                    app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent"
                     android:paddingTop="16dp">
                     <!--标题-->
                     <com.sobot.chat.widget.SobotTextView

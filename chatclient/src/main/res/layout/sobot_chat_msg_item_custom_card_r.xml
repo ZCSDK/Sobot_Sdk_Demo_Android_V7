@@ -69,13 +69,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <!--消息内容 -->
+                <!--消息内容：横屏限最大宽度（percent 上限语义，match_parent 会被限到 0.6 屏宽）；竖屏 percent=0 不生效，保持 match_parent 原行为 -->
                 <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                     android:id="@+id/sobot_msg_content_ll"
                     style="@style/sobot_msg_content_ll_hollow_bg_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
                     <!--标题-->
                     <LinearLayout
                         android:id="@+id/ll_title"
@@ -235,15 +236,16 @@
                         app:sobot_verticalGap="10dp" />
 
                 </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
-                <!--横向 订单、商品信息 -->
-                <LinearLayout
+                <!--横向 订单、商品信息（平铺模式 cardStyle==0 时显示，sobot_msg_content_ll 被GONE，本容器独立于其外，需单独限宽：横屏限最大宽度，竖屏 percent=0 不生效行为不变）-->
+                <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                     android:id="@+id/ll_order_good_info_h"
                     style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:orientation="vertical"
-                    android:paddingBottom="16dp">
+                    android:paddingBottom="16dp"
+                    app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                     <com.sobot.chat.widget.image.SobotRCImageView
                         android:id="@+id/sobot_order_good_pic_h"
@@ -302,7 +304,7 @@
                         android:textColor="@color/sobot_card_goods_price"
                         android:textSize="@dimen/sobot_text_font_18"
                         android:visibility="gone" />
-                </LinearLayout>
+                </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

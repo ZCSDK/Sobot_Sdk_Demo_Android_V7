@@ -95,9 +95,12 @@ public class StCusFieldPresenter {
                             if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_REGION_TYPE) {
                                 model.put("text", field.get(i).getCusFieldConfig().getText());
                             } else if (cusFieldConfig.getFieldType() == ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE) {
-                                //时区
-                                model.put("text", field.get(i).getCusFieldConfig().getText());
-                                model.put("value", field.get(i).getCusFieldConfig().getText());
+                                //时区+时间：value 由 formatCusFieldVal 拼好（timezoneId + time），第 94 行已 put 进 model；
+                                //此处只补 text；text 为空时不 put，避免 JSONObject 因 null 值移除已有 key
+                                String tzText = field.get(i).getCusFieldConfig().getText();
+                                if (!StringUtils.isEmpty(tzText)) {
+                                    model.put("text", tzText);
+                                }
                             } else {
                                 model.put("text", field.get(i).getCusFieldConfig().getShowName());
                             }
@@ -365,7 +368,6 @@ public class StCusFieldPresenter {
                             field.get(j).getCusFieldConfig().setValue(view.getSelectValue());
                         } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_TIME_ZONE == field.get(j).getCusFieldConfig().getFieldType()) {
                             SobotTimezone timezone = field.get(j).getCusFieldConfig().getTimezone();
-                            //时区
                             String time = "";
                             if (null != view.getTv_select_two_right().getTag()) {
                                 time = (String) view.getTv_select_two_right().getTag();
@@ -376,14 +378,21 @@ public class StCusFieldPresenter {
                             } else if (timezone == null && StringUtils.isNoEmpty(time)) {
                                 errorStr = context.getResources().getString(R.string.sobot_time_zone_hint);//请选择时区
                             }
-                            String value = "";
+                            //value 与 text 同源：timezoneId+","+time（服务端要求 Asia/Shanghai,2024-01-01 00:00）
+                            StringBuilder value = new StringBuilder();
                             if (timezone != null) {
-                                value = timezone.getTimezoneId();
+                                if (!StringUtils.isEmpty(timezone.getTimezoneId())) {
+                                    value.append(timezone.getTimezoneId());
+                                }
                             }
-                            if (StringUtils.isNoEmpty(time)) {
-                                value = value + time;
+                            if (!StringUtils.isEmpty(time)) {
+                                if (value.length() > 0) {
+                                    value.append(",");
+                                }
+                                value.append(time);
                             }
-                            field.get(j).getCusFieldConfig().setValue(value);
+                            field.get(j).getCusFieldConfig().setValue(value.toString());
+                            field.get(j).getCusFieldConfig().setText(value.toString());
                         } else if (ZhiChiConstant.WORK_ORDER_CUSTOMER_FIELD_NUMBER_TYPE == field.get(j).getCusFieldConfig().getFieldType()) {
                             field.get(j).getCusFieldConfig().setValue(view.getSingleValue());
                             if (StringUtils.isNumber(field.get(j).getCusFieldConfig().getLimitOptions()) && field.get(j).getCusFieldConfig().getLimitOptions().contains("3")) {

@@ -195,7 +195,8 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
                 }
             }
         });
-        displayInNotch(this, sobot_et_search);
+        // 挖孔避让由基类统一处理（对白色背景层 sobot_dialog_content 整体内缩）。
+        // 不再对搜索框单独避让 —— 会与基类叠加造成搜索框比列表多缩一段（内容错位）
         changeThemeColor = ThemeUtils.isChangedThemeColor(this);
         if (changeThemeColor) {
             themeColor = ThemeUtils.getThemeColor(this);
@@ -216,7 +217,7 @@ public class SobotCusFieldActivity extends SobotDialogBaseActivity {
                 }
             }
         });
-        displayInNotch(sobot_dialog_content);
+        // sobot_dialog_content 即基类避让的白色背景层，基类已统一处理，无需重复调用
         // floating dialog + WRAP_CONTENT 时系统不会触发 adjustResize，键盘弹出会把整个弹窗推到屏幕外（搜索框被遮 / 列表被挤）。
         // 改 window 高度为 MATCH_PARENT，让系统按 adjustResize 收缩可用区域，子布局自适应剩余空间。
         if (getWindow() != null) {

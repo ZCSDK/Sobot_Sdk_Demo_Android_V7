@@ -17,6 +17,9 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.graphics.Rect;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -155,6 +158,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     private SobotLoadingView loading;               // 加载动画
 
     private ScrollView sobot_sv_root;               // 页面根滚动视图（用于校验失败时滚动到对应位置）
+    private LinearLayout sobot_post_msg_layout;     // ScrollView 内层表单根容器（用于键盘避让加底部 padding）
 
     // ==================== 隐私协议相关 ====================
     private TextView sobot_tv_policy;               // 协议文案（含可点击链接）
@@ -165,6 +169,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
 
     private boolean hasBigFileUpload = false;       // 企业是否开通大文件上传（开通后上限为500M，否则50M）
     private String hideTxt = "";                    // 附件提示文案模板
+
+    // ==================== 键盘避让 ====================
+    // configChanges 含 keyboardHidden → adjustResize 不触发窗口 resize，
+    // 需手动监听键盘高度并给 ScrollView 底部加 padding，否则邮箱/手机被键盘遮挡无法滚动（走查 #17）
+    private ViewTreeObserver.OnGlobalLayoutListener mKeyboardListener;
+    private int mScrollViewDefaultPaddingBottom = 0;
 
     @Override
     protected int getContentViewResId() {
@@ -187,6 +197,9 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                         ZhiChiConstant.SOBOT_CONFIG_COMPANYID, "");
             }
             mTempId = getIntent().getStringExtra(StPostMsgPresenter.INTENT_KEY_TEMPID);
+            if(StringUtils.isEmpty(mTempId)){
+                mTempId = "1";
+            }
         }
     }
 
@@ -215,6 +228,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_ll_policy.setOnClickListener(this);
 
         sobot_sv_root = findViewById(R.id.sobot_sv_root);
+        sobot_post_msg_layout = findViewById(R.id.sobot_post_msg_layout);
         mllLoading = findViewById(R.id.ll_loading);
         loading = findViewById(R.id.iv_loading);
         loading.setProgressColor(ThemeUtils.getThemeColor(this));
@@ -287,6 +301,45 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         sobot_post_title.setOnClickListener(hideKeyboardOnClickListener);
         sobot_post_type.setOnClickListener(hideKeyboardOnClickListener);
         sobot_post_customer_field.setOnClickListener(hideKeyboardOnClickListener);
+
+        // 键盘避让：监听 DecorView 高度变化，键盘弹出时给 ScrollView 加底部 padding（走查 #17）
+        setupKeyboardAvoidance();
+    }
+
+    /**
+     * 键盘避让：configChanges 含 keyboardHidden 时 adjustResize 不生效，
+     * 手动通过 ViewTreeObserver 监听 DecorView 可见区域变化。
+     * 隐私协议 / 提交按钮在 ScrollView 内部（滚动区尾部）且不随键盘整体抬升 ——
+     * 键盘弹出时给滚动内容（sobot_post_msg_layout）加底部 padding = 键盘高度，
+     * 滚动到底即可把协议 / 提交按钮滑出到键盘上方，保证可点击提交。
+     */
+    private void setupKeyboardAvoidance() {
+        final View decorView = getWindow().getDecorView();
+        mScrollViewDefaultPaddingBottom = sobot_post_msg_layout.getPaddingBottom();
+        mKeyboardListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                decorView.getWindowVisibleDisplayFrame(rect);
+                int screenHeight = decorView.getHeight();
+                int keyboardHeight = screenHeight - rect.bottom;
+                // 键盘高度 > 屏幕高度 15% 认为键盘弹出
+                if (keyboardHeight > screenHeight * 0.15) {
+                    sobot_post_msg_layout.setPadding(
+                            sobot_post_msg_layout.getPaddingLeft(),
+                            sobot_post_msg_layout.getPaddingTop(),
+                            sobot_post_msg_layout.getPaddingRight(),
+                            keyboardHeight);
+                } else {
+                    sobot_post_msg_layout.setPadding(
+                            sobot_post_msg_layout.getPaddingLeft(),
+                            sobot_post_msg_layout.getPaddingTop(),
+                            sobot_post_msg_layout.getPaddingRight(),
+                            mScrollViewDefaultPaddingBottom);
+                }
+            }
+        };
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(mKeyboardListener);
     }
 
     /**
@@ -363,7 +416,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     }
 
 
+    // 清除焦点并隐藏键盘：跳转半屏弹窗（分类 / 自定义字段 / 级联 / 地区）前必须收起键盘，
+    // 否则 windowIsFloating 弹窗被键盘顶出可视区域 → 只看到蒙层看不到内容（走查 #20）
+    // ⚠ 必须先 hideKeyboard 再 clearFocus：hideKeyboard 内部 getCurrentFocus() 拿 windowToken，
+    //    如果先 clearFocus 导致焦点为 null → windowToken 为 null → hideSoftInputFromWindow 无效
     private void clearFocus() {
+        hideKeyboard();
         View view = getCurrentFocus();
         if (view != null) {
             // 失去焦点
@@ -372,19 +430,14 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
     }
 
     /**
-     * 标题栏返回按钮点击处理
-     * 如果当前显示的是完成页面，发送广播关闭所有留言相关页面；否则执行默认返回
+     * 标题栏返回按钮点击处理：统一走默认返回（onBackPressed），只关闭当前页回到上一页。
+     * 注意：不发送 SOBOT_ACTION_CLOSE_TIKET 广播，否则会把留言记录 / 模板选择等关联页面一并关闭，
+     * 导致"留言记录 → 新建留言 → 返回"直接回到聊天页；批量关闭仅保留给完成页的
+     * "完成" / "前往留言记录" 按钮显式触发。
      */
     @Override
     protected void onLeftMenuClick(View view) {
-        if (mLlCompleted.getVisibility() == View.VISIBLE) {
-            //用广播关闭
-            Intent intent = new Intent();
-            intent.setAction(ChatUtils.SOBOT_ACTION_CLOSE_TIKET);
-            CommonUtils.sendLocalBroadcast(SobotTicketNewActivity.this, intent);
-        } else {
-            super.onLeftMenuClick(view);
-        }
+        super.onLeftMenuClick(view);
     }
 
     /**
@@ -613,12 +666,40 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
             sobot_tv_policy.setMovementMethod(LinkMovementMethod.getInstance());
 
             sobot_ll_policy.setVisibility(View.VISIBLE);
-            displayInNotch(sobot_ll_policy);
+            // 挖孔避让按横竖屏分流：
+            // - 竖屏 / Pad：协议独占一行，对协议自身加 padding 即可（不影响任何按钮间距）
+            // - 横屏：协议与提交按钮同行，对协议自身加 padding 会把按钮挤开（20dp 间距被撑大），
+            //   改对外层行容器 sobot_ll_policy_submit_row 避让（整行内缩，内部 20dp 间距不变）
+            if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+                View policySubmitRow = findViewById(R.id.sobot_ll_policy_submit_row);
+                if (policySubmitRow != null) {
+                    displayInNotch(policySubmitRow);
+                }
+            } else {
+                displayInNotch(sobot_ll_policy);
+            }
+            // 横屏：按钮与协议同行时保持固定间距 20dp（XML marginStart 默认值）
+            if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+                LinearLayout.LayoutParams submitLp = (LinearLayout.LayoutParams) sobot_btn_submit.getLayoutParams();
+                if (submitLp != null && submitLp.getMarginStart() != ScreenUtils.dip2px(this, 20)) {
+                    submitLp.setMarginStart(ScreenUtils.dip2px(this, 20));
+                    sobot_btn_submit.setLayoutParams(submitLp);
+                }
+            }
             sobot_btn_submit.setClickable(false);
             sobot_btn_submit.setEnabled(false);
             sobot_btn_submit.getBackground().setAlpha(102);
         } else {
             sobot_ll_policy.setVisibility(View.GONE);
+            // 横屏：无协议时清零按钮 marginStart，保证按钮在 gravity=center 容器里精确居中
+            // （残留 20dp 会让整体居中的按钮向右偏移 10dp）
+            if (getResources().getInteger(R.integer.sobot_list_span_count) > 1) {
+                LinearLayout.LayoutParams submitLp = (LinearLayout.LayoutParams) sobot_btn_submit.getLayoutParams();
+                if (submitLp != null && submitLp.getMarginStart() != 0) {
+                    submitLp.setMarginStart(0);
+                    sobot_btn_submit.setLayoutParams(submitLp);
+                }
+            }
         }
 
         String sobotUserPhone = (information != null ? information.getUser_tels() : "");
@@ -748,6 +829,12 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
      */
     @Override
     protected void onDestroy() {
+        // 注销键盘监听，避免内存泄漏（走查 #17）
+        if (mKeyboardListener != null) {
+            View decorView = getWindow().getDecorView();
+            decorView.getViewTreeObserver().removeOnGlobalLayoutListener(mKeyboardListener);
+            mKeyboardListener = null;
+        }
         LocalBroadcastManager.getInstance(getSobotBaseActivity()).unregisterReceiver(mReceiver);
         if (SobotOption.functionClickListener != null) {
             SobotOption.functionClickListener.onClickFunction(getSobotBaseActivity(), SobotFunctionType.ZC_CloseLeave);
@@ -1137,6 +1224,8 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
      */
     @Override
     public void inputLeftOnclick() {
+        // 跳转区号选择前隐藏键盘，避免半屏弹窗被键盘遮挡（走查 #20）
+        hideKeyboard();
         Intent intent = new Intent(SobotTicketNewActivity.this, SobotPhoneCodeDialog.class);
         startActivityForResult(intent, 4001);
     }
@@ -1213,18 +1302,78 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 return;
             }
             if (MediaFileUtils.isVideoFileType(url)) {
+                // 视频继续走 SobotVideoActivity（单视频预览，项目未实现多视频左右滑动）
                 Intent intent = SobotVideoActivity.newIntent(getSobotBaseActivity(), cacheFile);
                 startActivity(intent);
+            } else if (!isImageCacheFile(cacheFile)) {
+                // 文件类附件（xlsx/doc/pdf/txt/zip…）：走 SobotFileDetailActivity 文件预览页（下载后打开）。
+                // 之前这里缺文件分支，非图片非视频附件落入下方"imageList 为空则单图兜底"逻辑，
+                // 被错误地当图片弹出图片预览弹窗（走查：Excel 打开成图片预览的根因）。
+                // 写法与下方自定义字段分支的 else 保持一致。
+                cacheFile.setMsgId("" + System.currentTimeMillis());
+                Intent intent = new Intent(SobotTicketNewActivity.this, SobotFileDetailActivity.class);
+                intent.putExtra(ZhiChiConstant.SOBOT_INTENT_DATA_SELECTED_FILE, cacheFile);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             } else {
+                // 图片：与自定义字段附件保持一致 —— 收集主附件 pic_list 中所有图片，
+                // 使用 SobotCusFieldImagePreviewDialog（ViewPager + PhotoView）支持左右滑动预览。
+                // 之前直接调 SobotPhotoActivity 只传了单张 url，无法左右滑动（用户反馈"跟自定义附件类型不一样"）。
+                List<SobotCacheFile> imageList = new ArrayList<>();
+                int startIndex = 0;
+                if (!pic_list.isEmpty()) {
+                    for (SobotFileModel item : pic_list) {
+                        // 判断是否图片：
+                        // ① 优先看 ChatUtils.getFileType(item.fileType) 是否 == MSGTYPE_FILE_PIC
+                        // ② 【关键兜底】如果 fileType 字段为空（上传返回只给了 URL 没带后缀名，
+                        //    或 item.fileType 当时没写进去走 Excel 未通过 #11），再按 URL /
+                        //    本地路径扩展名判断 jpg/jpeg/png/gif/bmp/webp。
+                        // 必须有这层兜底，否则 jpg 图片因为 fileType=="" 被误判成非图片、
+                        // 不加入 imageList → 图片列表只有 1 张（甚至 0 张，走单图兜底）→ 不能左右滑动
+                        boolean isImage = false;
+                        int type = ChatUtils.getFileType(item.getFileType());
+                        if (type == ZhiChiConstant.MSGTYPE_FILE_PIC
+                                && !MediaFileUtils.isVideoFileType(item.getFileUrl())) {
+                            isImage = true;
+                        } else if (!MediaFileUtils.isVideoFileType(item.getFileUrl())) {
+                            String candidate = !TextUtils.isEmpty(item.getFileUrl())
+                                    ? item.getFileUrl() : item.getFileLocalPath();
+                            if (!TextUtils.isEmpty(candidate)) {
+                                String lower = candidate.toLowerCase();
+                                // 去掉 URL query（如 ?v=123），只根据文件路径判断扩展名
+                                int q = lower.indexOf('?');
+                                if (q >= 0) lower = lower.substring(0, q);
+                                isImage = lower.endsWith(".jpg") || lower.endsWith(".jpeg")
+                                        || lower.endsWith(".png") || lower.endsWith(".gif")
+                                        || lower.endsWith(".bmp") || lower.endsWith(".webp");
+                            }
+                        }
+                        if (isImage) {
+                            SobotCacheFile cf = toCacheFile(item);
+                            // 用 fileUrl 匹配当前点击项，决定起始页码
+                            if (url.equals(cf.getUrl())) {
+                                startIndex = imageList.size();
+                            }
+                            imageList.add(cf);
+                        }
+                    }
+                }
+                // 兜底：如果 pic_list 为空或没有图片，至少把当前点击的一张放进去
+                // （比如刚上传完 widget 里有图但 pic_list 还没同步刷新的边缘场景）
+                if (imageList.isEmpty()) {
+                    imageList.add(cacheFile);
+                }
+                // 先让宿主 App 自定义的 SobotOption.imagePreviewListener 有机会拦截（保持向后兼容）
                 if (SobotOption.imagePreviewListener != null) {
                     boolean isIntercept = SobotOption.imagePreviewListener.onPreviewImage(getSobotBaseActivity(), url);
                     if (isIntercept) {
                         return;
                     }
                 }
-                Intent intent = new Intent(getSobotBaseActivity(), SobotPhotoActivity.class);
-                intent.putExtra("imageUrL", url);
-                startActivity(intent);
+                // 复用自定义附件图片预览弹窗：内部 ViewPager + PhotoView，支持左右滑动 + 双击缩放
+                SobotCusFieldImagePreviewDialog dialog =
+                        new SobotCusFieldImagePreviewDialog(SobotTicketNewActivity.this, imageList, startIndex);
+                dialog.show();
             }
         }
 
@@ -1283,6 +1432,35 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
         cacheFile.setFileType(ChatUtils.getFileType(item.getFileType()));
         cacheFile.setMsgId("" + System.currentTimeMillis());
         return cacheFile;
+    }
+
+    /**
+     * 判断 SobotCacheFile 是否图片（主附件 onClickPreview 三分支分流用）。
+     * ① 优先看 fileType（ZhiChiConstant 体系，PIC=22）；
+     * ② 【关键兜底】fileType 非图片时再按 URL / 本地路径扩展名判断
+     *    jpg/jpeg/png/gif/bmp/webp（去掉 URL query 后比对），覆盖上传返回 URL
+     *    无后缀或 fileType 字段为空的场景。
+     * 与下方 imageList 收集逻辑的 isImage 判定标准保持一致，保证"进图片弹窗的
+     * 附件"和"被判为图片的附件"是同一批，不出现分流与列表收集口径不一致。
+     */
+    private boolean isImageCacheFile(SobotCacheFile cacheFile) {
+        if (cacheFile.getFileType() == ZhiChiConstant.MSGTYPE_FILE_PIC) {
+            return true;
+        }
+        String candidate = !TextUtils.isEmpty(cacheFile.getUrl())
+                ? cacheFile.getUrl() : cacheFile.getFilePath();
+        if (TextUtils.isEmpty(candidate)) {
+            return false;
+        }
+        String lower = candidate.toLowerCase();
+        // 去掉 URL query（如 ?v=123），只按文件路径判断扩展名
+        int q = lower.indexOf('?');
+        if (q >= 0) {
+            lower = lower.substring(0, q);
+        }
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg")
+                || lower.endsWith(".png") || lower.endsWith(".gif")
+                || lower.endsWith(".bmp") || lower.endsWith(".webp");
     }
 
     public void showHint(String content) {
@@ -1457,6 +1635,7 @@ public class SobotTicketNewActivity extends SobotChatBaseActivity implements Vie
                 }
             } else if (requestCode == ZhiChiConstant.REQUEST_COCE_TO_CHOOSE_FILE) {
                 //上传文件
+
                 ll_upload_file.hideError();
                 Uri selectedImage = data.getData();
                 if (null == selectedImage) {

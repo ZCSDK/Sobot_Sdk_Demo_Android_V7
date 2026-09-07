@@ -27,7 +27,7 @@
     <!--多轮模板（Template1 / 3）每页行数（手机横屏 2 行）；每页总数 = rows × columns = 2 × 2 = 4-->
     <integer name="sobot_robot_template_rows">2</integer>
 
-    <!--AiCard 商品列表列数（手机横屏 2 列）-->
-    <integer name="sobot_ai_card_span_count">2</integer>
+    <!--AiCard 商品列表列数（手机横屏 1 列：3个商品显示3行；带自定义字段的商品自身保持 商品(左)+自定义字段(右) 2 列布局）-->
+    <integer name="sobot_ai_card_span_count">1</integer>
 
 </resources>

@@ -37,7 +37,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp">
 
-            <!-- 📎 附件按钮（圆形背景） -->
+            <!-- 📎 附件按钮（圆形背景）：阴影由 bg_side_btn_default（layer-list 渐进半透明圆）自带 -->
             <ImageView
                 android:id="@+id/sobot_btn_file"
                 android:layout_width="36dp"
@@ -48,10 +48,13 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/sobot_upload_file" />
 
-            <!-- 单行胶囊输入框（FrameLayout 强制 36dp 锁高，防 setLayoutParams 撑大） -->
+            <!-- 多行输入框（走查 #12：放开换行，回车不再被映射为"完成/发送"动作）。
+                 FrameLayout 锁定容器高度，内部 EditText maxLines=3 控制最多 3 行，超出滚动。
+                 发送只走 sobot_btn_submit 点击，EditText 无 EditorAction 监听，回车即换行。 -->
             <FrameLayout
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1">
@@ -59,22 +62,22 @@
                 <com.sobot.chat.widget.SobotEditText
                     android:id="@+id/sobot_reply_edit"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="36dp"
                     android:background="@drawable/sobot_bg_reply_input_pill"
                     android:enabled="true"
                     android:gravity="center_vertical"
                     android:hint="@string/sobot_please_input"
-                    android:imeOptions="actionDone|flagNoExtractUi|flagNoFullscreen"
+                    android:imeOptions="flagNoExtractUi|flagNoFullscreen"
                     android:includeFontPadding="false"
-                    android:inputType="text"
+                    android:inputType="textMultiLine"
                     android:maxLength="200"
-                    android:maxLines="1"
+                    android:maxLines="3"
+                    android:minLines="1"
                     android:paddingStart="16dp"
-                    android:paddingTop="0dp"
+                    android:paddingTop="8dp"
                     android:paddingEnd="16dp"
-                    android:paddingBottom="0dp"
-                    android:scrollHorizontally="true"
-                    android:singleLine="true"
+                    android:paddingBottom="8dp"
                     android:textColor="@color/sobot_color_text_first"
                     android:textColorHint="@color/sobot_color_text_third"
                     android:textCursorDrawable="@drawable/sobot_cursor_drawable"
@@ -95,7 +98,7 @@
                 android:textColor="@color/sobot_color_white"
                 android:textSize="@dimen/sobot_text_font_14" />
 
-            <!-- ✕ 关闭（圆形） -->
+            <!-- ✕ 关闭（圆形）：阴影由 bg_side_btn_default 自带 -->
             <TextView
                 android:id="@+id/sobot_btn_cancel"
                 android:layout_width="36dp"

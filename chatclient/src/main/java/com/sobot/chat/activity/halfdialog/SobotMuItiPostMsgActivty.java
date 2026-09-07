@@ -333,10 +333,12 @@ public class SobotMuItiPostMsgActivty extends SobotDialogBaseActivity implements
             sobot_post_type.setTag(mConfig.getTicketTypeId());
         }
 
-        displayInNotch(sobot_tv_post_msg);
-        displayInNotch(sobot_post_email);
-        displayInNotch(sobot_post_phone);
-        displayInNotch(sobot_post_title);
+        // 表单字段挖孔避让换单侧 safeInset 版本：旧 displayInNotch 双侧 padding 会让无挖孔一侧多让一截
+        //（e2e 场景本就由布局根 view_root 的系统栏 listener 统一兜底，旧版在 e2e 下会短路）
+        displayInNotchSingleSide(sobot_tv_post_msg);
+        displayInNotchSingleSide(sobot_post_email);
+        displayInNotchSingleSide(sobot_post_phone);
+        displayInNotchSingleSide(sobot_post_title);
     }
 
     /**

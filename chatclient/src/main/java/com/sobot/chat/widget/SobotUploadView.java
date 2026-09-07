@@ -161,11 +161,14 @@ public class SobotUploadView extends LinearLayout {
     }
 
     /**
-     * 根据当前已上传数量控制上传区域和文件列表的显示/隐藏
+     * 根据当前已上传数量更新上传按钮状态和文件列表显示。
+     * 上传区域不再整体隐藏：达到上限时仅将上传按钮置灰（半透明），点击时由按钮回调 toast 拦截；
+     * 删除文件后会重新调用本方法自动恢复亮态。
      */
     private void updateUploadButtonVisibility() {
         int count = sobot_layout_file_list.getChildCount();
-        sobot_upload_area.setVisibility(count >= maxUploadCount ? View.GONE : View.VISIBLE);
+        sobot_upload_area.setVisibility(View.VISIBLE);
+        sobot_btn_file.setAlpha(count >= maxUploadCount ? 0.4f : 1.0f);
         sobot_file_list_scroll.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
     }
 

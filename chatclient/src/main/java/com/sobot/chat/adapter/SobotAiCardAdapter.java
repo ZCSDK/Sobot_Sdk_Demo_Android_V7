@@ -39,14 +39,17 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Context context;
     private boolean isRight;
     private boolean isHistory;
+    private boolean isSendActionEnabled;
     private int themeColor;
 
 
-    public SobotAiCardAdapter(Context context, List<SobotChatCustomGoods> list, boolean isRight, boolean isHistory) {
+    public SobotAiCardAdapter(Context context, List<SobotChatCustomGoods> list, boolean isRight,
+                              boolean isHistory, boolean isSendActionEnabled) {
         this.context = context;
         themeColor = ThemeUtils.getThemeColor(context);
         this.isRight = isRight;
         this.isHistory = isHistory;
+        this.isSendActionEnabled = isSendActionEnabled;
         if (mData == null) {
             mData = new ArrayList<>();
         } else {
@@ -67,13 +70,16 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         final SobotChatCustomGoods customGoods = mData.get(index);
         final MyHolder holder = (MyHolder) viewHolder;
         if (customGoods != null) {
+            holder.itemView.setAlpha(customGoods.getCustomCardType() == 0 && !isSendActionEnabled ? 0.5f : 1.0f);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!isRight && !isHistory && OnItemListener != null) {
                         if (customGoods.getCustomCardType() == 0) {
                             //发送
-                            OnItemListener.onSendClick("", customGoods);
+                            if (isSendActionEnabled) {
+                                OnItemListener.onSendClick("", customGoods);
+                            }
                         } else if (customGoods.getCustomCardType() == 1) {
                             //打开连接
                             if (TextUtils.isEmpty(customGoods.getCustomCardLink())) {
@@ -166,6 +172,8 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (customGoods.getCustomField() != null && customGoods.getCustomField().size() > 0) {
                 holder.cusrLayout.setColumnCount(2);
                 holder.cusrLayout.setRowCount(customGoods.getCustomField().size());
+                // 行索引用于行间距控制（见下方 rowIndex 注释）
+                int rowIndex = 0;
                 for (String key :
                         customGoods.getCustomField().keySet()) {
                     TextView title = new TextView(context);
@@ -174,17 +182,34 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     title.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
                     title.setTextSize(12);
                     title.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-                    title.setPadding(0, ScreenUtils.dip2px(context, 8), ScreenUtils.dip2px(context, 8), 0);
+                    // 行间距按行索引控制：仅非首行加 8dp 顶部内边距。
+                    // 之前所有行统一 8dp 顶部 padding，首行上方多出 8dp，与列底部间距不一致（走查）；
+                    // 首行间距交由布局层控制（竖屏=上方商品区 paddingBottom 16dp；横屏=字段块整体居中）
+                    int rowGapTop = rowIndex == 0 ? 0 : ScreenUtils.dip2px(context, 8);
+                    title.setPadding(0, rowGapTop, ScreenUtils.dip2px(context, 8), 0);
                     title.setMaxWidth(ScreenUtils.dip2px(context, 150));
+                    // 显式指定第 0 列，与 value 列的第 1 列对齐
+                    title.setLayoutParams(new GridLayout.LayoutParams(
+                            GridLayout.spec(rowIndex), GridLayout.spec(0)));
                     holder.cusrLayout.addView(title);
 
                     TextView value = new TextView(context);
                     value.setMaxLines(3);
+                    // 遮挡修复：长文案按列宽换行/截断省略，不再溢出列边界被裁
+                    value.setEllipsize(TextUtils.TruncateAt.END);
                     value.setTextColor(context.getResources().getColor(R.color.sobot_color_text_first));
                     value.setTextSize(12);
-                    value.setPadding(0, 0, 0, 0);
+                    value.setPadding(0, rowGapTop, 0, 0);
                     value.setText(customGoods.getCustomField().get(key));
+                    // 遮挡修复（走查：自定义字段右侧文字被遮挡）：value 列设 columnWeight=1 + width=0，
+                    // 列宽 = grid 剩余宽度，文字按列宽换行；此前列宽按内容计算，长文字直接
+                    // 溢出 grid 可见区域被裁。columnWeight 需 API 21+（项目 minSdk=21）
+                    GridLayout.LayoutParams valueParams = new GridLayout.LayoutParams(
+                            GridLayout.spec(rowIndex), GridLayout.spec(1, 1f));
+                    valueParams.width = 0;
+                    value.setLayoutParams(valueParams);
                     holder.cusrLayout.addView(value);
+                    rowIndex++;
                 }
                 holder.cusrLayout.setVisibility(View.VISIBLE);
                 holder.line.setVisibility(View.VISIBLE);
@@ -206,7 +231,7 @@ public class SobotAiCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             TextView answer = view.findViewById(R.id.sobot_tv_name);
                             answer.setText(menu.getMenuName());
                             answer.setTextColor(themeColor);
-                            if (isHistory) {
+                            if (isHistory || (menu.getMenuType() == 0 && !isSendActionEnabled)) {
                                 answer.setAlpha(0.5f);
                             } else {
                                 answer.setOnClickListener(new View.OnClickListener() {

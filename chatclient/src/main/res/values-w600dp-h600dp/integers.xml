@@ -5,8 +5,8 @@
 -->
 <resources>
 
-    <!--列表列数（横屏 1 列）-->
-    <integer name="sobot_list_span_count">1</integer>
+    <!--列表列数（Pad / 折叠屏内屏 2 列，实施文档 §1 G2 / §2 G2）-->
+    <integer name="sobot_list_span_count">2</integer>
 
     <!--语言列表列数（Pad 竖屏 1 列）-->
     <integer name="sobot_languae_list_span_count">1</integer>

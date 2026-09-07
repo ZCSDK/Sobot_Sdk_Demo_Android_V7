@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import com.sobot.chat.listener.SobotFunctionType;
 import com.sobot.chat.presenter.StPostMsgPresenter;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.LogUtils;
+import com.sobot.chat.utils.ScreenUtils;
 import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.SobotOption;
 import com.sobot.chat.utils.ThemeUtils;
@@ -149,6 +151,17 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
     }
 
     /**
+     * 留言开关（msgFlag）是否关闭。
+     * 关闭时记录页隐藏"+留言"按钮且空态不进入新建留言流程（开关关闭仅能继续回复历史留言，无法新开留言）；
+     * initModel 缓存缺失时按"开启"兜底（VISIBLE），不阻断原有功能。
+     */
+    private boolean isMsgFlagClosed() {
+        ZhiChiInitModeBase initMode = (ZhiChiInitModeBase) SharedPreferencesUtil.getObject(SobotTicketListActivity.this,
+                ZhiChiConstant.sobot_last_current_initModel);
+        return initMode != null && initMode.getMsgFlag() == ZhiChiConstant.sobot_msg_flag_close;
+    }
+
+    /**
      * 初始化视图控件
      * 注册广播接收器、初始化列表和加载动画、设置"新建留言"按钮样式和点击事件
      */
@@ -188,13 +201,27 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
             GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
             recyclerView.setLayoutManager(gridLayoutManager);
             int leftRight = getResources().getDimensionPixelSize(R.dimen.sobot_Left_right_margin_edge);
-            // 模板模式下 item 自带 elevation+translationY 阴影，给 RecyclerView 底部留出阴影绘制空间，
-            // 同时关闭 clip 让阴影不被边界裁切；记录模式下 padding 为 0dp，不影响视觉
-            int extraBottom = (mFrom == StPostMsgPresenter.TICKET_TO_NEW)
-                    ? getResources().getDimensionPixelSize(R.dimen.sobot_ticket_grid_template_shadow_padding)
-                    : 0;
-            recyclerView.setPadding(leftRight, recyclerView.getPaddingTop(),
-                    leftRight, recyclerView.getPaddingBottom() + extraBottom);
+            // 横屏网格内容区 padding：
+            // - 记录模式 TICKET_TO_LIST：top=20dp，上下呼吸空间，首行/末行不贴边；
+            // - 模板模式 TICKET_TO_NEW：item 有 translationY=6（为了 elevation 阴影把卡片向下拉 6dp），
+            //   若仍用 20dp → 视觉顶距 = 20 + 6 = 26dp，与左右边距 20dp 不一致（UI 反馈"顶部间距大"）；
+            //   因此用 14dp → 14 + 6 = 20dp ≈ 左右边距，严格对齐 Figma 横屏模板规格。
+            int padTop = ScreenUtils.dip2px(this, 16);
+            // 顶部间距以 padTop=20dp 为准：清零 XML 的 marginTop（sobot_ticket_list_top_margin 12dp），
+            // 否则实际顶部间距 = margin + padding 叠加成 32dp，与"模板列表顶部 20dp"规格不符
+            ViewGroup.MarginLayoutParams rvLp = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
+            if (rvLp != null && rvLp.topMargin != 0) {
+                rvLp.topMargin = 0;
+                recyclerView.setLayoutParams(rvLp);
+            }
+            int padBottom;
+            if (mFrom == StPostMsgPresenter.TICKET_TO_NEW) {
+                padBottom = getResources().getDimensionPixelSize(R.dimen.sobot_ticket_grid_template_shadow_padding);
+            } else {
+                padBottom = ScreenUtils.dip2px(this, 100);
+            }
+            recyclerView.setPadding(leftRight, padTop, leftRight, padBottom);
+            // clipToPadding=false 让首行/末行卡片可滚动进 padding 区，底部阴影不被裁切
             recyclerView.setClipToPadding(false);
             recyclerView.setClipChildren(false);
             // 两种模式列/行间距不同（记录 20dp、模板 12dp），由 ensureGridDecoration() 在 setAdapter 前注入
@@ -285,7 +312,8 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     mllLoading.setVisibility(View.GONE);
                     sobotEmpty.setVisibility(View.GONE);
                     mllContent.setVisibility(View.VISIBLE);
-                    if (isOnlyShowTicket) {
+                    //留言开关关闭（msgFlag==1）时同样不展示"+留言"按钮，仅能继续回复历史留言
+                    if (isOnlyShowTicket || isMsgFlagClosed()) {
                         //仅显示留言记录，不显示新建
                         ll_new_ticket.setVisibility(View.GONE);
                     } else {
@@ -363,7 +391,11 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     if (datas.size() == 1) {
                         //只有一个 自动点选，跳转到留言页面
                         gotoNewTicket(datas.get(0).getTemplateId());
-                        finish();
+                        //仅"首次进入的留言中转页"需要自我关闭（被新建页替换）；
+                        //由留言记录页"新建留言"按钮触发时必须保留记录页，否则返回会直接回到聊天页
+                        if (!isNewBtn) {
+                            finish();
+                        }
                     } else {
                         if (isNewBtn) {
                             //打开下一个页面
@@ -393,7 +425,10 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                 } else {
                     //跳转到新建工单页面
                     gotoNewTicket("");
-                    finish();
+                    //同上：留言记录页入口保留自身，仅中转页场景自我关闭
+                    if (!isNewBtn) {
+                        finish();
+                    }
                 }
             }
 
@@ -402,6 +437,8 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                 isClickAble = true;
                 //请求失败
                 showHint(des);
+                //请求失败必须停掉加载动画，否则 loading 圆圈一直转
+                loading.stopSpinning();
             }
         });
     }
@@ -421,7 +458,8 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     mllLoading.setVisibility(View.GONE);
                     sobotEmpty.setVisibility(View.GONE);
                     mllContent.setVisibility(View.VISIBLE);
-                    if (isOnlyShowTicket) {
+                    //留言开关关闭（msgFlag==1）时同样不展示"+留言"按钮，仅能继续回复历史留言
+                    if (isOnlyShowTicket || isMsgFlagClosed()) {
                         //仅显示留言记录，不显示新建
                         ll_new_ticket.setVisibility(View.GONE);
                     } else {
@@ -441,7 +479,8 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
                     ensureGridDecoration();
                     recyclerView.setAdapter(mAdapter);
                 } else {
-                    if (isOnlyShowTicket) {
+                    //留言开关关闭（msgFlag==1）时走空态展示，不进入新建留言流程（无法新开留言）
+                    if (isOnlyShowTicket || isMsgFlagClosed()) {
                         //显示空态
                         mllLoading.setVisibility(View.GONE);
                         sobotEmpty.setVisibility(View.GONE);
@@ -459,6 +498,19 @@ public class SobotTicketListActivity extends SobotChatBaseActivity implements Vi
 
             @Override
             public void onFailure(Exception e, String des) {
+                //留言列表接口请求失败必须停掉加载动画并退出 loading 状态，否则圆圈一直转、页面无法恢复
+                //处理方式对齐"空数据 + isOnlyShowTicket"分支：显示空态，非仅记录模式保留"新建留言"按钮供用户重试
+                loading.stopSpinning();
+                mllLoading.setVisibility(View.GONE);
+                mllContent.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                sobotEmpty.setVisibility(View.VISIBLE);
+                if (isOnlyShowTicket) {
+                    ll_new_ticket.setVisibility(View.GONE);
+                } else {
+                    ll_new_ticket.setVisibility(View.VISIBLE);
+                }
+                showHint(des);
                 LogUtils.i(des);
             }
 

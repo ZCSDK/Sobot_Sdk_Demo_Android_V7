@@ -29,13 +29,10 @@ import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.utils.ChatUtils;
 import com.sobot.chat.utils.DateUtil;
 import com.sobot.chat.utils.LogUtils;
-import com.sobot.chat.utils.SharedPreferencesUtil;
 import com.sobot.chat.utils.WebViewSecurityUtil;
-import com.sobot.chat.utils.ZhiChiConstant;
 import com.sobot.chat.widget.toast.ToastUtil;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * 留言记录适配器
@@ -112,9 +109,23 @@ public class SobotTicketInfoAdapter extends RecyclerView.Adapter {
             vh.tv_ticket_status.setText("");
         }
         vh.sobot_tv_new.setVisibility(data.isNewFlag() ? View.VISIBLE : View.GONE);
-        Locale locale = (Locale) SharedPreferencesUtil.getObject(activity, ZhiChiConstant.SOBOT_LANGUAGE);
-        String formatString = DateUtil.getDateTimePatternByLanguage(locale, true);
-        vh.tv_time.setText(DateUtil.longStrToDateStr(data.getTime(), formatString, locale));
+        // 留言记录时间：当天显示时分，当年显示月日时分，往年显示年月日时分
+        // 复用聊天记录的时间格式化逻辑（DateUtil.getTimeStr），时区跟随系统、格式按语言环境自适应
+        String timeText = "";
+        if (!TextUtils.isEmpty(data.getTime())) {
+            try {
+                long ts = Long.parseLong(data.getTime());
+                // 留言列表的 time 为秒级时间戳(10位)，而 getTimeStr 内部按毫秒分档当天/当年，
+                // 不转换会被判成 1970 年导致永远显示完整年月日时分，这里先统一转成毫秒
+                if (String.valueOf(ts).length() == 10) {
+                    ts = ts * 1000;
+                }
+                timeText = DateUtil.getTimeStr(activity, ts);
+            } catch (NumberFormatException e) {
+                LogUtils.e("uncaught", e);
+            }
+        }
+        vh.tv_time.setText(timeText);
         if (i > 3 && i == list.size() - 1) {
             vh.v_end.setVisibility(View.VISIBLE);
         } else {

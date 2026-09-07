@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -63,6 +64,8 @@ import com.sobot.chat.MarkConfig;
 import com.sobot.chat.R;
 import com.sobot.chat.SobotUIConfig;
 import com.sobot.chat.ZCSobotApi;
+import com.sobot.chat.notchlib.INotchScreen;
+import com.sobot.chat.notchlib.NotchScreenManager;
 import com.sobot.chat.ZCSobotConstant;
 import com.sobot.chat.activity.SobotCameraActivity;
 import com.sobot.chat.activity.SobotPostLeaveMsgActivity;
@@ -296,6 +299,24 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private LinearLayout ll_switch_robot;
     private ImageView iv_switch_robot;
     private TextView tv_switch_robot;
+    //切换机器人按钮完整形态（图标+文字）的展示时长，超时后收起文字仅保留图标
+    private static final long SWITCH_ROBOT_COLLAPSE_DELAY_MILLIS = 2000L;
+    //切换机器人按钮文字收起任务：把文字平移出屏幕（RTL 反向平移并换右侧圆角背景），仅保留图标；
+    //提为成员变量是为了 showSwitchRobotBtn() 多次触发时能先 removeCallbacks 防止任务叠加
+    private final Runnable mCollapseSwitchRobotRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (ChatUtils.isRtl(getSobotActivity())) {
+                ll_switch_robot.animate().translationX(-tv_switch_robot.getWidth()).setDuration(300);// 设置动画持续时间，单位毫秒
+                Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_swith_robot_bg_rtl, null);
+                if (background != null) {
+                    ll_switch_robot.setBackground(background);
+                }
+            } else {
+                ll_switch_robot.animate().translationX(tv_switch_robot.getWidth()).setDuration(300);// 设置动画持续时间，单位毫秒
+            }
+        }
+    };
 
     //录音相关
     protected Timer voiceTimer;
@@ -362,6 +383,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private long mBottomPanelPopupDismissAt;//横屏 popup 最近一次 dismiss 的时间戳，用于过滤 outside touch 透传到按钮的二次触发
     private int mLastDismissedType = SobotChatBottomPanelPopup.TYPE_NONE;//横屏 popup 最近一次 dismiss 时的面板类型，用于区分"再次点同按钮"与"切换到另一按钮"
     private boolean mKeyboardVisible;//当前软键盘是否可见
+    private boolean mShouldFollowMessageListBottomOnInputResize;//输入区改变高度前末条可见时为 true，变化过程中持续贴底
     private int mPendingPopupType = SobotChatBottomPanelPopup.TYPE_NONE;//键盘收起后待显示的横屏 popup 面板类型
     private FunctionMenuPageView.OnFunctionItemClickListener mFunctionItemClickListener;//加号功能项点击回调（llFunction + popup grid 复用）
 
@@ -386,8 +408,21 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private static String preCurrentCid = null;//保存上一次会话cid；
     private static int statusFlag = 0; // 保存当前转人工成功的状态
     private boolean isSessionOver = true;//表示此会话是否结束null
+    //onResume 补查未读留言回复的上次发起时间戳，3 秒节流，防止频繁切后台/反复解锁造成请求风暴
+    private long lastTicketRemindQueryTime = 0L;
+
+    // 商品卡片（ConsultingContent）发送动作发起后的消费 key 集合，按 cid + sobotGoodsFromUrl + sobotGoodsTitle 维度
+    // 仅在 isHideSendGoodsCardAfterSend == true 时使用，阻止同一会话内同一张 ConsultMessageHolder 浮层重新生成
+    private final Set<String> consumedConsultingKeys = new HashSet<>();
 
     private boolean isComment = false;/* 判断用户是否评价过 */
+    // 满意度邀评限频检查防重标记：进入 checkInviteFrequencyThenShowSatisfaction 置 true，回调结束重置 false。
+    // 防止用户快速双击关闭/返回按钮时重复调 isComment 接口或重复弹出评价弹窗
+    private boolean isCheckingFrequency = false;
+    // 当前展示的评价栏是否经过 isComment=0 检查的标记，仅由 checkPushEvaluateFrequency 在 isComment=0 时置 true；
+    // 用户点击评价栏进入 submitEvaluation(false) 时读取此标记透传给 SobotEvaluateActivity，
+    // 决定评价提交成功后是否调用 recordInviteFreq；读取后立即重置为 false，避免被后续流程误用
+    private boolean currentEvaluatePanelFrequencyChecked = false;
     private boolean isShowQueueTip = true;//是否显示 排队提醒 用以过滤关键字转人工时出现的提醒
     private int queueNum = 0;//排队的人数
     private int queueTimes = 0;//收到排队顺序变化提醒的次数
@@ -654,6 +689,36 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 });
             }
         }
+
+        //会话页回到前台（锁屏解锁/后台切回/从留言页返回）时补查未读留言回复，提示条按最新 existFlag 呈现或移除。
+        //先重置 isRemindTicketInfo 以绕过其一次性语义（导航路径 createCustomerService 的守卫不受影响，
+        //processNewTicketMsg 内部会重新置 true）；3 秒节流避免频繁切换产生请求风暴
+        if (getInitModel() != null) {
+            long now = System.currentTimeMillis();
+            if (now - lastTicketRemindQueryTime >= 3000) {
+                lastTicketRemindQueryTime = now;
+                isRemindTicketInfo = false;
+                processNewTicketMsg(handler);
+            }
+        }
+    }
+
+    /**
+     * 页面重新可见时绑定静默 UI，并补显离页期间同会话收到的消息。
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+        bindAiAgentNoSpeakManager();
+    }
+
+    /**
+     * 页面不可见时只解绑 UI；进程存活期间轮询继续，SDK 子页面返回后可补显缓存。
+     */
+    @Override
+    public void onStop() {
+        unbindAiAgentNoSpeakManager();
+        super.onStop();
     }
 
     @Override
@@ -713,6 +778,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 
     @Override
     public void onDestroyView() {
+        //聊天 View 已释放时只解绑 UI，进程级管理器继续轮询并等待同会话重新进入后补显。
+        unbindAiAgentNoSpeakManager();
         if (!isAboveZero) {
             SharedPreferencesUtil.saveLongData(getSobotActivity(), ZhiChiConstant.SOBOT_FINISH_CURTIME, System.currentTimeMillis());
         }
@@ -723,6 +790,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         stopCustomTimeTask();
         stopVoice();
         AudioTools.destory();
+        //移除切换机器人按钮待执行的收起任务，避免聊天 View 销毁后仍触发动画
+        if (tv_switch_robot != null) {
+            tv_switch_robot.removeCallbacks(mCollapseSwitchRobotRunnable);
+        }
         SobotUpload.getInstance().unRegister();
         mPostMsgPresenter.destory();
         if (SobotOption.sobotViewListener != null) {
@@ -910,6 +981,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         ll_switch_robot = rootView.findViewById(R.id.ll_switch_robot);
         tv_switch_robot = rootView.findViewById(R.id.tv_switch_robot);
         iv_switch_robot = rootView.findViewById(R.id.iv_switch_robot);
+        // 挖孔避让 + 对齐：消息列表(messageRV)/输入栏(llBarBottom)走 displayInNotch 的
+        // 双侧 padding（值 = max(notchWidth, 90px)）；按钮用同款数据源同款公式设 marginEnd，
+        // 保证按钮右边缘与列表内容、输入框右侧精确对齐（不能用 WindowInsets 的 safeInset，
+        // 两套来源的数值不一致会造成错位）
+        alignSwitchRobotToNotchInset();
 
         rl_announcement = rootView.findViewById(R.id.rl_announcement);
         displayInNotch(rl_announcement);
@@ -1094,6 +1170,22 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         switchKeyboardUtil.setUseMenuUpAnim(true);
         //输入框（必须设置）
         switchKeyboardUtil.setInputEditText(etSendContent);
+        //触摸输入框时键盘尚未改变列表高度，在这里记录“末条是否可见”，供键盘显示完成后决定是否继续贴底
+        switchKeyboardUtil.setEtContentOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN && !mKeyboardVisible) {
+                recordInputResizeBottomFollowDecision();
+            }
+            return false;
+        });
+        //机器人/人工模式共用此入口；必须在面板改变列表高度前记录末条状态
+        View.OnTouchListener panelTouchListener = (v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                recordInputResizeBottomFollowDecision();
+            }
+            return false;
+        };
+        llEmojiClick.setOnTouchListener(panelTouchListener);
+        llAddOrCloseClick.setOnTouchListener(panelTouchListener);
         //切换语音的按钮（不必设置）
         switchKeyboardUtil.setAudioBtn(llModelEditOrVoice);
         //切换语音的按钮（不必设置）
@@ -1131,15 +1223,18 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         switchKeyboardUtil.setOnKeyboardMenuListener(new SobotSwitchKeyboardUtil.OnKeyboardMenuListener() {
             @Override
             public void onScrollToBottom() {
-                //如果你需要让聊天内容在打开菜单或键盘时滑动到底部，则在此写代码
-//                gotoLastItem();
-//                LogUtils.d("========显示键盘onScrollToBottom========");
+                //直接贴底并由列表布局监听继续跟随高度变化，不再使用 200ms 延迟平滑补滚
+                if (mKeyboardVisible && mShouldFollowMessageListBottomOnInputResize) {
+                    scrollMessageListToBottomImmediately();
+                }
             }
 
             @Override
             public void onCallShowKeyboard() {
-                //当调用显示键盘前回调
-//                LogUtils.d("========显示键盘前回调========");
+                //语音/表情面板切回系统键盘时没有输入框触摸事件，需要在真正弹起前补记列表状态
+                if (!mKeyboardVisible) {
+                    recordInputResizeBottomFollowDecision();
+                }
             }
 
             @Override
@@ -1157,6 +1252,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 isShowAigentTip(true);
                 updatePlaceholderViewHeight(0);
                 mKeyboardVisible = false;
+                //普通收键盘时结束贴底；键盘切换到底部面板时继续跟随面板高度变化
+                if (switchKeyboardUtil == null || !switchKeyboardUtil.isShowMenu()) {
+                    clearInputResizeBottomFollowDecision();
+                }
                 //键盘真正收起、布局重排后再 show 横屏 popup，避免 anchor 坐标错位
                 if (mPendingPopupType != SobotChatBottomPanelPopup.TYPE_NONE && llChatKeyboardPanle != null) {
                     final int pending = mPendingPopupType;
@@ -1196,6 +1295,12 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             public void onShowMenuLayout(View layoutView) {
                 isShowAigentTip(false);
                 //当显示某个菜单布局(即 MenuModeView.toggleViewContainer )时回调
+                if (layoutView == flEmoji || layoutView == llFunction) {
+                    //末条状态已在按钮按下时记录；这里立即贴底，后续动画帧由列表布局监听持续校正
+                    if (mShouldFollowMessageListBottomOnInputResize) {
+                        scrollMessageListToBottomImmediately();
+                    }
+                }
                 //表情菜单面板滚动到最顶部
                 rvEmoji.scrollToPosition(0);
                 //扩展菜单面板滚动到最第一页
@@ -1213,6 +1318,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             public void onHideMenuViewContainer() {
                 //当收起菜单时回调这个方法
                 isShowAigentTip(true);
+                clearInputResizeBottomFollowDecision();
                 //点击图标还原
                 ivEmoji.setImageResource(R.drawable.sobot_emoticon_normal);
                 ivAddOrClose.setImageResource(R.drawable.sobot_picture_add_normal);
@@ -1285,6 +1391,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         mBottomPanelPopup.setOnPanelDismissListener(dismissedType -> {
             mBottomPanelPopupDismissAt = SystemClock.elapsedRealtime();
             mLastDismissedType = dismissedType;
+            clearInputResizeBottomFollowDecision();
             //Fragment 销毁过程中 popup 被动 dismiss 时，view 已不可用，跳过 UI 操作
             if (!isAdded() || ivEmoji == null || ivAddOrClose == null) {
                 return;
@@ -1683,7 +1790,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             // 只在用户接近底部时才滚动
                             messageRV.post(() -> {
                                 if (!isUserScrolling && shouldScrollToBottom()) { // 用户没有主动滚动
-                                    if (scrollHeight > 240) {
+                                    if (aiMsg.isAiAgentNoSpeakMessage()) {
+                                        //静默提醒是完整消息，固定滚动 240px 会把长消息顶部推出屏幕。
+                                        //改为消息贴顶；这里会影响静默提醒首次展示和离页缓存补显的定位。
+                                        scrollTargetToTop(aiMsg);
+                                    } else if (scrollHeight > 240) {
                                         // scrollHeight > 40 不动，保持原有逻辑
                                         new Handler().postDelayed(new Runnable() {
                                             @Override
@@ -2551,6 +2662,46 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         return lastVisiblePosition >= 0 && lastVisiblePosition == totalMessageCount - 1;
     }
 
+    /**
+     * 在键盘/表情/加号改变消息列表高度前记录是否需要贴底。
+     * 机器人与人工模式共用此状态；修改输入区入口时需联动检查触摸、焦点和程序化 showKeyboard 路径。
+     */
+    private void recordInputResizeBottomFollowDecision() {
+        mShouldFollowMessageListBottomOnInputResize = isLastVisibleItemEqualLastMessage();
+    }
+
+    /**
+     * 输入区高度变化期间立即滚到消息列表末尾，避免 gotoLastItem 的 200ms 延迟造成视觉滞后。
+     */
+    private void scrollMessageListToBottomImmediately() {
+        if (messageRV != null && messageRV.getAdapter() != null && rvScrollLayoutManager != null) {
+            int itemCount = messageRV.getAdapter().getItemCount();
+            if (itemCount > 0) {
+                int targetPosition = itemCount - 1;
+                View lastMessageView = rvScrollLayoutManager.findViewByPosition(targetPosition);
+                if (lastMessageView != null) {
+                    int recyclerContentBottom = messageRV.getHeight() - messageRV.getPaddingBottom();
+                    int scrollDistance = lastMessageView.getBottom() - recyclerContentBottom;
+                    if (scrollDistance > 0) {
+                        //目标消息已可见时 scrollToPosition 会直接判定完成；按超出底部的像素滚动才能跟随面板动画
+                        messageRV.scrollBy(0, scrollDistance);
+                    }
+                } else {
+                    //列表一次收缩较大导致末条已脱离 attached children 时，使用带 offset 的强制定位兜底
+                    int forceOffset = -ScreenUtils.getScreenHeight(getSobotActivity()) * 15;
+                    rvScrollLayoutManager.scrollToPositionWithOffset(targetPosition, forceOffset);
+                }
+            }
+        }
+    }
+
+    /**
+     * 结束本轮输入区高度变化的贴底状态，避免用户查看历史消息时被后续布局变化拉回末尾。
+     */
+    private void clearInputResizeBottomFollowDecision() {
+        mShouldFollowMessageListBottomOnInputResize = false;
+    }
+
 
     private void initListener() {
         mViewNotReadInfo.setOnClickListener(this);
@@ -2565,6 +2716,18 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             animator.setRemoveDuration(0);
             animator.setAddDuration(0);
         }
+        messageRV.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (bottom - top != oldBottom - oldTop) {
+                    if (mShouldFollowMessageListBottomOnInputResize) {
+                        //键盘/面板动画连续改变列表高度时逐帧贴底，让最后一条消息与输入区同步上移
+                        scrollMessageListToBottomImmediately();
+                    }
+                }
+            }
+        });
         messageRV.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
@@ -2594,6 +2757,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     // 用户首次手动拖动列表 → 视为接管滚动,解除 anchor 抑制
                     mUserHasTouchedList = true;
+                    clearInputResizeBottomFollowDecision();
                 }
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     // RecyclerView停止滑动，可以在此处做一些操作
@@ -2713,6 +2877,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 Drawable edBgDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_bg_chat_bottom_edit_shadow, null);
                 GradientDrawable edFouceBgDrawable = (GradientDrawable) ContextCompat.getDrawable(getSobotActivity(), R.drawable.sobot_bg_chat_bottom_edit_fouce_shadow);
                 if (isFocused) {
+                    //无触摸的焦点切换（无障碍/外接键盘等）也要在软键盘改变列表高度前记录末条可见状态
+                    if (!mKeyboardVisible) {
+                        recordInputResizeBottomFollowDecision();
+                    }
                     int length = etSendContent.getText().toString().trim().length();
                     if (length != 0) {
                         llSendMsg.setVisibility(View.VISIBLE);
@@ -2724,6 +2892,11 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         llChatKeyboardPanle.setBackground(edFouceBgDrawable);
                     }
                 } else {
+                    //切换到底部面板时 clearFocus 发生在 onShowMenuLayout 之前，不能提前清掉按钮按下时的跟随决策
+                    if (!mKeyboardVisible
+                            && (switchKeyboardUtil == null || !switchKeyboardUtil.isShowMenu())) {
+                        clearInputResizeBottomFollowDecision();
+                    }
                     // EditText 无焦点时的特殊处理
                     if (edBgDrawable != null) {
                         llChatKeyboardPanle.setBackground(edBgDrawable);
@@ -3046,6 +3219,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
      **/
     private void initSdk(boolean isReConnect, int isFirstEntry) {
         if (isReConnect) {
+            //重新接入会生成新会话，清列表和 cid 前先使旧静默回调失效。
+            stopAiAgentNoSpeakPolling();
             current_client_model = ZhiChiConstant.client_model_robot;
             current_client_model_assignment = ZhiChiConstant.client_model_robot;
             showTimeVisiableCustomBtn = 0;
@@ -3095,6 +3270,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
      * 重置用户
      */
     private void resetUser(int isFirstEntry) {
+        //重置用户会改变 uid/cid，禁止旧静默任务迁移到新用户。
+        stopAiAgentNoSpeakPolling();
         String platformID = SharedPreferencesUtil.getStringData(mAppContext, ZhiChiConstant.SOBOT_PLATFORM_UNIONCODE, "");
         //电商标示为fasle 或者 platformUnionCode 都认为是普通版，重置用户是都要结束会话
         if (!SobotVerControl.isPlatformVer || TextUtils.isEmpty(platformID)) {
@@ -3123,6 +3300,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             LogUtils.i("初始化接口appinit 接口还没结束，结束前不能重复调用");
             return;
         }
+        //appInit 是明确的会话重建边界，即使 uid/cid 尚未变化也必须结束旧静默任务和缓存。
+        stopAiAgentNoSpeakPolling();
         isAppInitEnd = false;
         if (info != null) {
             info.setIsFirstEntry(isFirstEntry);
@@ -3130,8 +3309,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         //隐藏新消息和未读消息布局
         hideNewmsgLayout();
         hideNotReadLayout();
-        //隐藏切换机器人布局
+        //隐藏切换机器人布局（appInit 重建会话的隐藏入口，不走 showSwitchRobotBtn 的 else 分支，
+        //需同步取消 pending 的收起任务，避免 init 期间旧任务对隐藏按钮触发无效动画；
+        //重新显示由 init 成功后的 showSwitchRobotBtn() 负责，会复位 translationX 并重新武装 2 秒定时器）
         ll_switch_robot.setVisibility(View.GONE);
+        if (tv_switch_robot != null) {
+            tv_switch_robot.removeCallbacks(mCollapseSwitchRobotRunnable);
+        }
         resetInitialScrollState();
         zhiChiApi.sobotInit(SobotChatFragment.this, info, new StringResultCallBack<ZhiChiInitModeBase>() {
             @Override
@@ -3142,6 +3326,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 }
                 initModel = result;
                 updateInitModel();
+                checkAiAgentNoSpeakOwner();
                 if (getInitModel() != null) {
                     SharedPreferencesUtil.saveObject(mAppContext, ZhiChiConstant.sobot_last_current_info, info);
                     if (!TextUtils.isEmpty(getInitModel().getLanguage())) {
@@ -3227,6 +3412,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                                     messageBase.setAnswer(reply);
                                     messageBase.setShowFaceAndNickname(false);
                                     messageAdapter.justAddData(messageBase);
+                                }else {
+                                    onInitResult(getInitModel());
                                 }
                             }
 
@@ -3428,6 +3615,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         }
         //是否显示底部大模型提示语
         isShowAigentTip(true);
+        //信息收集
         initVariableForm = initVariableForm(result);
         LogUtils.d("========initVariableForm====" + initVariableForm);
 
@@ -3621,9 +3809,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         //隐藏输入框
         llBarBottom.setVisibility(View.GONE);//隐藏后，键盘显示，内容不上推，不隐藏会显示背景色和marge
         ll_bottom_defalut.setVisibility(View.GONE);
-        //隐藏快捷菜单
-        if (quickMenuLL != null) {
-            quickMenuLL.setVisibility(View.GONE);
+        //隐藏快捷菜单（与 showQuickMenu / hideQuickMenu / setMenuFrist 保持一致，统一改外层 HSV）
+        if (quickMenuHSV != null) {
+            quickMenuHSV.setVisibility(View.GONE);
         }
     }
 
@@ -3771,6 +3959,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         if (getInitModel() == null) {
             return;
         }
+        //会话离线后不允许继续展示机器人静默话术。
+        stopAiAgentNoSpeakPolling();
         queueNum = 0;
         stopInputListener();
         stopUserInfoTimeTask();
@@ -3796,6 +3986,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         if (getInitModel() == null) {
             return;
         }
+        //人工/机器人会话结束都会使当前静默任务失效，新会话需由新 roundId 重新触发。
+        stopAiAgentNoSpeakPolling();
         if (messageAdapter != null) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -4028,7 +4220,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     setBottomView(ZhiChiConstant.bottomViewtype_onlyrobot);
                     llModelEditOrVoice.setVisibility(View.GONE);
                     llEmojiClick.setVisibility(View.VISIBLE);
-                    showTitle("", false);
+                    showLogicTitle("","");
                 } else {
                     //当前排队状态
                     tempMsgContent = config.tempMsgContent;
@@ -4552,6 +4744,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                 //转人工接口执行完后，先断开通道和停止界面上的轮询,防止之前的轮询用的是上个会话的puid,导致拿不到新会话的消息
                 zhiChiApi.disconnChannel();
                 stopPolling();
+                stopAiAgentNoSpeakPolling();
                 LogUtils.i("connectCustomerService:zhichiMessageBase= " + zhichiMessageBase);
                 isConnCustomerService = false;
                 offlineMsgAdminId = "";
@@ -5110,12 +5303,27 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             //显示 进入待分配列表说辞 写死
             String tempNick = getResources().getString(R.string.sobot_customer_service_representative);
             String tempFace = ZhiChiConstant.ALLOCATED_FACE;
-            ZhiChiMessageBase allocatedRichListBaseMsg = ChatUtils.getRichListMsg(getInitModel().getAllocatedWord(), getInitModel().getAllocatedWordRichMessage(), tempNick, tempFace);
+            // 本次展示说辞计算：响应优先，无则回落 init 缓存的初始化原始值
+            // 不覆盖 init 缓存，保证多次转人工/旧服务端未返回新字段时仍可回落到初始化说辞（spec §5.5 优先级 3）
+            String finalAllocatedWord = getInitModel().getAllocatedWord();
+            List<ChatMessageRichListModel> finalAllocatedRichList = getInitModel().getAllocatedWordRichMessage();
+            // 仅异步待分配模式才用本次响应覆盖；实时模式 assignmentMode=0 不进入此分支，保持 init 缓存值
+            if (getInitModel().getAssignmentMode() == 1) {
+                // 纯文本：响应非空时覆盖（区分"旧服务端未返回"与"新服务端明确返回空值"）
+                if (!StringUtils.isEmpty(base.getAllocatedWord())) {
+                    finalAllocatedWord = base.getAllocatedWord();
+                }
+                // 富文本：响应非 null 时覆盖（含空数组，表示服务端明确本次无富文本，回落纯文本）
+                if (base.getAllocatedWordRichMessage() != null) {
+                    finalAllocatedRichList = base.getAllocatedWordRichMessage();
+                }
+            }
+            ZhiChiMessageBase allocatedRichListBaseMsg = ChatUtils.getRichListMsg(finalAllocatedWord, finalAllocatedRichList, tempNick, tempFace);
             if (allocatedRichListBaseMsg != null) {
                 messageAdapter.addData(allocatedRichListBaseMsg);
             } else {
                 //兜底显示
-                ZhiChiMessageBase allocatedMsg = ChatUtils.getServiceHelloTip(tempNick, tempFace, getInitModel().getAllocatedWord());
+                ZhiChiMessageBase allocatedMsg = ChatUtils.getServiceHelloTip(tempNick, tempFace, finalAllocatedWord);
                 if (allocatedMsg != null) {
                     messageAdapter.addData(allocatedMsg);
                 }
@@ -5134,6 +5342,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
      * @param face           客服的头像
      */
     private void createCustomerService(List<ChatMessageRichListModel> richListModels, String adminHelloWordStr, String name, String face) {
+        //IM 人工上线和主动转人工成功都会进入这里，切换模式前先停止机器人静默话术。
+        stopAiAgentNoSpeakPolling();
         showEmotionBtn();
         isShowAigentTip(false);
         //改变变量
@@ -5143,6 +5353,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             //修改大模型机器人 未操作的顶踩 和点踩后的原因卡片
             if (messageAdapter != null) {
                 messageAdapter.removeOrUpdateAIRobotMsg();
+                // 转人工后所有大模型推荐问题都要立即隐藏，刷新已显示的富文本消息。
+                messageAdapter.notifyDataSetChanged();
             }
         }
         if (SobotOption.sobotChatStatusListener != null) {
@@ -5627,6 +5839,82 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     }
 
     /**
+     * 发送大模型流程选项；来源答案有 roundId 时，首次和重复点击都会作为 clickRoundId 回传。
+     * 来源答案无 roundId 时仍允许重复点击，但不得借用其他消息轮次；改动时需同步检查流程选项 ViewHolder。
+     *
+     * @param sourceRoundId 生成当前选项消息的本次返回roundId，不能从后续消息状态重新取值
+     */
+    @Override
+    public boolean sendAiAgentProcessMessage(ZhiChiMessageBase sourceMessage, String content,
+                                             String sourceRoundId) {
+        if (!canSendAiAgentAction(sourceMessage)) {
+            return false;
+        }
+        ZhiChiMessageBase customerMessage = new ZhiChiMessageBase();
+        customerMessage.setNodeId(sourceMessage.getNodeId());
+        customerMessage.setProcessId(sourceMessage.getProcessId());
+        customerMessage.setVariableId(sourceMessage.getVariableId());
+        customerMessage.setContent(StringUtils.checkStringIsNull(content));
+        customerMessage.setMsgId(getMsgId());
+        customerMessage.setId(customerMessage.getMsgId());
+        customerMessage.setSenderName(info.getUser_nick());
+        customerMessage.setSenderFace(info.getFace());
+
+        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> processInfoParams = new HashMap<>();
+        processInfoParams.put("processId", StringUtils.checkStringIsNull(sourceMessage.getProcessId()));
+        processInfoParams.put("nodeId", StringUtils.checkStringIsNull(sourceMessage.getNodeId()));
+        processInfoParams.put("variableId", StringUtils.checkStringIsNull(sourceMessage.getVariableId()));
+        processInfoParams.put("variableValue", StringUtils.checkStringIsNull(content));
+        params.put("processInfo", processInfoParams);
+        params.put("inputTypeEnum", "PROCESS_CLICK");
+        if (!TextUtils.isEmpty(sourceRoundId)) {
+            params.put("clickRoundId", sourceRoundId);
+        }
+
+        //进入发送链路后再记录点击，避免会话结束、历史态或回答中拦截导致首次点击状态被误改
+        sourceMessage.setAiAgentActionClicked(true);
+        sendMsgToRobot(customerMessage, SEND_TEXT, 0, "", "", params);
+        return true;
+    }
+
+    /**
+     * 大模型流程动作统一拦截：仅当前机器人会话、非历史消息且最新一条回答结束后允许发送。
+     * SSE 同一轮可能依次返回文本、卡片等多个 msgId，旧分段不会收到独立结束帧；
+     * 因此这里只检查最新 AI 消息，改动时需同步验证多消息流程选项和回答中防重复发送逻辑。
+     */
+    private boolean canSendAiAgentAction(ZhiChiMessageBase sourceMessage) {
+        if (sourceMessage == null) {
+            LogUtils.d("大模型流程动作已拦截：来源消息为空");
+            return false;
+        }
+        if (sourceMessage.getSugguestionsFontColor() == 1) {
+            LogUtils.d("大模型流程动作已拦截：历史消息不可点击");
+            return false;
+        }
+        if (isSessionOver || current_client_model != ZhiChiConstant.client_model_robot) {
+            LogUtils.d("大模型流程动作已拦截：当前不在有效机器人会话");
+            return false;
+        }
+        if (getInitModel() == null || !getInitModel().isAiAgent()) {
+            LogUtils.d("大模型流程动作已拦截：当前不是大模型机器人");
+            return false;
+        }
+        for (int i = messageList.size() - 1; i >= 0; i--) {
+            ZhiChiMessageBase message = messageList.get(i);
+            if (message != null && "aiagent".equals(message.getServant())) {
+                if (!message.isAiAgentReceiveMsgEnd()) {
+                    LogUtils.d("大模型流程动作已拦截：最新回答尚未结束，msgId="
+                            + StringUtils.checkStringIsNull(message.getMsgId()));
+                    return false;
+                }
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 点击了转人工按钮
      */
     public void doClickTransferBtn() {
@@ -5648,9 +5936,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             mAudioPlayCallBack = new AudioPlayCallBack() {
                 @Override
                 public void onPlayStart(ZhiChiMessageBase mCurrentMsg) {
-                    if (mCurrentMsg != null && mCurrentMsg.getVoiceIV() != null) {
-                        startAnim(mCurrentMsg, mCurrentMsg.getVoiceIV(), mCurrentMsg.isRight());
-                    } else if (voiceIV != null) {
+                    if (voiceIV != null) {
                         startAnim(mCurrentMsg, voiceIV, isRight);
                     } else {
                         showVoiceAnim(mCurrentMsg, true);
@@ -5659,9 +5945,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 
                 @Override
                 public void onPlayEnd(ZhiChiMessageBase mCurrentMsg) {
-                    if (mCurrentMsg != null && mCurrentMsg.getVoiceIV() != null) {
-                        stopAnim(mCurrentMsg, mCurrentMsg.getVoiceIV());
-                    } else if (voiceIV != null) {
+                    if (voiceIV != null) {
                         stopAnim(mCurrentMsg, voiceIV);
                     } else {
                         showVoiceAnim(mCurrentMsg, false);
@@ -6346,6 +6630,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     private void createConsultingContent(int type) {
         ConsultingContent consultingContent = info.getConsultingContent();
         if (consultingContent != null && !TextUtils.isEmpty(consultingContent.getSobotGoodsTitle()) && !TextUtils.isEmpty(consultingContent.getSobotGoodsFromUrl())) {
+            // 开关开启且本次会话内该 ConsultMessageHolder 浮层已被消费时，不再重新生成
+            if (isConsultingCardConsumed(consultingContent)) {
+                return;
+            }
             ZhiChiMessageBase zhichiMessageBase = new ZhiChiMessageBase();
             zhichiMessageBase.setSenderType(ZhiChiConstant.message_sender_type_consult_info);
             if (!TextUtils.isEmpty(consultingContent.getSobotGoodsImgUrl())) {
@@ -6416,11 +6704,27 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         userOffline(getInitModel());
                         ChatUtils.userLogout(mAppContext, "onCloseMenuClick 点击右上角关闭按钮");
                     }
-                } else {
+                } else if (current_client_model == ZhiChiConstant.client_model_customService) {
+                    // 仅人工会话接入限频检查；普通机器人会话不调 isComment，走下方 else 原始评价逻辑
                     if (isAboveZero && !isComment) {
                         // 退出时 之前没有评价过的话 才能 弹评价框
-                        Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true, getInitModel(), current_client_model, 1, currentUserName, 5, -1, "", false, true);
-                        startActivity(intent);
+                        // 自动推评限频检查：commentType 统一传 0（邀请评价），isComment=7 时直接结束会话不弹评价
+                        checkInviteFrequencyThenShowSatisfaction(isSessionOver, true, true,
+                                0, currentUserName, 5, -1, "", false, true);
+                        return;
+                    } else {
+                        isSessionOver = true;
+                        userOffline(getInitModel());
+                        ChatUtils.userLogout(mAppContext, "onCloseMenuClick 点击右上角关闭按钮");
+                    }
+                } else {
+                    // 普通机器人会话：沿用限频改动前的原始评价逻辑，不调 isComment（避免返回 -1 导致评价不弹）
+                    if (isAboveZero && !isComment) {
+                        Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true,
+                                getInitModel(), current_client_model, 1, currentUserName, 5, -1, "", false, true);
+                        if (intent != null) {
+                            startActivity(intent);
+                        }
                         return;
                     } else {
                         isSessionOver = true;
@@ -6457,11 +6761,26 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         isSessionOver = true;
                         ChatUtils.userLogout(mAppContext, "onLeftBackColseClick 导航栏左侧返回按钮  弹出是否结束会话框  结束回话");
                     }
-                } else {
+                } else if (current_client_model == ZhiChiConstant.client_model_customService) {
+                    // 仅人工会话接入限频检查；普通机器人会话不调 isComment，走下方 else 原始评价逻辑
                     if (isAboveZero && !isComment) {
                         // 退出时 之前没有评价过的话 才能 弹评价框
-                        Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true, getInitModel(), current_client_model, 1, currentUserName, 5, -1, "", false, true);
-                        startActivity(intent);
+                        // 自动推评限频检查：commentType 统一传 0（邀请评价），isComment=7 时直接结束会话不弹评价
+                        checkInviteFrequencyThenShowSatisfaction(isSessionOver, true, true,
+                                0, currentUserName, 5, -1, "", false, true);
+                        return;
+                    } else {
+                        isSessionOver = true;
+                        ChatUtils.userLogout(mAppContext, "onLeftBackColseClick 导航栏左侧返回按钮  弹出是否结束会话框  结束回话");
+                    }
+                } else {
+                    // 普通机器人会话：沿用限频改动前的原始评价逻辑，不调 isComment（避免返回 -1 导致评价不弹）
+                    if (isAboveZero && !isComment) {
+                        Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, true,
+                                getInitModel(), current_client_model, 1, currentUserName, 5, -1, "", false, true);
+                        if (intent != null) {
+                            startActivity(intent);
+                        }
                         return;
                     } else {
                         isSessionOver = true;
@@ -7428,21 +7747,21 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                                 customerServiceOffline(getInitModel(), Integer.parseInt(pushMessage.getStatus()));
                             }
                         } else {
-                            // 用户被下线
-                            customerServiceOffline(getInitModel(), Integer.parseInt(pushMessage.getStatus()), pushMessage.getChatOverWord());
+                            // 用户被下线；status 即 outLineType：2=客服主动结束，4=超时结束，1/9/11=客服踢下线
+                            int outLineType = Integer.parseInt(pushMessage.getStatus());
+                            customerServiceOffline(getInitModel(), outLineType, pushMessage.getChatOverWord());
                             if (getInitModel().getCommentFlag() == 1) {
                                 //异步接待，被迫结束会话不评价
                                 if (isAboveZero && !isComment && getInitModel().getAssignmentMode() != 1) {
                                     // 满足评价条件，并且之前没有评价过的话 才能 弹评价框
+                                    // Push 204 评价栏开启"问题是否解决"选项（保持原行为）
                                     pushMessage.setIsQuestionFlag(1);
-                                    //如果没有评价配置，请求评价配置，如果请求失败，再去请求一次
-                                    if (mSatisfactionSet == null) {
-                                        requestEvaluateConfig(true, pushMessage);
+                                    // 仅"客服主动结束会话(outLineType=2)"调 isComment 限频检查；
+                                    // 超时(4)/踢下线(1/9/11)不调 isComment，直接展示评价栏
+                                    if (outLineType == 2) {
+                                        checkPushEvaluateFrequency(pushMessage);
                                     } else {
-                                        // 满足评价条件，并且之前没有评价过的话 才能 弹评价框
-                                        ZhiChiMessageBase customEvaluateMode = ChatUtils.getCustomEvaluateMode(getSobotActivity(), pushMessage, mSatisfactionSet);
-                                        // 更新界面的操作
-                                        updateUiMessage(messageAdapter, customEvaluateMode);
+                                        showEvaluatePanel(pushMessage);
                                     }
                                 }
                             }
@@ -7501,16 +7820,8 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                         LogUtils.i("客服推送满意度评价.................");
                         //显示推送消息体
                         if (isAboveZero && customerState == CustomerState.Online) {
-                            //如果没有评价配置，请求评价配置，如果请求失败，再去请求一次
-                            if (mSatisfactionSet == null) {
-                                requestEvaluateConfig(true, pushMessage);
-                            } else {
-                                // 满足评价条件，并且之前没有评价过的话 才能 弹评价框
-                                ZhiChiMessageBase customEvaluateMode = ChatUtils.getCustomEvaluateMode(getSobotActivity(), pushMessage, mSatisfactionSet);
-                                // 更新界面的操作
-                                updateUiMessage(messageAdapter, customEvaluateMode);
-                                gotoLastItem();
-                            }
+                            // Push 209 客服工作台邀请评价：不调 isComment，直接展示评价栏
+                            showEvaluatePanel(pushMessage);
                         }
                     } else if (ZhiChiConstant.push_message_retracted == pushMessage.getType()) {
                         if (!TextUtils.isEmpty(pushMessage.getRevokeMsgId())) {
@@ -7616,6 +7927,12 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             messageList.remove(i);
                             break;
                         }
+                    }
+                    //"留言状态有更新"提示条的 remindType 是 sobot_have_new_leavemsg(10)，上面的 simple_tip(9)
+                    //循环匹配不到它，点击后需按 action 移除，否则跳转返回后提示条残留；removeByAction 只删数据不刷新，需手动 notify
+                    if (messageAdapter != null) {
+                        messageAdapter.removeByAction(ZhiChiConstant.action_remind_livemsg_new);
+                        messageAdapter.notifyDataSetChanged();
                     }
                     openTiket();
                 } else if (ZhiChiConstants.sobot_click_cancle.equals(intent.getAction())) {
@@ -7949,11 +8266,13 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     String btnText = intent.getStringExtra("btnText");
                     SobotChatCustomGoods goods = (SobotChatCustomGoods) intent.getSerializableExtra("SobotCustomGoods");
                     SobotChatCustomCard card = (SobotChatCustomCard) intent.getSerializableExtra("SobotCustomCard");
-                    sendAiCardMsg(btnText, goods, card);
+                    String sourceMessageId = intent.getStringExtra(ZhiChiConstants.SOBOT_AI_CARD_SOURCE_MSG_ID);
+                    String sourceRoundId = intent.getStringExtra(ZhiChiConstants.SOBOT_AI_CARD_ROUND_ID);
+                    sendAiCardMsg(btnText, goods, card, sourceMessageId, sourceRoundId);
                 }
 
             } catch (Exception e) {
-
+                LogUtils.e("聊天页面广播处理失败", e);
             }
         }
     }
@@ -7961,11 +8280,21 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
     /**
      * 大模型发送卡片
      *
-     * @param goods 商品
-     * @param card  卡片总信息
+     * @param btnText         按钮文案
+     * @param goods           商品
+     * @param card            卡片总信息
+     * @param sourceMessageId 卡片所属的大模型答案消息ID，用于维护重复点击状态
+     * @param sourceRoundId   生成当前卡片的本次返回roundId，作为clickRoundId原样回传
      */
-    private void sendAiCardMsg(String btnText, SobotChatCustomGoods goods, SobotChatCustomCard card) {
-        Map<String, Object> parame = ChatUtils.getSendAiCardParameter(btnText, goods, card);
+    private void sendAiCardMsg(String btnText, SobotChatCustomGoods goods, SobotChatCustomCard card,
+                               String sourceMessageId, String sourceRoundId) {
+        ZhiChiMessageBase sourceMessage = findAiAgentSourceMessage(sourceMessageId, card);
+        if (card == null || !canSendAiAgentAction(sourceMessage)) {
+            return;
+        }
+        // 直接使用卡片渲染时绑定的本次返回 roundId，避免消息列表后续更新导致轮次串用。
+        String clickRoundId = StringUtils.checkStringIsNull(sourceRoundId);
+        Map<String, Object> parame = ChatUtils.getSendAiCardParameter(btnText, goods, card, clickRoundId);
         parame.put("robotId", getInitModel().getRobotid());
         parame.put("aiAgentCid", getInitModel().getAiAgentCid());
         String msgId = getMsgId();
@@ -7994,8 +8323,44 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
         handMyMessage.what = ZhiChiConstant.hander_send_msg;
         handMyMessage.obj = myMessage;
         handler.sendMessage(handMyMessage);
+        //请求参数和访客消息均已准备完成，此后点击同一答案中的任意流程动作都属于重复点击
+        sourceMessage.setAiAgentActionClicked(true);
+        notifyAiAgentSourceMessageChanged(sourceMessage);
         sendHttpRobotMessage("5", msgId, "", getInitModel().getPartnerid(), getInitModel().getCid(), "", handler, 0, "", "", "", parame);
         gotoLastItem();
+    }
+
+    /**
+     * 按 msgId/id 查找卡片所属答案。查看更多页面会序列化卡片对象，因此不能依赖对象引用回写点击状态。
+     */
+    private ZhiChiMessageBase findAiAgentSourceMessage(String sourceMessageId, SobotChatCustomCard card) {
+        for (int i = messageList.size() - 1; i >= 0; i--) {
+            ZhiChiMessageBase message = messageList.get(i);
+            if (message == null) {
+                continue;
+            }
+            if (!TextUtils.isEmpty(sourceMessageId) && (sourceMessageId.equals(message.getMsgId())
+                    || sourceMessageId.equals(message.getId()))) {
+                return message;
+            }
+            //极少数实时消息尚无 msgId/id 时，以原始接口卡片内容匹配最近一条来源消息
+            if (TextUtils.isEmpty(sourceMessageId) && card != null && message.getCustomCard() != null
+                    && TextUtils.equals(card.getOriginalInfo(), message.getCustomCard().getOriginalInfo())) {
+                return message;
+            }
+        }
+        return null;
+    }
+
+    /** 刷新来源卡片的本地点击状态；是否可重复点击不再由 roundId 是否为空决定。 */
+    private void notifyAiAgentSourceMessageChanged(ZhiChiMessageBase sourceMessage) {
+        if (sourceMessage == null || messageAdapter == null) {
+            return;
+        }
+        int position = messageList.indexOf(sourceMessage);
+        if (position >= 0) {
+            messageAdapter.notifyItemChanged(position);
+        }
     }
 
     //保存当前的数据，进行会话保持
@@ -8281,6 +8646,9 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             return;
         }
 
+        //文本、媒体暂存和延迟转人工均代表访客已经发起新动作，旧轮静默话术不再有效。
+        stopAiAgentNoSpeakPolling();
+
         String msgId = getMsgId();
         if (getInitModel() != null && getInitModel().getAssignmentMode() == 1) {
             //异步接待不走延迟转人工逻辑
@@ -8370,7 +8738,63 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             String msgId = getMsgId();
             setTimeTaskMethod(handler);
             sendHttpCardMsg(getInitModel().getPartnerid(), getInitModel().getCid(), handler, msgId, consultingContent);
+            // 进入发送接口调用流程后，按开关决定是否移除原 ConsultMessageHolder 浮层
+            hideConsultingCardAfterSendIfNeeded(consultingContent);
         }
+    }
+
+    /**
+     * 开关 isHideSendGoodsCardAfterSend == true 时，移除当前会话内的 ConsultMessageHolder 浮层
+     * （action == action_consultingContent_info），并写入消费 key 阻止同一会话内同一张浮层重新生成。
+     * 开关关闭时直接 return，保持现状。
+     * 复用 {@link SobotMsgAdapter#removeConsulting()} 实现移除，不影响 customCard / orderGoodsInfo 链路。
+     *
+     * @param consultingContent 触发发送的咨询内容，用于生成消费 key
+     */
+    private void hideConsultingCardAfterSendIfNeeded(ConsultingContent consultingContent) {
+        if (!info.isHideSendGoodsCardAfterSend()) {
+            return;
+        }
+        if (messageAdapter != null) {
+            // removeConsulting() 倒序遍历删除第一个 action == action_consultingContent_info 的消息，
+            // 只影响 ConsultMessageHolder 浮层，不影响 customCard / orderGoodsInfo 链路
+            messageAdapter.removeConsulting();
+        }
+        // 消费 key 仅在 title + fromUrl 均非空时写入，避免误阻止其他场景重新生成
+        if (consultingContent != null
+                && !TextUtils.isEmpty(consultingContent.getSobotGoodsTitle())
+                && !TextUtils.isEmpty(consultingContent.getSobotGoodsFromUrl())
+                && getInitModel() != null) {
+            String cid = TextUtils.isEmpty(getInitModel().getCid()) ? "" : getInitModel().getCid();
+            String consumeKey = cid + "_"
+                    + consultingContent.getSobotGoodsFromUrl() + "_"
+                    + consultingContent.getSobotGoodsTitle();
+            consumedConsultingKeys.add(consumeKey);
+        }
+    }
+
+    /**
+     * 判断当前 ConsultMessageHolder 浮层是否已被消费（开关开启且消费 key 命中）。
+     * 用于 createConsultingContent 生成浮层前阻止同一会话内同一张浮层重新生成。
+     *
+     * @param consultingContent 待生成的咨询内容
+     * @return true 表示已被消费，应跳过浮层生成；false 表示正常生成
+     */
+    private boolean isConsultingCardConsumed(ConsultingContent consultingContent) {
+        if (!info.isHideSendGoodsCardAfterSend()) {
+            return false;
+        }
+        if (consultingContent == null
+                || TextUtils.isEmpty(consultingContent.getSobotGoodsTitle())
+                || TextUtils.isEmpty(consultingContent.getSobotGoodsFromUrl())
+                || getInitModel() == null) {
+            return false;
+        }
+        String cid = TextUtils.isEmpty(getInitModel().getCid()) ? "" : getInitModel().getCid();
+        String consumeKey = cid + "_"
+                + consultingContent.getSobotGoodsFromUrl() + "_"
+                + consultingContent.getSobotGoodsTitle();
+        return consumedConsultingKeys.contains(consumeKey);
     }
 
     /**
@@ -8414,7 +8838,14 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             } else {
                 if (isActive()) {
                     Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, false, false, getInitModel(), current_client_model, isActive ? 1 : 0, currentUserName, score, isSolve, checklables, false, false);
-                    startActivity(intent);
+                    if (intent != null) {
+                        // 仅"Push 204 outLineType=2 → isComment=0 → 评价栏 → 点击评价栏 → submitEvaluation(false)"
+                        // 这一条链路 currentEvaluatePanelFrequencyChecked 为 true；其他主动评价/邀评链路均为 false。
+                        // 读取后立即重置，避免被后续流程误用
+                        intent.putExtra("isInviteFrequencyChecked", currentEvaluatePanelFrequencyChecked);
+                        currentEvaluatePanelFrequencyChecked = false;
+                        startActivity(intent);
+                    }
                 }
             }
         } else {
@@ -9005,11 +9436,12 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                     if (current_client_model == ZhiChiConstant.client_model_robot && null != getInitModel() && getInitModel().isAiAgent()) {
                         showAiEvaluateDialog(isSessionOver, true, false, current_client_model, 1, 5, -2, "", true, true);
                         return;
-                    } else {
+                    } else if (current_client_model == ZhiChiConstant.client_model_customService){
                         if (isAboveZero && !isComment) {
                             // 退出时 之前没有评价过的话 才能 弹评价框
-                            Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, true, false, getInitModel(), current_client_model, 1, currentUserName, 5, -1, "", true, true);
-                            startActivity(intent);
+                            // 自动推评限频检查：commentType 统一传 0（邀请评价），isComment=7 时直接结束会话不弹评价
+                            checkInviteFrequencyThenShowSatisfaction(isSessionOver, true, false,
+                                    0, currentUserName, 5, -1, "", true, true);
                             return;
                         }
                     }
@@ -9026,28 +9458,31 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
 
     /**
      * 切换机器人：显示切换机器人业务的按钮
+     * 按钮以"图标+文字"完整形态先展示 2 秒，再收起文字仅保留图标；
+     * 本方法在初始化 / 重连 / 会话状态切换等多处会被重复调用，收起任务需防叠加
      */
     private void showSwitchRobotBtn() {
         if (getInitModel() != null && type != 2 && current_client_model == ZhiChiConstant.client_model_robot) {
             ll_switch_robot.setVisibility(getInitModel().isRobotSwitchFlag() ? View.VISIBLE : View.GONE);
             if (getInitModel().isRobotSwitchFlag() && tv_switch_robot != null && ll_switch_robot != null) {
-                tv_switch_robot.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (ChatUtils.isRtl(getSobotActivity())) {
-                            ll_switch_robot.animate().translationX(-tv_switch_robot.getWidth()).setDuration(300);// 设置动画持续时间，单位毫秒
-                            Drawable background = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_swith_robot_bg_rtl, null);
-                            if (background != null) {
-                                ll_switch_robot.setBackground(background);
-                            }
-                        } else {
-                            ll_switch_robot.animate().translationX(tv_switch_robot.getWidth()).setDuration(300);// 设置动画持续时间，单位毫秒
-                        }
-                    }
-                }, 10);
+                //先取消上一次未执行的收起任务，避免短时间多次调用时动画重复触发
+                tv_switch_robot.removeCallbacks(mCollapseSwitchRobotRunnable);
+                //复位收起残留：translationX 与 RTL 圆角背景会跨显示周期保留，不复位会导致再次显示时直接是收起态
+                ll_switch_robot.animate().cancel();
+                ll_switch_robot.setTranslationX(0);
+                Drawable expandBackground = ResourcesCompat.getDrawable(getResources(), R.drawable.sobot_swith_robot_bg, null);
+                if (expandBackground != null) {
+                    ll_switch_robot.setBackground(expandBackground);
+                }
+                //完整形态展示 2 秒后收起文字，仅保留图标
+                tv_switch_robot.postDelayed(mCollapseSwitchRobotRunnable, SWITCH_ROBOT_COLLAPSE_DELAY_MILLIS);
             }
         } else {
             ll_switch_robot.setVisibility(View.GONE);
+            //按钮不展示时同步取消待执行的收起任务，避免隐藏后仍触发无效动画
+            if (tv_switch_robot != null) {
+                tv_switch_robot.removeCallbacks(mCollapseSwitchRobotRunnable);
+            }
         }
     }
 
@@ -9525,6 +9960,239 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             lp.bottomMargin = margin20;
         }
         ll_switch_robot.setLayoutParams(lp);
+    }
+
+    /**
+     * 切换机器人按钮的挖孔避让（与消息列表 / 输入栏同源同公式，保证右缘对齐）：
+     * - 数据源：NotchScreenManager（与 displayInNotch(messageRV/llBarBottom) 完全一致）
+     * - 公式：max(rect.width(), 90) —— displayInNotch 给列表/输入栏加的双侧 padding 值
+     * - 应用：marginEnd = 该值（按钮是 wrap 胶囊，padding 会撑大胶囊而非移位，必须用 margin）
+     * 无挖孔 / 开关关闭时不设 margin，按钮保持贴右缘（与列表/输入栏 padding=0 同样对齐）。
+     */
+    private void alignSwitchRobotToNotchInset() {
+        if (ll_switch_robot == null || getSobotActivity() == null) {
+            return;
+        }
+        if (!ZCSobotApi.getSwitchMarkStatus(MarkConfig.LANDSCAPE_SCREEN)
+                || !ZCSobotApi.getSwitchMarkStatus(MarkConfig.DISPLAY_INNOTCH)) {
+            return;
+        }
+        NotchScreenManager.getInstance().getNotchInfo(getSobotActivity(), new INotchScreen.NotchScreenCallback() {
+            @Override
+            public void onResult(INotchScreen.NotchScreenInfo notchScreenInfo) {
+                if (notchScreenInfo == null || !notchScreenInfo.hasNotch
+                        || notchScreenInfo.notchRects == null || notchScreenInfo.notchRects.isEmpty()) {
+                    return;
+                }
+                if (!isActive()) {
+                    return;
+                }
+                for (Rect rect : notchScreenInfo.notchRects) {
+                    // 与 SobotChatBaseFragment#displayInNotch 相同的公式
+                    int notchWidth = Math.max(rect.width(), 90);
+                    RelativeLayout.LayoutParams lp =
+                            (RelativeLayout.LayoutParams) ll_switch_robot.getLayoutParams();
+                    if (lp != null) {
+                        lp.setMarginEnd(notchWidth);
+                        ll_switch_robot.setLayoutParams(lp);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 满意度邀评限频 - 自动推评前的限频检查封装。<br>
+     * 调 isComment(type=1 人工, commentType=0 邀请评价) 检查服务端是否允许邀评：
+     * <ul>
+     *   <li>data.isComment == 0：可邀评 → 走原 showEvaluateDialog + startActivity 链路</li>
+     *   <li>data.isComment == 7：限频中 → 不弹评价，直接走结束会话路径（userOffline + userLogout + finish）</li>
+     *   <li>data.isComment == 1/-1（兜底）：理论上前置判断已拦截，到达此处也按"不弹评价"处理</li>
+     *   <li>未知值 / onFailure / cid 或 uid 空：降级展示评价弹窗（避免限频接口异常影响主流程）</li>
+     * </ul>
+     * 注意：recordInviteFreq 不在此处调用，统一在 SobotEvaluateActivity.comment() onSuccess 中触发。
+     *
+     * @param isSessionOver            当前会话是否结束
+     * @param isFinish                 评价完是否关闭聊天界面
+     * @param isExitCommit             是否退出会话
+     * @param commentType              评价类型（自动推评场景调用方传 0）
+     * @param customName               客服昵称
+     * @param score                    评分
+     * @param isSolve                  问题是否解决
+     * @param checklables              预选标签
+     * @param isBackShowEvaluate       弹出评价窗 是否显示暂不评价
+     * @param canBackWithNotEvaluation 是否是返回时弹出评价窗
+     */
+    private void checkInviteFrequencyThenShowSatisfaction(final boolean isSessionOver,
+                                                          final boolean isFinish,
+                                                          final boolean isExitCommit,
+                                                          final int commentType,
+                                                          final String customName,
+                                                          final int score, final int isSolve,
+                                                          final String checklables,
+                                                          final boolean isBackShowEvaluate,
+                                                          final boolean canBackWithNotEvaluation) {
+        // 防重：上一次 isComment 检查未回调时，忽略本次重复触发（快速双击关闭/返回）
+        if (isCheckingFrequency) {
+            return;
+        }
+        if (getInitModel() == null) {
+            return;
+        }
+        String cid = getInitModel().getCid();
+        String uid = getInitModel().getPartnerid();
+        // cid/uid 空：不发请求，按"不弹评价 + 结束会话"处理（不影响用户关闭聊天页）
+        if (TextUtils.isEmpty(cid) || TextUtils.isEmpty(uid)) {
+            LogUtils.d("checkInviteFrequency skip: cid/uid empty, no evaluate");
+            continueSessionOverPath("cid/uid empty");
+            return;
+        }
+        isCheckingFrequency = true;
+        // type=1 人工；commentType 由调用方传入（自动推评均为 0=邀请评价）
+        zhiChiApi.isComment(this, cid, uid, 1, commentType, new StringResultCallBack<JSONObject>() {
+            @Override
+            public void onSuccess(JSONObject resp) {
+                // 回调时 Fragment 可能已销毁，做销毁保护避免 NPE
+                if (!isAdded()) {
+                    isCheckingFrequency = false;
+                    return;
+                }
+                isCheckingFrequency = false;
+                // code==1 时取 data.isComment
+                JSONObject data = resp != null ? resp.optJSONObject("data") : null;
+                int isCommentResult = data != null ? data.optInt("isComment", -999) : -999;
+                if (isCommentResult == 0) {
+                    // 可邀评：走原展示评价弹窗链路；本次评价已经过 isComment=0 检查，
+                    // 评价提交成功后允许调用 recordInviteFreq（通过 Intent extra 传递标记）
+                    Intent intent = showEvaluateDialog(getSobotActivity(), isSessionOver, isFinish, isExitCommit,
+                            getInitModel(), current_client_model, commentType, customName, score, isSolve,
+                            checklables, isBackShowEvaluate, canBackWithNotEvaluation);
+                    if (intent != null) {
+                        intent.putExtra("isInviteFrequencyChecked", true);
+                        startActivity(intent);
+                    }
+                } else if (isCommentResult == 7) {
+                    // 限频中：不弹评价，直接走结束会话路径
+                    LogUtils.d("checkInviteFrequency limited, skip evaluate");
+                    continueSessionOverPath("isComment limited");
+                } else {
+                    // 1=已评价，-1=未说话，其他兜底：不弹评价，走结束会话路径（不影响后续逻辑）
+                    LogUtils.d("checkInviteFrequency isComment=" + isCommentResult + ", skip evaluate");
+                    continueSessionOverPath("isComment=" + isCommentResult);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+                if (!isAdded()) {
+                    isCheckingFrequency = false;
+                    return;
+                }
+                isCheckingFrequency = false;
+                // 网络失败/响应异常：不弹评价，走结束会话路径（不影响用户关闭聊天页）
+                LogUtils.d("checkInviteFrequency onFailure, skip evaluate: " + des);
+                continueSessionOverPath("isComment onFailure");
+            }
+        });
+    }
+
+    /**
+     * 自动推评被限频拦截后，统一执行的"结束会话 + 退出"路径。<br>
+     * 与 {@link #onCloseMenuClick} 等入口的非评价分支等价：标记会话结束 → userOffline → userLogout → finish。
+     *
+     * @param reason 退出原因，用于日志埋点
+     */
+    private void continueSessionOverPath(String reason) {
+        if (getInitModel() == null) {
+            return;
+        }
+        // 标记会话结束、清理本地状态
+        isSessionOver = true;
+        userOffline(getInitModel());
+        ChatUtils.userLogout(mAppContext, "满意度限频拦截退出: " + reason);
+        mUnreadNum = 0;
+        finish();
+    }
+
+    /**
+     * Push 204（客服主动结束/超时结束/客服踢下线）和 Push 209（客服工作台邀请评价）<br>
+     * 在"评价栏消息"展示前的限频检查封装。<br>
+     * 与 {@link #checkInviteFrequencyThenShowSatisfaction} 区别：本场景不弹评价弹窗，而是插入评价栏卡片。
+     * <ul>
+     *   <li>data.isComment == 0：可邀评 → 继续原逻辑（requestEvaluateConfig 或直接 updateUiMessage）</li>
+     *   <li>data.isComment == 7：限频中 → 不展示评价栏</li>
+     *   <li>data.isComment == 1/-1：兜底，不展示评价栏（前置判断已拦截）</li>
+     *   <li>未知值 / onFailure / cid 或 uid 空：降级展示评价栏（避免限频接口异常影响主流程）</li>
+     * </ul>
+     *
+     * @param pushMessage 推送消息体（评价栏卡片的消息内容来源）
+     */
+    private void checkPushEvaluateFrequency(final ZhiChiPushMessage pushMessage) {
+        if (getInitModel() == null) {
+            return;
+        }
+        String cid = getInitModel().getCid();
+        String uid = getInitModel().getPartnerid();
+        // cid/uid 空：不发请求，不展示评价栏（Push 204 客服已结束会话，SDK 不主动结束）
+        if (TextUtils.isEmpty(cid) || TextUtils.isEmpty(uid)) {
+            LogUtils.d("checkPushEvaluateFrequency skip: cid/uid empty, no panel");
+            // 评价栏未经过 isComment=0 检查，标记位重置为 false
+            currentEvaluatePanelFrequencyChecked = false;
+            return;
+        }
+        // type=1 人工；commentType=0 邀请评价
+        zhiChiApi.isComment(this, cid, uid, 1, 0, new StringResultCallBack<JSONObject>() {
+            @Override
+            public void onSuccess(JSONObject resp) {
+                if (!isAdded()) {
+                    return;
+                }
+                JSONObject data = resp != null ? resp.optJSONObject("data") : null;
+                int isCommentResult = data != null ? data.optInt("isComment", -999) : -999;
+                if (isCommentResult == 0) {
+                    // 可邀评：继续原展示评价栏链路；标记本次评价栏经过 isComment=0 检查，
+                    // 评价栏被点击进入 submitEvaluation 时透传给 SobotEvaluateActivity 以触发 recordInviteFreq
+                    currentEvaluatePanelFrequencyChecked = true;
+                    showEvaluatePanel(pushMessage);
+                } else if (isCommentResult == 7) {
+                    // 限频中：不展示评价栏
+                    currentEvaluatePanelFrequencyChecked = false;
+                    LogUtils.d("checkPushEvaluateFrequency limited, skip panel");
+                } else {
+                    // 1/-1 兜底：不展示评价栏
+                    currentEvaluatePanelFrequencyChecked = false;
+                    LogUtils.d("checkPushEvaluateFrequency isComment=" + isCommentResult + ", skip panel");
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e, String des) {
+                if (!isAdded()) {
+                    return;
+                }
+                // 网络失败/响应异常：不展示评价栏（不影响 Push 204 已结束会话的后续逻辑）
+                currentEvaluatePanelFrequencyChecked = false;
+                LogUtils.d("checkPushEvaluateFrequency onFailure, skip panel: " + des);
+            }
+        });
+    }
+
+    /**
+     * Push 204/209 展示评价栏的原逻辑封装。<br>
+     * 没有评价配置时先请求配置（内部会插入评价栏），有配置时直接插入评价栏。<br>
+     * 注意：调用方需自行决定是否调用 pushMessage.setIsQuestionFlag(1)（Push 204 设置，Push 209 不设置）。
+     *
+     * @param pushMessage 推送消息体
+     */
+    private void showEvaluatePanel(ZhiChiPushMessage pushMessage) {
+        if (mSatisfactionSet == null) {
+            // 没有评价配置，请求评价配置，如果请求失败，再去请求一次
+            requestEvaluateConfig(true, pushMessage);
+        } else {
+            ZhiChiMessageBase customEvaluateMode = ChatUtils.getCustomEvaluateMode(getSobotActivity(), pushMessage, mSatisfactionSet);
+            updateUiMessage(messageAdapter, customEvaluateMode);
+            gotoLastItem();
+        }
     }
 
     /**
@@ -10500,7 +11168,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
                                 intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
-                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "");
+                                intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "1");
                                 startActivity(intent);
                                 if (getSobotActivity() != null) {
                                     getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in, R.anim.sobot_push_left_out);
@@ -10517,7 +11185,7 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
                             intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
                             intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
                             intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
-                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "");
+                            intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "1");
                             startActivity(intent);
                             if (getSobotActivity() != null) {
                                 getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in, R.anim.sobot_push_left_out);
@@ -10530,6 +11198,19 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             @Override
             public void onFailure(Exception e, String des) {
                 LogUtils.i(des);
+                //留言记录接口请求失败也必须关闭全局 loading，否则弹窗停留在聊天页上永不消失（表现为一直加载中）
+                //兜底逻辑与上方 getWsTemplate 失败分支对齐：直接跳转新建留言页（TEMPID 传空，新建页内会兜底默认模板 "1"）
+                SobotDialogUtils.stopProgressDialog(getSobotActivity());
+                Intent intent = new Intent(getSobotActivity(), SobotTicketNewActivity.class);
+                intent.putExtra(StPostMsgPresenter.INTENT_KEY_COMPANYID, mCompanyId);
+                intent.putExtra(StPostMsgPresenter.INTENT_KEY_CUSTOMERID, mCustomerId);
+                intent.putExtra(StPostMsgPresenter.INTENT_KEY_GROUPID, mGroupId);
+                intent.putExtra(StPostMsgPresenter.INTENT_KEY_UID, mUid);
+                intent.putExtra(StPostMsgPresenter.INTENT_KEY_TEMPID, "1");
+                startActivity(intent);
+                if (getSobotActivity() != null) {
+                    getSobotActivity().overridePendingTransition(R.anim.sobot_push_left_in, R.anim.sobot_push_left_out);
+                }
             }
 
         });
@@ -10586,5 +11267,10 @@ public class SobotChatFragment extends SobotChatBaseFragment implements View.OnC
             }
 
         });
+    }
+
+    @Override
+    public boolean isCurrentCustomServiceMode() {
+        return current_client_model == ZhiChiConstant.client_model_customService;
     }
 }

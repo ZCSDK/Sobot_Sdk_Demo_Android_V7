@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +13,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -86,27 +89,69 @@ public class SobotCusFieldImagePreviewDialog extends Dialog {
         return mImageUrlList != null ? mImageUrlList.size() : mImageList.size();
     }
 
+    /**
+     * onStart 时再强制一次 setLayout(MATCH_PARENT)。
+     *
+     * Android Dialog 默认 Theme.Dialog (windowIsFloating=true) 在 onCreate → onStart 阶段
+     * 会被 WindowManager 重新 apply attributes，把 onCreate 设置的 LayoutParams.MATCH_PARENT
+     * 又给冲回"按内容 wrap + 四周 inset"的大小。结果就是：onCreate 里明明写了 setLayout，但
+     * 横屏仍然只占一个居中的小浮窗，图片被裁切、左右滑看不到完整区域。
+     *
+     * 所以需要在 super.onStart() 之后 **再次** setLayout(MATCH_PARENT, MATCH_PARENT)，
+     * 并再挂一次全屏 Flag + DecorView 沉浸式位，确保最终显示时一定是全屏（用户反馈核心诉求）。
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Window window = getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setDimAmount(0f);
+            window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                    | WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        // 全屏覆盖，包含状态栏和导航栏
-//        Window window = getWindow();
-//        if (window != null) {
-//            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-//                    WindowManager.LayoutParams.MATCH_PARENT);
-//            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//            window.getDecorView().setSystemUiVisibility(
-//                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-//                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-//            window.setDimAmount(0f);
-//        }
+        // 全屏覆盖（含状态栏 + 导航栏），横屏时保证图片占满整块屏幕，
+        // 解决之前"Dialog 默认 Theme.Dialog + windowIsFloating=true 自动加 inset、
+        // 横屏只在屏幕中央显示半屏大小、左右留白无法左右划全屏"的问题。
+        // —— 修复用户反馈："新建留言 横屏 附件预览弹窗没有全屏显示"
+        Window window = getWindow();
+        if (window != null) {
+            // 1. 背景透明 + 去掉系统浮窗阴影（用 XML 自己 #BF000000 半透明 + 自绘控件，避免系统 dim 叠加）
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setDimAmount(0f);
+            // 2. 强制 Window 铺满整个屏幕（覆盖 Theme.Dialog 自动带的 windowIsFloating inset）
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT);
+            // 3. 允许 Window 跨出屏幕限制 + 全屏（含状态栏、虚拟键沉浸式显示）
+            window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                    | WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            // 4. DecorView 沉浸式：在图片预览这种场景下，隐藏状态栏/导航栏获取最大显示面积
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
 
         setContentView(R.layout.sobot_dialog_image_preview);
         setCanceledOnTouchOutside(false);

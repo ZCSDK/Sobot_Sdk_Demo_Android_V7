@@ -280,8 +280,8 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
                     isShowRightFace = information.isShowRightMsgFace();
                     //右侧头像、昵称布局(只有头像显示时，左右布局；默认上下布局)（布局是按照左侧消息头像昵称显示决定的）
                     if (ll_status != null) {
-                        if (isShowFace) {
-                            if (!isShowNickName) {
+                        if (isShowRightFace) {
+                            if (!isShowRightNickName) {
                                 //头像显示，昵称不显示
                                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) ll_status.getLayoutParams();
                                 layoutParams.addRule(RelativeLayout.START_OF, headIV.getId());
@@ -807,6 +807,7 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         if (message != null) {
             message.setShowTransferBtn(false);
         }
+        updateMoreActionVisibility();
     }
 
     /**
@@ -847,6 +848,8 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
         if (initMode != null) {
             if (initMode.isAiAgent()) {
                 if (aiRobotRealuateConfigInfo == null) {
+                    // 配置尚未加载时先重置顶踩 UI，避免 ViewHolder 初始状态或复用状态泄漏。
+                    hideRevaluateBtn();
                     return;
                 }
                 //大模型机器人
@@ -969,6 +972,25 @@ public abstract class MsgHolderBase extends RecyclerView.ViewHolder {
             sobot_iv_bottom_likeBtn.setVisibility(View.GONE);
             sobot_iv_bottom_dislikeBtn.setVisibility(View.GONE);
         }
+        updateMoreActionVisibility();
+    }
+
+    /**
+     * 根据底部顶踩和转人工子项的实际状态刷新父容器。
+     * ViewHolder 复用时必须同步隐藏空容器，否则其 8dp 顶部 margin 会额外撑大消息间距。
+     */
+    private void updateMoreActionVisibility() {
+        if (sobot_chat_more_action == null) {
+            return;
+        }
+        boolean hasVisibleAction = isVisible(sobot_ll_transferBtn)
+                || isVisible(sobot_iv_bottom_likeBtn)
+                || isVisible(sobot_iv_bottom_dislikeBtn);
+        sobot_chat_more_action.setVisibility(hasVisibleAction ? View.VISIBLE : View.GONE);
+    }
+
+    private boolean isVisible(View view) {
+        return view != null && view.getVisibility() == View.VISIBLE;
     }
 
     /**

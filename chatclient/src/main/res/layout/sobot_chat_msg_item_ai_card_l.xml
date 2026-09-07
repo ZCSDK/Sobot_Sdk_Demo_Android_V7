@@ -53,10 +53,11 @@
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:minWidth="48dp"
-                app:sobot_max_width_percent="@dimen/sobot_msg_cai_card_max_width_percent"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent"
                 android:orientation="vertical">
 
-                <!--标题-->
+                <!--标题（引导语）：底部间距移交列表 marginTop 统一控制（6dp），
+                    避免与列表 marginTop 叠加导致"有引导语时间距偏大"-->
                 <com.sobot.chat.widget.SobotTextView
                     android:id="@+id/tv_title"
                     android:layout_width="match_parent"
@@ -64,16 +65,17 @@
                     android:layout_marginStart="@dimen/sobot_msg_left_right_padding_edge"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="@dimen/sobot_msg_left_right_padding_edge"
-                    android:layout_marginBottom="12dp"
                     android:orientation="vertical"
                     android:textColor="@color/sobot_color_text_first" />
 
-                <!--商品列表-->
+                <!--商品列表：走查调参——顶部 6dp（与左右一致）；底部 10dp 对齐卡片之间的
+                    可见间距（item 样式 marginTop2+marginBottom8=10dp），走查反馈原 6dp 偏小不一致-->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_goods_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
+                    android:layout_marginTop="6dp"
                     android:layout_marginEnd="6dp"
                     android:layout_marginBottom="10dp"/>
 
@@ -89,7 +91,6 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/sobot_line_height_dp"
-                        android:layout_marginTop="20dp"
                         android:background="@color/sobot_color_line_divider_3" />
 
                     <com.sobot.chat.widget.SobotTextView

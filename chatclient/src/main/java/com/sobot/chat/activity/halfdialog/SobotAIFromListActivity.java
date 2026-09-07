@@ -88,7 +88,8 @@ public class SobotAIFromListActivity extends SobotDialogBaseActivity implements 
             }
         });
         rv_list.setAdapter(mListAdapter);
-        displayInNotch(this, rv_list);
+        // rv_list 挖孔避让由基类统一处理：布局根已加 sobot_container id，
+        // 基类 initView 遍历白底层内容行挂单侧 safeInset 避让，此处无需再单独调用
 
     }
 

@@ -1,18 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sobot_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
     android:gravity="bottom"
     android:orientation="vertical">
+    <!-- sobot_container：半弹窗基类 SobotDialogBaseActivity 靠该 id 定位白底层，
+         对标题栏/rv_list/tv_nodata 内容行统一挂单侧挖孔避让；删掉此 id 内容行将失去避让 -->
 
     <com.sobot.chat.widget.SobotMHLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/sobot_dialog_title_bg"
         android:orientation="vertical"
-        android:paddingBottom="40dp"
+        android:paddingBottom="@dimen/sobot_dialog_list_padding_bottom"
         app:sobot_mhv_HeightRatio="0.9">
 
         <include

@@ -45,7 +45,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/sobot_msg_content_ll_hollow_bg_style"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                 <com.sobot.chat.widget.ReceivingLinearLayout
                     android:id="@+id/sobot_card_rll"
@@ -236,14 +237,15 @@
                     android:orientation="vertical" />
             </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
 
-            <!--横向 订单商品信息-->
-            <LinearLayout
+            <!--横向 订单商品信息（平铺模式 cardStyle==0 时显示，sobot_msg_content_ll 被GONE，本容器独立于其外，需单独限宽：横屏限最大宽度，竖屏 percent=0 不生效行为不变）-->
+            <com.sobot.chat.widget.SobotMaxSizeLinearLayout
                 android:id="@+id/ll_order_good_info_h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="56dp"
                 style="@style/sobot_msg_content_ll_hollow_bg_no_padding_style"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                app:sobot_max_width_percent="@dimen/sobot_msg_card_max_width_percent">
 
                 <com.sobot.chat.widget.image.SobotRCImageView
                     android:id="@+id/sobot_order_good_pic_h"
@@ -313,7 +315,7 @@
                     android:layout_marginBottom="15dp"
                     android:orientation="vertical"
                     android:visibility="gone" />
-            </LinearLayout>
+            </com.sobot.chat.widget.SobotMaxSizeLinearLayout>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

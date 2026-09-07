@@ -70,7 +70,7 @@ public class SobotSkillGroupActivity extends SobotDialogBaseActivity {
         sobot_tv_title = (TextView) findViewById(R.id.sobot_tv_title);
         mPressenter = StPostMsgPresenter.newInstance(SobotSkillGroupActivity.this, SobotSkillGroupActivity.this);
         sobot_rcy_skill = (RecyclerView) findViewById(R.id.rv_list);
-        displayInNotch(sobot_rcy_skill);
+        // rv_list 挖孔避让由基类统一处理（布局根 sobot_container id 已定位白底层内容行）
         sobotSkillAdapter = new SobotSkillAdapter(this, list_skill, msgFlag, new SobotRecyclerCallBack() {
             @Override
             public void onItemClickListener(View view, int position) {

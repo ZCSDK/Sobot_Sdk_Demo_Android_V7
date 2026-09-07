@@ -115,10 +115,8 @@ public class SobotDateTimeActivity extends SobotDialogBaseActivity implements Vi
             btnSubmit.setBackground(ThemeUtils.applyColorWithMultiplyMode(bg, themeColor));
         }
         btnSubmit.setTextColor(ThemeUtils.getThemeTextAndIconColor(this));
-        View dContent = findViewById(R.id.sobot_dialog_content);
-        if(dContent!=null) {
-            displayInNotch(dContent);
-        }
+        // 刘海屏/挖孔避让已由基类 SobotDialogBaseActivity 统一处理（对根容器 sobot_container 整体避让），
+        // 此处不再对内容区单独避让，避免与根容器避让叠加造成双重内缩
     }
 
     /**

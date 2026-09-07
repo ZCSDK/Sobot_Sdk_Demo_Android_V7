@@ -492,13 +492,19 @@ public class CusEvaluateMessageHolder extends MsgHolderBase implements View.OnCl
             //0-满意，1-不满意，2-不选中
             if (mSatisfactionSet.getDefaultType() == 0) {
                 score = 5;
-
+                iv_satisfied.getLayoutParams().width = ScreenUtils.dip2px(mContext, 43);
+                iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 43);
+                iv_dissatisfied.getLayoutParams().width = ScreenUtils.dip2px(mContext, 35);
+                iv_dissatisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);
                 iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_sel);
                 iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_def);
 
             } else if (mSatisfactionSet.getDefaultType() == 1) {
                 score = 1;
-
+                iv_satisfied.getLayoutParams().width = ScreenUtils.dip2px(mContext, 35);
+                iv_satisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 35);
+                iv_dissatisfied.getLayoutParams().width = ScreenUtils.dip2px(mContext, 43);
+                iv_dissatisfied.getLayoutParams().height = ScreenUtils.dip2px(mContext, 43);
                 iv_satisfied.setImageResource(R.drawable.sobot_icon_manyi_def);
                 iv_dissatisfied.setImageResource(R.drawable.sobot_icon_no_manyi_sel);
 

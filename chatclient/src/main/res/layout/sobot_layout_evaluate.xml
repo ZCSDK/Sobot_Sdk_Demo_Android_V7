@@ -19,6 +19,7 @@
         app:sobot_mhv_HeightRatio="0.9">
 
         <LinearLayout
+            android:id="@+id/ll_title_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -331,7 +332,10 @@
             </LinearLayout>
         </ScrollView>
 
+        <!--底部按钮行（提交+暂不评价）：sobot_relative 的兄弟节点，挖孔避让需单独覆盖，
+            id 供评价 Activity 调 displayInNotchSingleSide 用，删掉 id 提交按钮将失去避让-->
         <LinearLayout
+            android:id="@+id/sobot_ll_evaluate_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

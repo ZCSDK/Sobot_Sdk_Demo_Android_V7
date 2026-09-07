@@ -33,8 +33,7 @@
             android:id="@+id/rv_function_popup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/sobot_chat_bottom_panel_popup_grid_h_padding"
-            android:paddingEnd="@dimen/sobot_chat_bottom_panel_popup_grid_h_padding"
+            android:layout_marginTop="@dimen/sobot_chat_bottom_panel_popup_function_margin_top"
             android:scrollbars="none"
             android:visibility="gone" />
 

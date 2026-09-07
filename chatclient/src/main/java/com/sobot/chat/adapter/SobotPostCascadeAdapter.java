@@ -125,7 +125,7 @@ public class SobotPostCascadeAdapter extends SobotBaseAdapter<SobotCusFieldDataI
             mActivity = activity;
             categoryTitle = (TextView) view.findViewById(R.id.work_order_category_title);
             categoryIshave = (ImageView) view.findViewById(R.id.work_order_category_ishave);
-            displayInNotch(categoryTitle);
+            // 挖孔避让由宿主弹窗基类统一处理（白色背景层整体内缩），item 内不再单独避让（避免叠加错位）
         }
 
         public void displayInNotch(final View view) {

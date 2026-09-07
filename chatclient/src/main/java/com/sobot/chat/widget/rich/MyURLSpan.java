@@ -27,12 +27,20 @@ public class MyURLSpan extends URLSpan {
     public MyURLSpan(Context context, String url, int color, boolean isShowLine) {
         super(url);
         this.context = context;
-        try {
+        if (isColorResource(color)) {
             this.color = context.getResources().getColor(color);
-        } catch (Exception e) {
+        } else {
             this.color = color;
         }
         this.isShowLine = isShowLine;
+    }
+
+    /**
+     * 区分 Android 资源 ID 与服务端下发的 ARGB 色值，避免把 0xffxxxxxx 当资源查询。
+     */
+    private static boolean isColorResource(int color) {
+        int packageId = color >>> 24;
+        return packageId == 0x01 || packageId == 0x7f;
     }
 
 

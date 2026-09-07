@@ -12,20 +12,13 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         tools:ignore="UseCompoundDrawables">
-
-        <!-- 左侧占位：与右侧关闭按钮(36dp) + marginEnd(12dp) 等宽，保证标题视觉居中 -->
-        <Space
-            android:layout_width="48dp"
-            android:layout_height="wrap_content" />
-
-        <!-- 标题 -->
+        <!-- 标题：居左显示，与竖屏/Pad 档保持一致 -->
         <TextView
             android:id="@+id/sobot_tv_title"
             style="@style/sobot_dialog_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center" />
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/iv_closes"

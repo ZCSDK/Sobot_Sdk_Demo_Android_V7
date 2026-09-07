@@ -237,7 +237,7 @@
     <string name="sobot_re_write">重新填寫資訊</string>
     <string name="sobot_str_please_check_is_solve">請選擇是否解决了您的問題</string>
     <string name="sobot_evaluate_lab">標籤</string>
-    <string name="sobot_evaluate_issolve">是否解决</string>
+    <string name="sobot_evaluate_issolve">是否解決</string>
     <string name="sobot_str_appoint">引用</string>
     <string name="sobot_str_my">我</string>
     <string name="sobot_str_robot">機器人</string>
